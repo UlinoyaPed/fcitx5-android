@@ -44,6 +44,17 @@ class AutoScaleTextView @JvmOverloads constructor(
 
     var scaleMode = Mode.None
 
+    /** Measure and align visible glyphs, without font leading, for labels at key edges. */
+    internal var useGlyphBounds = false
+        set(value) {
+            if (field == value) return
+            field = value
+            needsMeasureText = true
+            needsCalculateTransform = true
+            requestLayout()
+            invalidate()
+        }
+
     private lateinit var text: String
 
     private var needsMeasureText = true
@@ -116,7 +127,8 @@ class AutoScaleTextView @JvmOverloads constructor(
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
         val width = measureTextBounds().width() + paddingLeft + paddingRight
-        val height = ceil(fontMetrics.bottom - fontMetrics.top + paddingTop + paddingBottom).toInt()
+        val textHeight = if (useGlyphBounds) textBounds.height().toFloat() else fontMetrics.bottom - fontMetrics.top
+        val height = ceil(textHeight + paddingTop + paddingBottom).toInt()
         val maxHeight = if (maxHeight >= 0) maxHeight else Int.MAX_VALUE
         val maxWidth = if (maxWidth >= 0) maxWidth else Int.MAX_VALUE
         setMeasuredDimension(
@@ -136,7 +148,7 @@ class AutoScaleTextView @JvmOverloads constructor(
             val paint = paint
             paint.getFontMetrics(fontMetrics)
             val codePointCount = Character.codePointCount(text, 0, text.length)
-            if (codePointCount == 1) {
+            if (codePointCount == 1 || useGlyphBounds) {
                 // use actual text bounds when there is only one "character",
                 // eg. full-width punctuation
                 paint.getTextBounds(text, 0, text.length, textBounds)
@@ -166,8 +178,8 @@ class AutoScaleTextView @JvmOverloads constructor(
         measureTextBounds()
         val textLeft: Float = textBounds.left.toFloat()
         val textWidth: Float = textBounds.width().toFloat()
-        val textTop: Float = fontMetrics.top
-        val textHeight: Float = fontMetrics.bottom - fontMetrics.top
+        val textTop = if (useGlyphBounds) textBounds.top.toFloat() else fontMetrics.top
+        val textHeight = if (useGlyphBounds) textBounds.height().toFloat() else fontMetrics.bottom - fontMetrics.top
 
         val widthScaleLimit = if (textWidth > 0f && contentWidth > 0) {
             contentWidth.toFloat() / textWidth

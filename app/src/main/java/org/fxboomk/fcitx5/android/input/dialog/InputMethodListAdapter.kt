@@ -4,6 +4,7 @@
  */
 package org.fxboomk.fcitx5.android.input.dialog
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
@@ -22,17 +23,27 @@ class InputMethodListAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val ime = entries[position]
+        val isChild = ime.rimeSchemaActionId != null
+        val nextIsChild = entries.getOrNull(position + 1)?.rimeSchemaActionId != null
+        holder.ui.setHierarchy(
+            isChild = isChild,
+            isLastChild = isChild && !nextIsChild,
+            isParent = !isChild && nextIsChild
+        )
         holder.ui.root.apply {
             holder.ui.setActivated(position == enabledIndex)
             holder.ui.title.text = ime.name
             holder.ui.subtitle.text = ime.secondaryName
+            holder.ui.subtitle.visibility = if ((isChild || nextIsChild) && ime.secondaryName == null) View.GONE else View.VISIBLE
             val lp = layoutParams as? ViewGroup.MarginLayoutParams
             lp?.let {
                 it.topMargin = if (ime.secondaryName == null) 0 else it.topMargin
                 it.bottomMargin = if (ime.secondaryName == null) 0 else it.bottomMargin
                 layoutParams = it
             }
-            setOnClickListener { onEntryClick(ime) }
+            setOnClickListener(if (ime.isGroupHeader) null else View.OnClickListener { onEntryClick(ime) })
+            isClickable = !ime.isGroupHeader
+            isFocusable = !ime.isGroupHeader
         }
     }
 

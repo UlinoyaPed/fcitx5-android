@@ -6,7 +6,10 @@ package org.fxboomk.fcitx5.android.input.dialog
 
 import android.content.Context
 import android.view.inputmethod.InputMethodSubtype
+import org.fxboomk.fcitx5.android.core.Action
 import org.fxboomk.fcitx5.android.core.FcitxAPI
+import org.fxboomk.fcitx5.android.core.InputMethodEntry
+import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchLongPressBehavior
 import org.fxboomk.fcitx5.android.utils.inputMethodManager
 
 data class InputMethodData(
@@ -15,15 +18,20 @@ data class InputMethodData(
     val ime: Boolean,
     val secondaryName: String? = null,
     val imeId: String? = null,
-    val subtype: InputMethodSubtype? = null
+    val subtype: InputMethodSubtype? = null,
+    val rimeSchemaActionId: Int? = null,
+    val isGroupHeader: Boolean = false
 ) {
     companion object {
-        suspend fun resolve(fcitx: FcitxAPI, context: Context): List<InputMethodData> {
-            val imm = context.inputMethodManager
-            val enabled = fcitx.enabledIme()
-                .map { InputMethodData(it.uniqueName, it.displayName, false) }
-                .toMutableList()
+        suspend fun resolve(
+            fcitx: FcitxAPI,
+            context: Context,
+            behavior: LangSwitchLongPressBehavior = LangSwitchLongPressBehavior.Default
+        ): List<InputMethodData> {
+            val enabled = resolveInternal(fcitx, behavior).toMutableList()
+            if (behavior != LangSwitchLongPressBehavior.Default) return enabled
 
+            val imm = context.inputMethodManager
             enabled += imm.enabledInputMethodList
                 .filter { it.packageName != context.packageName }
                 .flatMap { imi ->
@@ -50,6 +58,49 @@ data class InputMethodData(
                     }
                 }
             return enabled.toList()
+        }
+
+        internal suspend fun resolveInternal(
+            fcitx: FcitxAPI,
+            behavior: LangSwitchLongPressBehavior
+        ): List<InputMethodData> {
+            val enabled = fcitx.enabledIme()
+            val rime = if (behavior.includesRimeSchemas) {
+                fcitx.availableIme().firstOrNull { it.addon == "rime" }
+            } else null
+            val schemas = if (rime != null) fcitx.rimeSchemaActions() else emptyArray()
+            return internalEntries(enabled, schemas, behavior, rime)
+        }
+
+        internal fun internalEntries(
+            enabled: Array<InputMethodEntry>,
+            schemas: Array<Action>,
+            behavior: LangSwitchLongPressBehavior,
+            rime: InputMethodEntry? = enabled.firstOrNull { it.addon == "rime" }
+        ): List<InputMethodData> = buildList {
+            val schemaEntries = if (behavior.includesRimeSchemas && rime != null) {
+                schemas.map {
+                    InputMethodData(
+                        uniqueName = "rime-schema:${it.id}",
+                        name = it.shortText,
+                        ime = false,
+                        rimeSchemaActionId = it.id
+                    )
+                }
+            } else emptyList()
+            val enabledRime = enabled.firstOrNull { it.addon == "rime" }
+            if (behavior != LangSwitchLongPressBehavior.RimeOnly) {
+                enabled.forEach {
+                    add(InputMethodData(it.uniqueName, it.displayName, false))
+                    if (it == enabledRime) addAll(schemaEntries)
+                }
+            }
+            if (rime != null && schemaEntries.isNotEmpty() &&
+                (behavior == LangSwitchLongPressBehavior.RimeOnly || enabledRime == null)) {
+                // A grouping row is not an extra selectable engine in schema-only mode.
+                add(InputMethodData("rime-schemas", rime.displayName, false, isGroupHeader = true))
+                addAll(schemaEntries)
+            }
         }
     }
 }

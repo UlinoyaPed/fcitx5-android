@@ -45,7 +45,16 @@ object FcitxDaemon {
     private val realFcitx by lazy { Fcitx(appContext) }
 
     // don't leak fcitx instance
-    private val fcitxImpl by lazy { object : FcitxAPI by realFcitx {} }
+    private val fcitxImpl by lazy {
+        object : FcitxAPI by realFcitx {
+            // Keep these forwards explicit: incremental builds can retain the
+            // old anonymous delegate when methods are added to FcitxAPI.
+            override suspend fun rimeSchemaActions() = realFcitx.rimeSchemaActions()
+
+            override suspend fun activateRimeSchemaAction(id: Int) =
+                realFcitx.activateRimeSchemaAction(id)
+        }
+    }
 
     private fun mkConnection(name: String) = object : FcitxConnection {
 

@@ -7,11 +7,13 @@ package org.fxboomk.fcitx5.android.input.dialog
 import android.app.AlertDialog
 import android.content.Context
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.input.FcitxInputMethodService
+import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchLongPressBehavior
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
 import splitties.dimensions.dp
@@ -26,9 +28,24 @@ object InputMethodPickerDialog {
     suspend fun build(
         fcitx: FcitxAPI,
         service: FcitxInputMethodService,
-        context: Context
+        context: Context,
+        behavior: LangSwitchLongPressBehavior = LangSwitchLongPressBehavior.Default
     ): AlertDialog {
-        val entries = InputMethodData.resolve(fcitx, service)
+        val entries = InputMethodData.resolve(fcitx, service, behavior)
+        if (entries.isEmpty()) {
+            return AlertDialog.Builder(context)
+                .setTitle(R.string.choose_input_method)
+                .setMessage(if (behavior == LangSwitchLongPressBehavior.RimeOnly) {
+                    R.string.rime_schemas_unavailable
+                } else {
+                    R.string.no_more_input_methods
+                })
+                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton(R.string.input_methods) { _, _ ->
+                    AppUtil.launchMainToInputMethodList(context)
+                }
+                .create()
+        }
         val enabledIM = fcitx.inputMethodEntryCached.uniqueName
         val enabledIndex = entries.indexOfFirst { it.uniqueName == enabledIM }
         val dividerIndex = entries.indexOfFirst { it.ime }
@@ -44,7 +61,13 @@ object InputMethodPickerDialog {
                 setPadding(dp(30), dp(0), dp(30), dp(4))
                 layoutManager = verticalLayoutManager()
                 adapter = InputMethodListAdapter(entries, enabledIndex) {
-                    if (it.ime) {
+                    if (it.rimeSchemaActionId != null) {
+                        service.lifecycleScope.launch {
+                            if (!fcitx.activateRimeSchemaAction(it.rimeSchemaActionId)) {
+                                Toast.makeText(context, R.string.rime_schema_switch_failed, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else if (it.ime) {
                         val imeId = it.imeId ?: return@InputMethodListAdapter
                         val subtype = it.subtype
                         if (subtype != null) {

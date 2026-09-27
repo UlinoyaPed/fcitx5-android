@@ -307,6 +307,13 @@
     <string name="expand_keypress_area">キー範囲を端まで拡張</string>
     <string name="update_table">Tableの更新</string>
     <string name="table_dict_replace_message">Tableの辞書\"%1$s\"は存在します。新しい辞書をインポートして置き換えることができます。</string>
+    <string name="lang_switch_key_long_press_behavior">言語キーの長押し動作</string>
+    <string name="lang_switch_long_press_default">デフォルト（外部入力メソッドを含む）</string>
+    <string name="lang_switch_long_press_builtin_and_rime">内蔵入力メソッドとRimeスキーマ</string>
+    <string name="lang_switch_long_press_builtin_only">有効な内蔵入力メソッドのみ</string>
+    <string name="lang_switch_long_press_rime_only">Rimeスキーマのみ</string>
+    <string name="rime_schemas_unavailable">利用可能なRimeスキーマがありません。Rimeプラグインをインストールして有効にし、スキーマのデプロイを完了してください。</string>
+    <string name="rime_schema_switch_failed">Rimeスキーマを切り替えられませんでした。「入力メソッド」でRimeを有効にし、デプロイ完了後にメニューを開き直してください。</string>
     <string name="lang_switch_key_behavior">言語切り替えキーの動作</string>
     <string name="lang_switch_behavior_next_ime_app">次のインプットメゾッドアプリに切り替える</string>
     <string name="_cannot_be_empty">%1$s を空にできません</string>

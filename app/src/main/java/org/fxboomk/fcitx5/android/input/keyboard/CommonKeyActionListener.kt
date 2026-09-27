@@ -79,6 +79,7 @@ class CommonKeyActionListener :
     private val predictionSpaceBehavior by kbdPrefs.predictionSpaceBehavior
     private val predictionBackspaceBehavior by kbdPrefs.predictionBackspaceBehavior
     private val langSwitchKeyBehavior by kbdPrefs.langSwitchKeyBehavior
+    private val langSwitchKeyLongPressBehavior by kbdPrefs.langSwitchKeyLongPressBehavior
     private val preferredVoiceInput by kbdPrefs.preferredVoiceInput
     private val floatingCandidatesMode by AppPrefs.getInstance().candidates.mode
     private val spaceSwipeVerticalBehavior by kbdPrefs.spaceSwipeVerticalBehavior
@@ -156,10 +157,12 @@ class CommonKeyActionListener :
         reset()
     }
 
-    private fun showInputMethodPicker() {
+    private fun showInputMethodPicker(
+        behavior: LangSwitchLongPressBehavior = LangSwitchLongPressBehavior.Default
+    ) {
         fcitx.launchOnReady {
             service.lifecycleScope.launch {
-                service.showDialog(InputMethodPickerDialog.build(it, service, context))
+                service.showDialog(InputMethodPickerDialog.build(it, service, context, behavior))
             }
         }
     }
@@ -311,7 +314,7 @@ class CommonKeyActionListener :
                         }
                     }
                 }
-                is ShowInputMethodPickerAction -> showInputMethodPicker()
+                is ShowInputMethodPickerAction -> showInputMethodPicker(langSwitchKeyLongPressBehavior)
                 is MoveSelectionAction -> {
                     when (backspaceSwipeState) {
                         Stopped -> {

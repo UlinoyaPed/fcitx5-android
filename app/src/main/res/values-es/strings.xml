@@ -642,6 +642,13 @@
     <string name="physical_keyboard_horizontal_candidate_bar">Mantener barra de herramientas/candidatos con teclado fisico</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">Mantener la barra de herramientas y la barra horizontal de candidatos abajo al escribir con un teclado fisico</string>
     <string name="lang_switch_behavior_next_ime_app">Cambiar a la siguiente app de metodo de entrada</string>
+    <string name="lang_switch_key_long_press_behavior">Acción al mantener pulsada la tecla de idioma</string>
+    <string name="lang_switch_long_press_default">Predeterminado (incluye métodos de entrada externos)</string>
+    <string name="lang_switch_long_press_builtin_and_rime">Métodos de entrada integrados y esquemas de Rime</string>
+    <string name="lang_switch_long_press_builtin_only">Solo métodos de entrada integrados activados</string>
+    <string name="lang_switch_long_press_rime_only">Solo esquemas de Rime</string>
+    <string name="rime_schemas_unavailable">No hay esquemas de Rime disponibles. Instala y activa el complemento de Rime y completa la implementación de los esquemas.</string>
+    <string name="rime_schema_switch_failed">No se pudo cambiar el esquema de Rime. Activa Rime en Métodos de entrada y vuelve a abrir el menú cuando termine la implementación.</string>
     <string name="lang_switch_key_behavior">Comportamiento de tecla de cambio de idioma</string>
     <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
     <string name="missing_data_descriptor">Falta descriptor de datos</string>

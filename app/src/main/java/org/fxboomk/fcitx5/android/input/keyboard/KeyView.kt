@@ -696,6 +696,7 @@ class AltTextKeyView(
         "key_alt_font", 10.666667f
     )
     private var lastLayoutMode: AltTextLayoutMode? = null
+    private var lastLayoutHeight = -1
 
     /**
      * The base-class `def` is typed as the generic [KeyDef.Appearance];
@@ -877,11 +878,12 @@ class AltTextKeyView(
     }
 
     /**
-     * Main text stays centered for the full key height while [topLabel] and [bottomLabel]
-     * overlay the top and bottom edges. Also backs the legacy TopBottom layout.
+     * Uppercase/punctuation pairs reserve a separate center region for the main label.
+     * Legacy pairs keep their existing overlay layout.
      */
     private fun applyVerticalPairAltTextPosition(topLabel: AutoScaleTextView, bottomLabel: AutoScaleTextView) {
         applyMainTextCenterPosition()
+        val separateMainText = topLabel === upperText || bottomLabel === upperText
         topLabel.visibility = View.VISIBLE
         topLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
@@ -907,10 +909,23 @@ class AltTextKeyView(
             rightToRight = parentId
             rightMargin = hMargin
             bottomToBottom = parentId
-            bottomMargin = vMargin + dp(2)
+            bottomMargin = vMargin + if (separateMainText) cornerLabelTopSafeInset else dp(2)
         }
         bottomLabel.setPadding(hMargin, 0, hMargin, 0)
         bottomLabel.gravity = Gravity.CENTER
+        if (separateMainText) {
+            topLabel.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            bottomLabel.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                height = 0
+                topToTop = unset
+                bottomToBottom = unset
+                topToBottom = topLabel.existingOrNewId
+                bottomToTop = bottomLabel.existingOrNewId
+                topMargin = dp(2)
+                bottomMargin = dp(2)
+            }
+        }
     }
 
     private fun applyCornerPairAltTextPosition(top: Boolean, secondLabel: AutoScaleTextView = altText1) {
@@ -1221,7 +1236,11 @@ class AltTextKeyView(
 
         return when (preferred) {
             AltTextLayoutMode.UpperTopPunctBottom,
-            AltTextLayoutMode.PunctTopUpperBottom,
+            AltTextLayoutMode.PunctTopUpperBottom -> when {
+                // All three labels can scale inside their own regions on short rows.
+                contentHeight >= cornerLabelTopSafeInset * 2 + dp(4) + 3 -> preferred
+                else -> resolvePunctuationLayoutMode(keyHeight)
+            }
             AltTextLayoutMode.PunctTopRightUpperBottom,
             AltTextLayoutMode.PunctUpperTopCorners,
             AltTextLayoutMode.PunctUpperBottomCorners,
@@ -1310,8 +1329,28 @@ class AltTextKeyView(
     private fun applyLayout(keyHeight: Int = appearanceView.height) {
         syncUppercaseText()
         val mode = resolveLayoutMode(keyHeight)
-        if (mode == lastLayoutMode) return
+        if (mode == lastLayoutMode && keyHeight == lastLayoutHeight) return
         lastLayoutMode = mode
+        lastLayoutHeight = keyHeight
+        val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
+                mode == AltTextLayoutMode.PunctTopUpperBottom
+        val labelMaxHeight = if (separateMainText && keyHeight > 0) {
+            // Reserve at least a third of the usable height for the main label.
+            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
+                .coerceAtLeast(1)
+        } else {
+            Int.MAX_VALUE
+        }
+        altText.useGlyphBounds = separateMainText
+        upperText.useGlyphBounds = separateMainText
+        altText.maxHeight = labelMaxHeight
+        upperText.maxHeight = labelMaxHeight
+        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = wrapContent
+            topToBottom = unset
+            topMargin = 0
+            bottomMargin = 0
+        }
         when (mode) {
             AltTextLayoutMode.TopBottom -> {
                 applyVerticalPairAltTextPosition(altText, altText1)

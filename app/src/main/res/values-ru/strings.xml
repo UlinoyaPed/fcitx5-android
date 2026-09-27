@@ -314,6 +314,13 @@
     <string name="expand_keypress_area">Расширить область клавиш до края</string>
     <string name="update_table">Обновить таблицу</string>
     <string name="table_dict_replace_message">Словарь кодовой таблицы \"%1$s\" существует. Вы можете импортировать новый словарь и заменить его.</string>
+    <string name="lang_switch_key_long_press_behavior">Действие при долгом нажатии клавиши языка</string>
+    <string name="lang_switch_long_press_default">По умолчанию (включая внешние методы ввода)</string>
+    <string name="lang_switch_long_press_builtin_and_rime">Встроенные методы ввода и схемы Rime</string>
+    <string name="lang_switch_long_press_builtin_only">Только включённые встроенные методы ввода</string>
+    <string name="lang_switch_long_press_rime_only">Только схемы Rime</string>
+    <string name="rime_schemas_unavailable">Нет доступных схем Rime. Установите и включите плагин Rime, затем завершите развёртывание схем.</string>
+    <string name="rime_schema_switch_failed">Не удалось переключить схему Rime. Включите Rime в настройках методов ввода и снова откройте меню после завершения развёртывания.</string>
     <string name="lang_switch_key_behavior">Поведение клавиши переключения языка</string>
     <string name="lang_switch_behavior_next_ime_app">Переключиться на следующий метод ввода</string>
     <string name="_cannot_be_empty">%1$s не может быть пустым</string>

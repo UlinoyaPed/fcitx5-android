@@ -9,6 +9,7 @@
 #include <memory>
 #include <future>
 #include <fstream>
+#include <unordered_map>
 
 #include <android/log.h>
 
@@ -448,6 +449,115 @@ public:
         action->activate(ic);
     }
 
+    std::vector<fcitx::Action *> rimeSchemaMenuActions(fcitx::InputContext *ic) {
+        if (!ic) return {};
+        // availableInputMethods also checks the user's enabled/disabled addons.
+        bool available = false;
+        for (const auto *entry: availableInputMethods()) {
+            if (entry->addon() == "rime") {
+                available = true;
+                break;
+            }
+        }
+        if (!available || !p_instance->addonManager().addon("rime", true)) return {};
+
+        auto *root = p_instance->userInterfaceManager().lookupAction("fcitx-rime-im");
+        if (!root || !root->menu()) return {};
+        // The plugin may retain its previous menu while deploying. Its status
+        // action exposes an empty/disabled status until a session is available.
+        const auto status = root->shortText(ic);
+        if (status.empty() || status == "\xe2\x8c\x9b" ||
+            root->icon(ic) == "fcitx_rime_disabled") return {};
+
+        std::vector<fcitx::Action *> actions;
+        bool skipLatinMode = true;
+        for (auto *action: root->menu()->actions()) {
+            // Rime's menu is Latin Mode, schemas, separator, maintenance actions.
+            if (action->isSeparator()) return actions;
+            if (skipLatinMode) {
+                skipLatinMode = false;
+                continue;
+            }
+            actions.push_back(action);
+        }
+        // Do not expose unknown plugin menu layouts as selectable schemas.
+        return {};
+    }
+
+    std::vector<ActionEntity> rimeSchemaActions() {
+        std::vector<ActionEntity> actions;
+        rimeSchemaActionLifetimes.clear();
+        auto *ic = p_frontend->call<fcitx::IAndroidFrontend::activeInputContext>();
+        for (auto *action: rimeSchemaMenuActions(ic)) {
+            actions.emplace_back(action, ic);
+            rimeSchemaActionLifetimes.emplace(
+                    action->id(), action->connect<fcitx::ObjectDestroyed>([](void *) {}));
+        }
+        return actions;
+    }
+
+    bool activateRimeSchemaAction(int id) {
+        auto *ic = p_frontend->call<fcitx::IAndroidFrontend::activeInputContext>();
+        if (!ic) return false;
+        const auto lifetime = rimeSchemaActionLifetimes.find(id);
+        // Fcitx recycles action IDs. A surviving connection proves this is the
+        // same action that was listed, even if Rime redeployed in the meantime.
+        if (lifetime == rimeSchemaActionLifetimes.end() ||
+            !lifetime->second.connected()) return false;
+        // Validate the current schema menu before changing the group or engine:
+        // stale action IDs must never activate a maintenance action.
+        fcitx::Action *schema = nullptr;
+        for (auto *action: rimeSchemaMenuActions(ic)) {
+            if (action->id() == id) {
+                schema = action;
+                break;
+            }
+        }
+        if (!schema) return false;
+        std::string rimeName;
+        for (const auto *entry: listInputMethods()) {
+            if (entry->addon() == "rime") {
+                rimeName = entry->uniqueName();
+                break;
+            }
+        }
+        auto &imManager = p_instance->inputMethodManager();
+        if (rimeName.empty()) {
+            for (const auto *entry: availableInputMethods()) {
+                if (entry->addon() == "rime") {
+                    rimeName = entry->uniqueName();
+                    break;
+                }
+            }
+            if (rimeName.empty() || !lifetime->second.connected()) return false;
+            // Selecting a schema explicitly enables its installed engine in the
+            // current group. Copy the group to retain its order and layouts.
+            auto group = imManager.currentGroup();
+            group.inputMethodList().emplace_back(rimeName);
+            imManager.setGroup(std::move(group));
+            imManager.save();
+            // Group notifications can rebuild actions before we switch engines.
+            if (!lifetime->second.connected()) return false;
+        }
+        if (p_instance->inputMethod(ic) != rimeName &&
+            imManager.currentGroup().inputMethodList().size() < 2) {
+            return false;
+        }
+        setInputMethod(rimeName);
+        const auto *entry = p_instance->inputMethodEntry(ic);
+        if (!entry || entry->uniqueName() != rimeName) return false;
+        // Switching engines can update the menu; resolve the ID again before use.
+        for (auto *action: rimeSchemaMenuActions(ic)) {
+            if (action->id() == id && lifetime->second.connected()) {
+                const auto schemaName = action->shortText(ic);
+                action->activate(ic);
+                auto *root = p_instance->userInterfaceManager().lookupAction("fcitx-rime-im");
+                return root && root->longText(ic) == schemaName;
+            }
+        }
+        return false;
+    }
+
     std::vector<CandidateEntity> getCandidates(int offset, int limit) {
         return p_frontend->call<fcitx::IAndroidFrontend::getCandidates>(offset, limit);
     }
@@ -517,6 +627,7 @@ public:
     }
 
 private:
+    std::unordered_map<int, fcitx::ScopedConnection> rimeSchemaActionLifetimes;
     std::unique_ptr<fcitx::Instance> p_instance;
     std::unique_ptr<fcitx::EventDispatcher> p_dispatcher;
     fcitx::AddonInstance *p_frontend = nullptr;
@@ -1121,6 +1232,37 @@ JNIEXPORT void JNICALL
 Java_org_fxboomk_fcitx5_android_core_Fcitx_activateUserInterfaceAction(JNIEnv *env, jclass clazz, jint id) {
     RETURN_IF_NOT_RUNNING
     Fcitx::Instance().activateAction(static_cast<int>(id));
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_org_fxboomk_fcitx5_android_core_Fcitx_getFcitxRimeSchemaActions(JNIEnv *env, jclass clazz) {
+    RETURN_VALUE_IF_NOT_RUNNING(nullptr)
+    try {
+        const auto actions = Fcitx::Instance().rimeSchemaActions();
+        const auto size = static_cast<int>(actions.size());
+        jobjectArray array = env->NewObjectArray(size, GlobalRef->Action, nullptr);
+        for (int i = 0; i < size; i++) {
+            auto obj = JRef(env, fcitxActionToJObject(env, actions[i]));
+            env->SetObjectArrayElement(array, i, obj);
+        }
+        return array;
+    } catch (const std::exception &e) {
+        FCITX_WARN() << "Failed to list Rime schemas: " << e.what();
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_org_fxboomk_fcitx5_android_core_Fcitx_activateFcitxRimeSchemaAction(JNIEnv *env, jclass clazz, jint id) {
+    RETURN_VALUE_IF_NOT_RUNNING(false)
+    try {
+        return Fcitx::Instance().activateRimeSchemaAction(static_cast<int>(id));
+    } catch (const std::exception &e) {
+        FCITX_WARN() << "Failed to activate Rime schema: " << e.what();
+        return false;
+    }
 }
 
 extern "C"

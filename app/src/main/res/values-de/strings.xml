@@ -678,6 +678,13 @@
     <string name="physical_keyboard_horizontal_candidate_bar">Werkzeug-/Kandidatenleiste bei Hardwaretastatur beibehalten</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">Werkzeugleiste und horizontale Kandidatenleiste beim Tippen mit Hardwaretastatur unten beibehalten</string>
     <string name="lang_switch_behavior_next_ime_app">Zur nächsten Eingabemethoden-App wechseln</string>
+    <string name="lang_switch_key_long_press_behavior">Verhalten bei langem Drücken der Sprachtaste</string>
+    <string name="lang_switch_long_press_default">Standard (einschließlich externer Eingabemethoden)</string>
+    <string name="lang_switch_long_press_builtin_and_rime">Integrierte Eingabemethoden und Rime-Schemata</string>
+    <string name="lang_switch_long_press_builtin_only">Nur aktivierte integrierte Eingabemethoden</string>
+    <string name="lang_switch_long_press_rime_only">Nur Rime-Schemata</string>
+    <string name="rime_schemas_unavailable">Keine Rime-Schemata verfügbar. Installieren und aktivieren Sie das Rime-Plugin und schließen Sie die Bereitstellung der Schemata ab.</string>
+    <string name="rime_schema_switch_failed">Rime-Schema konnte nicht gewechselt werden. Aktivieren Sie Rime unter Eingabemethoden und öffnen Sie das Menü nach Abschluss der Bereitstellung erneut.</string>
     <string name="lang_switch_key_behavior">Verhalten der Sprachumschalttaste</string>
     <string name="macro_editor_key_event_unmatched">Tastenereignisse stimmen nicht überein: %1$s hat ungleiche Anzahl von Drücken und Loslassen</string>
     <string name="main_program">Hauptprogramm</string>

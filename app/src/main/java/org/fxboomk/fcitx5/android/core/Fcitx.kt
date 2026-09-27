@@ -184,6 +184,12 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun activateAction(id: Int) =
         withFcitxContext { activateUserInterfaceAction(id) }
 
+    override suspend fun rimeSchemaActions(): Array<Action> =
+        withFcitxContext { getFcitxRimeSchemaActions() ?: emptyArray() }
+
+    override suspend fun activateRimeSchemaAction(id: Int): Boolean =
+        withFcitxContext { activateFcitxRimeSchemaAction(id) }
+
     override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> =
         withFcitxContext { getFcitxCandidates(offset, limit) ?: emptyArray() }
 
@@ -373,6 +379,12 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
         @JvmStatic
         external fun activateUserInterfaceAction(id: Int)
+
+        @JvmStatic
+        external fun getFcitxRimeSchemaActions(): Array<Action>?
+
+        @JvmStatic
+        external fun activateFcitxRimeSchemaAction(id: Int): Boolean
 
         @JvmStatic
         external fun getFcitxCandidates(offset: Int, limit: Int): Array<CandidateWord>?

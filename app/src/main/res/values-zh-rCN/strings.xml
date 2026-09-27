@@ -483,6 +483,13 @@
     <string name="expand_keypress_area">按键范围扩展至边缘</string>
     <string name="update_table">更新码表</string>
     <string name="table_dict_replace_message">码表词典 \"%1$s\" 已存在。您可以导入新词典并替换它。</string>
+    <string name="lang_switch_key_long_press_behavior">语言键长按行为</string>
+    <string name="lang_switch_long_press_default">默认（含外部输入法）</string>
+    <string name="lang_switch_long_press_builtin_and_rime">内置输入法及中州韵方案</string>
+    <string name="lang_switch_long_press_builtin_only">仅已启用的内置输入法</string>
+    <string name="lang_switch_long_press_rime_only">仅中州韵输入方案</string>
+    <string name="rime_schemas_unavailable">暂无可用的中州韵方案。请安装并启用中州韵插件，完成方案部署后重试。</string>
+    <string name="rime_schema_switch_failed">无法切换中州韵方案。请在「输入法」中启用中州韵，并在部署完成后重新打开菜单。</string>
     <string name="lang_switch_key_behavior">语言切换键行为</string>
     <string name="lang_switch_behavior_next_ime_app">切换至下一个输入法应用</string>
     <string name="_cannot_be_empty">%1$s不能为空</string>

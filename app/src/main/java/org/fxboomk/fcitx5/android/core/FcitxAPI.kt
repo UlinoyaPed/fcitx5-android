@@ -110,6 +110,16 @@ interface FcitxAPI {
 
     suspend fun activateAction(id: Int)
 
+    /** Registered Rime schemas, without switching the current input method. */
+    suspend fun rimeSchemaActions(): Array<Action>
+
+    /**
+     * Activate a still-valid action from [rimeSchemaActions], switching to Rime.
+     * An installed, available Rime engine is appended to the current group if
+     * needed. Disabled addons remain disabled.
+     */
+    suspend fun activateRimeSchemaAction(id: Int): Boolean
+
     suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord>
 
     suspend fun getCandidateActions(idx: Int): Array<CandidateAction>

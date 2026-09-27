@@ -6,16 +6,21 @@ package org.fxboomk.fcitx5.android.input.dialog
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.text.TextUtils
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
 import androidx.core.widget.TextViewCompat
 import org.fxboomk.fcitx5.android.utils.alpha
 import splitties.dimensions.dp
@@ -59,6 +64,13 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         )
     }
 
+    private val titleTypeface = title.typeface
+
+    internal val treeBranch = InputMethodTreeBranchView(ctx).apply {
+        visibility = View.GONE
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+    }
+
     override val root = LinearLayout(ctx).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
@@ -81,6 +93,7 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         isClickable = true
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
+        addView(treeBranch, LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.MATCH_PARENT))
         addView(
             LinearLayout(ctx).apply {
                 orientation = LinearLayout.VERTICAL
@@ -98,9 +111,41 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         )
     }
 
+    fun setHierarchy(isChild: Boolean, isLastChild: Boolean, isParent: Boolean) {
+        treeBranch.visibility = if (isChild) View.VISIBLE else View.GONE
+        treeBranch.isLastChild = isLastChild
+        val verticalPadding = if (isChild) 0 else ctx.dp(5)
+        root.setPaddingRelative(ctx.dp(8), verticalPadding, ctx.dp(8), verticalPadding)
+        title.typeface = if (isParent) Typeface.create(titleTypeface, Typeface.BOLD) else titleTypeface
+        ViewCompat.setAccessibilityHeading(title, isParent)
+    }
+
     fun setActivated(activated: Boolean) {
         root.isActivated = activated
         title.isActivated = activated
         subtitle.isActivated = activated
+    }
+}
+
+internal class InputMethodTreeBranchView(context: Context) : View(context) {
+    var isLastChild = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = context.styledColor(android.R.attr.textColorSecondary)
+        strokeWidth = context.dp(1).toFloat()
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        val rtl = layoutDirection == LAYOUT_DIRECTION_RTL
+        val x = if (rtl) width - context.dp(8).toFloat() else context.dp(8).toFloat()
+        val endX = if (rtl) context.dp(4).toFloat() else width - context.dp(4).toFloat()
+        val centerY = height / 2f
+        canvas.drawLine(x, 0f, x, if (isLastChild) centerY else height.toFloat(), linePaint)
+        canvas.drawLine(x, centerY, endX, centerY, linePaint)
     }
 }

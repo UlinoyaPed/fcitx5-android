@@ -665,6 +665,13 @@
     <string name="expand_keypress_area">Expand key area to the edge</string>
     <string name="update_table">Update table</string>
     <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
+    <string name="lang_switch_key_long_press_behavior">Language key long-press behavior</string>
+    <string name="lang_switch_long_press_default">Default (including external input methods)</string>
+    <string name="lang_switch_long_press_builtin_and_rime">Built-in input methods and Rime schemas</string>
+    <string name="lang_switch_long_press_builtin_only">Enabled built-in input methods only</string>
+    <string name="lang_switch_long_press_rime_only">Rime schemas only</string>
+    <string name="rime_schemas_unavailable">No Rime schemas are available. Install and enable the Rime plugin, then finish deploying your schemas.</string>
+    <string name="rime_schema_switch_failed">Unable to switch Rime schema. Enable Rime in Input Methods and reopen the menu after deployment finishes.</string>
     <string name="lang_switch_key_behavior">Language switch key behavior</string>
     <string name="lang_switch_behavior_next_ime_app">Switch to next input method App</string>
     <string name="_cannot_be_empty">%1$s cannot be empty</string>

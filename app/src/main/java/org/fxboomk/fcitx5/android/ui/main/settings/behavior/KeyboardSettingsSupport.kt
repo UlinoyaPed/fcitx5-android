@@ -56,6 +56,7 @@ internal object KeyboardSettingsSupport {
         "swipe_symbol_behavior",
         "caps_key_behavior",
         "lang_switch_key_behavior",
+        "lang_switch_key_long_press_behavior",
         "space_key_label_mode",
         "space_long_press_behavior",
         "space_swipe_vertical_behavior",

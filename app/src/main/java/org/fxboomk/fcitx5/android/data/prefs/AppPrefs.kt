@@ -19,6 +19,7 @@ import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesVi
 import org.fxboomk.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
 import org.fxboomk.fcitx5.android.input.keyboard.CapsKeyBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchBehavior
+import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchLongPressBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.PredictionBackspaceBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.PredictionSpaceBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceKeyLabelMode
@@ -292,6 +293,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "text_keyboard_layout_profile_collapsed",
             ""
         ).apply { register() }
+        val langSwitchKeyLongPressBehavior = enumList(
+            R.string.lang_switch_key_long_press_behavior,
+            "lang_switch_key_long_press_behavior",
+            LangSwitchLongPressBehavior.Default
+        )
         val langSwitchKeyBehavior = run {
             val entryValues = listOf(
                 LangSwitchBehavior.Enumerate,

@@ -539,7 +539,10 @@ data object LanguageSwitchAction : ButtonAction() {
     ) {
         fcitx.launchOnReady {
             service.lifecycleScope.launch {
-                service.showDialog(InputMethodPickerDialog.build(it, service, context))
+                service.showDialog(InputMethodPickerDialog.build(
+                    it, service, context,
+                    AppPrefs.getInstance().keyboard.langSwitchKeyLongPressBehavior.getValue()
+                ))
             }
         }
     }

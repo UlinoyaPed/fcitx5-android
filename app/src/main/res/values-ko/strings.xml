@@ -622,6 +622,13 @@
     <string name="physical_keyboard_horizontal_candidate_bar_summary">물리 키보드로 입력할 때 도구 모음과 가로 후보 바를 하단에 유지</string>
     <string name="landscape">가로</string>
     <string name="lang_switch_behavior_next_ime_app">다음 입력기 앱으로 전환</string>
+    <string name="lang_switch_key_long_press_behavior">언어 키 길게 누르기 동작</string>
+    <string name="lang_switch_long_press_default">기본값(외부 입력기 포함)</string>
+    <string name="lang_switch_long_press_builtin_and_rime">내장 입력기 및 Rime 스키마</string>
+    <string name="lang_switch_long_press_builtin_only">활성화된 내장 입력기만</string>
+    <string name="lang_switch_long_press_rime_only">Rime 스키마만</string>
+    <string name="rime_schemas_unavailable">사용 가능한 Rime 스키마가 없습니다. Rime 플러그인을 설치하고 활성화한 후 스키마 배포를 완료하세요.</string>
+    <string name="rime_schema_switch_failed">Rime 스키마를 전환할 수 없습니다. 입력기 설정에서 Rime을 활성화하고 배포가 완료된 후 메뉴를 다시 여세요.</string>
     <string name="lang_switch_key_behavior">언어 전환 키 동작</string>
     <string name="light_mode_theme">라이트 모드 테마</string>
     <string name="main_program">메인 프로그램</string>

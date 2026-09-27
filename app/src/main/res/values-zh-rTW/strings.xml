@@ -394,6 +394,13 @@
     <string name="plugin_updates_download_ready">已下載 %1$d 個外掛程式更新包，準備安裝</string>
     <string name="no_plugin_updates_available">所選外掛程式沒有可用的新版本</string>
     <string name="table_dict_replace_message">碼表字典 \"%1$s\" 已存在。您可以匯入新字典並覆蓋原字典。</string>
+    <string name="lang_switch_key_long_press_behavior">語言鍵長按行為</string>
+    <string name="lang_switch_long_press_default">預設（含外部輸入法）</string>
+    <string name="lang_switch_long_press_builtin_and_rime">內建輸入法及中州韻方案</string>
+    <string name="lang_switch_long_press_builtin_only">僅已啟用的內建輸入法</string>
+    <string name="lang_switch_long_press_rime_only">僅中州韻輸入方案</string>
+    <string name="rime_schemas_unavailable">暫無可用的中州韻方案。請安裝並啟用中州韻外掛，完成方案部署後重試。</string>
+    <string name="rime_schema_switch_failed">無法切換中州韻方案。請在「輸入法」中啟用中州韻，並在部署完成後重新開啟選單。</string>
     <string name="lang_switch_key_behavior">語言切換鍵行為</string>
     <string name="lang_switch_behavior_next_ime_app">切換至下一個輸入法</string>
     <string name="_cannot_be_empty">%1$s不能為空</string>
