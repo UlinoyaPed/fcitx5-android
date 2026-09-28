@@ -175,6 +175,14 @@ abstract class BaseKeyboard(
         splitKeyboardManager.registerListener(splitStateChangeListener)
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (!::keyRows.isInitialized) return
+        keyRows.forEach { row ->
+            AltTextKeyView.alignRemainingSpaceMainLabels(row.children.filterIsInstance<AltTextKeyView>().toList())
+        }
+    }
+
     protected open fun reloadLayout() {
         dismissBackspaceClearPopup()
         removeAllViews()

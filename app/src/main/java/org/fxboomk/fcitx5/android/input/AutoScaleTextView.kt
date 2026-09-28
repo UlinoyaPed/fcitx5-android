@@ -9,6 +9,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
@@ -52,6 +53,17 @@ class AutoScaleTextView @JvmOverloads constructor(
             needsMeasureText = true
             needsCalculateTransform = true
             requestLayout()
+            invalidate()
+        }
+
+    /** Optional placement supplied after a keyboard row has measured all its labels. */
+    internal data class GlyphPlacement(val baseline: Float, val scale: Float)
+
+    internal var glyphPlacement: GlyphPlacement? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            needsCalculateTransform = true
             invalidate()
         }
 
@@ -104,6 +116,24 @@ class AutoScaleTextView @JvmOverloads constructor(
         super.setTextSize(unit, size)
         needsMeasureText = true
         needsCalculateTransform = true
+    }
+
+    override fun setTypeface(tf: Typeface?) {
+        super.setTypeface(tf)
+        needsMeasureText = true
+        needsCalculateTransform = true
+    }
+
+    internal fun renderedGlyphBounds(): RectF {
+        calculateTransform(width, height)
+        val ink = Rect()
+        paint.getTextBounds(text, 0, text.length, ink)
+        return RectF(
+            baselineX + ink.left * textScaleX + scrollX,
+            baselineY + ink.top * textScaleY + scrollY,
+            baselineX + ink.right * textScaleX + scrollX,
+            baselineY + ink.bottom * textScaleY + scrollY
+        )
     }
 
     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
@@ -214,8 +244,13 @@ class AutoScaleTextView @JvmOverloads constructor(
             textScaleX = 1.0f
             textScaleY = 1.0f
         }
+        glyphPlacement?.let {
+            textScaleX = it.scale
+            textScaleY = it.scale
+        }
         baselineX = calculateBaselineX(paddingLeft, contentWidth, textLeft, textWidth, textScaleX)
-        baselineY = calculateBaselineY(paddingTop, contentHeight, textTop, textHeight, textScaleY)
+        baselineY = glyphPlacement?.baseline
+            ?: calculateBaselineY(paddingTop, contentHeight, textTop, textHeight, textScaleY)
     }
 
     private fun calculateBaselineX(

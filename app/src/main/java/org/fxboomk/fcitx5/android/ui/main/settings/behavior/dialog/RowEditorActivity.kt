@@ -8,8 +8,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -30,6 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.widget.doOnTextChanged
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.SystemColorResourceId
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
@@ -86,11 +85,14 @@ class RowEditorActivity : AppCompatActivity() {
     private var saveMenuItem: MenuItem? = null
 
     private lateinit var heightMultiplierEdit: EditText
+    private lateinit var keyWidthMultiplierEdit: EditText
     private lateinit var subLabelPositionSpinner: Spinner
+    private lateinit var subLabelOnePositionSpinner: Spinner
     private lateinit var backgroundStyleSpinner: Spinner
     private lateinit var backgroundColorValue: TextView
     private lateinit var backgroundColorSwatch: View
     private val colorSelectionHistory by lazy { ColorSelectionHistory(this) }
+    private var suppressSpinnerCallbacks = false
 
     private val colorEditorLauncher =
         registerForActivityResult(ThemeColorEditorActivity.Contract()) { result ->
@@ -160,14 +162,17 @@ class RowEditorActivity : AppCompatActivity() {
         )
         heightMultiplierEdit = heightField.second
         heightMultiplierEdit.hint = "1.0"
-        heightMultiplierEdit.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                updateSaveButtonState()
-            }
-            override fun afterTextChanged(s: Editable?) = Unit
-        })
+        heightMultiplierEdit.doOnTextChanged { _, _, _, _ -> updateSaveButtonState() }
         contentContainer.addView(heightField.first)
+
+        val keyWidthField = uiBuilder.createEditField(
+            getString(R.string.text_keyboard_layout_row_key_width_multiplier),
+            rowStyle.keyWidthMultiplier?.toString().orEmpty()
+        )
+        keyWidthMultiplierEdit = keyWidthField.second
+        keyWidthMultiplierEdit.hint = getString(R.string.text_keyboard_layout_row_key_width_multiplier_hint)
+        keyWidthMultiplierEdit.doOnTextChanged { _, _, _, _ -> updateSaveButtonState() }
+        contentContainer.addView(keyWidthField.first)
 
         val subLabelRow = createSpinnerRow(
             title = getString(R.string.text_keyboard_layout_row_sub_label_position),
@@ -176,7 +181,15 @@ class RowEditorActivity : AppCompatActivity() {
         subLabelPositionSpinner = subLabelRow.second
         subLabelPositionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val next = rowStyle.copy(altTextPosition = subLabelPositionFromIndex(position))
+                if (suppressSpinnerCallbacks) return
+                val selected = subLabelPositionFromIndex(position)
+                val next = rowStyle.copy(
+                    altTextPosition = selected,
+                    altTextPosition1 = if (
+                        selected == KeyboardRowStyleUtils.AltTextPosition.TopRight &&
+                        rowStyle.altTextPosition1 == selected
+                    ) null else rowStyle.altTextPosition1
+                )
                 if (next == rowStyle) return
                 rowStyle = next
                 bindUiState()
@@ -186,6 +199,31 @@ class RowEditorActivity : AppCompatActivity() {
         }
         contentContainer.addView(subLabelRow.first)
 
+        val subLabelOneRow = createSpinnerRow(
+            title = getString(R.string.text_keyboard_layout_row_sub_label_one_position),
+            items = subLabelPositionLabels()
+        )
+        subLabelOnePositionSpinner = subLabelOneRow.second
+        subLabelOnePositionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (suppressSpinnerCallbacks) return
+                val selected = subLabelPositionFromIndex(position)
+                val next = rowStyle.copy(
+                    altTextPosition1 = selected,
+                    altTextPosition = if (
+                        selected == KeyboardRowStyleUtils.AltTextPosition.TopRight &&
+                        rowStyle.altTextPosition == selected
+                    ) null else rowStyle.altTextPosition
+                )
+                if (next == rowStyle) return
+                rowStyle = next
+                bindUiState()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
+        contentContainer.addView(subLabelOneRow.first)
+
         val backgroundStyleRow = createSpinnerRow(
             title = getString(R.string.text_keyboard_layout_row_background_style),
             items = backgroundStyleLabels()
@@ -193,6 +231,7 @@ class RowEditorActivity : AppCompatActivity() {
         backgroundStyleSpinner = backgroundStyleRow.second
         backgroundStyleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (suppressSpinnerCallbacks) return
                 val next = rowStyle.copy(backgroundStyle = backgroundStyleFromIndex(position))
                 if (next == rowStyle) return
                 rowStyle = next
@@ -214,12 +253,19 @@ class RowEditorActivity : AppCompatActivity() {
     }
 
     private fun bindUiState() {
-        if (subLabelPositionSpinner.selectedItemPosition != subLabelPositionIndex(rowStyle.altTextPosition)) {
-            subLabelPositionSpinner.setSelection(subLabelPositionIndex(rowStyle.altTextPosition))
-        }
-
-        if (backgroundStyleSpinner.selectedItemPosition != backgroundStyleIndex(rowStyle.backgroundStyle)) {
-            backgroundStyleSpinner.setSelection(backgroundStyleIndex(rowStyle.backgroundStyle))
+        suppressSpinnerCallbacks = true
+        try {
+            if (subLabelPositionSpinner.selectedItemPosition != subLabelPositionIndex(rowStyle.altTextPosition, false)) {
+                subLabelPositionSpinner.setSelection(subLabelPositionIndex(rowStyle.altTextPosition, false))
+            }
+            if (subLabelOnePositionSpinner.selectedItemPosition != subLabelPositionIndex(rowStyle.altTextPosition1, true)) {
+                subLabelOnePositionSpinner.setSelection(subLabelPositionIndex(rowStyle.altTextPosition1, true))
+            }
+            if (backgroundStyleSpinner.selectedItemPosition != backgroundStyleIndex(rowStyle.backgroundStyle)) {
+                backgroundStyleSpinner.setSelection(backgroundStyleIndex(rowStyle.backgroundStyle))
+            }
+        } finally {
+            suppressSpinnerCallbacks = false
         }
 
         val colorReference = rowStyle.backgroundColorMonet?.takeIf { it.isNotBlank() }
@@ -244,25 +290,26 @@ class RowEditorActivity : AppCompatActivity() {
 
     private fun subLabelPositionLabels(): List<String> = listOf(
         getString(R.string.text_keyboard_layout_row_follow_theme),
-        getString(R.string.text_keyboard_layout_row_sub_label_top_bottom),
         getString(R.string.text_keyboard_layout_row_sub_label_top),
         getString(R.string.text_keyboard_layout_row_sub_label_top_right),
         getString(R.string.text_keyboard_layout_row_sub_label_bottom)
     )
 
-    private fun subLabelPositionIndex(position: KeyboardRowStyleUtils.AltTextPosition?): Int = when (position) {
-        KeyboardRowStyleUtils.AltTextPosition.TopBottom -> 1
-        KeyboardRowStyleUtils.AltTextPosition.Top -> 2
-        KeyboardRowStyleUtils.AltTextPosition.TopRight -> 3
-        KeyboardRowStyleUtils.AltTextPosition.Bottom -> 4
+    private fun subLabelPositionIndex(
+        position: KeyboardRowStyleUtils.AltTextPosition?,
+        secondLabel: Boolean
+    ): Int = when (position) {
+        KeyboardRowStyleUtils.AltTextPosition.TopBottom -> if (secondLabel) 3 else 1
+        KeyboardRowStyleUtils.AltTextPosition.Top -> 1
+        KeyboardRowStyleUtils.AltTextPosition.TopRight -> 2
+        KeyboardRowStyleUtils.AltTextPosition.Bottom -> 3
         null -> 0
     }
 
     private fun subLabelPositionFromIndex(index: Int): KeyboardRowStyleUtils.AltTextPosition? = when (index) {
-        1 -> KeyboardRowStyleUtils.AltTextPosition.TopBottom
-        2 -> KeyboardRowStyleUtils.AltTextPosition.Top
-        3 -> KeyboardRowStyleUtils.AltTextPosition.TopRight
-        4 -> KeyboardRowStyleUtils.AltTextPosition.Bottom
+        1 -> KeyboardRowStyleUtils.AltTextPosition.Top
+        2 -> KeyboardRowStyleUtils.AltTextPosition.TopRight
+        3 -> KeyboardRowStyleUtils.AltTextPosition.Bottom
         else -> null
     }
 
@@ -303,8 +350,14 @@ class RowEditorActivity : AppCompatActivity() {
             ?.takeUnless { it.isEmpty() }
             ?.toFloatOrNull()
             ?: return null
-        if (heightMultiplier <= 0f) return null
-        return rowStyle.copy(heightMultiplier = heightMultiplier)
+        if (heightMultiplier <= 0f || !heightMultiplier.isFinite()) return null
+        val widthText = keyWidthMultiplierEdit.text?.toString()?.trim().orEmpty()
+        val keyWidthMultiplier = if (widthText.isEmpty()) null else widthText.toFloatOrNull() ?: return null
+        if (keyWidthMultiplier != null && (keyWidthMultiplier <= 0f || !keyWidthMultiplier.isFinite())) return null
+        return rowStyle.copy(
+            heightMultiplier = heightMultiplier,
+            keyWidthMultiplier = keyWidthMultiplier
+        )
     }
 
     private fun hasRequiredBackgroundColor(style: KeyboardRowStyleUtils.RowStyle): Boolean {
@@ -324,7 +377,13 @@ class RowEditorActivity : AppCompatActivity() {
 
     private fun saveAndFinish() {
         val normalizedStyle = currentEditedStyle() ?: run {
-            Toast.makeText(this, R.string.text_keyboard_layout_row_height_multiplier_invalid, Toast.LENGTH_SHORT).show()
+            val height = heightMultiplierEdit.text?.toString()?.trim()?.toFloatOrNull()
+            val message = if (height == null || height <= 0f || !height.isFinite()) {
+                R.string.text_keyboard_layout_row_height_multiplier_invalid
+            } else {
+                R.string.text_keyboard_layout_row_key_width_multiplier_invalid
+            }
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             return
         }
         if (!hasRequiredBackgroundColor(normalizedStyle)) {
@@ -357,7 +416,11 @@ class RowEditorActivity : AppCompatActivity() {
 
         options += getString(R.string.text_keyboard_layout_key_color_mode_theme)
         actions += {
-            rowStyle = rowStyle.copy(backgroundColor = null, backgroundColorMonet = null)
+            rowStyle = rowStyle.copy(
+                backgroundStyle = null,
+                backgroundColor = null,
+                backgroundColorMonet = null
+            )
             bindUiState()
         }
 

@@ -58,6 +58,7 @@ open class KeyDef(
 
         var rowHeightMultiplier: Float = 1f
         var altTextPositionOverride: AltTextPosition? = null
+        var altText1PositionOverride: AltTextPosition? = null
 
         open class Text(
             val displayText: String,

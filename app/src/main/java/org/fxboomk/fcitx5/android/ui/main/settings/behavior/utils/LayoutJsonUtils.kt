@@ -32,6 +32,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.KeyboardRowSty
 object LayoutJsonUtils {
 
     private const val TAG = "LayoutJsonUtils"
+    private const val DEFAULT_KEY_WIDTH = 0.1f
 
     /**
      * 基础布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
@@ -375,7 +376,9 @@ object LayoutJsonUtils {
             mapOf(
                 KeyboardRowStyleUtils.ROW_META_MARKER to true,
                 KeyboardRowStyleUtils.ROW_HEIGHT_MULTIPLIER to parseOptionalFloat(rowObject[KeyboardRowStyleUtils.ROW_HEIGHT_MULTIPLIER]),
+                KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER to parseOptionalFloat(rowObject[KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER]),
                 KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION to rowObject[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION]?.jsonPrimitive?.contentOrNull,
+                KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION_ONE to rowObject[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION_ONE]?.jsonPrimitive?.contentOrNull,
                 KeyboardRowStyleUtils.ROW_BACKGROUND_STYLE to rowObject[KeyboardRowStyleUtils.ROW_BACKGROUND_STYLE]?.jsonPrimitive?.contentOrNull,
                 KeyboardRowStyleUtils.ROW_BACKGROUND_COLOR to parseOptionalInt(rowObject[KeyboardRowStyleUtils.ROW_BACKGROUND_COLOR]),
                 KeyboardRowStyleUtils.ROW_BACKGROUND_COLOR_MONET to
@@ -753,6 +756,9 @@ object LayoutJsonUtils {
         visibleCount: Int = 1,
         theme: Theme = ThemeManager.activeTheme
     ): KeyDef {
+        // Row width is expressed as a multiple of the normal 0.1 key fraction;
+        // applying it here also gives keys without an explicit weight a fixed width.
+        val rowKeyWidth = rowStyle.keyWidthMultiplier?.times(DEFAULT_KEY_WIDTH)
         val rowBackgroundReference = rowStyle.backgroundColorMonet
         // Resolve gradient base colors against the theme that owns the keyboard
         // being built, not necessarily the globally active one.
@@ -791,7 +797,7 @@ object LayoutJsonUtils {
                     subModeName,
                     key.main ?: ""
                 ),
-                weight = key.weight,
+                weight = rowKeyWidth ?: key.weight,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 altTextColor = key.altTextColor,
@@ -804,7 +810,7 @@ object LayoutJsonUtils {
             "CapsKey" -> CapsKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = key.weight ?: 0.15f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -817,7 +823,7 @@ object LayoutJsonUtils {
                 to = key.subLabel ?: "",
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = key.weight ?: 0.15f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -826,7 +832,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "CommaKey" -> CommaKey(
-                percentWidth = key.weight ?: 0.1f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
                 variant = KeyDef.Appearance.Variant.Alternative,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -836,7 +842,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "LanguageKey" -> LanguageKey(
-                percentWidth = key.weight ?: 0.1f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -845,7 +851,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "SpaceKey" -> SpaceKey(
-                percentWidth = key.weight ?: 0f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -857,7 +863,7 @@ object LayoutJsonUtils {
                 symbol = key.label ?: ".",
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = key.weight ?: 0.1f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
                 variant = KeyDef.Appearance.Variant.Alternative,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -869,7 +875,7 @@ object LayoutJsonUtils {
             "ReturnKey" -> ReturnKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = key.weight ?: 0.15f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -880,7 +886,7 @@ object LayoutJsonUtils {
             "BackspaceKey" -> BackspaceKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = key.weight ?: 0.15f,
+                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -912,7 +918,7 @@ object LayoutJsonUtils {
                     swipeDown = key.swipeDown,
                     swipe = key.swipe,
                     longPress = key.longPress,
-                    percentWidth = key.weight ?: 0.1f,
+                    percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
                     textColor = key.textColor,
                     textColorMonet = key.textColorMonet,
                     altTextColor = key.altTextColor,
@@ -927,6 +933,13 @@ object LayoutJsonUtils {
         }
         keyDef.appearance.rowHeightMultiplier = rowStyle.heightMultiplier
         keyDef.appearance.altTextPositionOverride = when (rowStyle.altTextPosition) {
+            KeyboardRowStyleUtils.AltTextPosition.Top -> KeyDef.Appearance.AltTextPosition.Top
+            KeyboardRowStyleUtils.AltTextPosition.TopBottom -> KeyDef.Appearance.AltTextPosition.TopBottom
+            KeyboardRowStyleUtils.AltTextPosition.TopRight -> KeyDef.Appearance.AltTextPosition.TopRight
+            KeyboardRowStyleUtils.AltTextPosition.Bottom -> KeyDef.Appearance.AltTextPosition.Bottom
+            null -> null
+        }
+        keyDef.appearance.altText1PositionOverride = when (rowStyle.altTextPosition1) {
             KeyboardRowStyleUtils.AltTextPosition.Top -> KeyDef.Appearance.AltTextPosition.Top
             KeyboardRowStyleUtils.AltTextPosition.TopBottom -> KeyDef.Appearance.AltTextPosition.TopBottom
             KeyboardRowStyleUtils.AltTextPosition.TopRight -> KeyDef.Appearance.AltTextPosition.TopRight
@@ -1071,8 +1084,14 @@ object LayoutJsonUtils {
         if (rowStyle.heightMultiplier != 1f) {
             rowObject[KeyboardRowStyleUtils.ROW_HEIGHT_MULTIPLIER] = JsonPrimitive(rowStyle.heightMultiplier)
         }
+        rowStyle.keyWidthMultiplier?.let {
+            rowObject[KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER] = JsonPrimitive(it)
+        }
         rowStyle.altTextPosition?.let {
             rowObject[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION] = JsonPrimitive(it.wireValue)
+        }
+        rowStyle.altTextPosition1?.let {
+            rowObject[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION_ONE] = JsonPrimitive(it.wireValue)
         }
         rowStyle.backgroundStyle?.let {
             rowObject[KeyboardRowStyleUtils.ROW_BACKGROUND_STYLE] = JsonPrimitive(it.wireValue)

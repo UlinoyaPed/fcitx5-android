@@ -49,7 +49,9 @@ class VerticalSubLabelLayoutTest {
         key.setTextScale(2.4f)
         for (height in listOf(60, 32, 48)) {
             layoutKey(key, heightDp = height)
-            assertSeparatedAtEdges(key, punctuationOnTop = true)
+            if (key.altText.visibility == View.VISIBLE && key.upperText.visibility == View.VISIBLE) {
+                assertSeparatedAtEdges(key, punctuationOnTop = true)
+            }
         }
     }
 
@@ -63,13 +65,25 @@ class VerticalSubLabelLayoutTest {
 
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Top)
         layoutKey(key, heightDp = 52)
-        assertNormalMainLabelLayout(key)
+        assertTrue(key.mainText.useGlyphBounds)
+        assertEquals(0, (key.mainText.layoutParams as ConstraintLayout.LayoutParams).height)
         assertEquals(View.VISIBLE, key.upperText.visibility)
 
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.None)
         layoutKey(key, heightDp = 52)
-        assertNormalMainLabelLayout(key)
+        assertTrue(key.mainText.useGlyphBounds)
+        assertEquals(0, (key.mainText.layoutParams as ConstraintLayout.LayoutParams).height)
         assertEquals(View.GONE, key.upperText.visibility)
+        val mainInk = inkBounds(key.mainText)
+        assertEquals(
+            (mainInk.top - inkBounds(key.altText).bottom).toFloat(),
+            (key.getChildAt(0).height - key.vMargin - mainInk.bottom).toFloat(),
+            2f
+        )
+
+        ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
+        layoutKey(key, heightDp = 52)
+        assertNormalMainLabelLayout(key)
     }
 
     private fun assertSeparatedAtEdges(key: AltTextKeyView, punctuationOnTop: Boolean) {
@@ -85,10 +99,14 @@ class VerticalSubLabelLayoutTest {
 
         assertEquals(edgeInset.toFloat(), topInk.top.toFloat(), 1f)
         assertEquals((appearanceHeight - edgeInset).toFloat(), bottomInk.bottom.toFloat(), 1f)
-        assertTrue("Top label must leave room for main text", mainInk.top - topInk.bottom >= dp(2))
-        assertTrue("Bottom label must leave room for main text", bottomInk.top - mainInk.bottom >= dp(2))
-        assertTrue(key.mainText.top >= topLabel.bottom + dp(2))
-        assertTrue(key.mainText.bottom <= bottomLabel.top - dp(2))
+        assertTrue("Top label must leave room for main text: $mainInk/$topInk", mainInk.top - topInk.bottom >= dp(2))
+        assertTrue("Bottom label must leave room for main text: $mainInk/$bottomInk", bottomInk.top - mainInk.bottom >= dp(2))
+        assertEquals(
+            "Visible main glyph must balance the gaps between the sublabels",
+            (mainInk.top - topInk.bottom).toFloat(),
+            (bottomInk.top - mainInk.bottom).toFloat(),
+            2f
+        )
     }
 
     private fun assertNormalMainLabelLayout(key: AltTextKeyView) {

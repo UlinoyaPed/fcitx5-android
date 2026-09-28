@@ -9,7 +9,9 @@ object KeyboardRowStyleUtils {
     const val ROW_META_MARKER = "__rowMeta"
     const val ROW_KEYS_FIELD = "keys"
     const val ROW_HEIGHT_MULTIPLIER = "heightMultiplier"
+    const val ROW_KEY_WIDTH_MULTIPLIER = "keyWidthMultiplier"
     const val ROW_ALT_TEXT_POSITION = "altTextPosition"
+    const val ROW_ALT_TEXT_POSITION_ONE = "altTextPosition1"
     const val ROW_BACKGROUND_STYLE = "backgroundStyle"
     const val ROW_BACKGROUND_COLOR = "backgroundColor"
     const val ROW_BACKGROUND_COLOR_MONET = "backgroundColorMonet"
@@ -40,14 +42,18 @@ object KeyboardRowStyleUtils {
 
     data class RowStyle(
         val heightMultiplier: Float = 1f,
+        val keyWidthMultiplier: Float? = null,
         val altTextPosition: AltTextPosition? = null,
+        val altTextPosition1: AltTextPosition? = null,
         val backgroundStyle: BackgroundStyle? = null,
         val backgroundColor: Int? = null,
         val backgroundColorMonet: String? = null
     ) {
         fun isDefault(): Boolean {
             return heightMultiplier == 1f &&
+                keyWidthMultiplier == null &&
                 altTextPosition == null &&
+                altTextPosition1 == null &&
                 backgroundStyle == null &&
                 backgroundColor == null &&
                 backgroundColorMonet == null
@@ -122,7 +128,9 @@ object KeyboardRowStyleUtils {
         if (style.heightMultiplier != 1f) {
             meta[ROW_HEIGHT_MULTIPLIER] = style.heightMultiplier
         }
+        style.keyWidthMultiplier?.let { meta[ROW_KEY_WIDTH_MULTIPLIER] = it }
         style.altTextPosition?.let { meta[ROW_ALT_TEXT_POSITION] = it.wireValue }
+        style.altTextPosition1?.let { meta[ROW_ALT_TEXT_POSITION_ONE] = it.wireValue }
         style.backgroundStyle?.let { meta[ROW_BACKGROUND_STYLE] = it.wireValue }
         style.backgroundColor?.let { meta[ROW_BACKGROUND_COLOR] = it }
         style.backgroundColorMonet?.let { meta[ROW_BACKGROUND_COLOR_MONET] = it }
@@ -133,7 +141,9 @@ object KeyboardRowStyleUtils {
         if (meta == null) return RowStyle()
         return RowStyle(
             heightMultiplier = parseFloat(meta[ROW_HEIGHT_MULTIPLIER])?.takeIf { it > 0f } ?: 1f,
+            keyWidthMultiplier = parseFloat(meta[ROW_KEY_WIDTH_MULTIPLIER])?.takeIf { it > 0f },
             altTextPosition = AltTextPosition.fromWireValue(meta[ROW_ALT_TEXT_POSITION] as? String),
+            altTextPosition1 = AltTextPosition.fromWireValue(meta[ROW_ALT_TEXT_POSITION_ONE] as? String),
             backgroundStyle = BackgroundStyle.fromWireValue(meta[ROW_BACKGROUND_STYLE] as? String),
             backgroundColor = parseInt(meta[ROW_BACKGROUND_COLOR]),
             backgroundColorMonet = (meta[ROW_BACKGROUND_COLOR_MONET] as? String)?.trim()
@@ -171,6 +181,7 @@ object KeyboardRowStyleUtils {
         val normalizedColorReference = normalizedReference?.takeIf { normalizedStyle != null }
         return copy(
             heightMultiplier = normalizedHeight,
+            keyWidthMultiplier = keyWidthMultiplier?.takeIf { it > 0f && it.isFinite() },
             backgroundStyle = normalizedStyle,
             backgroundColor = normalizedColor,
             backgroundColorMonet = normalizedColorReference

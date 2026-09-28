@@ -26,6 +26,20 @@ import org.junit.Test
 
 class LayoutJsonUtilsRowStyleTest {
 
+    @Test
+    fun rowWidthMetadataRejectsNonFiniteAndNonPositiveValues() {
+        for (value in listOf("Infinity", "1e100", "NaN", -1f, 0f)) {
+            val style = KeyboardRowStyleUtils.rowStyleFromMeta(
+                mapOf(KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER to value)
+            )
+            assertNull("Invalid imported row width: $value", style.keyWidthMultiplier)
+        }
+        val valid = KeyboardRowStyleUtils.rowStyleFromMeta(
+            mapOf(KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER to "1.25")
+        )
+        assertEquals(1.25f, valid.keyWidthMultiplier)
+    }
+
     /**
      * 本地 JVM 测试没有 Android 环境，显式传入 Theme，
      * 避免触发 ThemeManager 类初始化（其需要应用存储目录）。
@@ -133,6 +147,53 @@ class LayoutJsonUtilsRowStyleTest {
             "theme:accentKeyBackgroundColor",
             rowObject["backgroundColorMonet"]!!.jsonPrimitive.content
         )
+    }
+
+    @Test
+    fun structuredRow_widthAndIndependentAltPositions_roundTripAndApply() {
+        val rowsArray = Json.parseToJsonElement(
+            """
+            [
+              {
+                "keyWidthMultiplier": 1.25,
+                "altTextPosition": "top",
+                "altTextPosition1": "bottom",
+                "keys": [
+                  {"type": "AlphabetKey", "main": "q", "alt": "1", "alt1": "@"},
+                  {"type": "CapsKey"}
+                ]
+              }
+            ]
+            """.trimIndent()
+        ).jsonArray
+
+        val rows = LayoutJsonUtils.parseLayoutRows(rowsArray)
+        val style = KeyboardRowStyleUtils.rowStyle(rows.single())
+        assertEquals(1.25f, style.keyWidthMultiplier)
+        assertEquals(KeyboardRowStyleUtils.AltTextPosition.Top, style.altTextPosition)
+        assertEquals(KeyboardRowStyleUtils.AltTextPosition.Bottom, style.altTextPosition1)
+
+        val alphabet = createKeyDef(
+            LayoutJsonUtils.KeyJson(type = "AlphabetKey", main = "q", alt = "1", alt1 = "@"),
+            rowStyle = style
+        )
+        val cap = createKeyDef(LayoutJsonUtils.KeyJson(type = "CapsKey"), rowStyle = style)
+        assertEquals(0.125f, alphabet.appearance.percentWidth, 0.0001f)
+        assertEquals(0.125f, cap.appearance.percentWidth, 0.0001f)
+        assertEquals(
+            KeyDef.Appearance.AltTextPosition.Top,
+            alphabet.appearance.altTextPositionOverride
+        )
+        assertEquals(
+            KeyDef.Appearance.AltTextPosition.Bottom,
+            alphabet.appearance.altText1PositionOverride
+        )
+
+        val saved = LayoutJsonUtils.convertToSaveJson(mapOf("rime" to rows))
+            .getValue("rime").jsonArray.single().jsonObject
+        assertEquals("1.25", saved[KeyboardRowStyleUtils.ROW_KEY_WIDTH_MULTIPLIER]?.jsonPrimitive?.content)
+        assertEquals("top", saved[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION]?.jsonPrimitive?.content)
+        assertEquals("bottom", saved[KeyboardRowStyleUtils.ROW_ALT_TEXT_POSITION_ONE]?.jsonPrimitive?.content)
     }
 
     @Test
