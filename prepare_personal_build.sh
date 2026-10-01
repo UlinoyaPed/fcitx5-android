@@ -42,8 +42,8 @@ checkout_pinned_submodule() {
     local commit="$3"
     local name="$4"
 
-    git -C "${repository}" remote add gh "${remote_url}" 2>/dev/null || \
-        git -C "${repository}" remote set-url gh "${remote_url}"
+    git -C "${repository}" remote add boomker "${remote_url}" 2>/dev/null || \
+        git -C "${repository}" remote set-url boomker "${remote_url}"
 
     local actual
     actual="$(git -C "${repository}" rev-parse HEAD)"
@@ -58,7 +58,7 @@ checkout_pinned_submodule() {
     fi
 
     if ! git -C "${repository}" cat-file -e "${commit}^{commit}" 2>/dev/null; then
-        git -C "${repository}" fetch -v gh "${commit}"
+        git -C "${repository}" fetch -v boomker "${commit}"
     fi
     git -C "${repository}" checkout --detach "${commit}"
     echo "✓ ${name} pinned to ${commit}"
