@@ -1,246 +1,246 @@
 diff --git a/po/ca.po b/po/ca.po
-index 141fea72..524d6121 100644
+index a3911426d9008b8ea3143ddcf5539af023f55f00..6b830a1c3ae25c90be9f80a96b6d890eba7abb24 100644
 --- a/po/ca.po
 +++ b/po/ca.po
-@@ -801,8 +801,8 @@ msgid "Show first input method information"
+@@ -817,8 +817,8 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Nombre màxim per defecte de candidats per pàgina"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/da.po b/po/da.po
-index 393ec5d1..15a469af 100644
+index 926cd2845627a5f45e017d4332d4a4d7dcc779c7..aeb5d1ab60b21a0e8ec4b5a9bc2c98b61db32e8c 100644
 --- a/po/da.po
 +++ b/po/da.po
-@@ -803,8 +803,8 @@ msgid "Show first input method information"
+@@ -819,8 +819,8 @@ msgid "Show first input method information"
  msgstr "Vis første information om inputmetode"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Standardmaksimum for kandidater pr. side"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/de.po b/po/de.po
-index 0cc17ba3..f633ba72 100644
+index fecf065e98f3fff354daf6fbdbbe9593b5b37697..e0c4eddf46ef29da0e42f28a561931be0602cb5f 100644
 --- a/po/de.po
 +++ b/po/de.po
-@@ -804,8 +804,8 @@ msgid "Show first input method information"
+@@ -820,8 +820,8 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Standardmäßige maximale Kandidatenanzahl pro Seite"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/es.po b/po/es.po
-index 93a01126..28964e05 100644
+index e4edb250f091aefbf37f4f72883219d3d4c783e9..4c57273b845f9380fa046ae2f21b40cb7bedffad 100644
 --- a/po/es.po
 +++ b/po/es.po
-@@ -799,8 +799,8 @@ msgid "Show first input method information"
+@@ -815,8 +815,8 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Número máximo predeterminado de candidatos por página"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/fcitx5.pot b/po/fcitx5.pot
-index ce2ffe63..856bc4f0 100644
+index 5e9eef62f7e40bc158e6838df46b54425d3a779f..c9a6f2e86a6955f411752103e39049e5e39633e2 100644
 --- a/po/fcitx5.pot
 +++ b/po/fcitx5.pot
-@@ -796,7 +796,7 @@ msgid "Show first input method information"
+@@ -812,7 +812,7 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 +msgid "Default maximum candidates per page"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
 diff --git a/po/fr.po b/po/fr.po
-index 23f6beea..fd8d3b6e 100644
+index b48ab57677b5b5bebe81a2266c66f73d20713418..a7445429b9c9bec465cc10011221c1e411f2c0d6 100644
 --- a/po/fr.po
 +++ b/po/fr.po
-@@ -848,8 +848,8 @@ msgid "Show first input method information"
+@@ -864,8 +864,8 @@ msgid "Show first input method information"
  msgstr "Afficher les informations de la première méthode de saisie"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Nombre maximal de candidats par page par défaut"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/he.po b/po/he.po
-index d7f93112..96ee8aab 100644
+index 29b53c4ea174b827d5a0dc97c994289d5e19fe8c..96360121de4f97364de17d043e3495f41c02ed33 100644
 --- a/po/he.po
 +++ b/po/he.po
-@@ -802,8 +802,8 @@ msgid "Show first input method information"
+@@ -818,8 +818,8 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "מספר מועמדים מרבי כברירת מחדל לעמוד"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/ja.po b/po/ja.po
-index adff81af..bd313802 100644
+index ae3a77618583cf8854384d5ff1fa9811abcf6ee3..663e2f9d413cbef67ddd5d9c16aab2084deb0dda 100644
 --- a/po/ja.po
 +++ b/po/ja.po
-@@ -831,8 +831,8 @@ msgid "Show first input method information"
+@@ -850,8 +850,8 @@ msgid "Show first input method information"
  msgstr "第1入力メソッドの情報を表示する"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr "ページあたりのデフォルトの候補数"
 +msgid "Default maximum candidates per page"
 +msgstr "1ページあたりのデフォルト最大候補数"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/ka.po b/po/ka.po
-index 04abcb15..d07faf6b 100644
+index 66e2ca815bd63bbb1fbdd16c1960a02fe5a2ff1d..0203e34f5c2fa7409699595ad2b399d3ea14627b 100644
 --- a/po/ka.po
 +++ b/po/ka.po
-@@ -800,8 +800,8 @@ msgid "Show first input method information"
+@@ -816,8 +816,8 @@ msgid "Show first input method information"
  msgstr ""
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "ნაგულისხმევი კანდიდატების მაქსიმალური რაოდენობა გვერდზე"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/ko.po b/po/ko.po
-index 469b689d..a66b4673 100644
+index a2848a72c97e1e828c5c454876ce951da549b6b9..d9f47c9bdc16a247e625e26fda92a55ae6622fa5 100644
 --- a/po/ko.po
 +++ b/po/ko.po
-@@ -828,8 +828,8 @@ msgid "Show first input method information"
+@@ -844,8 +844,8 @@ msgid "Show first input method information"
  msgstr "첫 번째 입력기 정보 표시"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "페이지당 기본 최대 후보 수"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/ru.po b/po/ru.po
-index 8477c542..f316b455 100644
+index 86f2e8f891860b8246e2579f4f8281321f3b1ec1..88421b9c0e3804b95fa754fcdc005b534226ab3c 100644
 --- a/po/ru.po
 +++ b/po/ru.po
-@@ -843,8 +843,8 @@ msgid "Show first input method information"
+@@ -863,8 +863,8 @@ msgid "Show first input method information"
  msgstr "Показать информацию о первом методе ввода"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr "Количество слов-кандидатов на странице по умолчанию"
 +msgid "Default maximum candidates per page"
 +msgstr "Максимальное количество слов-кандидатов на странице по умолчанию"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/vi.po b/po/vi.po
-index b04eec41..a7cdddff 100644
+index f868b53598015a59dcad1eb731af48d45d67f9cb..a1163f648dbe5187f4d1769cb9496b81ee40f168 100644
 --- a/po/vi.po
 +++ b/po/vi.po
-@@ -825,8 +825,8 @@ msgid "Show first input method information"
+@@ -841,8 +841,8 @@ msgid "Show first input method information"
  msgstr "Hiển thị thông tin kiểu gõ đầu tiên"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "Số ứng viên tối đa mặc định trên mỗi trang"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/zh_CN.po b/po/zh_CN.po
-index 1fa20bed..1a5887a3 100644
+index 01971e04936a59010568e6173fe293b698a7828b..9b00d5da37eb23e4cff2268235a161acfac7268b 100644
 --- a/po/zh_CN.po
 +++ b/po/zh_CN.po
-@@ -739,7 +739,7 @@ msgstr "向后切换输入法"
+@@ -757,7 +757,7 @@ msgstr "向后切换输入法"
  
- #: src/lib/fcitx/globalconfig.cpp:108
+ #: src/lib/fcitx/globalconfig.cpp:120
  msgid "Skip first input method while enumerating"
 -msgstr "轮换输入法时跳过第一个输入法"
 +msgstr "轮换输入法时跳过第一个"
  
- #: src/lib/fcitx/globalconfig.cpp:112
+ #: src/lib/fcitx/globalconfig.cpp:124
  msgid "Enumerate Input Method Group Forward"
-@@ -806,24 +806,24 @@ msgid "Show preedit in application"
+@@ -824,24 +824,24 @@ msgid "Show preedit in application"
  msgstr "在程序中显示预编辑文本"
  
- #: src/lib/fcitx/globalconfig.cpp:197
+ #: src/lib/fcitx/globalconfig.cpp:209
 -msgid "Show Input Method Information when switch input method"
 -msgstr "切换输入法时显示输入法信息"
 +msgid "Show compact input method information"
 +msgstr "显示紧凑的输入法信息"
  
- #: src/lib/fcitx/globalconfig.cpp:200
+ #: src/lib/fcitx/globalconfig.cpp:212
 -msgid "Show Input Method Information when changing focus"
 -msgstr "在焦点更改时显示输入法信息"
 +msgid "Show first input method information"
 +msgstr "显示第一个输入法的信息"
  
- #: src/lib/fcitx/globalconfig.cpp:203
+ #: src/lib/fcitx/globalconfig.cpp:215
 -msgid "Show compact input method information"
 -msgstr "显示紧凑的输入法信息"
 +msgid "Show Input Method Information when switch input method"
 +msgstr "切换输入法时显示输入法信息"
  
- #: src/lib/fcitx/globalconfig.cpp:206
+ #: src/lib/fcitx/globalconfig.cpp:218
 -msgid "Show first input method information"
 -msgstr "显示第一个输入法的信息"
 +msgid "Show Input Method Information when changing focus"
 +msgstr "在焦点更改时显示输入法信息"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr "缺省每页候选词"
 +msgid "Default maximum candidates per page"
 +msgstr "默认单页最多候选词数"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/po/zh_TW.po b/po/zh_TW.po
-index 780f45eb..5c7c30d6 100644
+index 7a1ad9655c97f815872e83fb646e842c7958a115..3d47d9f0ab5fb0710d091bb011287968f6e92ece 100644
 --- a/po/zh_TW.po
 +++ b/po/zh_TW.po
-@@ -827,8 +827,8 @@ msgid "Show first input method information"
+@@ -843,8 +843,8 @@ msgid "Show first input method information"
  msgstr "顯示第一個輸入法資訊"
  
- #: src/lib/fcitx/globalconfig.cpp:208
+ #: src/lib/fcitx/globalconfig.cpp:220
 -msgid "Default Candidates per page"
 -msgstr ""
 +msgid "Default maximum candidates per page"
 +msgstr "預設單頁最多候選詞數"
  
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
 diff --git a/src/lib/fcitx/globalconfig.cpp b/src/lib/fcitx/globalconfig.cpp
-index 23b97626..941c25d8 100644
+index 8e58743b0e947fa0e933353352966dd8f260c1be..1f1c88940a894ef1bbb1159c066fcb0aa1b8dfd3 100644
 --- a/src/lib/fcitx/globalconfig.cpp
 +++ b/src/lib/fcitx/globalconfig.cpp
 @@ -46,16 +46,19 @@ FCITX_CONFIGURATION(
@@ -273,7 +273,7 @@ index 23b97626..941c25d8 100644
      KeyListOption activateKeys{
          this,
          "ActivateKeys",
-@@ -103,9 +106,6 @@ FCITX_CONFIGURATION(
+@@ -115,9 +118,6 @@ FCITX_CONFIGURATION(
          {},
          KeyListConstrain({KeyConstrainFlag::AllowModifierLess,
                            KeyConstrainFlag::AllowModifierOnly})};
@@ -283,7 +283,7 @@ index 23b97626..941c25d8 100644
      KeyListOption enumerateGroupForwardKeys{
          this,
          "EnumerateGroupForwardKeys",
-@@ -161,24 +161,22 @@ FCITX_CONFIGURATION(
+@@ -173,24 +173,22 @@ FCITX_CONFIGURATION(
                                  _("Toggle embedded preedit"),
                                  {Key("Control+Alt+P")},
                                  KeyListConstrain()};
@@ -319,7 +319,7 @@ index 23b97626..941c25d8 100644
      OptionWithAnnotation<PropertyPropagatePolicy,
                           PropertyPropagatePolicyI18NAnnotation>
          resetStateWhenFocusIn{this, "resetStateWhenFocusIn",
-@@ -189,24 +187,41 @@ FCITX_CONFIGURATION(
+@@ -201,24 +199,41 @@ FCITX_CONFIGURATION(
          shareState{this, "ShareInputState", _("Share Input State"),
                     isAndroid() ? PropertyPropagatePolicy::All
                                 : PropertyPropagatePolicy::No};
@@ -370,7 +370,7 @@ index 23b97626..941c25d8 100644
      ConditionalHidden<!hasKeyboard,
                        OptionWithAnnotation<bool, ToolTipAnnotation>>
          overrideXkbOption{
-@@ -221,30 +236,20 @@ FCITX_CONFIGURATION(
+@@ -233,30 +248,20 @@ FCITX_CONFIGURATION(
                 "XKB options for custom XKB layout. This is a workaround when "
                 "there is no way to get the current XKB option from Wayland "
                 "Compositor.")}};
@@ -409,7 +409,7 @@ index 23b97626..941c25d8 100644
  
  FCITX_CONFIGURATION(GlobalConfig,
                      Option<HotkeyConfig> hotkey{this, "Hotkey", _("Hotkey")};
-@@ -310,7 +315,7 @@ const KeyList &GlobalConfig::enumerateBackwardKeys() const {
+@@ -327,7 +332,7 @@ const KeyList &GlobalConfig::enumerateBackwardKeys() const {
  
  bool GlobalConfig::enumerateSkipFirst() const {
      FCITX_D();

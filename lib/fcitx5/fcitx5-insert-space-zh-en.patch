@@ -1,218 +1,218 @@
 diff --git a/po/ca.po b/po/ca.po
-index 524d6121..84cf6b59 100644
+index 6b830a1c3ae25c90be9f80a96b6d890eba7abb24..57bdf56689bedc4da95803a384f68894fb5d6ab6 100644
 --- a/po/ca.po
 +++ b/po/ca.po
-@@ -804,6 +804,10 @@ msgstr ""
+@@ -820,6 +820,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr "Nombre màxim per defecte de candidats per pàgina"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Insereix un espai entre el xinès i l'anglès"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/da.po b/po/da.po
-index 15a469af..e3514635 100644
+index aeb5d1ab60b21a0e8ec4b5a9bc2c98b61db32e8c..ea1b029545e4f7e0146e21a118867d2122516dc9 100644
 --- a/po/da.po
 +++ b/po/da.po
-@@ -806,6 +806,10 @@ msgstr "Vis første information om inputmetode"
+@@ -822,6 +822,10 @@ msgstr "Vis første information om inputmetode"
  msgid "Default maximum candidates per page"
  msgstr "Standardmaksimum for kandidater pr. side"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Indsæt mellemrum mellem kinesisk og engelsk"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/de.po b/po/de.po
-index f633ba72..6b846ccb 100644
+index e0c4eddf46ef29da0e42f28a561931be0602cb5f..cf19ae3ce2e850331f858197ee3ee992cdae36d3 100644
 --- a/po/de.po
 +++ b/po/de.po
-@@ -807,6 +807,10 @@ msgstr ""
+@@ -823,6 +823,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr "Standardmäßige maximale Kandidatenanzahl pro Seite"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Leerzeichen zwischen Chinesisch und Englisch einfügen"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/es.po b/po/es.po
-index 28964e05..d8d163e1 100644
+index 4c57273b845f9380fa046ae2f21b40cb7bedffad..80149b4c877ce43a9e9a4cf89001ef36780ea0f2 100644
 --- a/po/es.po
 +++ b/po/es.po
-@@ -802,6 +802,10 @@ msgstr ""
+@@ -818,6 +818,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr "Número máximo predeterminado de candidatos por página"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Insertar espacio entre chino e inglés"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/fcitx5.pot b/po/fcitx5.pot
-index 856bc4f0..e0e9de62 100644
+index c9a6f2e86a6955f411752103e39049e5e39633e2..75ce0d5ac329fcf44597b094e2c0a891d0a71f80 100644
 --- a/po/fcitx5.pot
 +++ b/po/fcitx5.pot
-@@ -799,6 +799,10 @@ msgstr ""
+@@ -815,6 +815,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr ""
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr ""
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/fr.po b/po/fr.po
-index fd8d3b6e..0fee6eb9 100644
+index a7445429b9c9bec465cc10011221c1e411f2c0d6..2d39faf25ad591bc5eb68075d7ab2615faa82636 100644
 --- a/po/fr.po
 +++ b/po/fr.po
-@@ -851,6 +851,10 @@ msgstr "Afficher les informations de la première méthode de saisie"
+@@ -867,6 +867,10 @@ msgstr "Afficher les informations de la première méthode de saisie"
  msgid "Default maximum candidates per page"
  msgstr "Nombre maximal de candidats par page par défaut"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Insérer une espace entre le chinois et l'anglais"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "Surcharger l'option XKB"
 diff --git a/po/he.po b/po/he.po
-index 96ee8aab..75a08b85 100644
+index 96360121de4f97364de17d043e3495f41c02ed33..92e24d7f6920df6643774db2ac65c94c0e4e79e9 100644
 --- a/po/he.po
 +++ b/po/he.po
-@@ -805,6 +805,10 @@ msgstr ""
+@@ -821,6 +821,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr "מספר מועמדים מרבי כברירת מחדל לעמוד"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "הוספת רווח בין סינית לאנגלית"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/ja.po b/po/ja.po
-index bd313802..354fe50d 100644
+index 663e2f9d413cbef67ddd5d9c16aab2084deb0dda..3eaf98e277f67d06319947ae9b6b278fc92b2590 100644
 --- a/po/ja.po
 +++ b/po/ja.po
-@@ -834,6 +834,10 @@ msgstr "第1入力メソッドの情報を表示する"
+@@ -853,6 +853,10 @@ msgstr "第1入力メソッドの情報を表示する"
  msgid "Default maximum candidates per page"
  msgstr "1ページあたりのデフォルト最大候補数"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "中国語と英語の間にスペースを挿入"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "XKB オプションの上書き"
 diff --git a/po/ka.po b/po/ka.po
-index d07faf6b..df45e952 100644
+index 0203e34f5c2fa7409699595ad2b399d3ea14627b..7f254bb35357a67d815015b235cffd025dca7156 100644
 --- a/po/ka.po
 +++ b/po/ka.po
-@@ -803,6 +803,10 @@ msgstr ""
+@@ -819,6 +819,10 @@ msgstr ""
  msgid "Default maximum candidates per page"
  msgstr "ნაგულისხმევი კანდიდატების მაქსიმალური რაოდენობა გვერდზე"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "ჩინურსა და ინგლისურს შორის ჰარის ჩასმა"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/ko.po b/po/ko.po
-index a66b4673..23568b96 100644
+index d9f47c9bdc16a247e625e26fda92a55ae6622fa5..e43918b43cc5a6e3b8c920180360c3f354425929 100644
 --- a/po/ko.po
 +++ b/po/ko.po
-@@ -831,6 +831,10 @@ msgstr "첫 번째 입력기 정보 표시"
+@@ -847,6 +847,10 @@ msgstr "첫 번째 입력기 정보 표시"
  msgid "Default maximum candidates per page"
  msgstr "페이지당 기본 최대 후보 수"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "중국어와 영어 사이에 공백 삽입"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "XKB 옵션 재정의"
 diff --git a/po/ru.po b/po/ru.po
-index f316b455..b2fc1bd4 100644
+index 88421b9c0e3804b95fa754fcdc005b534226ab3c..12bb139565c72f5a3a1fd8c398f2f5567ad92dea 100644
 --- a/po/ru.po
 +++ b/po/ru.po
-@@ -846,6 +846,10 @@ msgstr "Показать информацию о первом методе вв
+@@ -866,6 +866,10 @@ msgstr "Показать информацию о первом методе вв
  msgid "Default maximum candidates per page"
  msgstr "Максимальное количество слов-кандидатов на странице по умолчанию"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Вставлять пробел между китайским и английским"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "Переопределить параметр XKB"
 diff --git a/po/vi.po b/po/vi.po
-index a7cdddff..f17fdea6 100644
+index a1163f648dbe5187f4d1769cb9496b81ee40f168..8461f50cd38cb7bacc4f6127cac760367ab6a37a 100644
 --- a/po/vi.po
 +++ b/po/vi.po
-@@ -828,6 +828,10 @@ msgstr "Hiển thị thông tin kiểu gõ đầu tiên"
+@@ -844,6 +844,10 @@ msgstr "Hiển thị thông tin kiểu gõ đầu tiên"
  msgid "Default maximum candidates per page"
  msgstr "Số ứng viên tối đa mặc định trên mỗi trang"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "Chèn dấu cách giữa tiếng Trung và tiếng Anh"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr ""
 diff --git a/po/zh_CN.po b/po/zh_CN.po
-index da4d33ae..b7cba8e3 100644
+index 9b00d5da37eb23e4cff2268235a161acfac7268b..07bddf5d04b45b66dc6ad762053480d382c5e478 100644
 --- a/po/zh_CN.po
 +++ b/po/zh_CN.po
-@@ -825,6 +825,10 @@ msgstr "显示第一个输入法的信息"
+@@ -843,6 +843,10 @@ msgstr "在焦点更改时显示输入法信息"
  msgid "Default maximum candidates per page"
  msgstr "默认单页最多候选词数"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "中英字符间插入空格"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "覆盖 XKB 选项"
 diff --git a/po/zh_TW.po b/po/zh_TW.po
-index 5c7c30d6..9e4d5cd1 100644
+index 3d47d9f0ab5fb0710d091bb011287968f6e92ece..9068388e72ade5664336780133ef6f841c70f101 100644
 --- a/po/zh_TW.po
 +++ b/po/zh_TW.po
-@@ -830,6 +830,10 @@ msgstr "顯示第一個輸入法資訊"
+@@ -846,6 +846,10 @@ msgstr "顯示第一個輸入法資訊"
  msgid "Default maximum candidates per page"
  msgstr "預設單頁最多候選詞數"
  
-+#: src/lib/fcitx/globalconfig.cpp:222
++#: src/lib/fcitx/globalconfig.cpp:234
 +msgid "Insert space between Chinese and English"
 +msgstr "中英字元間插入空格"
 +
- #: src/lib/fcitx/globalconfig.cpp:215
+ #: src/lib/fcitx/globalconfig.cpp:227
  msgid "Override XKB Option"
  msgstr "覆蓋 XKB 選項"
 diff --git a/src/lib/fcitx/globalconfig.cpp b/src/lib/fcitx/globalconfig.cpp
-index 20457f08..dd8e6f92 100644
+index 1f1c88940a894ef1bbb1159c066fcb0aa1b8dfd3..e2a154f410a8410e00948e26b460ee6c19b6f411 100644
 --- a/src/lib/fcitx/globalconfig.cpp
 +++ b/src/lib/fcitx/globalconfig.cpp
-@@ -222,6 +222,9 @@ FCITX_CONFIGURATION(
+@@ -234,6 +234,9 @@ FCITX_CONFIGURATION(
      Option<bool> enumerateSkipFirst{
          this, "EnumerateSkipFirst",
          _("Skip first input method while enumerating"), false};
@@ -222,7 +222,7 @@ index 20457f08..dd8e6f92 100644
      ConditionalHidden<!hasKeyboard,
                        OptionWithAnnotation<bool, ToolTipAnnotation>>
          overrideXkbOption{
-@@ -398,6 +401,11 @@ int GlobalConfig::defaultPageSize() const {
+@@ -415,6 +418,11 @@ int GlobalConfig::defaultPageSize() const {
      return d->behavior->defaultPageSize.value();
  }
  
@@ -235,10 +235,10 @@ index 20457f08..dd8e6f92 100644
      FCITX_D();
      return d->behavior->overrideXkbOption.value();
 diff --git a/src/lib/fcitx/globalconfig.h b/src/lib/fcitx/globalconfig.h
-index 5982d9c9..7d72a054 100644
+index 583d9b4ed8546f02a970b1beebdb8cdcadda7eaa..6e3377ab6a2b1997b9780ab9a002a125a4926d71 100644
 --- a/src/lib/fcitx/globalconfig.h
 +++ b/src/lib/fcitx/globalconfig.h
-@@ -62,6 +62,7 @@ public:
+@@ -75,6 +75,7 @@ public:
      const KeyList &defaultPrevCandidate() const;
      const KeyList &defaultNextCandidate() const;
      int defaultPageSize() const;
