@@ -6,7 +6,6 @@
 package org.fxboomk.fcitx5.android.data.theme
 
 import android.content.SharedPreferences
-import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import org.fxboomk.fcitx5.android.BuildConfig
@@ -68,9 +67,9 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         false
     )
 
-    val gboardStyleColorKeys = switch(
-        R.string.gboard_style_color_keys,
-        "gboard_style_color_keys",
+    val navbarBorder = switch(
+        R.string.navbar_border,
+        "navbar_border",
         false
     )
 
@@ -156,32 +155,6 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         UppercasePosition.None
     )
 
-    enum class NavbarBackground(override val stringRes: Int) : ManagedPreferenceEnum {
-        None(R.string.navbar_bkg_none),
-        ColorOnly(R.string.navbar_bkg_color_only),
-        Full(R.string.navbar_bkg_full);
-    }
-
-    val navbarBackground = enumList(
-        R.string.navbar_background,
-        "navbar_background",
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) NavbarBackground.Full else NavbarBackground.ColorOnly,
-        // 35+ forces edge to edge
-        enableUiOn = { Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM }
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            sharedPreferences.edit {
-                remove(this@apply.key)
-            }
-        }
-    }
-
-    val navbarBorder = switch(
-        R.string.navbar_border,
-        "navbar_border",
-        false
-    )
-
     /**
      * When [followSystemDayNightTheme] is disabled, this theme is used.
      * This is effectively an internal preference which does not need UI.
@@ -240,7 +213,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     val wallpaperBlendPercent = int(
         R.string.wallpaper_blend_percent,
         "wallpaper_blend_percent",
-        55,
+        0,
         0,
         100,
         "%"

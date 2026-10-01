@@ -168,10 +168,6 @@
     <string name="clear_background_image">Clear Background Image</string>
     <string name="dark_keys">Dark Keys</string>
     <string name="recrop_image">Re-Crop Image</string>
-    <string name="navbar_background">Navigation bar background</string>
-    <string name="navbar_bkg_none">No background</string>
-    <string name="navbar_bkg_color_only">Follow keyboard color</string>
-    <string name="navbar_bkg_full">Keyboard background image</string>
     <string name="punctuation_position">Punctuation position</string>
     <string name="punctuation_pos_bottom">Bottom</string>
     <string name="punctuation_pos_top">Top</string>
@@ -203,9 +199,8 @@
     <string name="gboard_light_main_key_tone">Main key area opacity</string>
     <string name="gboard_light_other_key_tone">Non-main key area opacity</string>
     <string name="gboard_style_side_keys">Gboard style side keys</string>
-    <string name="gboard_style_color_keys">Gboard style key coloring</string>
     <string name="wallpaper_blend_percent">Keyboard/wallpaper blend</string>
-    <string name="navbar_border">Navigation bar border</string>
+    <string name="navbar_border">Enable navigation bar border</string>
     <string name="light_mode_theme">Light mode themes</string>
     <string name="light_mode_theme_summary">Select multiple themes and cycle through them</string>
     <string name="dark_mode_theme">Dark mode themes</string>

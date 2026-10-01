@@ -121,9 +121,6 @@
     <string name="clear_background_image">Hintergrundbild entfernen</string>
     <string name="dark_keys">Dunkle Tasten</string>
     <string name="recrop_image">Bild neu zuschneiden</string>
-    <string name="navbar_background">Hintergrund der Navigationsleiste</string>
-    <string name="navbar_bkg_none">Kein Hintergrund</string>
-    <string name="navbar_bkg_full">Hintergrundbild der Tastatur</string>
     <string name="punctuation_pos_top_right">Oben rechts</string>
     <string name="disable_animation">Animation deaktivieren</string>
     <string name="import_from_file">Aus Dataei importieren ...</string>
@@ -700,7 +697,6 @@
     <string name="move_cursor_to_end">Cursor ans Ende bewegen</string>
     <string name="move_cursor_to_start">Cursor an den Anfang bewegen</string>
     <string name="move_cursor_up">Cursor nach oben bewegen</string>
-    <string name="navbar_bkg_color_only">Der Tastaturhintergrundfarbe folgen</string>
     <string name="no_fonts_found">Keine Schriftdateien in fonts/ gefunden</string>
     <string name="no_plugins">Keine Plugins verfügbar</string>
     <string name="notification_permission_message">Es gibt keine Berechtigung für Benachrichtigungen; bei zeitaufwändigen Vorgängen können wir Sie nach Abschluss nicht benachrichtigen.</string>
@@ -822,9 +818,8 @@
     <string name="gboard_light_main_key_tone">Deckkraft der Haupttasten</string>
     <string name="gboard_light_other_key_tone">Deckkraft der Nebentasten</string>
     <string name="gboard_style_side_keys">Seitliche Tasten im Gboard-Stil</string>
-    <string name="gboard_style_color_keys">Tastenfarbgebung im Gboard-Stil</string>
     <string name="wallpaper_blend_percent">Mischverhältnis zwischen Tastatur und Hintergrundbild</string>
-    <string name="navbar_border">Rand der Navigationsleiste</string>
+    <string name="navbar_border">Navigationsleistenrand aktivieren</string>
     <string name="space_swipe_vertical_behavior">Verhalten beim vertikalen Wischen auf der Leertaste</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Markierung wortweise verschieben</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Kandidatenzeilen wechseln</string>

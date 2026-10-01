@@ -42,7 +42,6 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.bar.ui.idle.ButtonsBarUi
 import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
@@ -116,7 +115,6 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             return ctx.dp(value)
         }
 
-    private val navbarBackground = ThemeManager.prefs.navbarBackground
     private val navbarBorder = ThemeManager.prefs.navbarBorder
     private val keyBorder by ThemeManager.prefs.keyBorder
 
@@ -428,7 +426,6 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             currentTheme?.let { setTheme(it, forceRefresh = true) }
             recalculateSize()
             onSizeMeasured?.invoke(intrinsicWidth, intrinsicHeight)
-            navbarBackground.registerOnChangeListener(previewChromeChangeListener)
             navbarBorder.registerOnChangeListener(previewChromeChangeListener)
         }
 
@@ -437,7 +434,6 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         }
 
         override fun onDetachedFromWindow() {
-            navbarBackground.unregisterOnChangeListener(previewChromeChangeListener)
             navbarBorder.unregisterOnChangeListener(previewChromeChangeListener)
             detachPreviewFcitx()
             super.onDetachedFromWindow()
@@ -512,7 +508,6 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     }
 
     private fun resolveNavbarPreviewHeight(): Int {
-        if (navbarBackground.getValue() == NavbarBackground.None) return 0
         val insets = ViewCompat.getRootWindowInsets(root)
         val insetBottom = insets?.let {
             maxOf(
@@ -558,13 +553,10 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         } else {
             ColorDrawable(barBackgroundColor)
         }
-        val navbarMode = navbarBackground.getValue()
+        // keyboard background image extends behind the navbar
         val navbarHeight = resolveNavbarPreviewHeight()
-        fakeNavbarView.visibility = if (navbarMode == NavbarBackground.None || navbarHeight == 0) View.GONE else View.VISIBLE
-        fakeNavbarView.backgroundColor = when (navbarMode) {
-            NavbarBackground.None, NavbarBackground.Full -> Color.TRANSPARENT
-            NavbarBackground.ColorOnly -> if (!keyBorder && theme is Theme.Builtin) theme.keyboardColor else theme.backgroundColor
-        }
+        fakeNavbarView.visibility = if (navbarHeight == 0) View.GONE else View.VISIBLE
+        fakeNavbarView.backgroundColor = Color.TRANSPARENT
         fakeNavbarView.updateLayoutParams<ConstraintLayout.LayoutParams> {
             height = navbarHeight
         }
@@ -618,9 +610,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         intrinsicHeight = barHeight + keyboardHeight
         // extra bottom padding
         intrinsicHeight += keyboardBottomPaddingPx
-        if (navbarBackground.getValue() != NavbarBackground.None) {
-            intrinsicHeight += navbarHeight
-        }
+        intrinsicHeight += navbarHeight
         // fakeInputView size should match the calculated intrinsic size
         fakeInputView.updateLayoutParams<FrameLayout.LayoutParams> {
             width = intrinsicWidth

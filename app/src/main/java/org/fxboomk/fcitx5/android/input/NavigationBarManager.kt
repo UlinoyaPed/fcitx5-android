@@ -12,13 +12,11 @@ import androidx.annotation.ColorInt
 import androidx.core.view.WindowCompat
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
 import org.fxboomk.fcitx5.android.utils.DeviceUtil
 
 class NavigationBarManager {
 
     private val keyBorder by ThemeManager.prefs.keyBorder
-    private val navbarBackground by ThemeManager.prefs.navbarBackground
 
     private var shouldUpdateNavbarForeground = false
     private var shouldUpdateNavbarBackground = false
@@ -48,30 +46,15 @@ class NavigationBarManager {
     }
 
     private fun evaluateWithVirtualKeyboard(window: Window) {
-        when (navbarBackground) {
-            NavbarBackground.None -> {
-                shouldUpdateNavbarForeground = false
-                shouldUpdateNavbarBackground = false
-                window.useSystemNavbarBackground(true)
-                window.enforceNavbarContrast(true)
-            }
-            NavbarBackground.ColorOnly -> {
-                shouldUpdateNavbarForeground = true
-                shouldUpdateNavbarBackground = true
-                window.useSystemNavbarBackground(true)
-                window.enforceNavbarContrast(false)
-            }
-            NavbarBackground.Full -> {
-                shouldUpdateNavbarForeground = true
-                shouldUpdateNavbarBackground = false
-                window.useSystemNavbarBackground(false)
-                window.setNavbarBackgroundColor(Color.TRANSPARENT)
-                window.enforceNavbarContrast(false)
-                // it seems One UI 7.0 (Android 15) does not allow drawing behind navbar
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && DeviceUtil.isSamsungOneUI) {
-                    shouldUpdateNavbarBackground = true
-                }
-            }
+        // keyboard background image extends behind the navbar
+        shouldUpdateNavbarForeground = true
+        shouldUpdateNavbarBackground = false
+        window.useSystemNavbarBackground(false)
+        window.setNavbarBackgroundColor(Color.TRANSPARENT)
+        window.enforceNavbarContrast(false)
+        // it seems One UI 7.0 (Android 15) does not allow drawing behind navbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && DeviceUtil.isSamsungOneUI) {
+            shouldUpdateNavbarBackground = true
         }
     }
 

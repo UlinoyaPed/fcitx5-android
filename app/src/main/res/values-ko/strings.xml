@@ -645,10 +645,6 @@
     <string name="move_cursor_to_end">커서를 끝으로 이동</string>
     <string name="move_cursor_to_start">커서를 시작으로 이동</string>
     <string name="move_cursor_up">커서를 위로 이동</string>
-    <string name="navbar_background">내비게이션 바 배경</string>
-    <string name="navbar_bkg_color_only">키보드 색상 따르기</string>
-    <string name="navbar_bkg_full">키보드 배경 이미지</string>
-    <string name="navbar_bkg_none">배경 없음</string>
     <string name="new_theme">새 테마</string>
     <string name="no_fonts_found">fonts/에서 글꼴 파일을 찾을 수 없음</string>
     <string name="no_plugins">사용 가능한 플러그인 없음</string>
@@ -824,9 +820,8 @@
     <string name="gboard_light_main_key_tone">주요 키 영역 불투명도</string>
     <string name="gboard_light_other_key_tone">보조 키 영역 불투명도</string>
     <string name="gboard_style_side_keys">Gboard 스타일 사이드 키</string>
-    <string name="gboard_style_color_keys">Gboard 스타일 키 배색</string>
     <string name="wallpaper_blend_percent">키보드와 배경화면 혼합 비율</string>
-    <string name="navbar_border">내비게이션 바 테두리</string>
+    <string name="navbar_border">내비게이션 바 테두리 활성화</string>
     <string name="light_mode_theme_summary">선택한 여러 테마를 전환할 때 순환</string>
     <string name="dark_mode_theme_summary">선택한 여러 테마를 전환할 때 순환</string>
     <string name="space_swipe_vertical_behavior">스페이스 키 상하 스와이프 동작</string>

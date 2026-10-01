@@ -25,8 +25,6 @@ import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.data.InputFeedbacks
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.Theme
-import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.input.candidates.CandidateCharacterPopup
 import org.fxboomk.fcitx5.android.input.candidates.candidateCharacters
 import org.fxboomk.fcitx5.android.input.candidates.candidateEdgeCharacters
@@ -289,12 +287,7 @@ abstract class BaseInputView(
         }
     }
 
-    private val navbarBackground by ThemeManager.prefs.navbarBackground
-
     protected fun getNavBarBottomInset(windowInsets: WindowInsets): Int {
-        if (navbarBackground != ThemePrefs.NavbarBackground.Full) {
-            return 0
-        }
         val insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
         // use navigation bar insets when available
         val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
