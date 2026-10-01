@@ -1,0 +1,38 @@
+{
+  "name": "指尖生花夜间",
+  "isDark": true,
+  "backgroundImage": {
+    "croppedFilePath": "images/指尖生花夜间-cropped.png",
+    "srcFilePath": "images/指尖生花夜间-src.png",
+    "brightness": 100,
+    "cropRect": {
+      "bottom": 785,
+      "left": 120,
+      "right": 989,
+      "top": 219
+    },
+    "blurRadius": 8.0
+  },
+  "backgroundColor": -13816531,
+  "barColor": 1275068416,
+  "keyboardColor": 0,
+  "keyBackgroundColor": 1275068415,
+  "keyTextColor": -1,
+  "candidateTextColor": -1,
+  "candidateLabelColor": -1,
+  "candidateCommentColor": -905969665,
+  "altKeyBackgroundColor": 218103807,
+  "altKeyTextColor": -905969665,
+  "accentKeyBackgroundColor": -10270141,
+  "accentKeyTextColor": -1,
+  "keyPressHighlightColor": 520093696,
+  "keyShadowColor": 0,
+  "popupBackgroundColor": -13158601,
+  "popupTextColor": -328966,
+  "spaceBarColor": 1275068415,
+  "dividerColor": 536870911,
+  "clipboardEntryColor": 855638015,
+  "genericActiveBackgroundColor": -10270141,
+  "genericActiveForegroundColor": -328966,
+  "version": "2.1"
+}

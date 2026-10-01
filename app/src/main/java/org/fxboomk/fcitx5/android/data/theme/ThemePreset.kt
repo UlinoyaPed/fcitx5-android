@@ -114,32 +114,6 @@ object ThemePreset {
         genericActiveForegroundColor = 0xfffafafa
     )
 
-    val MinimalRainbow = Theme.Builtin(
-        name = "极简彩虹",
-        isDark = false,
-        backgroundColor = 0xffcbc4bf.toInt(),
-        barColor = 0xffc5bfb9.toInt(),
-        keyboardColor = 0xffcbc4bf.toInt(),
-        keyBackgroundColor = 0xccffffff.toInt(),
-        keyTextColor = 0xff4a4a4a.toInt(),
-        candidateTextColor = 0xff4a4a4a.toInt(),
-        candidateLabelColor = 0xff4a4a4a.toInt(),
-        candidateCommentColor = 0xff7a7672.toInt(),
-        altKeyBackgroundColor = 0xffbdb6b1.toInt(),
-        altKeyTextColor = 0xff54514f.toInt(),
-        accentKeyBackgroundColor = 0xfff08b8f.toInt(),
-        accentKeyTextColor = 0xff4a4a4a.toInt(),
-        keyPressHighlightColor = 0x1f000000,
-        keyShadowColor = 0xffa49d98.toInt(),
-        popupBackgroundColor = 0xffd7d0ca.toInt(),
-        popupTextColor = 0xff4a4a4a.toInt(),
-        spaceBarColor = 0xffece8e4.toInt(),
-        dividerColor = 0x14000000,
-        clipboardEntryColor = 0xffece8e4.toInt(),
-        genericActiveBackgroundColor = 0xfff08b8f.toInt(),
-        genericActiveForegroundColor = 0xff4a4a4a.toInt()
-    )
-
     val DeepBlue = Theme.Builtin(
         name = "DeepBlue",
         isDark = true,

@@ -37,7 +37,6 @@ object ThemeManager {
         ThemePreset.MaterialDark,
         ThemePreset.PixelLight,
         ThemePreset.PixelDark,
-        ThemePreset.MinimalRainbow,
         ThemePreset.NordLight,
         ThemePreset.NordDark,
         ThemePreset.DeepBlue,

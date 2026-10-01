@@ -18,9 +18,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import org.fxboomk.fcitx5.android.R
-import org.fxboomk.fcitx5.android.data.theme.CustomThemeSerializer
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeFilesManager
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
@@ -30,11 +28,8 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollect
 import org.fxboomk.fcitx5.android.utils.importErrorDialog
 import org.fxboomk.fcitx5.android.utils.queryFileName
 import org.fxboomk.fcitx5.android.utils.toast
-import org.fxboomk.fcitx5.android.utils.zipInputStream
 import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
-import java.nio.charset.Charset
-import java.util.zip.ZipInputStream
 
 class ThemeShareImportManager(
     private val fragment: Fragment,
@@ -284,23 +279,6 @@ class ThemeShareImportManager(
         }
     }
 
-    private fun decodeThemeFromZipBytes(zipBytes: ByteArray): Theme.Custom {
-        val encodings = listOf("UTF-8", "GBK", "Big5")
-        encodings.forEach { encoding ->
-            runCatching {
-                zipInputStream(ByteArrayInputStream(zipBytes), Charset.forName(encoding)).use { zip ->
-                    var entry = zip.nextEntry
-                    while (entry != null) {
-                        if (!entry.isDirectory && entry.name.endsWith(".json")) {
-                            val json = zip.readBytes().toString(Charsets.UTF_8)
-                            val (theme, _) = Json.decodeFromString(CustomThemeSerializer.WithMigrationStatus, json)
-                            return theme
-                        }
-                        entry = zip.nextEntry
-                    }
-                }
-            }
-        }
-        error("No theme json found")
-    }
+    private fun decodeThemeFromZipBytes(zipBytes: ByteArray): Theme.Custom =
+        ThemeFilesManager.decodeTheme(zipBytes.inputStream()).getOrThrow()
 }

@@ -53,7 +53,6 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
-import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.utils.DarkenColorFilter
 import org.fxboomk.fcitx5.android.input.calculator.CalculatorExpression
@@ -145,22 +144,6 @@ class InputView(
     private val keyBorder by ThemeManager.prefs.keyBorder
 
     private fun resolveKeyboardBackgroundDrawable(): Drawable {
-        if (theme.name == ThemePreset.MinimalRainbow.name) {
-            return GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(
-                    0xfff29a8f.toInt(),
-                    0xfff3be84.toInt(),
-                    0xffe9df7a.toInt(),
-                    0xff9fcb8b.toInt(),
-                    0xff7fc7b2.toInt(),
-                    0xff7fb5d2.toInt(),
-                    0xffb791c8.toInt()
-                )
-            ).apply {
-                setDither(true)
-            }
-        }
         val baseDrawable = theme.backgroundDrawable(keyBorder)
         if ((theme as? Theme.Custom)?.backgroundImage != null) {
             return baseDrawable
