@@ -24,6 +24,7 @@ import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fxboomk.fcitx5.android.input.candidates.floating.PagedCandidatesUi
+import org.fxboomk.fcitx5.android.input.font.FontProviders
 import org.fxboomk.fcitx5.android.input.preedit.PreeditUi
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.below
@@ -54,7 +55,6 @@ class CandidatesView(
     private val windowMinWidth by candidatesPrefs.windowMinWidth
     private val windowPadding by candidatesPrefs.windowPadding
     private val windowRadius by candidatesPrefs.windowRadius
-    private val fontSize by candidatesPrefs.fontSize
     private val itemPaddingVertical by candidatesPrefs.itemPaddingVertical
     private val itemPaddingHorizontal by candidatesPrefs.itemPaddingHorizontal
     private val floatingPosition by candidatesPrefs.virtualKeyboardPosition
@@ -126,8 +126,8 @@ class CandidatesView(
     private val touchEventReceiverWindow = TouchEventReceiverWindow(this)
 
     private val setupTextView: TextView.() -> Unit = {
-        textSize = fontSize.toFloat()
-        typeface = org.fxboomk.fcitx5.android.input.font.FontProviders.resolveTypeface("cand_font", typeface)
+        textSize = FontProviders.getFontSize("cand_font", 20f)
+        typeface = FontProviders.resolveTypeface("cand_font", typeface)
         val v = dp(itemPaddingVertical)
         val h = dp(itemPaddingHorizontal)
         setPadding(h, v, h, v)

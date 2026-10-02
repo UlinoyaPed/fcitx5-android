@@ -9,6 +9,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -17,12 +18,12 @@ import androidx.annotation.ColorInt
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import org.fxboomk.fcitx5.android.core.CandidateWord
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.input.AutoScaleTextView
 import org.fxboomk.fcitx5.android.input.font.FontProviders
 import org.fxboomk.fcitx5.android.input.keyboard.CustomGestureView
 import org.fxboomk.fcitx5.android.utils.firstCandidateDrawable
-import org.fxboomk.fcitx5.android.utils.pressHighlightDrawable
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
@@ -53,11 +54,20 @@ class CandidateItemUi(
         applyConfiguredTypeface()
     }
 
-    private val normalBackground = pressHighlightDrawable(theme.keyPressHighlightColor)
+    private val highlightRadius: Float
+        get() = ctx.dp(AppPrefs.getInstance().candidates.candidateHighlightRadius.getValue().toFloat())
+
+    private val pressedBackground = GradientDrawable().apply {
+        setColor(theme.keyPressHighlightColor)
+        cornerRadius = highlightRadius
+    }
+
+    private val normalBackground = StateListDrawable().apply {
+        addState(intArrayOf(android.R.attr.state_pressed), pressedBackground)
+    }
 
     private val activeBackground = GradientDrawable().apply {
         setColor(theme.genericActiveBackgroundColor)
-        cornerRadius = 8f
     }
 
     private var currentCandidate = CandidateWord.Empty
@@ -66,6 +76,12 @@ class CandidateItemUi(
 
     private val activeForegroundColor: Int
         get() = if (theme.isDark) Color.BLACK else Color.WHITE
+
+    private fun updateHighlightRadius() {
+        val radius = highlightRadius
+        activeBackground.cornerRadius = radius
+        pressedBackground.cornerRadius = radius
+    }
 
     fun applyConfiguredTypeface(fontOverride: Typeface? = font) {
         val resolved = fontOverride ?: FontProviders.resolveTypeface("cand_font", text.typeface)
@@ -84,14 +100,15 @@ class CandidateItemUi(
     fun applyFirstCandidateStyle(
         @ColorInt bgColor: Int,
         @ColorInt strokeColor: Int,
-        @ColorInt pressColor: Int,
-        cornerRadius: Float = ctx.dp(6f)
+        @ColorInt pressColor: Int
     ) {
+        updateHighlightRadius()
+        pressedBackground.setColor(pressColor)
         root.background = normalBackground
         content.background = firstCandidateDrawable(
             bgColor = bgColor,
             strokeColor = strokeColor,
-            cornerRadius = cornerRadius,
+            cornerRadius = highlightRadius,
             strokeWidth = 1,
             pressColor = pressColor,
         )
@@ -100,7 +117,9 @@ class CandidateItemUi(
     }
 
     fun resetToDefaultBackground(@ColorInt pressColor: Int) {
-        root.background = pressHighlightDrawable(pressColor)
+        updateHighlightRadius()
+        pressedBackground.setColor(pressColor)
+        root.background = normalBackground
         content.background = null
         hasFirstCandidateStyle = false
         renderCandidate()
@@ -124,6 +143,7 @@ class CandidateItemUi(
 
     fun setActive(active: Boolean) {
         isActive = active
+        updateHighlightRadius()
         renderCandidate()
         text.background = null
         content.background = null

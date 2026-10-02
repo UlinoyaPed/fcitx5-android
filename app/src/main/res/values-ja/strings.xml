@@ -124,6 +124,7 @@
     <string name="key_border">キーの枠を有効にする</string>
     <string name="brightness">明るさ</string>
     <string name="key_radius">キーの角半径</string>
+    <string name="navbar_radius">ナビゲーションバーの角半径</string>
     <string name="key_horizontal_margin">キーの左右間隔</string>
     <string name="key_vertical_margin">キーの上下間隔</string>
     <string name="configure">設定</string>
@@ -555,8 +556,7 @@
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
-    <string name="candidates_font_size">候補のフォントサイズ</string>
-    <string name="candidates_padding">候補のパディング</string>
+    <string name="candidates_padding">候補項目の余白（フローティングウィンドウ）</string>
     <string name="candidate_highlight_radius">候補のハイライト角半径</string>
     <string name="candidates_window_min_width">候補ウィンドウの最小幅</string>
     <string name="candidates_window_padding">候補ウィンドウのパディング</string>
@@ -688,7 +688,6 @@
     <string name="candidate_display_mode">候補の表示方法</string>
     <string name="candidate_display_mode_horizontal">横型候補バー</string>
     <string name="candidate_display_mode_floating">フローティングウィンドウ</string>
-    <string name="candidate_items_and_words">候補語と候補項目</string>
     <string name="candidates_window_radius">候補ウィンドウの角丸半径</string>
     <string name="cannot_resolve_popup_preset">ポップアッププリセットファイルが見つかりません</string>
     <string name="clear_clp_db_confirm">クリップボードデータベースがピン留めされた項目を含めて完全に消去されます。続行しますか？</string>

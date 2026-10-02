@@ -116,6 +116,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         }
 
     private val navbarBorder = ThemeManager.prefs.navbarBorder
+    private val navbarRadius = ThemeManager.prefs.navbarRadius
     private val keyBorder by ThemeManager.prefs.keyBorder
 
     private val previewChromeChangeListener = ManagedPreference.OnChangeListener<Any> { _, _ ->
@@ -427,6 +428,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             recalculateSize()
             onSizeMeasured?.invoke(intrinsicWidth, intrinsicHeight)
             navbarBorder.registerOnChangeListener(previewChromeChangeListener)
+            navbarRadius.registerOnChangeListener(previewChromeChangeListener)
         }
 
         override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -435,6 +437,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
 
         override fun onDetachedFromWindow() {
             navbarBorder.unregisterOnChangeListener(previewChromeChangeListener)
+            navbarRadius.unregisterOnChangeListener(previewChromeChangeListener)
             detachPreviewFcitx()
             super.onDetachedFromWindow()
         }
@@ -540,7 +543,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     private fun applyPreviewChrome(theme: Theme) {
         val barBackgroundColor = resolveBarBackgroundColor(theme)
         fakeKawaiiBar.background = if (navbarBorder.getValue()) {
-            val cornerRadius = ctx.dp(kotlin.math.max(8f, ThemeManager.prefs.keyRadius.getValue() + 2f))
+            val cornerRadius = ctx.dp(navbarRadius.getValue().toFloat())
             android.graphics.drawable.InsetDrawable(
                 borderDrawable(
                     width = ctx.dp(1),

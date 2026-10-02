@@ -500,9 +500,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val windowPadding =
             int(R.string.candidates_window_padding, "candidates_window_padding", 4, 0, 32, "dp")
 
-        val fontSize =
-            int(R.string.candidates_font_size, "candidates_window_font_size", 20, 4, 64, "sp")
-
         val windowRadius =
             int(R.string.candidates_window_radius, "candidates_window_radius", 0, 0, 48, "dp")
 

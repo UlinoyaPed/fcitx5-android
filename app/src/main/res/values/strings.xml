@@ -157,6 +157,7 @@
     <string name="key_border">Enable key border</string>
     <string name="brightness">Brightness</string>
     <string name="key_radius">Key radius</string>
+    <string name="navbar_radius">Navigation bar corner radius</string>
     <string name="text_editing_button_radius">Text editing button radius</string>
     <string name="clipboard_entry_radius">Clipboard entry radius</string>
     <string name="key_horizontal_margin">Key horizontal margin</string>
@@ -684,7 +685,6 @@
     <string name="candidate_display_mode">Candidate display mode</string>
     <string name="candidate_display_mode_horizontal">Horizontal candidate bar</string>
     <string name="candidate_display_mode_floating">Floating window</string>
-    <string name="candidate_items_and_words">Candidate words and items</string>
     <string name="candidates_window_radius">Candidates window radius</string>
     <string name="follow_input_device">Depends on input device</string>
     <string name="candidates_orientation">Candidates list orientation</string>
@@ -697,8 +697,7 @@
     <string name="top_right">Top Right</string>
     <string name="bottom_left">Bottom Left</string>
     <string name="bottom_right">Bottom Right</string>
-    <string name="candidates_font_size">Candidate word font size</string>
-    <string name="candidates_padding">Candidate word padding</string>
+    <string name="candidates_padding">Candidate item padding (floating window)</string>
     <string name="candidate_highlight_radius">Candidate highlight radius</string>
     <string name="candidates_window_min_width">Candidate window minimum width</string>
     <string name="candidates_window_padding">Candidate window padding</string>

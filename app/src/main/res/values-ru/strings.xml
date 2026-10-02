@@ -125,6 +125,7 @@
     <string name="key_border">Включить границы клавиш</string>
     <string name="brightness">Яркость</string>
     <string name="key_radius">Радиус клавиш</string>
+    <string name="navbar_radius">Радиус скругления углов панели навигации</string>
     <string name="text_editing_button_radius">Радиус кнопки редактирования текста</string>
     <string name="clipboard_entry_radius">Радиус входа в буфер обмена</string>
     <string name="key_horizontal_margin">Горизонтальное поле клавиш</string>
@@ -334,7 +335,6 @@
     <string name="candidate_display_mode">Способ отображения кандидатов</string>
     <string name="candidate_display_mode_horizontal">Горизонтальная панель кандидатов</string>
     <string name="candidate_display_mode_floating">Плавающее окно</string>
-    <string name="candidate_items_and_words">Слова и элементы-кандидаты</string>
     <string name="candidates_window_radius">Радиус окна кандидатов</string>
     <string name="follow_input_device">Зависит от устройства ввода</string>
     <string name="candidates_orientation">Ориентация списка кандидатов</string>
@@ -347,12 +347,11 @@
     <string name="top_right">Вверху справа</string>
     <string name="bottom_left">Внизу слева</string>
     <string name="bottom_right">Внизу справа</string>
-    <string name="candidates_font_size">Размер шрифта слова-кандидата</string>
     <string name="font_size">Размер шрифта</string>
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - Размер шрифта</string>
     <string name="font_size_editor_hint">Перетащите для изменения размера шрифта (%1$d–%2$d sp)</string>
-    <string name="candidates_padding">Отступ от слова-кандидата</string>
+    <string name="candidates_padding">Отступы элементов-кандидатов (плавающее окно)</string>
     <string name="candidate_highlight_radius">Радиус скругления выделения кандидата</string>
     <string name="candidates_window_min_width">Минимальная ширина окна кандидата</string>
     <string name="candidates_window_padding">Поле окна кандидата</string>

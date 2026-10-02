@@ -76,7 +76,10 @@ fun firstCandidateDrawable(
         setColor(Color.TRANSPARENT)
         this.cornerRadius = cornerRadius
     }
-    val pressOverlay = ColorDrawable(Color.argb((Color.alpha(pressColor) * 0.6f).toInt(), Color.red(pressColor), Color.green(pressColor), Color.blue(pressColor)))
+    val pressOverlay = GradientDrawable().apply {
+        setColor(Color.argb((Color.alpha(pressColor) * 0.6f).toInt(), Color.red(pressColor), Color.green(pressColor), Color.blue(pressColor)))
+        this.cornerRadius = cornerRadius
+    }
     fun Drawable.withInset(): Drawable = if (inset > 0) InsetDrawable(this, inset) else this
     return StateListDrawable().apply {
         addState(

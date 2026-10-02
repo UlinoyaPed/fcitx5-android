@@ -32,14 +32,6 @@ class KeyboardCandidateSettingsOrganizationTest {
             ),
             KeyboardSettingsSupport.candidateWindowKeys
         )
-        assertEquals(
-            listOf(
-                "candidates_item_padding_vertical",
-                "candidates_window_font_size",
-                "candidate_highlight_radius"
-            ),
-            KeyboardSettingsSupport.candidateItemKeys
-        )
     }
 
     @Test

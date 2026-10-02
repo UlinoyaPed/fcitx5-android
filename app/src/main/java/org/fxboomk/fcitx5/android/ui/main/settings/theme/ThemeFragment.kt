@@ -21,6 +21,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -90,7 +91,8 @@ class ThemeFragment : Fragment() {
         }.attach()
 
         val pendingPreferenceKey = viewModel.peekPendingPreferenceScrollKey()
-        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key }
+        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key } +
+            ThemePrefs.CandidateAppearancePreferenceKeys
         if (pendingPreferenceKey in themePreferenceKeys) {
             viewPager.setCurrentItem(1, false)
         }

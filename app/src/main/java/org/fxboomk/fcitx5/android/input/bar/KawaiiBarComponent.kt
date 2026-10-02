@@ -108,7 +108,6 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
-import kotlin.math.max
 import kotlin.math.min
 
 internal fun hasVisibleCandidateContent(candidates: Array<CandidateWord>): Boolean =
@@ -751,7 +750,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             background = run {
                 val backgroundColor = resolveBarBackgroundColor()
                 if (ThemeManager.prefs.navbarBorder.getValue()) {
-                    val cornerRadius = dp(max(8f, ThemeManager.prefs.keyRadius.getValue() + 2f))
+                    val cornerRadius = dp(ThemeManager.prefs.navbarRadius.getValue().toFloat())
                     android.graphics.drawable.InsetDrawable(
                         borderDrawable(
                             width = dp(1),

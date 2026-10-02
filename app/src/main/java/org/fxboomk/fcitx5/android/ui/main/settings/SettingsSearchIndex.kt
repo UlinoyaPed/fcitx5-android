@@ -16,6 +16,7 @@ import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
@@ -194,12 +195,18 @@ object SettingsSearchIndex {
                 )
             )
             addAll(managedItems(context, ThemeManager.prefs, SettingsRoute.Theme, R.string.theme_appearance))
-            val candidateItems = managedItems(
+            val (appearanceItems, candidateItems) = managedItems(
                 context,
                 prefs.candidates,
                 SettingsRoute.VirtualKeyboardCandidates,
                 R.string.keyboard_settings_candidates
-            )
+            ).partition { it.preferenceKey in ThemePrefs.CandidateAppearancePreferenceKeys }
+            addAll(appearanceItems.map {
+                it.copy(
+                    route = SettingsRoute.Theme,
+                    path = listOf(context.getString(R.string.theme_appearance))
+                )
+            })
             addAll(
                 when (candidateDisplayMode) {
                     FloatingCandidatesMode.Always -> candidateItems

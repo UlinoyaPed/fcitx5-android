@@ -87,12 +87,6 @@ internal object KeyboardSettingsSupport {
         "candidates_window_min_width"
     )
 
-    val candidateItemKeys = listOf(
-        "candidates_item_padding_vertical",
-        "candidates_window_font_size",
-        "candidate_highlight_radius"
-    )
-
     fun ManagedPreferenceFragment.addManagedPreference(
         parent: PreferenceGroup,
         provider: ManagedPreferenceProvider,

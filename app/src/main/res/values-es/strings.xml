@@ -363,8 +363,7 @@
     <string name="top_right">Arriba derecha</string>
     <string name="bottom_left">Abajo izquierda</string>
     <string name="bottom_right">Abajo derecha</string>
-    <string name="candidates_font_size">Tamaño de fuente de candidatos</string>
-    <string name="candidates_padding">Relleno de candidatos</string>
+    <string name="candidates_padding">Relleno de elementos candidatos (ventana flotante)</string>
     <string name="candidates_window_min_width">Ancho mínimo de ventana de candidatos</string>
     <string name="candidates_window_padding">Relleno de ventana de candidatos</string>
     <string name="restart_fcitx_instance">Reiniciar instancia de fcitx</string>
@@ -519,7 +518,6 @@
     <string name="candidate_display_mode">Modo de visualización de candidatos</string>
     <string name="candidate_display_mode_horizontal">Barra horizontal de candidatos</string>
     <string name="candidate_display_mode_floating">Ventana flotante</string>
-    <string name="candidate_items_and_words">Palabras y elementos candidatos</string>
     <string name="candidates_window_radius">Radio de la ventana de candidatos</string>
     <string name="cannot_resolve_popup_preset">No se pudo resolver el archivo de preajustes emergentes</string>
     <string name="capture_heap_dump">Capturar volcado de memoria heap</string>
@@ -634,6 +632,7 @@
     <string name="key_border_stroke">Habilitar contorno del borde de tecla</string>
     <string name="key_horizontal_margin">Margen horizontal de tecla</string>
     <string name="key_radius">Radio de tecla</string>
+    <string name="navbar_radius">Radio de las esquinas de la barra de navegación</string>
     <string name="key_ripple_effect">Habilitar efecto ondulado de tecla</string>
     <string name="key_vertical_margin">Margen vertical de tecla</string>
     <string name="keyboard_bottom_padding">Relleno inferior del teclado</string>

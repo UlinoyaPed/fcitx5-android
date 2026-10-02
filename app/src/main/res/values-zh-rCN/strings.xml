@@ -155,6 +155,7 @@
     <string name="key_border">启用按键边框</string>
     <string name="brightness">亮度</string>
     <string name="key_radius">按键圆角半径</string>
+    <string name="navbar_radius">导航栏圆角半径</string>
     <string name="text_editing_button_radius">文本编辑按钮圆角半径</string>
     <string name="clipboard_entry_radius">剪贴板条目圆角半径</string>
     <string name="key_horizontal_margin">按键横向边距</string>
@@ -192,7 +193,7 @@
     <string name="exception_theme_src_image">无法保存主题背景原图片</string>
     <string name="exception_theme_cropped_image">无法保存裁切后的主题背景图片</string>
     <string name="exception_theme_parse">主题文件解析失败</string>
-    <string name="follow_system_day_night_theme">跟随系统夜间模式</string>
+    <string name="follow_system_day_night_theme">跟随系统明暗模式</string>
     <string name="follow_system_day_night_theme_summary">开启后，根据系统明暗模式随机选择已勾选的明暗主题</string>
     <string name="gboard_light_main_key_tone">主键区不透明度</string>
     <string name="gboard_light_other_key_tone">非主键区不透明度</string>
@@ -460,7 +461,7 @@
     <string name="button_sound">按键音</string>
     <string name="button_sound_volume">按键音音量</string>
     <string name="clipboard_return_after_paste">粘贴后返回</string>
-    <string name="theme_message_follow_system_day_night_mode_enabled">“跟随系统夜间模式”已启用，不能手动更换主题。</string>
+    <string name="theme_message_follow_system_day_night_mode_enabled">“跟随系统明暗模式”已启用，不能手动更换主题。</string>
     <string name="disable_it">禁用它</string>
     <string name="reset_keyboard_on_focus_change">焦点改变时切换回键盘</string>
     <string name="export_user_data">导出用户数据</string>
@@ -502,7 +503,6 @@
     <string name="candidate_display_mode">候选词显示方式</string>
     <string name="candidate_display_mode_horizontal">横向候选栏</string>
     <string name="candidate_display_mode_floating">浮动窗口</string>
-    <string name="candidate_items_and_words">候选词与候选项</string>
     <string name="candidates_window_radius">候选窗口圆角半径</string>
     <string name="follow_input_device">根据输入设备而定</string>
     <string name="candidates_orientation">候选词列表方向</string>
@@ -515,12 +515,11 @@
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
-    <string name="candidates_font_size">候选词字体大小</string>
     <string name="font_size">字体大小</string>
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - 字体大小</string>
     <string name="font_size_editor_hint">拖动调整字体大小 (%1$d–%2$d sp)</string>
-    <string name="candidates_padding">候选词边距</string>
+    <string name="candidates_padding">候选项边距(浮窗)</string>
     <string name="candidate_highlight_radius">候选项高亮圆角半径</string>
     <string name="candidates_window_min_width">候选窗口最小宽度</string>
     <string name="candidates_window_padding">候选窗口边距</string>

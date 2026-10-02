@@ -136,6 +136,7 @@
     <string name="key_border">啟用按鍵邊框</string>
     <string name="brightness">亮度</string>
     <string name="key_radius">按鍵圓角半徑</string>
+    <string name="navbar_radius">導覽列圓角半徑</string>
     <string name="text_editing_button_radius">文本編輯按鈕圓角半徑</string>
     <string name="clipboard_entry_radius">剪貼簿條目圓角半徑</string>
     <string name="key_horizontal_margin">按鍵橫向邊距</string>
@@ -414,7 +415,6 @@
     <string name="candidate_display_mode">候選詞顯示方式</string>
     <string name="candidate_display_mode_horizontal">橫向候選欄</string>
     <string name="candidate_display_mode_floating">浮動視窗</string>
-    <string name="candidate_items_and_words">候選詞與候選項目</string>
     <string name="candidates_window_radius">候選詞窗口半徑</string>
     <string name="follow_input_device">視輸入設備而定</string>
     <string name="candidates_orientation">候選詞列表方向</string>
@@ -427,12 +427,11 @@
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
-    <string name="candidates_font_size">候選詞字體大小</string>
     <string name="font_size">字體大小</string>
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - 字體大小</string>
     <string name="font_size_editor_hint">拖動調整字體大小 (%1$d–%2$d sp)</string>
-    <string name="candidates_padding">候選詞邊距</string>
+    <string name="candidates_padding">候選項邊距(浮窗)</string>
     <string name="candidate_highlight_radius">候選項高亮圓角半徑</string>
     <string name="candidates_window_min_width">候選窗口最小寬度</string>
     <string name="candidates_window_padding">候選窗口邊距</string>

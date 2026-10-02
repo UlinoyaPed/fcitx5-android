@@ -20,6 +20,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     companion object {
         const val DefaultMainKeyOpacity = 100
         const val DefaultNonMainKeyOpacity = 100
+        val CandidateAppearancePreferenceKeys = setOf(
+            "candidates_item_padding_vertical",
+            "candidate_highlight_radius"
+        )
         private const val GboardOpacitySemanticsMigratedKey =
             "gboard_key_opacity_semantics_migrated"
     }
@@ -61,12 +65,6 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         return pref
     }
 
-    val gboardStyleSideKeys = switch(
-        R.string.gboard_style_side_keys,
-        "gboard_style_side_keys",
-        false
-    )
-
     val navbarBorder = switch(
         R.string.navbar_border,
         "navbar_border",
@@ -81,6 +79,12 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     )
 
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
+
+    val gboardStyleSideKeys = switch(
+        R.string.gboard_style_side_keys,
+        "gboard_style_side_keys",
+        false
+    )
 
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
@@ -124,11 +128,13 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
 
     val keyRadius = int(R.string.key_radius, "key_radius", 4, 0, 48, "dp")
 
-    val textEditingButtonRadius =
-        int(R.string.text_editing_button_radius, "text_editing_button_radius", 8, 0, 48, "dp")
+    val navbarRadius = int(R.string.navbar_radius, "navbar_radius", 8, 0, 48, "dp")
 
     val clipboardEntryRadius =
         int(R.string.clipboard_entry_radius, "clipboard_entry_radius", 2, 0, 48, "dp")
+
+    val textEditingButtonRadius =
+        int(R.string.text_editing_button_radius, "text_editing_button_radius", 8, 0, 48, "dp")
 
     enum class PunctuationPosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.punctuation_pos_none),
@@ -184,13 +190,6 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     ).also {
         it.register()
     }
-
-    val followSystemDayNightTheme = switch(
-        R.string.follow_system_day_night_theme,
-        "follow_system_dark_mode",
-        true,
-        summary = R.string.follow_system_day_night_theme_summary
-    )
 
     val gboardMainKeyOpacity = int(
         R.string.gboard_light_main_key_tone,
@@ -262,6 +261,13 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     ).also {
         it.register()
     }
+
+    val followSystemDayNightTheme = switch(
+        R.string.follow_system_day_night_theme,
+        "follow_system_dark_mode",
+        true,
+        summary = R.string.follow_system_day_night_theme_summary
+    )
 
     val dayNightModePrefNames = setOf(
         followSystemDayNightTheme.key,

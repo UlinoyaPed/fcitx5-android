@@ -92,7 +92,6 @@ class KeyboardLayoutAndSplitSettingsFragment : KeyboardSectionFragment() {
 class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
     private var horizontalCategory: PreferenceCategory? = null
     private var candidateWindowCategory: PreferenceCategory? = null
-    private var candidateItemCategory: PreferenceCategory? = null
 
     private val onCandidateDisplayModeChangeListener =
         ManagedPreferenceProvider.OnChangeListener { key ->
@@ -114,12 +113,6 @@ class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
                     addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
                 }
             }
-            screen.addCategory(R.string.candidate_items_and_words) {
-                candidateItemCategory = this
-                candidateItemKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
-                }
-            }
             screen.addCategory(R.string.candidates_window) {
                 candidateWindowCategory = this
                 candidateWindowKeys.forEach { key ->
@@ -138,18 +131,15 @@ class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
             FloatingCandidatesMode.InputDevice -> {
                 horizontalCategory?.isVisible = true
                 candidateWindowCategory?.isVisible = false
-                candidateItemCategory?.isVisible = false
             }
             FloatingCandidatesMode.Always -> {
                 horizontalCategory?.isVisible = false
                 candidateWindowCategory?.isVisible = true
-                candidateItemCategory?.isVisible = true
             }
             FloatingCandidatesMode.SystemDefault,
             FloatingCandidatesMode.Disabled -> {
                 horizontalCategory?.isVisible = false
                 candidateWindowCategory?.isVisible = false
-                candidateItemCategory?.isVisible = false
             }
         }
     }
