@@ -6,10 +6,10 @@ package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.graphics.Rect
 import android.view.View
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.ceil
 
-class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
+class ThemeListItemDecoration(val itemWidth: Int) :
     RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
@@ -17,28 +17,42 @@ class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        val columnWidth = parent.width / spanCount
-        val offset = (parent.width - itemWidth * spanCount) / (spanCount + 1)
-        val halfOffset = offset / 2
+        outRect.setEmpty()
+        val grid = parent.layoutManager as? GridLayoutManager ?: return
         val position = parent.getChildAdapterPosition(view)
-        val rowCount = parent.adapter?.run { ceil(itemCount / spanCount.toFloat()).toInt() } ?: -1
-        val n = position % spanCount
+        val itemCount = parent.adapter?.itemCount ?: return
+        if (position !in 0 until itemCount) return
+        val spanCount = grid.spanCount
+        val width = parent.width - parent.paddingLeft - parent.paddingRight
+        val columnWidth = width / spanCount
+        val offset = ((width - itemWidth * spanCount) / (spanCount + 1)).coerceAtLeast(0)
+        val halfOffset = offset / 2
+        val lookup = grid.spanSizeLookup
+        val row = lookup.getSpanGroupIndex(position, spanCount)
+        val lastRow = lookup.getSpanGroupIndex(itemCount - 1, spanCount)
+        val top = if (row == 0) offset else halfOffset
+        val bottom = if (row == lastRow) offset else halfOffset
+        if (lookup.getSpanSize(position) == spanCount) {
+            outRect.set(offset, top, offset, bottom)
+            return
+        }
+        val n = lookup.getSpanIndex(position, spanCount)
 
         when (parent.layoutDirection) {
             View.LAYOUT_DIRECTION_LTR -> {
                 outRect.set(
                     (n + 1) * offset + n * (itemWidth - columnWidth),
-                    if (position < spanCount) offset else halfOffset,
+                    top,
                     0, // (n + 1) * (columnWidth - itemWidth - offset)
-                    if (position / spanCount == rowCount - 1) offset else halfOffset
+                    bottom
                 )
             }
             View.LAYOUT_DIRECTION_RTL -> {
                 outRect.set(
                     0,
-                    if (position < spanCount) offset else halfOffset,
+                    top,
                     (n + 1) * offset + n * (itemWidth - columnWidth),
-                    if (position / spanCount == rowCount - 1) offset else halfOffset
+                    bottom
                 )
             }
         }

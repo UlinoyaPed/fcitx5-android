@@ -936,4 +936,7 @@
     <string name="voice_error_audio_construct">AudioRecord 생성이 거부되었습니다: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord가 초기화되지 않았습니다</string>
     <string name="voice_error_audio_start_failed">startRecording에 실패했습니다: %s</string>
+    <string name="theme_category_title">%1$s (%2$d)</string>
+    <string name="theme_category_expanded">펼쳐짐</string>
+    <string name="theme_category_collapsed">접힘</string>
 </resources>

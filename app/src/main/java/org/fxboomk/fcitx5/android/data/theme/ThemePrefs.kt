@@ -54,12 +54,13 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         title: Int,
         key: String,
         defaultSelected: Set<String>,
+        isDark: Boolean,
         @StringRes
         summary: Int? = null,
         enableUiOn: (() -> Boolean)? = null
     ): ManagedThemeSetPreference {
         val pref = ManagedThemeSetPreference(sharedPreferences, key, defaultSelected)
-        val ui = ManagedThemeMultiSelectPreferenceUi(title, key, defaultSelected, summary, enableUiOn)
+        val ui = ManagedThemeMultiSelectPreferenceUi(title, key, isDark, defaultSelected, summary, enableUiOn)
         pref.register()
         ui.registerUi()
         return pref
@@ -225,6 +226,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         R.string.light_mode_theme,
         "light_mode_themes",
         setOf(if (BuildConfig.DEBUG) ThemePreset.MaterialLight.name else ThemePreset.PixelLight.name),
+        isDark = false,
         summary = R.string.light_mode_theme_summary
     )
 
@@ -235,6 +237,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         R.string.dark_mode_theme,
         "dark_mode_themes",
         setOf(if (BuildConfig.DEBUG) ThemePreset.MaterialDark.name else ThemePreset.PixelDark.name),
+        isDark = true,
         summary = R.string.dark_mode_theme_summary
     )
 

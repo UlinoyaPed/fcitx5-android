@@ -13,12 +13,13 @@ class ManagedThemeMultiSelectPreferenceUi(
     @StringRes
     val title: Int,
     key: String,
+    val isDark: Boolean,
     val defaultSelected: Set<String> = emptySet(),
     @StringRes
     val summary: Int? = null,
     enableUiOn: (() -> Boolean)? = null
 ) : ManagedPreferenceUi<ThemeMultiSelectPreference>(key, enableUiOn) {
-    override fun createUi(context: Context) = ThemeMultiSelectPreference(context, defaultSelected).apply {
+    override fun createUi(context: Context) = ThemeMultiSelectPreference(context, isDark, defaultSelected).apply {
         key = this@ManagedThemeMultiSelectPreferenceUi.key
         isIconSpaceReserved = false
         isSingleLineTitle = false

@@ -6,8 +6,6 @@ package org.fxboomk.fcitx5.android.ui.common
 
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
-import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
 import org.fxboomk.fcitx5.android.data.theme.Theme
@@ -21,6 +19,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeThumbnailUi
  */
 class ThemeMultiSelectPreference(
     context: Context,
+    private val isDark: Boolean,
     private val defaultSelected: Set<String> = emptySet()
 ) : Preference(context) {
 
@@ -47,7 +46,7 @@ class ThemeMultiSelectPreference(
         val view = ResponsiveThemeListView(context).apply {
             minimumHeight = Int.MAX_VALUE
         }
-        val allThemes = ThemeManager.getAllThemes()
+        val allThemes = ThemeManager.getAllThemes().filter { it.isDark == isDark }
         val adapter = MultiSelectThemeAdapter(allThemes, currentSelectedNames)
         view.adapter = adapter
 
@@ -73,7 +72,7 @@ class ThemeMultiSelectPreference(
         initialSelected: Set<String>
     ) : SimpleThemeListAdapter<Theme>(themes) {
 
-        private val selectedSet = initialSelected.toMutableSet()
+        private val selectedSet = initialSelected.intersect(themes.map { it.name }.toSet()).toMutableSet()
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             (holder.ui as ThemeThumbnailUi).apply {

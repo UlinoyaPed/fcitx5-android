@@ -41,6 +41,7 @@ class ThemeListFragment : Fragment() {
     private lateinit var exportLauncher: ActivityResultLauncher<String>
     private lateinit var shareImportManager: ThemeShareImportManager
     private lateinit var themeListAdapter: ThemeListAdapter
+    private var collapsedThemeGroups = emptySet<Boolean>()
 
     private var followSystemDayNightTheme by ThemeManager.prefs.followSystemDayNightTheme
     private var beingExported: Theme.Custom? = null
@@ -62,6 +63,10 @@ class ThemeListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        collapsedThemeGroups = buildSet {
+            if (savedInstanceState?.getBoolean(STATE_LIGHT_COLLAPSED) == true) add(false)
+            if (savedInstanceState?.getBoolean(STATE_DARK_COLLAPSED) == true) add(true)
+        }
         shareImportManager = ThemeShareImportManager(
             fragment = this
         ) { newCreated, theme, migrated ->
@@ -173,7 +178,7 @@ class ThemeListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        themeListAdapter = object : ThemeListAdapter() {
+        themeListAdapter = object : ThemeListAdapter(collapsedThemeGroups) {
             override fun onAddNewTheme() = addTheme()
             override fun onSelectTheme(theme: Theme) = selectTheme(theme)
             override fun onEditTheme(theme: Theme.Custom) = editTheme(theme)
@@ -202,6 +207,18 @@ class ThemeListFragment : Fragment() {
         ThemeManager.removeOnChangedListener(onThemeChangeListener)
         ThemeManager.removeOnThemeListChangedListener(onThemeListChangeListener)
         super.onStop()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::themeListAdapter.isInitialized) collapsedThemeGroups = themeListAdapter.collapsedGroups
+        outState.putBoolean(STATE_LIGHT_COLLAPSED, false in collapsedThemeGroups)
+        outState.putBoolean(STATE_DARK_COLLAPSED, true in collapsedThemeGroups)
+    }
+
+    override fun onDestroyView() {
+        collapsedThemeGroups = themeListAdapter.collapsedGroups
+        super.onDestroyView()
     }
 
     private fun updateSelectedThemes(activeTheme: Theme? = null) {
@@ -304,6 +321,8 @@ class ThemeListFragment : Fragment() {
     }
 
     companion object {
+        private const val STATE_LIGHT_COLLAPSED = "theme_list_light_collapsed"
+        private const val STATE_DARK_COLLAPSED = "theme_list_dark_collapsed"
         const val REQUEST_THEME_IMPORTED = "theme_list_request_imported"
         const val BUNDLE_THEME = "theme_list_bundle_theme"
         const val BUNDLE_NEW_CREATED = "theme_list_bundle_new_created"

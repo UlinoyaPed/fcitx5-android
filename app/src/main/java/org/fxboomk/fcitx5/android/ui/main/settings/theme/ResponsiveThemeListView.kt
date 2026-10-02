@@ -26,8 +26,12 @@ class ResponsiveThemeListView(context: Context) : RecyclerView(context) {
             grid = object : GridLayoutManager(context, spanCount) {
                 override fun generateDefaultLayoutParams() = LayoutParams(itemWidth, itemHeight)
             }
+            grid.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int) =
+                    if ((adapter as? ThemeListAdapter)?.isFullSpan(position) == true) grid.spanCount else 1
+            }
             layoutManager = grid
-            addItemDecoration(ThemeListItemDecoration(itemWidth, spanCount))
+            addItemDecoration(ThemeListItemDecoration(itemWidth))
         } else {
             grid.spanCount = spanCount
             invalidateItemDecorations()
