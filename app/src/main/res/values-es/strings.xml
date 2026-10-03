@@ -187,7 +187,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">Multiplicador de altura</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">El multiplicador de altura debe ser un número mayor que 0</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">Multiplicador de ancho de tecla</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Vacío mantiene el ancho original; 1 es el ancho de una tecla de letra normal</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Vacío mantiene el ancho original; el valor solo se aplica a teclas sin ancho individual. 1 es el ancho de una tecla de letra normal.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">El multiplicador de ancho debe ser finito y mayor que 0</string>
     <string name="text_keyboard_layout_row_sub_label_position">Posición del subcarácter</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">Posición del subcarácter 1</string>
@@ -218,7 +218,8 @@
     <string name="text_keyboard_layout_key_display_text">Texto mostrado</string>
     <string name="text_keyboard_layout_key_label">Etiqueta</string>
     <string name="text_keyboard_layout_key_sub_label">Subetiqueta</string>
-    <string name="text_keyboard_layout_key_weight">Ancho de peso</string>
+    <string name="text_keyboard_layout_key_weight">Multiplicador de ancho de tecla</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">Vacío hereda el ancho de la fila o predeterminado. 1.0 es una tecla de letra normal; el valor individual tiene prioridad sobre la fila.</string>
     <string name="text_keyboard_layout_key_text_color">Color del texto</string>
     <string name="text_keyboard_layout_key_alt_text_color">Color del texto secundario</string>
     <string name="text_keyboard_layout_key_background_color">Color de fondo</string>

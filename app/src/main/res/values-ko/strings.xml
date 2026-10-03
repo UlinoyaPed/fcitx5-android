@@ -161,7 +161,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">행 높이 배수</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">행 높이 배수는 0보다 큰 숫자여야 합니다</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">키 너비 배수</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">비워 두면 각 키의 원래 너비 유지; 1은 일반 문자 키 너비</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">비워 두면 각 키의 원래 너비를 유지합니다. 설정값은 개별 너비가 없는 키에만 적용되며 1은 일반 문자 키 너비입니다.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">키 너비 배수는 유한하고 0보다 큰 숫자여야 합니다</string>
     <string name="text_keyboard_layout_row_sub_label_position">보조 문자 위치</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">보조 문자 1 위치</string>
@@ -192,7 +192,8 @@
     <string name="text_keyboard_layout_key_display_text">표시 텍스트</string>
     <string name="text_keyboard_layout_key_label">레이블</string>
     <string name="text_keyboard_layout_key_sub_label">하위 레이블</string>
-    <string name="text_keyboard_layout_key_weight">가중치 너비</string>
+    <string name="text_keyboard_layout_key_weight">키 너비 배율</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">비워 두면 행 또는 기본 너비를 상속합니다. 1.0은 일반 문자 키 너비이며 개별 설정이 행 배율보다 우선합니다.</string>
     <string name="text_keyboard_layout_key_text_color">글자 색상</string>
     <string name="text_keyboard_layout_key_alt_text_color">보조 문자 색상</string>
     <string name="text_keyboard_layout_key_background_color">배경 색상</string>

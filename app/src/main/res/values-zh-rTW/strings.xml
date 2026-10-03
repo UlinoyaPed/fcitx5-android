@@ -505,7 +505,8 @@
     <string name="text_keyboard_layout_key_display_text">顯示文字</string>
     <string name="text_keyboard_layout_key_label">標籤</string>
     <string name="text_keyboard_layout_key_sub_label">子標籤</string>
-    <string name="text_keyboard_layout_key_weight">權重寬度</string>
+    <string name="text_keyboard_layout_key_weight">寬度倍比</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">留空繼承行或預設寬度；1.0 表示一般字母鍵寬度。單鍵設定優先於行倍比。</string>
     <string name="text_keyboard_layout_key_text_color">文字顏色</string>
     <string name="text_keyboard_layout_key_alt_text_color">副字元顏色</string>
     <string name="text_keyboard_layout_key_background_color">背景顏色</string>
@@ -817,7 +818,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">行高倍比</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">行高倍比必須是大於 0 的數字</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">單鍵寬度倍比</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">留空保留各鍵原寬度；1 表示一般字母鍵寬度</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">留空保留各鍵原寬度；設定後僅套用至未單獨設定寬度的按鍵。1 表示一般字母鍵寬度。</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">單鍵寬度倍比必須是有限且大於 0 的數字</string>
     <string name="text_keyboard_layout_row_sub_label_position">副字元位置</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">副字元一位置</string>
