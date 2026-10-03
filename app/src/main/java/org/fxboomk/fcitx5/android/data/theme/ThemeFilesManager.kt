@@ -25,6 +25,10 @@ object ThemeFilesManager {
 
     private fun themeFile(theme: Theme.Custom) = File(dir, theme.name + ".json")
 
+    private fun themeFiles(): List<File> = dir.listFiles(FileFilter {
+        it.isFile && (it.name.endsWith(".json") || it.name.endsWith(".json.bak"))
+    })?.map { File(dir, it.name.removeSuffix(".bak")) }?.distinct().orEmpty()
+
     fun newCustomBackgroundImages(): Triple<String, File, File> {
         val themeName = UUID.randomUUID().toString()
         val (croppedImageFile, srcImageFile) = newBackgroundImagesForTheme(themeName)
@@ -126,36 +130,49 @@ object ThemeFilesManager {
 
     fun deleteThemeFiles(theme: Theme.Custom, allThemes: List<Theme.Custom> = emptyList()) {
         val themeDir = dir
-        
+        // Filenames are not necessarily the name stored in the JSON (e.g. copied files).
+        // Include every backing file, even aliases hidden by listThemes' name deduplication.
+        val configurations = themeFiles().mapNotNull { file ->
+            runCatching {
+                val raw = AtomicFile(file).openRead().bufferedReader().use { it.readText() }
+                file to Json.decodeFromString(CustomThemeSerializer, raw)
+            }.getOrNull()
+        }
+        val matching = configurations.filter { it.second.name == theme.name }
+        val remainingThemes = allThemes + configurations.map { it.second }
+            .filter { it.name != theme.name }
+
         // Collect directories and files to process
         val dirsToCheck = mutableSetOf<File>()
         val filesToDelete = mutableSetOf<File>()
         
-        theme.backgroundImage?.let {
-            val croppedFile = File(it.croppedFilePath)
-            val srcFile = File(it.srcFilePath)
-            
-            collectParentDirs(croppedFile, dirsToCheck)
-            collectParentDirs(srcFile, dirsToCheck)
-            
-            // Only delete files if no other theme is using them
-            if (!isFileInUse(it.croppedFilePath, allThemes)) {
-                filesToDelete.add(croppedFile)
-            }
-            if (!isFileInUse(it.srcFilePath, allThemes)) {
-                filesToDelete.add(srcFile)
+        (listOf(theme) + matching.map { it.second }).forEach { configuration ->
+            configuration.backgroundImage?.let { background ->
+                listOf(background.croppedFilePath, background.srcFilePath).forEach { path ->
+                    val file = resolveImagePath(path, dir.parentFile!!, dir)
+                    collectParentDirs(file, dirsToCheck)
+                    if (!isFileInUse(file.path, remainingThemes)) {
+                        filesToDelete.add(file)
+                    }
+                }
             }
         }
 
-        // Delete theme JSON file
-        themeFile(theme).delete()
+        // Always include the canonical file, even if it could not be decoded. AtomicFile
+        // also deletes recovery files so a deleted theme cannot be restored on refresh.
+        (matching.map { it.first } + themeFile(theme)).distinct().forEach {
+            AtomicFile(it).delete()
+            // Also remove pending writes on older Android versions whose AtomicFile
+            // implementation only knows about the base file and .bak recovery file.
+            File("${it.path}.new").delete()
+        }
         
         // Delete image files not in use by other themes
         filesToDelete.forEach { it.delete() }
 
         // Cleanup empty directories from deepest to shallowest
         dirsToCheck.sortedByDescending { it.absolutePath.length }.forEach { dir ->
-            cleanupEmptyDir(dir, allThemes, themeDir)
+            cleanupEmptyDir(dir, remainingThemes, themeDir)
         }
     }
     
@@ -222,12 +239,13 @@ object ThemeFilesManager {
                 listAssets = { appContext.assets.list(it)?.toList().orEmpty() },
                 openAsset = { appContext.assets.open(it) })
         }.onFailure { Timber.w(it, "Failed to install bundled themes") }
-        val files = dir.listFiles(FileFilter {
-            it.name.endsWith(".json") || it.name.endsWith(".json.bak")
-        })?.map { File(dir, it.name.removeSuffix(".bak")) }?.distinct()
-            ?: return mutableListOf()
-        return files
-            .sortedByDescending { it.lastModified() } // newest first
+        val loadedNames = mutableSetOf<String>()
+        return themeFiles()
+            .sortedByDescending { file ->
+                // openRead restores .bak in preference to the base file, if present.
+                val backup = File("${file.path}.bak")
+                if (backup.isFile) backup.lastModified() else file.lastModified()
+            }
             .mapNotNull decode@{
                 val raw = AtomicFile(it).openRead().bufferedReader().use { reader -> reader.readText() }
                 // Normalize paths to this app's external files dir
@@ -273,6 +291,10 @@ object ThemeFilesManager {
                     }
                 }
 
+                // Keep the newest valid theme before migration can write a canonical file.
+                // An older alias must not overwrite it or produce a second card.
+                if (!loadedNames.add(resolvedTheme.name)) return@decode null
+
                 return@decode runCatching {
                     val relocated = copyLegacyImages(resolvedTheme)
                     if (relocated != resolvedTheme || normalized != raw || migratedFromSerializer) {
@@ -283,7 +305,8 @@ object ThemeFilesManager {
                     Timber.w(error, "Failed to migrate theme images for ${theme.name}")
                     resolvedTheme
                 }
-            }.toMutableList()
+            }
+            .toMutableList()
     }
 
     private fun copyLegacyImages(theme: Theme.Custom): Theme.Custom {
