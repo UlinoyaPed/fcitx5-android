@@ -159,6 +159,9 @@
     <string name="exception_sougou_dict_filename">Расширение имени файла %1$s не указывает на словарь sogou</string>
     <string name="exception_dict_filename">Расширение имени файла %1$s не указывает на словарь</string>
     <string name="exception_theme_json">Не удалось найти тему json</string>
+    <string name="exception_theme_json_requires_zip">Эта тема ссылается на фоновые изображения, которые нельзя включить в отдельный JSON-файл; экспортируйте тему в ZIP и импортируйте ZIP-файл</string>
+    <string name="add_to_theme_pool">Добавить в набор тем</string>
+    <string name="remove_from_theme_pool">Удалить из набора тем</string>
     <string name="exception_theme_name_clash">Название темы конфликтует со встроенными темами</string>
     <string name="exception_theme_src_image">Не удалось сохранить исходное изображение фона темы</string>
     <string name="exception_theme_cropped_image">Не удалось сохранить обрезанное изображение фона темы</string>

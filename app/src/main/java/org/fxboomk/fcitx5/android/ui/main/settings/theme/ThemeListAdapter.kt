@@ -7,6 +7,7 @@ package org.fxboomk.fcitx5.android.ui.main.settings.theme
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.fxboomk.fcitx5.android.data.theme.Theme
+import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 
@@ -109,6 +110,10 @@ abstract class ThemeListAdapter(
             THEME -> (holder.ui as ThemeThumbnailUi).apply {
                 val theme = (items[position] as ThemeListItem.Card).theme
                 setTheme(theme)
+                setPoolState(ThemeManager.isThemeInAnyPool(theme.name))
+                poolBadge.setOnClickListener {
+                    onToggleThemePool(theme)
+                }
                 setChecked(
                     when (theme.name) {
                         darkName -> ThemeThumbnailUi.State.DarkMode
@@ -156,6 +161,8 @@ abstract class ThemeListAdapter(
     abstract fun onEditTheme(theme: Theme.Custom)
 
     abstract fun onEditMonetTheme(theme: Theme.Monet)
+
+    abstract fun onToggleThemePool(theme: Theme)
 
     abstract fun onExportTheme(theme: Theme.Custom)
 

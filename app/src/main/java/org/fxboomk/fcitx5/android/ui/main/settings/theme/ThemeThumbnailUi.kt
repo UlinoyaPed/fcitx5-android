@@ -84,6 +84,13 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         scaleType = ImageView.ScaleType.FIT_CENTER
     }
 
+    val poolBadge = imageView {
+        setPaddingDp(6, 6, 6, 6)
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        isVisible = false
+    }
+
     val editButton = imageView {
         setPaddingDp(16, 4, 4, 16)
         scaleType = ImageView.ScaleType.FIT_CENTER
@@ -120,6 +127,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         })
         add(checkMark, lParams(dp(60), dp(60)) {
             centerInParent()
+        })
+        add(poolBadge, lParams(dp(28), dp(28)) {
+            bottomOfParent(dp(2))
+            startOfParent(dp(2))
         })
         add(editButton, lParams(dp(44), dp(44)) {
             topOfParent()
@@ -167,6 +178,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             imageTintList = foregroundTint
         }
         checkMark.imageTintList = foregroundTint
+        poolBadge.apply {
+            background = rippleDrawable(theme.keyPressHighlightColor)
+            imageTintList = foregroundTint
+        }
 
         loadBackgroundAsync(theme, ++loadGeneration)
     }
@@ -226,6 +241,19 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             State.LightMode -> R.drawable.ic_baseline_light_mode_24
             State.DarkMode -> R.drawable.ic_baseline_dark_mode_24
         }
+    }
+
+    /**
+     * Bottom-left pool membership marker: a check when the theme is in a
+     * day/night mode pool, a plus when it is waiting to be added.
+     */
+    fun setPoolState(inPool: Boolean) {
+        poolBadge.isVisible = true
+        poolBadge.imageResource =
+            if (inPool) R.drawable.ic_baseline_check_24 else R.drawable.ic_baseline_plus_24
+        poolBadge.contentDescription = ctx.getString(
+            if (inPool) R.string.remove_from_theme_pool else R.string.add_to_theme_pool
+        )
     }
 
     fun cleanup() {

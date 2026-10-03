@@ -126,6 +126,9 @@
     <string name="disable_animation">Animation deaktivieren</string>
     <string name="import_from_file">Aus Dataei importieren ...</string>
     <string name="exception_theme_json">Kann json-Thema nicht finden</string>
+    <string name="exception_theme_json_requires_zip">Dieses Theme verweist auf Hintergrundbilder, die eine einzelne JSON-Datei nicht enthalten kann; exportiere das Theme als ZIP und importiere stattdessen die ZIP-Datei</string>
+    <string name="add_to_theme_pool">Zum Themenpool hinzufügen</string>
+    <string name="remove_from_theme_pool">Aus dem Themenpool entfernen</string>
     <string name="light_mode_theme">Thema für hellen Modus</string>
     <string name="light_mode_theme_summary">Mehrere Themen auswählen und beim Umschalten durchlaufen</string>
     <string name="dark_mode_theme">Thema für dunklen Modus</string>

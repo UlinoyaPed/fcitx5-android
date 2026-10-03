@@ -189,6 +189,9 @@
     <string name="exception_sougou_dict_filename">文件 %1$s 的拓展名不是搜狗细胞词库</string>
     <string name="exception_dict_filename">文件 %1$s 的拓展名不是词库</string>
     <string name="exception_theme_json">找不到主题 JSON</string>
+    <string name="exception_theme_json_requires_zip">该主题引用了背景图片，裸 JSON 无法携带图片；请将主题导出为 ZIP 后再导入</string>
+    <string name="add_to_theme_pool">添加到主题池</string>
+    <string name="remove_from_theme_pool">从主题池中移除</string>
     <string name="exception_theme_name_clash">主题名称与内置主题冲突</string>
     <string name="exception_theme_src_image">无法保存主题背景原图片</string>
     <string name="exception_theme_cropped_image">无法保存裁切后的主题背景图片</string>

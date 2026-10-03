@@ -170,6 +170,9 @@
     <string name="exception_sougou_dict_filename">%1$s的副檔名並不是搜狗細胞詞庫</string>
     <string name="exception_dict_filename">%1$s 副檔名並不是字典</string>
     <string name="exception_theme_json">無法找到主題 Json</string>
+    <string name="exception_theme_json_requires_zip">此主題參照了背景圖片，單獨的 JSON 無法包含圖片；請將主題匯出為 ZIP 後再匯入該 ZIP</string>
+    <string name="add_to_theme_pool">加入主題集區</string>
+    <string name="remove_from_theme_pool">從主題集區移除</string>
     <string name="exception_theme_name_clash">主題名稱與內建主題相沖突</string>
     <string name="exception_theme_src_image">無法儲存主題背景的原始影象</string>
     <string name="exception_theme_cropped_image">無法儲存主題背景剪裁後的影象</string>

@@ -26,6 +26,7 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
 import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
 import org.fxboomk.fcitx5.android.utils.applyNavBarInsetsBottomPadding
 import org.fxboomk.fcitx5.android.utils.importErrorDialog
+import org.fxboomk.fcitx5.android.utils.isDarkMode
 import org.fxboomk.fcitx5.android.utils.parcelable
 import org.fxboomk.fcitx5.android.utils.queryFileName
 import org.fxboomk.fcitx5.android.utils.toast
@@ -63,9 +64,15 @@ class ThemeListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        collapsedThemeGroups = buildSet {
-            if (savedInstanceState?.getBoolean(STATE_LIGHT_COLLAPSED) == true) add(false)
-            if (savedInstanceState?.getBoolean(STATE_DARK_COLLAPSED) == true) add(true)
+        collapsedThemeGroups = savedInstanceState?.let { state ->
+            buildSet {
+                if (state.getBoolean(STATE_LIGHT_COLLAPSED)) add(false)
+                if (state.getBoolean(STATE_DARK_COLLAPSED)) add(true)
+            }
+        } ?: run {
+            // Smart collapse: on a light system, fold the dark group; on a dark
+            // system, fold the light group. The user's toggles survive via state.
+            setOf(!resources.configuration.isDarkMode())
         }
         shareImportManager = ThemeShareImportManager(
             fragment = this
@@ -128,7 +135,20 @@ class ThemeListFragment : Fragment() {
                 val cr = ctx.contentResolver
                 lifecycleScope.withLoadingDialog(ctx) {
                     val name = cr.queryFileName(uri) ?: return@withLoadingDialog
-                    val ext = name.substringAfterLast('.')
+                    val ext = name.substringAfterLast('.').lowercase()
+                    if (ext == "json") {
+                        try {
+                            withContext(Dispatchers.IO) {
+                                val raw = cr.openInputStream(uri)!!
+                                    .bufferedReader(Charsets.UTF_8).use { it.readText() }
+                                ThemeFilesManager.importThemeJson(raw).getOrThrow()
+                            }
+                            ThemeManager.refreshThemes()
+                        } catch (e: Exception) {
+                            ctx.importErrorDialog(e)
+                        }
+                        return@withLoadingDialog
+                    }
                     if (ext != "zip") {
                         ctx.importErrorDialog(R.string.exception_theme_filename, ext)
                         return@withLoadingDialog
@@ -184,6 +204,11 @@ class ThemeListFragment : Fragment() {
             override fun onEditTheme(theme: Theme.Custom) = editTheme(theme)
             override fun onEditMonetTheme(theme: Theme.Monet) = editMonetTheme(theme)
             override fun onExportTheme(theme: Theme.Custom) = exportTheme(theme)
+            override fun onToggleThemePool(theme: Theme) {
+                ThemeManager.toggleThemePoolMembership(theme)
+                themeListAdapter.notifyDataSetChanged()
+                updateSelectedThemes()
+            }
         }
         ThemeManager.refreshThemes()
         themeListAdapter.setThemes(ThemeManager.getAllThemes())
@@ -247,7 +272,7 @@ class ThemeListFragment : Fragment() {
             .setItems(actions) { _, i ->
                 when (i) {
                     0 -> imageLauncher.launch(null)
-                    1 -> importLauncher.launch("application/zip")
+                    1 -> importLauncher.launch("*/*")
                     2 -> {
                         val view = ResponsiveThemeListView(ctx).apply {
                             minimumHeight = Int.MAX_VALUE

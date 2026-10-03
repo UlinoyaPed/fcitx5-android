@@ -410,6 +410,50 @@ object ThemeFilesManager {
             errorRuntime(R.string.exception_theme_parse)
         }
 
+    /**
+     * Import a bare theme configuration JSON (no ZIP wrapper).
+     * Themes referencing background images cannot ship the images in a bare
+     * JSON and are rejected; use the ZIP export/import flow for those.
+     */
+    fun importThemeJson(raw: String): Result<Theme.Custom> = runCatching {
+        val decoded = Json.decodeFromString(CustomThemeSerializer.WithMigrationStatus, raw).first
+        if (decoded.backgroundImage != null) {
+            errorRuntime(R.string.exception_theme_json_requires_zip)
+        }
+        require(decoded.name.isNotBlank() && decoded.name == safeThemePathComponent(decoded.name)) {
+            "Invalid theme name"
+        }
+        if (ThemeManager.getAllThemes().any { it !is Theme.Custom && it.name == decoded.name })
+            errorT(::ThemeImportException, R.string.exception_theme_name_clash)
+        val occupiedNames = buildSet {
+            addAll(ThemeManager.getAllThemes().map { it.name })
+            addAll(listThemes().map { it.name })
+            addAll(dir.listFiles().orEmpty().mapNotNull { file ->
+                when {
+                    file.name.endsWith(".json.bak") -> file.name.removeSuffix(".json.bak")
+                    file.name.endsWith(".json.new") -> file.name.removeSuffix(".json.new")
+                    file.name.endsWith(".json") -> file.name.removeSuffix(".json")
+                    else -> null
+                }
+            })
+        }
+        val newTheme = decoded.copy(name = uniqueImportName(decoded.name, occupiedNames))
+        saveThemeFiles(newTheme)
+        newTheme
+    }
+
+    private fun uniqueImportName(name: String, occupiedNames: Set<String>): String {
+        if (name !in occupiedNames) return name
+        val base = "$name (imported)"
+        if (base !in occupiedNames) return base
+        var index = 2
+        while (true) {
+            val candidate = "$base $index"
+            if (candidate !in occupiedNames) return candidate
+            index++
+        }
+    }
+
     fun decodeTheme(src: InputStream): Result<Theme.Custom> =
         runCatching {
             val zipBytes = src.readBytes()

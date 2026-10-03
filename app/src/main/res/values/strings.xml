@@ -191,6 +191,9 @@
     <string name="exception_sougou_dict_filename">The filename extension of %1$s does not indicate a sogou dict</string>
     <string name="exception_dict_filename">The filename extension of %1$s does not indicate a dict</string>
     <string name="exception_theme_json">Unable to find theme json</string>
+    <string name="exception_theme_json_requires_zip">This theme references background images, which a bare JSON cannot carry; export the theme as ZIP and import the ZIP instead</string>
+    <string name="add_to_theme_pool">Add to theme pool</string>
+    <string name="remove_from_theme_pool">Remove from theme pool</string>
     <string name="exception_theme_name_clash">Theme name clashes with builtin themes</string>
     <string name="exception_theme_src_image">Unable to save source image of theme background</string>
     <string name="exception_theme_cropped_image">Unable to save cropped image of theme background</string>

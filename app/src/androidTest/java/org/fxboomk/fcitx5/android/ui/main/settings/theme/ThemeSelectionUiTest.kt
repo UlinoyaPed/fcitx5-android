@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
@@ -95,45 +96,96 @@ class ThemeSelectionUiTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun modeDialogsFilterCardsAndSaveOnlyVisibleSelections() = withActivity { activity ->
-        val allThemes = ThemeManager.getAllThemes()
-        val initialNames = allThemes.map { it.name }.toSet() + "missing-theme"
-        for (isDark in listOf(false, true)) {
-            val manager = PreferenceManager(activity).apply { sharedPreferencesName = "theme-selection-ui-test" }
-            val preferences = manager.sharedPreferences!!
-            preferences.edit().putString("themes", initialNames.joinToString("|")).commit()
-            try {
-                val preference = ThemeMultiSelectPreference(activity, isDark).apply { key = "themes" }
-                manager.createPreferenceScreen(activity).addPreference(preference)
-                preference.performClick()
-                var root = WindowInspector.getGlobalWindowViews().last { findThemeList(it) != null }
-                var list = findThemeList(root)!!
-                var adapter = list.adapter as ThemeMultiSelectPreference.MultiSelectThemeAdapter
-                val expected = allThemes.filter { it.isDark == isDark }.map { it.name }.toSet()
-                assertTrue(expected.isNotEmpty())
-                assertEquals(expected.size, adapter.itemCount)
-                assertEquals(expected, adapter.getSelectedThemeNames())
-                root.findViewById<Button>(android.R.id.button2).performClick()
-                assertEquals(initialNames, preferences.getString("themes", "")!!.split("|").toSet())
-                preference.performClick()
-                root = WindowInspector.getGlobalWindowViews().last { findThemeList(it) != null }
-                list = findThemeList(root)!!
-                adapter = list.adapter as ThemeMultiSelectPreference.MultiSelectThemeAdapter
-                val card = adapter.createViewHolder(list, adapter.getItemViewType(0))
-                try {
-                    adapter.bindViewHolder(card, 0)
-                    card.itemView.performClick()
-                    assertEquals(expected.size - 1, adapter.getSelectedThemeNames().size)
-                    card.itemView.performClick()
-                } finally {
-                    adapter.onViewRecycled(card)
-                }
-                root.findViewById<Button>(android.R.id.button1).performClick()
-                assertEquals(expected, preferences.getString("themes", "")!!.split("|").toSet())
-            } finally {
-                preferences.edit().clear().commit()
+    fun poolBadgeClickTogglesPoolWithoutSelectingTheme() = withActivity { activity ->
+        val theme = ThemePreset.MaterialLight
+        var selectedTheme: Theme? = null
+        var toggledTheme: Theme? = null
+        val adapter = adapter(
+            selectThemeCallback = { selectedTheme = it },
+            toggleThemePoolCallback = { toggledTheme = it }
+        ).apply { setThemes(listOf(theme)) }
+        val parent = ResponsiveThemeListView(activity)
+        val card = adapter.createViewHolder(parent, ThemeListAdapter.THEME)
+        try {
+            val ui = card.ui as ThemeThumbnailUi
+            assertEquals(View.GONE, ui.poolBadge.visibility)
+            val position = (0 until adapter.itemCount).first {
+                adapter.getItemViewType(it) == ThemeListAdapter.THEME
             }
+            adapter.bindViewHolder(card, position)
+            val inPool = ThemeManager.isThemeInAnyPool(theme.name)
+            assertEquals(View.VISIBLE, ui.poolBadge.visibility)
+            assertEquals(
+                activity.getString(
+                    if (inPool) R.string.remove_from_theme_pool else R.string.add_to_theme_pool
+                ),
+                ui.poolBadge.contentDescription
+            )
+            ui.poolBadge.performClick()
+            assertSame(theme, toggledTheme)
+            assertNull(selectedTheme)
+        } finally {
+            adapter.onViewRecycled(card)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun modeDialogsFilterCardsAndSaveOnlyVisibleSelections() {
+        val intent = Intent(instrumentation.targetContext, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val activity = instrumentation.startActivitySync(intent) as MainActivity
+        val preferences = activity.getSharedPreferences("theme-selection-ui-test", 0)
+        try {
+            for (isDark in listOf(false, true)) {
+                lateinit var preference: ThemeMultiSelectPreference
+                lateinit var initialNames: Set<String>
+                lateinit var expected: Set<String>
+                instrumentation.runOnMainSync {
+                    val allThemes = ThemeManager.getAllThemes()
+                    initialNames = allThemes.map { it.name }.toSet() + "missing-theme"
+                    expected = allThemes.filter { it.isDark == isDark }.map { it.name }.toSet()
+                    val manager = PreferenceManager(activity).apply {
+                        sharedPreferencesName = "theme-selection-ui-test"
+                    }
+                    preferences.edit().putString("themes", initialNames.joinToString("|")).commit()
+                    preference = ThemeMultiSelectPreference(activity, isDark).apply { key = "themes" }
+                    manager.createPreferenceScreen(activity).addPreference(preference)
+                    preference.performClick()
+                    val root = WindowInspector.getGlobalWindowViews().last { findThemeList(it) != null }
+                    val adapter = findThemeList(root)!!.adapter as ThemeMultiSelectPreference.MultiSelectThemeAdapter
+                    assertTrue(expected.isNotEmpty())
+                    assertEquals(expected.size, adapter.itemCount)
+                    assertEquals(expected, adapter.getSelectedThemeNames())
+                    root.findViewById<Button>(android.R.id.button2).performClick()
+                }
+                // AlertDialog posts its button callback and dismissal to the main queue.
+                // Drain it outside the main thread before inspecting persisted values.
+                instrumentation.waitForIdleSync()
+                instrumentation.runOnMainSync {
+                    assertEquals(initialNames, preferences.getString("themes", "")!!.split("|").toSet())
+                    preference.performClick()
+                    val root = WindowInspector.getGlobalWindowViews().last { findThemeList(it) != null }
+                    val list = findThemeList(root)!!
+                    val adapter = list.adapter as ThemeMultiSelectPreference.MultiSelectThemeAdapter
+                    val card = adapter.createViewHolder(list, adapter.getItemViewType(0))
+                    try {
+                        adapter.bindViewHolder(card, 0)
+                        card.itemView.performClick()
+                        assertEquals(expected.size - 1, adapter.getSelectedThemeNames().size)
+                        card.itemView.performClick()
+                    } finally {
+                        adapter.onViewRecycled(card)
+                    }
+                    root.findViewById<Button>(android.R.id.button1).performClick()
+                }
+                instrumentation.waitForIdleSync()
+                assertEquals(expected, preferences.getString("themes", "")!!.split("|").toSet())
+            }
+        } finally {
+            instrumentation.runOnMainSync { activity.finish() }
+            instrumentation.waitForIdleSync()
+            preferences.edit().clear().commit()
         }
     }
 
@@ -143,11 +195,16 @@ class ThemeSelectionUiTest {
         return null
     }
 
-    private fun adapter(collapsed: Set<Boolean> = emptySet()) = object : ThemeListAdapter(collapsed) {
+    private fun adapter(
+        collapsed: Set<Boolean> = emptySet(),
+        selectThemeCallback: (Theme) -> Unit = {},
+        toggleThemePoolCallback: (Theme) -> Unit = {}
+    ) = object : ThemeListAdapter(collapsed) {
         override fun onAddNewTheme() = Unit
-        override fun onSelectTheme(theme: Theme) = Unit
+        override fun onSelectTheme(theme: Theme) = selectThemeCallback(theme)
         override fun onEditTheme(theme: Theme.Custom) = Unit
         override fun onEditMonetTheme(theme: Theme.Monet) = Unit
+        override fun onToggleThemePool(theme: Theme) = toggleThemePoolCallback(theme)
         override fun onExportTheme(theme: Theme.Custom) = Unit
     }
 }

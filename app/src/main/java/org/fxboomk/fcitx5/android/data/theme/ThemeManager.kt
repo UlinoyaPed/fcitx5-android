@@ -215,6 +215,47 @@ object ThemeManager {
     }
 
     /**
+     * Whether the theme belongs to either the light or the dark mode theme pool.
+     */
+    fun isThemeInAnyPool(name: String): Boolean =
+        prefs.lightModeThemes.isSelected(name) || prefs.darkModeThemes.isSelected(name)
+
+    /**
+     * Toggle the theme's pool membership: if it is in either pool, remove it from
+     * both; otherwise add it to the pool matching its day/night variant.
+     * @return whether the theme is in a pool after toggling
+     */
+    fun toggleThemePoolMembership(theme: Theme): Boolean {
+        val remove = isThemeInAnyPool(theme.name)
+        val allThemes = getAllThemes()
+        // Commit both pools and their indices together: preference listeners must
+        // never evaluate a new pool against an index from its previous ordering.
+        prefs.lightModeThemes.sharedPreferences.edit {
+            listOf(
+                prefs.lightModeThemes to prefs.currentLightThemeIndex,
+                prefs.darkModeThemes to prefs.currentDarkThemeIndex
+            ).forEachIndexed { mode, (pool, index) ->
+                if (!remove && theme.isDark != (mode == 1)) return@forEachIndexed
+                val names = pool.getValue()
+                val previousThemes = allThemes.filter { it.name in names }
+                val previousIndex = index.getValue()
+                    .coerceIn(0, (previousThemes.size - 1).coerceAtLeast(0))
+                val selectedName = previousThemes.getOrNull(previousIndex)?.name
+                val updatedNames = if (remove) names - theme.name else names + theme.name
+                val updatedThemes = allThemes.filter { it.name in updatedNames }
+                val selectedIndex = updatedThemes.indexOfFirst { it.name == selectedName }
+                // If the selected theme was removed, use its next neighbour, or
+                // the last remaining theme. Empty pools reset to index zero.
+                val updatedIndex = if (selectedIndex >= 0) selectedIndex else
+                    previousIndex.coerceAtMost((updatedThemes.size - 1).coerceAtLeast(0))
+                putString(pool.key, ManagedThemeSetPreference.encodeThemes(updatedNames))
+                putInt(index.key, updatedIndex)
+            }
+        }
+        return !remove
+    }
+
+    /**
      * Get the currently selected light theme.
      *
      * The stored index is used in both manual and follow-system modes so that

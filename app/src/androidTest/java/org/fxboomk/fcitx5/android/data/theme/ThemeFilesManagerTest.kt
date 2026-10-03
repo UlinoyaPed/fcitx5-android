@@ -24,6 +24,120 @@ import java.util.zip.ZipOutputStream
 class ThemeFilesManagerTest {
 
     @Test
+    fun importingJsonWithCustomCollisionPreservesExistingThemeAndBackground() {
+        val name = uniqueThemeName()
+        val importedName = "$name (imported)"
+        val cropped = png(Color.RED)
+        val source = png(Color.BLUE)
+        val images = ThemeFilesManager.newBackgroundImagesForTheme(name)
+        val existing = ThemePreset.PixelDark.deriveCustomBackground(
+            name, images.first.path, images.second.path
+        )
+        val incoming = ThemePreset.PixelLight.deriveCustomNoBackground(name)
+        try {
+            ThemeManager.refreshThemes()
+            val activeName = ThemeManager.activeTheme.name
+            images.first.writeBytes(cropped)
+            images.second.writeBytes(source)
+            // Deliberately leave ThemeManager's cache stale after writing the colliding theme.
+            ThemeFilesManager.saveThemeFiles(existing)
+
+            val imported = ThemeFilesManager.importThemeJson(
+                Json.encodeToString(CustomThemeSerializer, incoming)
+            ).getOrThrow()
+
+            assertEquals(importedName, imported.name)
+            assertTrue(imported.backgroundImage == null)
+            assertEquals(activeName, ThemeManager.activeTheme.name)
+            assertTrue(File(themeDirectory, "$name.json").isFile)
+            assertTrue(File(themeDirectory, "$importedName.json").isFile)
+            assertArrayEquals(cropped, images.first.readBytes())
+            assertArrayEquals(source, images.second.readBytes())
+
+            val reloaded = ThemeFilesManager.listThemes()
+                .filter { it.name == name || it.name == importedName }
+            assertEquals(setOf(name, importedName), reloaded.map { it.name }.toSet())
+            assertBackgroundFiles(reloaded.single { it.name == name }, cropped, source)
+            assertTrue(reloaded.single { it.name == importedName }.backgroundImage == null)
+        } finally {
+            removeTestOwnedFiles(importedName)
+            removeTestOwnedFiles(name)
+            ThemeManager.refreshThemes()
+        }
+    }
+
+    @Test
+    fun importingJsonRejectsNonCustomThemeNameCollisions() {
+        ThemeManager.refreshThemes()
+        val nonCustomThemes = buildList {
+            add(ThemeManager.BuiltinThemes.first())
+            addAll(ThemeManager.getAllThemes().filterIsInstance<Theme.Monet>().take(1))
+        }
+
+        nonCustomThemes.forEach { existing ->
+            val file = File(themeDirectory, "${existing.name}.json")
+            val contentsBefore = file.takeIf { it.isFile }?.readBytes()
+            val incoming = ThemePreset.PixelLight.deriveCustomNoBackground(existing.name)
+
+            val result = ThemeFilesManager.importThemeJson(
+                Json.encodeToString(CustomThemeSerializer, incoming)
+            )
+
+            assertTrue("Non-custom collision must be rejected: ${existing.name}", result.isFailure)
+            assertEquals(
+                contentsBefore?.toList(),
+                file.takeIf { it.isFile }?.readBytes()?.toList()
+            )
+        }
+    }
+
+    @Test
+    fun importingValidJsonWithoutBackgroundSavesTheme() {
+        val name = uniqueThemeName()
+        val theme = ThemePreset.PixelLight.deriveCustomNoBackground(name)
+        try {
+            val imported = ThemeFilesManager.importThemeJson(
+                Json.encodeToString(CustomThemeSerializer, theme)
+            ).getOrThrow()
+
+            assertEquals(theme, imported)
+            assertTrue(File(themeDirectory, "$name.json").isFile)
+            assertEquals(theme, ThemeFilesManager.listThemes().single { it.name == name })
+        } finally {
+            removeTestOwnedFiles(name)
+            ThemeManager.refreshThemes()
+        }
+    }
+
+    @Test
+    fun importingJsonWithBackgroundIsRejectedWithoutWritingTheme() {
+        val name = uniqueThemeName()
+        val theme = oldPathTheme(name)
+        try {
+            val result = ThemeFilesManager.importThemeJson(
+                Json.encodeToString(CustomThemeSerializer, theme)
+            )
+
+            assertTrue(result.isFailure)
+            assertFalse(File(themeDirectory, "$name.json").exists())
+        } finally {
+            removeTestOwnedFiles(name)
+        }
+    }
+
+    @Test
+    fun importingJsonRetainsThemeNameValidation() {
+        val name = "../${uniqueThemeName()}"
+        val theme = ThemePreset.PixelLight.deriveCustomNoBackground(name)
+
+        val result = ThemeFilesManager.importThemeJson(
+            Json.encodeToString(CustomThemeSerializer, theme)
+        )
+
+        assertTrue(result.isFailure)
+    }
+
+    @Test
     fun importsRepairsReloadsAndRoundTripsBackgroundTheme() {
         val names = listOf(uniqueThemeName(), uniqueThemeName())
         val importedThemes = mutableListOf<Theme.Custom>()

@@ -561,6 +561,9 @@
     <string name="exception_theme_cropped_image">테마 배경의 잘린 이미지를 저장할 수 없습니다</string>
     <string name="exception_theme_filename">%1$s 파일 확장자는 테마 파일이 아닙니다</string>
     <string name="exception_theme_json">테마 JSON을 찾을 수 없습니다</string>
+    <string name="exception_theme_json_requires_zip">이 테마는 배경 이미지를 참조하므로 JSON 파일만으로는 이미지를 포함할 수 없습니다. 테마를 ZIP으로 내보낸 후 해당 ZIP을 가져오세요</string>
+    <string name="add_to_theme_pool">테마 풀에 추가</string>
+    <string name="remove_from_theme_pool">테마 풀에서 제거</string>
     <string name="exception_theme_name_clash">테마 이름이 내장 테마와 충돌합니다</string>
     <string name="exception_theme_parse">테마 파일을 파싱할 수 없습니다</string>
     <string name="exception_theme_src_image">테마 배경의 원본 이미지를 저장할 수 없습니다</string>

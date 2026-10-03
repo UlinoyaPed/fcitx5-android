@@ -575,6 +575,9 @@
     <string name="exception_theme_cropped_image">No se pudo guardar la imagen recortada del fondo del tema</string>
     <string name="exception_theme_filename">La extension de %1$s no corresponde a un tema</string>
     <string name="exception_theme_json">No se pudo encontrar el JSON del tema</string>
+    <string name="exception_theme_json_requires_zip">Este tema hace referencia a imágenes de fondo que un JSON por sí solo no puede contener; exporta el tema como ZIP e importa el ZIP</string>
+    <string name="add_to_theme_pool">Añadir al conjunto de temas</string>
+    <string name="remove_from_theme_pool">Quitar del conjunto de temas</string>
     <string name="exception_theme_name_clash">El nombre del tema entra en conflicto con temas integrados</string>
     <string name="exception_theme_parse">No se pudo analizar el archivo del tema</string>
     <string name="exception_theme_src_image">No se pudo guardar la imagen original del fondo del tema</string>
