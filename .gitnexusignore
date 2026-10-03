@@ -1,0 +1,3 @@
+# Skip prebuilt native deps (~979MB, 71k+ files, mostly boost headers)
+# so `gitnexus analyze` doesn't exhaust memory.
+lib/fcitx5/src/main/cpp/prebuilt/
