@@ -214,46 +214,40 @@ object ThemeManager {
     }
 
     /**
-     * Get a random light theme from the selected light themes.
+     * Get the currently selected light theme.
+     *
+     * The stored index is used in both manual and follow-system modes so that
+     * reevaluating the active theme does not unexpectedly select another theme.
      */
     fun getCurrentLightTheme(): Theme {
         val themes = prefs.lightModeThemes.getThemes()
         if (themes.isEmpty()) return ThemePreset.PixelLight
-        return if (prefs.followSystemDayNightTheme.getValue()) {
-            // Random selection when following system
-            themes.random()
-        } else {
-            // Use stored index for manual selection
-            val index = prefs.currentLightThemeIndex.getValue().coerceIn(0, themes.size - 1)
-            themes[index]
-        }
+        val index = prefs.currentLightThemeIndex.getValue().coerceIn(0, themes.size - 1)
+        return themes[index]
     }
 
     /**
-     * Get a random dark theme from the selected dark themes.
+     * Get the currently selected dark theme.
+     *
+     * The stored index is used in both manual and follow-system modes so that
+     * reevaluating the active theme does not unexpectedly select another theme.
      */
     fun getCurrentDarkTheme(): Theme {
         val themes = prefs.darkModeThemes.getThemes()
         if (themes.isEmpty()) return ThemePreset.PixelDark
-        return if (prefs.followSystemDayNightTheme.getValue()) {
-            // Random selection when following system
-            themes.random()
-        } else {
-            // Use stored index for manual selection
-            val index = prefs.currentDarkThemeIndex.getValue().coerceIn(0, themes.size - 1)
-            themes[index]
-        }
+        val index = prefs.currentDarkThemeIndex.getValue().coerceIn(0, themes.size - 1)
+        return themes[index]
     }
 
     /**
      * Toggle between light and dark mode themes, cycling to the next theme in the target mode.
      * When following system day/night mode, the system mode decides the target pool:
-     * dark mode cycles/randomizes within dark themes only, light mode within light themes only.
+     * dark mode cycles within dark themes only, light mode within light themes only.
      */
     fun toggleConfiguredDayNightTheme(): Theme {
         val nextTheme = if (prefs.followSystemDayNightTheme.getValue()) {
             // Following system: never leave the current system mode's theme pool
-            if (isDarkMode) pickRandomDarkTheme() else pickRandomLightTheme()
+            if (isDarkMode) cycleToNextDarkTheme() else cycleToNextLightTheme()
         } else if (isUsingConfiguredDarkTheme()) {
             // Currently dark, switch to light (cycle light themes)
             cycleToNextLightTheme()
@@ -264,24 +258,6 @@ object ThemeManager {
         _activeTheme = nextTheme
         prefs.normalModeTheme.setValue(nextTheme)
         return nextTheme
-    }
-
-    /**
-     * Randomly pick a dark theme, avoiding the current one when there are alternatives.
-     */
-    private fun pickRandomDarkTheme(): Theme {
-        val themes = prefs.darkModeThemes.getThemes()
-        if (themes.isEmpty()) return ThemePreset.PixelDark
-        return themes.filter { it.name != activeTheme.name }.ifEmpty { themes }.random()
-    }
-
-    /**
-     * Randomly pick a light theme, avoiding the current one when there are alternatives.
-     */
-    private fun pickRandomLightTheme(): Theme {
-        val themes = prefs.lightModeThemes.getThemes()
-        if (themes.isEmpty()) return ThemePreset.PixelLight
-        return themes.filter { it.name != activeTheme.name }.ifEmpty { themes }.random()
     }
 
     /**
