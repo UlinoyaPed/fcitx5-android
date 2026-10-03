@@ -728,7 +728,7 @@ class AltTextKeyView(
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
         // Set font key for batch setting in BaseKeyboard.reloadLayout()
         fontKey = "key_alt_font"
-        setTypeface(typeface, Typeface.BOLD)
+        setTypeface(typeface, Typeface.NORMAL)
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         visibility = View.GONE
         setTextColor(
@@ -1460,6 +1460,12 @@ class AltTextKeyView(
     }
 
     private fun applyLayout(keyHeight: Int = appearanceView.height) {
+        if (upperText.typeface.isBold) {
+            upperText.setTypeface(
+                upperText.typeface,
+                if (upperText.typeface.isItalic) Typeface.ITALIC else Typeface.NORMAL
+            )
+        }
         syncUppercaseText()
         val mode = resolveLayoutMode(keyHeight)
         if (mode == lastLayoutMode && keyHeight == lastLayoutHeight) {

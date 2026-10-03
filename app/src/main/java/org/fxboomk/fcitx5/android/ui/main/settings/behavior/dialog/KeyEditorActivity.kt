@@ -143,6 +143,7 @@ class KeyEditorActivity : AppCompatActivity() {
     private var macroWeightEdit: EditText? = null
 
     private var simpleWeightEdit: EditText? = null
+    private var weightFieldOriginalValue: Number? = null
     private var nonMacroSwipeLabelEdit: EditText? = null
 
     private var macroTapStepsData: List<Any> = emptyList()
@@ -377,6 +378,7 @@ class KeyEditorActivity : AppCompatActivity() {
         macroLongPressLabelEdit = null
         macroWeightEdit = null
         simpleWeightEdit = null
+        weightFieldOriginalValue = null
         nonMacroSwipeLabelEdit = null
         nonMacroSwipeStepsData = emptyList()
 
@@ -421,10 +423,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 fieldsContainer.addView(altEdit.first)
                 fieldsContainer.addView(alt1Edit.first)
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     fieldsContainer.addView(weightEdit.first)
                     alphabetWeightEdit = weightEdit.second
                 }
@@ -484,10 +483,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 layoutSwitchLabelEdit = labelEdit.second
                 fieldsContainer.addView(labelEdit.first)
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     fieldsContainer.addView(weightEdit.first)
                     layoutSwitchWeightEdit = weightEdit.second
                 }
@@ -530,10 +526,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 symbolLabelEdit = labelEdit.second
                 fieldsContainer.addView(labelEdit.first)
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     symbolWeightEdit = weightEdit.second
                     fieldsContainer.addView(weightEdit.first)
                 }
@@ -591,10 +584,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 fieldsContainer.addView(altLabel1Edit.first)
                 fieldsContainer.addView(longPressLabelEdit.first)
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     fieldsContainer.addView(weightEdit.first)
                     macroWeightEdit = weightEdit.second
                 }
@@ -707,10 +697,7 @@ class KeyEditorActivity : AppCompatActivity() {
 
             "CapsKey", "ReturnKey", "BackspaceKey" -> {
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     simpleWeightEdit = weightEdit.second
                     fieldsContainer.addView(weightEdit.first)
                 }
@@ -747,10 +734,7 @@ class KeyEditorActivity : AppCompatActivity() {
 
             "CommaKey", "LanguageKey", "SpaceKey" -> {
                 if (!disableWeightEditing) {
-                    val weightEdit = uiBuilder.createEditField(
-                        getString(R.string.text_keyboard_layout_key_weight),
-                        (keyData["weight"] as? Number)?.toString() ?: ""
-                    )
+                    val weightEdit = createWeightEditField()
                     simpleWeightEdit = weightEdit.second
                     fieldsContainer.addView(weightEdit.first)
                 }
@@ -765,6 +749,16 @@ class KeyEditorActivity : AppCompatActivity() {
         renderColorEditors()
         attachFieldWatchers(fieldsContainer)
         updateActionButtonState()
+    }
+
+    private fun createWeightEditField(): Pair<LinearLayout, EditText> {
+        weightFieldOriginalValue = keyData["weight"] as? Number
+        return uiBuilder.createEditField(
+            getString(R.string.text_keyboard_layout_key_weight),
+            KeyWidthRatioConverter.formatLegacyWeight(weightFieldOriginalValue)
+        ).also { (_, editText) ->
+            editText.hint = getString(R.string.text_keyboard_layout_key_width_multiplier_hint)
+        }
     }
 
     private fun renderComposeOverrideEditorEntry() {
@@ -1896,9 +1890,8 @@ class KeyEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun parseWeight(text: String?): Float? {
-        val weight = text?.toFloatOrNull()
-        return weight?.takeIf { it in 0.0f..1.0f }
+    private fun parseWeight(text: String?): Number? {
+        return KeyWidthRatioConverter.resolveLegacyWeight(weightFieldOriginalValue, text)
     }
 
     companion object {

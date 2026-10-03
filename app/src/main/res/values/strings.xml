@@ -828,7 +828,8 @@
     <string name="text_keyboard_layout_key_display_text">Display Text</string>
     <string name="text_keyboard_layout_key_label">Label</string>
     <string name="text_keyboard_layout_key_sub_label">Sub Label</string>
-    <string name="text_keyboard_layout_key_weight">Weight Width</string>
+    <string name="text_keyboard_layout_key_weight">Width Multiplier</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">Empty inherits the row or default width; 1.0 is a normal letter key. A per-key value overrides the row multiplier.</string>
     <string name="text_keyboard_layout_key_text_color">Text Color</string>
     <string name="text_keyboard_layout_key_alt_text_color">Secondary Text Color</string>
     <string name="text_keyboard_layout_key_background_color">Background Color</string>
@@ -876,7 +877,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">Height Multiplier</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">Height multiplier must be a number greater than 0</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">Key Width Multiplier</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Empty keeps each key original width; 1 is a normal letter key</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Empty keeps each key original width; when set, applies only to keys without an individual width. 1 is a normal letter key.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">Key width multiplier must be a finite number greater than 0</string>
     <string name="text_keyboard_layout_row_sub_label_position">Sub-character Position</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">Sub-character 1 Position</string>

@@ -197,6 +197,52 @@ class LayoutJsonUtilsRowStyleTest {
     }
 
     @Test
+    fun explicitKeyWidthsTakePrecedenceOverRowMultiplierForEveryKeyType() {
+        val types = listOf(
+            "AlphabetKey", "CapsKey", "LayoutSwitchKey", "CommaKey", "LanguageKey",
+            "SpaceKey", "SymbolKey", "ReturnKey", "BackspaceKey", "MacroKey"
+        )
+        val style = KeyboardRowStyleUtils.RowStyle(keyWidthMultiplier = 1.25f)
+        for (type in types) {
+            val key = LayoutJsonUtils.KeyJson(
+                type = type, main = "q", label = "q", weight = 0.2f,
+                tap = MacroAction(listOf(MacroStep.Text("q")))
+            )
+            assertEquals(type, 0.2f, createKeyDef(key, rowStyle = style).appearance.percentWidth, 0.0001f)
+            assertEquals(
+                "$type without explicit width inherits the row",
+                0.125f,
+                createKeyDef(key.copy(weight = null), rowStyle = style).appearance.percentWidth,
+                0.0001f
+            )
+        }
+    }
+
+    @Test
+    fun mixedRowPreservesLegacyExplicitWeightsAcrossSaveAndReload() {
+        val row = Json.parseToJsonElement(
+            """
+            [{"keyWidthMultiplier":1.25,"keys":[
+                {"type":"AlphabetKey","main":"q","weight":0.2},
+                {"type":"AlphabetKey","main":"w"},
+                {"type":"SpaceKey","weight":0.0},
+                {"type":"CapsKey","weight":"0.15"}
+            ]}]
+            """.trimIndent()
+        ).jsonArray
+        val saved = LayoutJsonUtils.convertToSaveJson(
+            mapOf("rime" to LayoutJsonUtils.parseLayoutRows(row))
+        ).getValue("rime").jsonArray.single()
+        val savedKeys = saved.jsonObject.getValue("keys").jsonArray
+        assertEquals("0.2", savedKeys[0].jsonObject.getValue("weight").jsonPrimitive.content)
+        assertFalse(savedKeys[1].jsonObject.containsKey("weight"))
+        val keys = LayoutJsonUtils.createKeyDefsForRowElement(saved, theme = testTheme)
+        listOf(0.2f, 0.125f, 0f, 0.15f).forEachIndexed { index, width ->
+            assertEquals("Key $index", width, keys[index].appearance.percentWidth, 0.0001f)
+        }
+    }
+
+    @Test
     fun createKeyDef_preservesSolidRowBackgroundColorReference() {
         val keyDef = createKeyDef(
             key = LayoutJsonUtils.KeyJson(type = "AlphabetKey", main = "q", alt = "1"),

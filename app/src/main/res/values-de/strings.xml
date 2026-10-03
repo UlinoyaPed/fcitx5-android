@@ -271,7 +271,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">Höhenfaktor</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">Der Höhenfaktor muss eine Zahl größer als 0 sein</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">Tastenbreitenfaktor</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Leer lassen, um die ursprüngliche Tastenbreite beizubehalten; 1 entspricht einer normalen Buchstabentaste</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Leer lassen, um die ursprüngliche Breite beizubehalten; ein Wert gilt nur für Tasten ohne eigene Breite. 1 entspricht einer normalen Buchstabentaste.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">Der Tastenbreitenfaktor muss endlich und größer als 0 sein</string>
     <string name="text_keyboard_layout_row_sub_label_position">Position des Unterzeichens</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">Position des Unterzeichens 1</string>
@@ -302,7 +302,8 @@
     <string name="text_keyboard_layout_key_display_text">Anzeigetext</string>
     <string name="text_keyboard_layout_key_label">Beschriftung</string>
     <string name="text_keyboard_layout_key_sub_label">Unterbeschriftung</string>
-    <string name="text_keyboard_layout_key_weight">Gewichtungsbreite</string>
+    <string name="text_keyboard_layout_key_weight">Tastenbreiten-Multiplikator</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">Leer übernimmt die Zeilen- oder Standardbreite. 1.0 entspricht einer normalen Buchstabentaste; der Einzelwert hat Vorrang vor dem Zeilenmultiplikator.</string>
     <string name="text_keyboard_layout_key_text_color">Textfarbe</string>
     <string name="text_keyboard_layout_key_alt_text_color">Sekundäre Textfarbe</string>
     <string name="text_keyboard_layout_key_background_color">Hintergrundfarbe</string>

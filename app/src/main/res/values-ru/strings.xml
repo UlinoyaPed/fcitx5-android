@@ -441,7 +441,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">Множитель высоты</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">Множитель высоты должен быть числом больше 0</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">Множитель ширины клавиши</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Пусто сохраняет исходную ширину; 1 — ширина обычной буквенной клавиши</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">Пусто сохраняет исходную ширину; значение применяется только к клавишам без индивидуальной ширины. 1 — ширина обычной буквенной клавиши.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">Множитель ширины должен быть конечным числом больше 0</string>
     <string name="text_keyboard_layout_row_sub_label_position">Положение дополнительного символа</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">Положение дополнительного символа 1</string>
@@ -472,7 +472,8 @@
     <string name="text_keyboard_layout_key_display_text">Отображаемый текст</string>
     <string name="text_keyboard_layout_key_label">Метка</string>
     <string name="text_keyboard_layout_key_sub_label">Подметка</string>
-    <string name="text_keyboard_layout_key_weight">Ширина веса</string>
+    <string name="text_keyboard_layout_key_weight">Множитель ширины клавиши</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">Пусто наследует ширину строки или значение по умолчанию. 1.0 — ширина обычной буквенной клавиши; индивидуальное значение имеет приоритет.</string>
     <string name="text_keyboard_layout_key_text_color">Цвет текста</string>
     <string name="text_keyboard_layout_key_alt_text_color">Цвет вторичного текста</string>
     <string name="text_keyboard_layout_key_background_color">Цвет фона</string>

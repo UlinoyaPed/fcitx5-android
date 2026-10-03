@@ -370,7 +370,7 @@
     <string name="text_keyboard_layout_row_height_multiplier">高さ倍率</string>
     <string name="text_keyboard_layout_row_height_multiplier_invalid">高さ倍率は 0 より大きい数値である必要があります</string>
     <string name="text_keyboard_layout_row_key_width_multiplier">キー幅倍率</string>
-    <string name="text_keyboard_layout_row_key_width_multiplier_hint">空欄は各キーの元の幅を維持；1 は通常の文字キー幅</string>
+    <string name="text_keyboard_layout_row_key_width_multiplier_hint">空欄は各キーの元の幅を維持します。設定値は個別幅のないキーにのみ適用され、1 は通常の文字キー幅です。</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">キー幅倍率は有限で 0 より大きい数値である必要があります</string>
     <string name="text_keyboard_layout_row_sub_label_position">副文字の位置</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">副文字 1 の位置</string>
@@ -401,7 +401,8 @@
     <string name="text_keyboard_layout_key_display_text">表示テキスト</string>
     <string name="text_keyboard_layout_key_label">ラベル</string>
     <string name="text_keyboard_layout_key_sub_label">サブラベル</string>
-    <string name="text_keyboard_layout_key_weight">重み幅</string>
+    <string name="text_keyboard_layout_key_weight">キー幅倍率</string>
+    <string name="text_keyboard_layout_key_width_multiplier_hint">空欄は行または既定の幅を継承します。1.0 は通常の文字キー幅で、個別設定は行倍率より優先されます。</string>
     <string name="text_keyboard_layout_key_text_color">文字色</string>
     <string name="text_keyboard_layout_key_alt_text_color">副文字色</string>
     <string name="text_keyboard_layout_key_background_color">背景色</string>

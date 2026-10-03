@@ -757,7 +757,7 @@ object LayoutJsonUtils {
         theme: Theme = ThemeManager.activeTheme
     ): KeyDef {
         // Row width is expressed as a multiple of the normal 0.1 key fraction;
-        // applying it here also gives keys without an explicit weight a fixed width.
+        // explicit key weights, including 0 (fill remaining space), take precedence.
         val rowKeyWidth = rowStyle.keyWidthMultiplier?.times(DEFAULT_KEY_WIDTH)
         val rowBackgroundReference = rowStyle.backgroundColorMonet
         // Resolve gradient base colors against the theme that owns the keyboard
@@ -797,7 +797,7 @@ object LayoutJsonUtils {
                     subModeName,
                     key.main ?: ""
                 ),
-                weight = rowKeyWidth ?: key.weight,
+                weight = key.weight ?: rowKeyWidth,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 altTextColor = key.altTextColor,
@@ -810,7 +810,7 @@ object LayoutJsonUtils {
             "CapsKey" -> CapsKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -823,7 +823,7 @@ object LayoutJsonUtils {
                 to = key.subLabel ?: "",
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -832,7 +832,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "CommaKey" -> CommaKey(
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.1f,
                 variant = KeyDef.Appearance.Variant.Alternative,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -842,7 +842,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "LanguageKey" -> LanguageKey(
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.1f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -851,7 +851,7 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "SpaceKey" -> SpaceKey(
-                percentWidth = rowKeyWidth ?: key.weight ?: 0f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -863,7 +863,7 @@ object LayoutJsonUtils {
                 symbol = key.label ?: ".",
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.1f,
                 variant = KeyDef.Appearance.Variant.Alternative,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -875,7 +875,7 @@ object LayoutJsonUtils {
             "ReturnKey" -> ReturnKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -886,7 +886,7 @@ object LayoutJsonUtils {
             "BackspaceKey" -> BackspaceKey(
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
-                percentWidth = rowKeyWidth ?: key.weight ?: 0.15f,
+                percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
                 backgroundColor = effectiveBackgroundColor,
@@ -918,7 +918,7 @@ object LayoutJsonUtils {
                     swipeDown = key.swipeDown,
                     swipe = key.swipe,
                     longPress = key.longPress,
-                    percentWidth = rowKeyWidth ?: key.weight ?: 0.1f,
+                    percentWidth = key.weight ?: rowKeyWidth ?: 0.1f,
                     textColor = key.textColor,
                     textColorMonet = key.textColorMonet,
                     altTextColor = key.altTextColor,
