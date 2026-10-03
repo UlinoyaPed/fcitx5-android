@@ -90,7 +90,14 @@ class AutoScaleTextView @JvmOverloads constructor(
 
     fun setFontTypeFace(key: String) {
         fontTypeFaceKey = key
-        setTypeface(FontProviders.resolveTypeface(key, typeface))
+        val resolvedTypeface = FontProviders.resolveTypeface(key, typeface)
+        if (key == "key_alt_font") {
+            // All secondary labels stay non-bold, including after custom font reloads.
+            val style = if (resolvedTypeface.isItalic) Typeface.ITALIC else Typeface.NORMAL
+            setTypeface(Typeface.create(resolvedTypeface, style), style)
+        } else {
+            setTypeface(resolvedTypeface)
+        }
     }
 
     /**

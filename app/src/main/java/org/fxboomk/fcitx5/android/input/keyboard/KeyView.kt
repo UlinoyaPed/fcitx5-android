@@ -685,7 +685,7 @@ class AltTextKeyView(
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
         // Set font key for batch setting in BaseKeyboard.reloadLayout()
         fontKey = "key_alt_font"
-        setTypeface(typeface, Typeface.BOLD)
+        setTypeface(typeface, Typeface.NORMAL)
         text = def.altText
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         setTextColor(
@@ -1846,7 +1846,7 @@ class ImageAltTextKeyView(
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
         fontKey = "key_alt_font"
-        setTypeface(typeface, Typeface.BOLD)
+        setTypeface(typeface, Typeface.NORMAL)
         text = def.altText
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         setTextColor(

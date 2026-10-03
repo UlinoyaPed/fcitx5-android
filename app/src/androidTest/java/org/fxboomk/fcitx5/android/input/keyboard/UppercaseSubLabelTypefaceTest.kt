@@ -44,16 +44,46 @@ class UppercaseSubLabelTypefaceTest {
                     appearance
                 )
 
+                assertEquals(Typeface.NORMAL, key.altText.typeface.style)
+                assertEquals(Typeface.NORMAL, key.altText1.typeface.style)
+                assertEquals(Typeface.NORMAL, key.upperText.typeface.style)
+
+                val imageKey = ImageAltTextKeyView(
+                    instrumentation.targetContext,
+                    ThemePreset.MaterialLight,
+                    KeyDef.Appearance.ImageAltText(
+                        src = android.R.drawable.ic_menu_add,
+                        altText = "!"
+                    )
+                )
+                assertEquals(Typeface.NORMAL, imageKey.altText.typeface.style)
+                imageKey.altText.setFontTypeFace("key_alt_font")
+                assertEquals(Typeface.ITALIC, imageKey.altText.typeface.style)
+                assertEquals(false, imageKey.altText.paint.isFakeBoldText)
+
                 key.mainText.setFontTypeFace("key_main_font")
                 key.altText.setFontTypeFace("key_alt_font")
                 key.altText1.setFontTypeFace("key_alt_font")
                 key.upperText.setFontTypeFace("key_alt_font")
+                // Font loading itself must remove bold, even without a layout pass.
+                for (label in listOf(key.altText, key.altText1, key.upperText)) {
+                    assertEquals(Typeface.ITALIC, label.typeface.style)
+                    assertEquals(false, label.paint.isFakeBoldText)
+                }
                 key.refreshLayout()
 
                 assertEquals(Typeface.BOLD_ITALIC, key.mainText.typeface.style)
-                assertEquals(Typeface.BOLD_ITALIC, key.altText.typeface.style)
-                assertEquals(Typeface.BOLD_ITALIC, key.altText1.typeface.style)
+                assertEquals(Typeface.ITALIC, key.altText.typeface.style)
+                assertEquals(Typeface.ITALIC, key.altText1.typeface.style)
                 assertEquals(Typeface.ITALIC, key.upperText.typeface.style)
+
+                FontProviders.fontTypefaceMap["key_alt_font"] =
+                    Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                for (label in listOf(key.altText, key.altText1, key.upperText, imageKey.altText)) {
+                    label.setFontTypeFace("key_alt_font")
+                    assertEquals(Typeface.NORMAL, label.typeface.style)
+                    assertEquals(false, label.paint.isFakeBoldText)
+                }
             } finally {
                 FontProviders.provider = previousProvider
             }
