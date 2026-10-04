@@ -13,8 +13,18 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import splitties.experimental.InternalSplittiesApi
 import splitties.resources.color
+import splitties.resources.styledColor
 import splitties.resources.withResolvedThemeAttribute
 import splitties.views.dsl.core.Ui
+
+/**
+ * 工具栏“保存”菜单图标的可点击态着色：
+ * 可点击用主题主文字色（亮色模式呈深色、暗色模式呈浅色，与 colorPrimary 工具栏保持高对比），
+ * 不可点击用主题提示色（半透明灰，两种模式下均呈置灰观感）。
+ */
+@ColorInt
+fun Context.saveIconTint(enabled: Boolean): Int =
+    styledColor(if (enabled) android.R.attr.textColorPrimary else android.R.attr.textColorHint)
 
 @OptIn(InternalSplittiesApi::class)
 fun Context.styledFloat(@AttrRes attrRes: Int) = withResolvedThemeAttribute(attrRes) {

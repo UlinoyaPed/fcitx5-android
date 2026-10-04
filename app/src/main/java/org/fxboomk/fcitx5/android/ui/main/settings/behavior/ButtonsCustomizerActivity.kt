@@ -4,7 +4,6 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
-import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
@@ -44,6 +43,7 @@ import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import org.fxboomk.fcitx5.android.input.font.ButtonIconFont
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.styledColor
@@ -808,7 +808,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private fun updateSaveButtonState() {
         val changed = items != originalItems
         saveMenuItem?.isEnabled = changed
-        saveMenuItem?.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(changed))
     }
 
     private val VIEW_TYPE_BUTTON_ITEM = 1

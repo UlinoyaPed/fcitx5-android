@@ -31,6 +31,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManag
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.KeyboardPreviewManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.toast
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -154,30 +155,6 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
             setPadding(pad, pad, pad, pad)
         }
 
-        val keyboardPrefs = AppPrefs.getInstance().keyboard
-        val override = dataManager.getLayoutHeightPercentOverride(effectiveKey)
-        val fileLevel = dataManager.profileHeightOverrides
-        initialPortraitHeight = override?.portrait
-            ?: fileLevel?.portrait
-            ?: keyboardPrefs.keyboardHeightPercent.getValue()
-        initialLandscapeHeight = override?.landscape
-            ?: fileLevel?.landscape
-            ?: keyboardPrefs.keyboardHeightPercentLandscape.getValue()
-
-        content.addView(TextView(this).apply {
-            text = getString(R.string.keyboard_height)
-            textSize = 13f
-            setTypeface(typeface, Typeface.BOLD)
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
-            setPadding(0, 0, 0, dp(8))
-        })
-        content.addView(
-            addLayoutHeightSlider(getString(R.string.portrait), initialPortraitHeight ?: MIN_LAYOUT_HEIGHT_PERCENT) { portraitSeekBar = it }
-        )
-        content.addView(
-            addLayoutHeightSlider(getString(R.string.landscape), initialLandscapeHeight ?: MIN_LAYOUT_HEIGHT_PERCENT) { landscapeSeekBar = it }
-        )
-
         content.addView(TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_customize_preview)
             textSize = 13f
@@ -197,12 +174,36 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         )
         return content
     }
+
     private fun buildBottomBar(): LinearLayout {
-        val pad = dp(8)
+        val keyboardPrefs = AppPrefs.getInstance().keyboard
+        val override = dataManager.getLayoutHeightPercentOverride(effectiveKey)
+        val fileLevel = dataManager.profileHeightOverrides
+        initialPortraitHeight = override?.portrait
+            ?: fileLevel?.portrait
+            ?: keyboardPrefs.keyboardHeightPercent.getValue()
+        initialLandscapeHeight = override?.landscape
+            ?: fileLevel?.landscape
+            ?: keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+
+        val pad = dp(16)
         return LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(pad, pad, pad, pad)
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, dp(8), pad, dp(8))
             backgroundColor = styledColor(android.R.attr.colorBackgroundFloating)
+            addView(TextView(this@TextKeyboardLayoutCustomizeActivity).apply {
+                text = getString(R.string.keyboard_height)
+                textSize = 13f
+                setTypeface(typeface, Typeface.BOLD)
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(0, 0, 0, dp(8))
+            })
+            addView(
+                addLayoutHeightSlider(getString(R.string.portrait), initialPortraitHeight ?: MIN_LAYOUT_HEIGHT_PERCENT) { portraitSeekBar = it }
+            )
+            addView(
+                addLayoutHeightSlider(getString(R.string.landscape), initialLandscapeHeight ?: MIN_LAYOUT_HEIGHT_PERCENT) { landscapeSeekBar = it }
+            )
             addView(Button(this@TextKeyboardLayoutCustomizeActivity).apply {
                 text = getString(R.string.text_keyboard_layout_manage_more_customize)
                 setOnClickListener { openLayoutEditor() }
@@ -270,8 +271,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         val landscape = landscapeSeekBar?.progress?.plus(MIN_LAYOUT_HEIGHT_PERCENT)
         val changed = portrait != initialPortraitHeight || landscape != initialLandscapeHeight
         saveMenuItem?.isEnabled = changed
-        // 与布局设定界面一致：有变更时黑色高亮，无变更置灰
-        saveMenuItem?.icon?.mutate()?.setTint(if (changed) android.graphics.Color.BLACK else android.graphics.Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(changed))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -280,6 +280,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
                 setIcon(R.drawable.ic_baseline_save_24)
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             }
+        updateSaveButtonState()
         return true
     }
 

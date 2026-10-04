@@ -6,7 +6,6 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.app.AlertDialog
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
@@ -40,6 +39,7 @@ import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.toast
 import java.io.File
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
@@ -225,7 +225,7 @@ class FontsetEditorActivity : AppCompatActivity() {
     private fun updateSaveButtonState() {
         val changed = hasChanges()
         saveMenuItem?.isEnabled = changed
-        saveMenuItem?.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(changed))
     }
 
     private fun buildRows() {

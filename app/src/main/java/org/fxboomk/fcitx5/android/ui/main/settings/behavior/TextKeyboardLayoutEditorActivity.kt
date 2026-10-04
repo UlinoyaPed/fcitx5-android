@@ -59,6 +59,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.KeyboardPrev
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.KeyboardRowStyleUtils
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -1662,8 +1663,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             val changed = hasChanges()
             menuItem.isEnabled = changed
             menuItem.title = getString(R.string.save)
-            // 保存图标 drawable 为白色：有变更时染黑（用户指定），无变更时置灰。
-            menuItem.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+            menuItem.icon?.mutate()?.setTint(saveIconTint(changed))
         }
     }
 

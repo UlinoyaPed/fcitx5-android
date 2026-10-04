@@ -6,7 +6,6 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.Manifest
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -37,6 +36,7 @@ import org.fxboomk.fcitx5.android.input.config.ConfigProvider
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -751,7 +751,7 @@ class PopupEditorActivity : AppCompatActivity() {
             val changed = hasChanges()
             menuItem.isEnabled = changed
             menuItem.title = getString(R.string.save)
-            menuItem.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+            menuItem.icon?.mutate()?.setTint(saveIconTint(changed))
         }
     }
 

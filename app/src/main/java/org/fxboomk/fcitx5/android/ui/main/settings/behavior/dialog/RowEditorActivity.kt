@@ -5,7 +5,6 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -38,6 +37,7 @@ import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.KeyboardRowStyleUtils
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -372,7 +372,7 @@ class RowEditorActivity : AppCompatActivity() {
             hasRequiredBackgroundColor(candidate) &&
             candidate != initialStyle
         saveMenuItem?.isEnabled = enabled
-        saveMenuItem?.icon?.mutate()?.setTint(if (enabled) Color.BLACK else Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(enabled))
     }
 
     private fun saveAndFinish() {

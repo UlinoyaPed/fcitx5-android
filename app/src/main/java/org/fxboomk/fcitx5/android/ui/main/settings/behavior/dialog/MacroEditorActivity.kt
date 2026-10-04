@@ -4,7 +4,6 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -33,6 +32,7 @@ import org.fxboomk.fcitx5.android.input.action.ButtonAction
 import org.fxboomk.fcitx5.android.utils.serializable
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -850,7 +850,7 @@ class MacroEditorActivity : AppCompatActivity() {
         // Update menu button enabled state
         saveMenuItem?.let { menuItem ->
             menuItem.isEnabled = hasChanges
-            menuItem.icon?.mutate()?.setTint(if (hasChanges) Color.BLACK else Color.GRAY)
+            menuItem.icon?.mutate()?.setTint(saveIconTint(hasChanges))
         }
     }
 

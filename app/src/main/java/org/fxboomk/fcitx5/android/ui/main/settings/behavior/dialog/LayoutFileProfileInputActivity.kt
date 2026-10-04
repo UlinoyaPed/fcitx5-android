@@ -6,7 +6,6 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
@@ -34,6 +33,7 @@ import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.KeyboardPreviewManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -73,6 +73,10 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
+            val previewScroll = ScrollView(this@LayoutFileProfileInputActivity).apply {
+                addView(previewContent, LinearLayout.LayoutParams(matchParent, wrapContent))
+            }
+            addView(previewScroll, LinearLayout.LayoutParams(matchParent, 0, 1f))
             val scroll = ScrollView(this@LayoutFileProfileInputActivity).apply {
                 addView(
                     content,
@@ -99,6 +103,14 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
     private lateinit var action: String
     private var initialProfile: String = ""
     private var initialCopyCurrent: Boolean = true
+
+    private val previewContent by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = dp(16)
+            setPadding(pad, pad, pad, pad)
+        }
+    }
 
     private val content by lazy {
         LinearLayout(this).apply {
@@ -219,7 +231,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         val dataManager = LayoutDataManager(this)
         dataManager.loadFromFile(file)
 
-        content.addView(TextView(this).apply {
+        previewContent.addView(TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_customize_preview)
             textSize = 13f
             setTypeface(typeface, Typeface.BOLD)
@@ -228,7 +240,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         previewContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
-        content.addView(
+        previewContent.addView(
             previewContainer,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -295,7 +307,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
                     )
         )
         saveMenuItem?.isEnabled = changed
-        saveMenuItem?.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(changed))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

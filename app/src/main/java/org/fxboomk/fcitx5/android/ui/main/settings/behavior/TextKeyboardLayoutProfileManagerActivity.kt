@@ -224,6 +224,14 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
             getString(R.string.text_keyboard_layout_manage_delete_profile)
         ) {
             confirmDeleteProfile()
+        }.apply {
+            imageTintList = ColorStateList(
+                arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+                intArrayOf(
+                    styledColor(android.R.attr.textColorHint),
+                    styledColor(androidx.appcompat.R.attr.colorError)
+                )
+            )
         }
         return LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -573,7 +581,8 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 addView(
                     iconButton(
                         R.drawable.ic_baseline_delete_24,
-                        getString(R.string.text_keyboard_layout_manage_delete)
+                        getString(R.string.text_keyboard_layout_manage_delete),
+                        tint = styledColor(androidx.appcompat.R.attr.colorError)
                     ) {
                         confirmDeleteSubLayout(profile, baseLayout, row)
                     }

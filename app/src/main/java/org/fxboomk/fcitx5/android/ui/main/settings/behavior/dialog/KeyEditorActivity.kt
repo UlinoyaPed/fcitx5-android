@@ -5,7 +5,6 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -42,6 +41,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtil
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
 import org.fxboomk.fcitx5.android.utils.DeviceUtil
+import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -1211,7 +1211,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val changed = hasChanges()
         saveMenuItem?.isEnabled = changed
         saveMenuItem?.title = getString(R.string.save)
-        saveMenuItem?.icon?.mutate()?.setTint(if (changed) Color.BLACK else Color.GRAY)
+        saveMenuItem?.icon?.mutate()?.setTint(saveIconTint(changed))
     }
 
     private fun hasChanges(): Boolean {
