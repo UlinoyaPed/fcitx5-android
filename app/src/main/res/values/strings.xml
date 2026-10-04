@@ -152,6 +152,9 @@
     <string name="input_method_options">Input Method Options</string>
     <string name="theme">Theme</string>
     <string name="theme_appearance">Theme &amp; Appearance</string>
+    <string name="theme_preview_previous">Previous theme</string>
+    <string name="theme_preview_next">Next theme</string>
+    <string name="theme_preview_in_use">In use</string>
     <string name="toggle_day_night_theme">Day/Night Theme</string>
     <string name="key_ripple_effect">Enable key ripple effect</string>
     <string name="key_border">Enable key border</string>

@@ -82,12 +82,29 @@ import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.view
 import splitties.views.imageDrawable
 
-class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
+class KeyboardPreviewUi(
+    override val ctx: Context,
+    val theme: Theme,
+    /**
+     * Crop the blank area below the keyboard (the keyboard bottom padding plus
+     * the simulated navigation bar) down to a small fixed margin, shrinking the
+     * preview's height. The keyboard layout itself is unaffected.
+     */
+    private val cropBottomBlank: Boolean = false
+) : Ui {
 
     var intrinsicWidth: Int = -1
         private set
 
     var intrinsicHeight: Int = -1
+        private set
+
+    /**
+     * Height the preview would have without [cropBottomBlank]. Consumers that
+     * need the keyboard's full render surface aspect (e.g. background image
+     * cropping) use this instead of [intrinsicHeight].
+     */
+    var uncroppedIntrinsicHeight: Int = -1
         private set
 
     private val keyboardPrefs = AppPrefs.getInstance().keyboard
@@ -538,6 +555,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     }
 
     private fun resolveNavbarPreviewHeight(): Int {
+        if (cropBottomBlank) return 0
         val insets = ViewCompat.getRootWindowInsets(root)
         val insetBottom = insets?.let {
             maxOf(
@@ -636,11 +654,15 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             horizontalMargin = keyboardSidePaddingPx
         }
         intrinsicWidth = keyboardWidth
-        // KawaiiBar height + WindowManager view height
-        intrinsicHeight = barHeight + keyboardHeight
-        // extra bottom padding
-        intrinsicHeight += keyboardBottomPaddingPx
-        intrinsicHeight += navbarHeight
+        // KawaiiBar height + WindowManager view height, plus the keyboard's
+        // bottom padding and the simulated navigation bar blank.
+        uncroppedIntrinsicHeight = barHeight + keyboardHeight + keyboardBottomPaddingPx + navbarHeight
+        // Cropped previews keep only a small margin below the keyboard.
+        intrinsicHeight = if (cropBottomBlank) {
+            barHeight + keyboardHeight + ctx.dp(6)
+        } else {
+            uncroppedIntrinsicHeight
+        }
         // fakeInputView size should match the calculated intrinsic size
         fakeInputView.updateLayoutParams<FrameLayout.LayoutParams> {
             width = intrinsicWidth

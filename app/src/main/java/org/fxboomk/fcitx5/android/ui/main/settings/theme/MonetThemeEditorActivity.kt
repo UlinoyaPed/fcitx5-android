@@ -188,7 +188,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         // 固定在顶部并水平居中的键盘预览
-        previewUi = KeyboardPreviewUi(this, currentTheme.toCustom())
+        previewUi = KeyboardPreviewUi(this, currentTheme.toCustom(), cropBottomBlank = true)
         previewWrapper = FrameLayout(this).apply {
             clipChildren = false
             clipToPadding = false

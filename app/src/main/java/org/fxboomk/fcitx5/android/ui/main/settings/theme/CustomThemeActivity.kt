@@ -1056,7 +1056,7 @@ class CustomThemeActivity : AppCompatActivity() {
             if (theme.backgroundImage == null) {
                 backgroundStates.launchCrop(
                     previewUi.intrinsicWidth.coerceAtLeast(1),
-                    previewUi.intrinsicHeight.coerceAtLeast(1),
+                    previewUi.uncroppedIntrinsicHeight.coerceAtLeast(1),
                     pickNewSource = true
                 )
             } else {
@@ -1071,7 +1071,7 @@ class CustomThemeActivity : AppCompatActivity() {
                         when (which) {
                             0 -> backgroundStates.launchCrop(
                                 previewUi.intrinsicWidth.coerceAtLeast(1),
-                                previewUi.intrinsicHeight.coerceAtLeast(1),
+                                previewUi.uncroppedIntrinsicHeight.coerceAtLeast(1),
                                 pickNewSource = true
                             )
                             1 -> clearBackgroundImage()
@@ -1085,7 +1085,7 @@ class CustomThemeActivity : AppCompatActivity() {
             if (theme.backgroundImage == null) return@setOnClickListener
             backgroundStates.launchCrop(
                 previewUi.intrinsicWidth.coerceAtLeast(1),
-                previewUi.intrinsicHeight.coerceAtLeast(1),
+                previewUi.uncroppedIntrinsicHeight.coerceAtLeast(1),
                 pickNewSource = false
             )
         }
@@ -1162,7 +1162,7 @@ class CustomThemeActivity : AppCompatActivity() {
             // Use dark keys by default
             theme = ThemePreset.TransparentDark.deriveCustomBackground(n, c.path, s.path)
         }
-        previewUi = KeyboardPreviewUi(this, theme)
+        previewUi = KeyboardPreviewUi(this, theme, cropBottomBlank = true)
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(ui) { _, windowInsets ->
             val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
@@ -1198,9 +1198,15 @@ class CustomThemeActivity : AppCompatActivity() {
 
         if (newCreated) {
             cropLabel.visibility = View.GONE
-            previewUi.onSizeMeasured = { w, h ->
+            previewUi.onSizeMeasured = { w, _ ->
                 updatePreviewScale()
-                backgroundStates.launchCrop(w, h, pickNewSource = true)
+                // Crop against the keyboard's full render surface, not the
+                // bottom-cropped preview height.
+                backgroundStates.launchCrop(
+                    w,
+                    previewUi.uncroppedIntrinsicHeight.coerceAtLeast(1),
+                    pickNewSource = true
+                )
             }
         } else {
             previewUi.onSizeMeasured = { _, _ -> updatePreviewScale() }
