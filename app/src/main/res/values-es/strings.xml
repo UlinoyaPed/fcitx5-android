@@ -746,6 +746,9 @@
     <string name="commit_first_candidate_character">Insertar primer carácter</string>
     <string name="commit_last_candidate_character">Insertar último carácter</string>
     <string name="swipe_down">Deslizar hacia abajo</string>
+    <string name="punctuation_swipe_strategy">Estrategia de introducción de puntuación al deslizar</string>
+    <string name="punctuation_swipe_follow_input_mode">Seguir el modo chino/inglés</string>
+    <string name="punctuation_swipe_raw">Introducir caracteres originales</string>
     <string name="swipe_symbol_behavior">Dirección de deslizamiento para signos de puntuación</string>
     <string name="swipe_up">Deslizar hacia arriba</string>
     <string name="switch_to_voice_input">Cambiar a entrada de voz</string>

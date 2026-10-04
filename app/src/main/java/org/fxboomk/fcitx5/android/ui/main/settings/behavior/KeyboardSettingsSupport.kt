@@ -53,6 +53,7 @@ internal object KeyboardSettingsSupport {
     val keyAndGestureKeys = listOf(
         "popup_on_key_press",
         "expand_keypress_area",
+        "punctuation_swipe_strategy",
         "swipe_symbol_behavior",
         "caps_key_behavior",
         "lang_switch_key_behavior",

@@ -199,6 +199,9 @@
     <string name="disable_addon_warn_dep">Отключить %1$s</string>
     <string name="disable_addon_warn_optdep">Отключить некоторые функции в %1$s</string>
     <string name="disable_addon_warn_confirm">Вы уверены, что хотите отключить?</string>
+    <string name="punctuation_swipe_strategy">Стратегия ввода знаков препинания свайпом</string>
+    <string name="punctuation_swipe_follow_input_mode">Следовать китайскому/английскому режиму</string>
+    <string name="punctuation_swipe_raw">Вводить исходные символы</string>
     <string name="swipe_symbol_behavior">Направление свайпа для знаков препинания</string>
     <string name="swipe_down">Провести вниз</string>
     <string name="swipe_up">Провести вверх</string>

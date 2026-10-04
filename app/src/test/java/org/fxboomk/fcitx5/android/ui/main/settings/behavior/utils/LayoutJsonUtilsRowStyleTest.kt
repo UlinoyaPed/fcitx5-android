@@ -15,6 +15,8 @@ import org.fxboomk.fcitx5.android.input.keyboard.KeyDef
 import org.fxboomk.fcitx5.android.input.keyboard.MacroAction
 import org.fxboomk.fcitx5.android.input.keyboard.MacroKey
 import org.fxboomk.fcitx5.android.input.keyboard.MacroStep
+import org.fxboomk.fcitx5.android.input.keyboard.PunctuationSwipeStrategy
+import org.fxboomk.fcitx5.android.input.keyboard.punctuationSwipeAction
 import org.fxboomk.fcitx5.android.input.keyboard.SymbolKey
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.junit.Assert.assertEquals
@@ -333,6 +335,52 @@ class LayoutJsonUtilsRowStyleTest {
 
         assertEquals(KeyAction.CommitAction("A"), swipe.action)
         assertEquals(KeyAction.CommitAction("Ä"), swipe.downAction)
+    }
+
+    @Test
+    fun customLayoutPunctuationUsesEngineForDefaultStrategyOnBothSublabels() {
+        val keyJson = LayoutJsonUtils.parseKeyJson(
+            Json.parseToJsonElement(
+                """{"type":"AlphabetKey","main":"q","alt":",","alt1":"?"}"""
+            ).jsonObject
+        )!!
+        val swipe = createKeyDef(keyJson).behaviors
+            .filterIsInstance<KeyDef.Behavior.Swipe>().single()
+
+        for ((text, action) in listOf("," to swipe.action!!, "?" to swipe.downAction!!)) {
+            assertEquals(KeyAction.CommitAction(text), action)
+            assertEquals(
+                KeyAction.FcitxKeyAction(text),
+                punctuationSwipeAction(action, PunctuationSwipeStrategy.Default)
+            )
+            assertEquals(
+                KeyAction.CommitAction(text, followPunctuationMode = true),
+                punctuationSwipeAction(action, PunctuationSwipeStrategy.FollowInputMode)
+            )
+            assertEquals(
+                KeyAction.CommitAction(text),
+                punctuationSwipeAction(action, PunctuationSwipeStrategy.Raw)
+            )
+        }
+    }
+
+    @Test
+    fun macroKeyPunctuationSublabelsUseEngineForDefaultStrategy() {
+        val keyDef = MacroKey(
+            label = "q",
+            altLabel = ",",
+            altLabel1 = "?",
+            tap = MacroAction(emptyList())
+        )
+        val swipe = keyDef.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single()
+        assertEquals(
+            KeyAction.FcitxKeyAction(","),
+            punctuationSwipeAction(swipe.action!!, PunctuationSwipeStrategy.Default)
+        )
+        assertEquals(
+            KeyAction.FcitxKeyAction("?"),
+            punctuationSwipeAction(swipe.downAction!!, PunctuationSwipeStrategy.Default)
+        )
     }
 
     @Test

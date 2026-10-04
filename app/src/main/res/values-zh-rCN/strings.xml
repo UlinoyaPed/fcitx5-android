@@ -304,6 +304,9 @@
     <string name="disable_addon_warn_dep">禁用%1$s</string>
     <string name="disable_addon_warn_optdep">禁用%1$s中的某些功能</string>
     <string name="disable_addon_warn_confirm">确定要禁用它吗？</string>
+    <string name="punctuation_swipe_strategy">标点符号划动提交策略</string>
+    <string name="punctuation_swipe_follow_input_mode">跟随中英文状态</string>
+    <string name="punctuation_swipe_raw">提交原始字符</string>
     <string name="swipe_symbol_behavior">标点符号划动方向</string>
     <string name="swipe_down">下划</string>
     <string name="swipe_up">上划</string>

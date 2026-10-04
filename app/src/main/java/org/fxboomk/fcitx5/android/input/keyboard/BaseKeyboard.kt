@@ -1518,7 +1518,7 @@ abstract class BaseKeyboard(
         // 按物理方向绑定的自定义划动宏（“划动事件(上划)/(下划)”）优先级最高，
         // 高于副标签提交动作；它按实际手势方向判定，不依赖副标签的显示布局。
         selectPhysicalSwipeMacro(totalY, behavior)?.let { return it }
-        return when (selectSwipeAltTarget(view, totalY)) {
+        val action = when (selectSwipeAltTarget(view, totalY)) {
             AltTextSwipeTarget.Primary -> behavior.action ?: behavior.legacyMacro
             AltTextSwipeTarget.Secondary ->
                 behavior.downAction ?: behavior.action ?: behavior.legacyMacro
@@ -1528,6 +1528,9 @@ abstract class BaseKeyboard(
                     ?: behavior.action
                     ?: behavior.legacyMacro
             null -> null
+        }
+        return action?.let {
+            punctuationSwipeAction(it, prefs.keyboard.punctuationSwipeStrategy.getValue())
         }
     }
 

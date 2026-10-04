@@ -747,6 +747,9 @@
     <string name="status_area_main_tab">Fcitx5-Standardschaltflächen</string>
     <string name="commit_first_candidate_character">Erstes Zeichen eingeben</string>
     <string name="commit_last_candidate_character">Letztes Zeichen eingeben</string>
+    <string name="punctuation_swipe_strategy">Strategie zum Einfügen von Satzzeichen per Wischgeste</string>
+    <string name="punctuation_swipe_follow_input_mode">Chinesischem/englischem Modus folgen</string>
+    <string name="punctuation_swipe_raw">Originalzeichen einfügen</string>
     <string name="swipe_symbol_behavior">Wischrichtung für Satzzeichen</string>
     <string name="switch_to_voice_input">Zur Spracheingabe wechseln</string>
     <string name="toggle_number_keyboard">Zifferntastatur umschalten</string>

@@ -194,6 +194,9 @@
     <string name="disable_addon_warn_dep">%1$s を無効にする</string>
     <string name="disable_addon_warn_optdep">%1$s のいくつかの機能が無効になります</string>
     <string name="disable_addon_warn_confirm">本当に無効にしますか？</string>
+    <string name="punctuation_swipe_strategy">記号スワイプ入力の確定方法</string>
+    <string name="punctuation_swipe_follow_input_mode">中国語・英語モードに従う</string>
+    <string name="punctuation_swipe_raw">元の文字を入力</string>
     <string name="swipe_symbol_behavior">句読点のスワイプ方向</string>
     <string name="swipe_down">下にスワイプ</string>
     <string name="swipe_up">上にスワイプ</string>

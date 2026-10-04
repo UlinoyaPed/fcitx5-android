@@ -275,8 +275,14 @@ class CommonKeyActionListener :
                     }
                 }
                 is CommitAction -> service.postFcitxJob {
+                    val text = if (action.followPunctuationMode) {
+                        val isPassword = service.currentInputEditorInfo?.let {
+                            CapabilityFlags.fromEditorInfo(it).has(CapabilityFlag.Password)
+                        } ?: false
+                        resolveSwipePunctuation(action.text, currentIme(), isPassword)
+                    } else action.text
                     commitAndReset()
-                    service.lifecycleScope.launch { service.commitText(action.text) }
+                    service.lifecycleScope.launch { service.commitText(text) }
                 }
                 is QuickPhraseAction -> service.postFcitxJob {
                     commitAndReset()

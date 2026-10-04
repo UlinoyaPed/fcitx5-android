@@ -22,6 +22,7 @@ import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchLongPressBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.PredictionBackspaceBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.PredictionSpaceBehavior
+import org.fxboomk.fcitx5.android.input.keyboard.PunctuationSwipeStrategy
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceSwipeVerticalBehavior
@@ -218,6 +219,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
         val expandKeypressArea =
             switch(R.string.expand_keypress_area, "expand_keypress_area", false)
+        val punctuationSwipeStrategy = enumList(
+            R.string.punctuation_swipe_strategy,
+            "punctuation_swipe_strategy",
+            PunctuationSwipeStrategy.Default
+        )
         val swipeSymbolDirection = enumList(
             R.string.swipe_symbol_behavior,
             "swipe_symbol_behavior",

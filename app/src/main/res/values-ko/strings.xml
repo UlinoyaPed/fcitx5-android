@@ -735,6 +735,9 @@
     <string name="commit_first_candidate_character">첫 글자 입력</string>
     <string name="commit_last_candidate_character">마지막 글자 입력</string>
     <string name="swipe_down">아래로 스와이프</string>
+    <string name="punctuation_swipe_strategy">구두점 스와이프 입력 전략</string>
+    <string name="punctuation_swipe_follow_input_mode">중국어/영어 상태 따르기</string>
+    <string name="punctuation_swipe_raw">원래 문자 입력</string>
     <string name="swipe_symbol_behavior">구두점 스와이프 방향</string>
     <string name="swipe_up">위로 스와이프</string>
     <string name="switch_to_voice_input">음성 입력으로 전환</string>
