@@ -113,7 +113,7 @@
     <string name="theme">Thema</string>
     <string name="brightness">Helligkeit</string>
     <string name="key_radius">Tastenradius</string>
-    <string name="navbar_radius">Eckenradius der Navigationsleiste</string>
+    <string name="navbar_radius">Eckenradius der Werkzeugleiste</string>
     <string name="key_horizontal_margin">Horizontaler Tastenrand</string>
     <string name="key_vertical_margin">Vertikaler Tastenrand</string>
     <string name="choose_image">Bild wählen ...</string>
@@ -680,7 +680,6 @@
     <string name="keyboard_bottom_padding">Unterer Tastaturabstand</string>
     <string name="keyboard_side_padding">Seitlicher Tastaturabstand</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Werkzeug-/Kandidatenleiste bei Hardwaretastatur beibehalten</string>
-    <string name="physical_keyboard_horizontal_candidate_bar_summary">Werkzeugleiste und horizontale Kandidatenleiste beim Tippen mit Hardwaretastatur unten beibehalten</string>
     <string name="lang_switch_behavior_next_ime_app">Zur nächsten Eingabemethoden-App wechseln</string>
     <string name="lang_switch_key_long_press_behavior">Verhalten bei langem Drücken der Sprachtaste</string>
     <string name="lang_switch_long_press_default">Standard (einschließlich externer Eingabemethoden)</string>
@@ -770,6 +769,9 @@
     <string name="theme_message_follow_system_day_night_mode_enabled">„Systemweiten Tag-/Nachtmodus folgen“ ist aktiviert, Theme kann nicht manuell gewechselt werden.</string>
     <string name="theme_migrated">Theme wurde auf die aktuelle Version migriert</string>
     <string name="toolbar_num_row_on_password">In der Werkzeugleiste bei Passwortfeldern Zahlenreihe anzeigen</string>
+    <string name="toolbar_height">Höhe der Werkzeugleiste</string>
+    <string name="toolbar_dynamic_height">Dynamische Leistenhöhe</string>
+    <string name="toolbar_dynamic_height_summary">Erhöht die Höhe der Kandidatenleiste automatisch, damit Kandidaten bei großer Schriftart vollständig hineinpassen</string>
     <string name="remove_from_favorites">Aus Favoriten entfernen</string>
     <string name="update_table">Tabelle aktualisieren</string>
     <string name="user_data_imported">Benutzerdaten aus %1$s wurden importiert, Neustart läuft…</string>
@@ -825,7 +827,7 @@
     <string name="gboard_light_other_key_tone">Deckkraft der Nebentasten</string>
     <string name="gboard_style_side_keys">Seitliche Tasten im Gboard-Stil</string>
     <string name="wallpaper_blend_percent">Mischverhältnis zwischen Tastatur und Hintergrundbild</string>
-    <string name="navbar_border">Navigationsleistenrand aktivieren</string>
+    <string name="navbar_border">Werkzeugleistenrand aktivieren</string>
     <string name="space_swipe_vertical_behavior">Verhalten beim vertikalen Wischen auf der Leertaste</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Markierung wortweise verschieben</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Kandidatenzeilen wechseln</string>

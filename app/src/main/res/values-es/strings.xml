@@ -636,14 +636,13 @@
     <string name="key_border_stroke">Habilitar contorno del borde de tecla</string>
     <string name="key_horizontal_margin">Margen horizontal de tecla</string>
     <string name="key_radius">Radio de tecla</string>
-    <string name="navbar_radius">Radio de las esquinas de la barra de navegación</string>
+    <string name="navbar_radius">Radio de las esquinas de la barra de herramientas</string>
     <string name="key_ripple_effect">Habilitar efecto ondulado de tecla</string>
     <string name="key_vertical_margin">Margen vertical de tecla</string>
     <string name="keyboard_bottom_padding">Relleno inferior del teclado</string>
     <string name="keyboard_long_press_delay">Duración del retardo de pulsación larga</string>
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Mantener barra de herramientas/candidatos con teclado fisico</string>
-    <string name="physical_keyboard_horizontal_candidate_bar_summary">Mantener la barra de herramientas y la barra horizontal de candidatos abajo al escribir con un teclado fisico</string>
     <string name="lang_switch_behavior_next_ime_app">Cambiar a la siguiente app de metodo de entrada</string>
     <string name="lang_switch_key_long_press_behavior">Acción al mantener pulsada la tecla de idioma</string>
     <string name="lang_switch_long_press_default">Predeterminado (incluye métodos de entrada externos)</string>
@@ -774,6 +773,9 @@
     <string name="text_keyboard_layout_qr_import_success_profile">Diseno QR importado al perfil "%1$s". Guarde para conservar cambios.</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">No se puede cambiar el tema manualmente mientras este activado "Seguir tema dia/noche del sistema".</string>
     <string name="toolbar_num_row_on_password">Mostrar fila numerica en la barra de herramientas al ingresar contrasena</string>
+    <string name="toolbar_height">Altura de la barra de herramientas</string>
+    <string name="toolbar_dynamic_height">Altura dinamica de la barra</string>
+    <string name="toolbar_dynamic_height_summary">Aumenta automaticamente la altura para contener completamente los candidatos cuando la fuente de estos es demasiado grande para la barra de candidatos</string>
     <string name="unimplemented_type">⛔ Tipo no implementado</string>
     <string name="update_table">Actualizar tabla</string>
     <string name="user_data_imported">Los datos de usuario de %1$s se importaron, reiniciando…</string>
@@ -829,7 +831,7 @@
     <string name="gboard_light_other_key_tone">Opacidad de las teclas secundarias</string>
     <string name="gboard_style_side_keys">Teclas laterales estilo Gboard</string>
     <string name="wallpaper_blend_percent">Mezcla del teclado con el fondo de pantalla</string>
-    <string name="navbar_border">Habilitar borde de barra de navegación</string>
+    <string name="navbar_border">Habilitar borde de barra de herramientas</string>
     <string name="space_swipe_vertical_behavior">Acción al deslizar verticalmente en la barra espaciadora</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Mover el resaltado palabra por palabra</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Cambiar filas de candidatos</string>

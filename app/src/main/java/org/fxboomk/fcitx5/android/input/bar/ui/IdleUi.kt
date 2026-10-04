@@ -14,6 +14,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
 import android.widget.ViewAnimator
+import androidx.core.view.updateLayoutParams
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.Theme
@@ -130,7 +131,7 @@ class IdleUi(
     }
 
     private val idleBody = constraintLayout {
-        val size = dp(KawaiiBarComponent.HEIGHT)
+        val size = dp(KawaiiBarComponent.configuredHeightDp())
         add(menuButton, lParams(size, size) {
             startOfParent()
             centerVertically()
@@ -144,6 +145,22 @@ class IdleUi(
             before(hideKeyboardButton)
             centerVertically()
         })
+    }
+
+    /**
+     * Keep the fixed menu / hide-keyboard buttons as tall as the toolbar when the
+     * toolbar height setting changes at runtime.
+     */
+    fun applyBarHeight(heightDp: Int) {
+        val size = ctx.dp(heightDp)
+        menuButton.updateLayoutParams {
+            width = size
+            height = size
+        }
+        hideKeyboardButton.updateLayoutParams {
+            width = size
+            height = size
+        }
     }
 
     override val root = frameLayout {

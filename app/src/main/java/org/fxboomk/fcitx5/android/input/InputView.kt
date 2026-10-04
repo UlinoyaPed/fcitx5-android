@@ -1277,6 +1277,7 @@ class InputView(
         keyboardSidePaddingLandscape,
         keyboardBottomPadding,
         keyboardBottomPaddingLandscape,
+        keyboardPrefs.toolbarDynamicHeight,
         textKeyboardLayoutProfile,
         keyboardPrefs.splitKeyboardEnabled,
         keyboardPrefs.splitKeyboardThreshold,
@@ -2153,7 +2154,9 @@ class InputView(
     @Keep
     private val onKeyboardSizeChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
         if (keyboardSizePrefs.any { it.key == key }) {
-            if (key == keyboardPrefs.compositionAreaStyle.key) {
+            if (key == keyboardPrefs.compositionAreaStyle.key ||
+                key == keyboardPrefs.toolbarDynamicHeight.key
+            ) {
                 updateCompositionAreaStyle()
             }
             updateFloatingState()
@@ -2178,6 +2181,14 @@ class InputView(
     private val onCandidatePreferenceChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
         if (key == physicalKeyboardHorizontalCandidateBar.key) {
             service.inputDeviceManager.onPhysicalKeyboardHorizontalCandidateBarChanged()
+        }
+    }
+
+    // toolbar_height moved to ThemePrefs (theme appearance page)
+    @Keep
+    private val onToolbarHeightChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
+        if (key == ThemeManager.prefs.toolbarHeight.key) {
+            updateCompositionAreaStyle()
         }
     }
 
@@ -2382,6 +2393,7 @@ class InputView(
         })
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
+        ThemeManager.prefs.registerOnChangeListener(onToolbarHeightChangeListener)
         isFloating = floatingKeyboardEnabled
         updateFloatingState()
         updateFloatingHandlesVisibility()
@@ -2403,6 +2415,10 @@ class InputView(
             if (!isFloating && !isOneHanded) {
                 toggleAdjustingMode()
             }
+        }
+        kawaiiBar.onBarHeightChanged = {
+            // Toolbar height setting or dynamic candidate height changed
+            updateCompositionAreaStyle()
         }
 
         kawaiiBar.view.setOnTouchListener { v, event ->
@@ -3074,6 +3090,7 @@ class InputView(
         windowManager.onWindowChanged = null
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
+        ThemeManager.prefs.unregisterOnChangeListener(onToolbarHeightChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
         blurUpdateJob?.cancel()
         blurUpdateScope.cancel()

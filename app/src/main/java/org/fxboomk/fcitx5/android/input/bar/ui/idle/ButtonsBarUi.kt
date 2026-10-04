@@ -37,7 +37,7 @@ class ButtonsBarUi(
         // Set fixed height to match KawaiiBar height
         layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ctx.dp(KawaiiBarComponent.HEIGHT)
+            ctx.dp(KawaiiBarComponent.configuredHeightDp())
         )
     }
 
@@ -140,7 +140,7 @@ class ButtonsBarUi(
                 contentDescription = config.label ?: getDefaultLabel(config.id)
                 tag = config.id
                 // Ensure button always fills KawaiiBar height
-                minimumHeight = ctx.dp(KawaiiBarComponent.HEIGHT)
+                minimumHeight = ctx.dp(KawaiiBarComponent.configuredHeightDp())
                 layoutParams = FlexboxLayoutManager.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.MATCH_PARENT

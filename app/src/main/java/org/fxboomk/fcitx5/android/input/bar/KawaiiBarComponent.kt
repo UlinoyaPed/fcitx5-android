@@ -154,6 +154,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private val prefs = AppPrefs.getInstance()
 
+    private val toolbarHeightPref = ThemeManager.prefs.toolbarHeight
+    private val toolbarDynamicHeight by prefs.keyboard.toolbarDynamicHeight
     private val clipboardSuggestion = prefs.clipboard.clipboardSuggestion
     private val clipboardItemTimeout = prefs.clipboard.clipboardItemTimeout
     private val clipboardMaskSensitive by prefs.clipboard.clipboardMaskSensitive
@@ -176,6 +178,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private enum class NumberRowState { Auto, ForceShow, ForceHide }
 
     private var numberRowState = NumberRowState.Auto
+
+    // Reported by HorizontalCandidateComponent; 0 means the configured height is enough
+    private var candidateRequiredHeightDp = 0
 
     @Keep
     private val onClipboardUpdateListener =
@@ -631,7 +636,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                     horizontalPadding = dp(8)
                 },
                 fontScale = 0.75f
-            )
+            ),
+            rowHeightPx = context.dp(candidateRowHeightDp)
         ).apply {
             expandButton.apply {
                 swipeEnabled = true
@@ -771,13 +777,46 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     fun updateCompositionAreaStyle() {
+        candidateUi.updateRowHeight(context.dp(candidateRowHeightDp))
+        idleUi.applyBarHeight(toolbarHeightDp)
         horizontalCandidate.setInlineMode(usesInlineCompositionArea)
         candidateUi.setInlineMode(usesInlineCompositionArea)
         candidateUi.updateInlinePreedit(latestInputPanel)
     }
 
+    /**
+     * Toolbar height configured by the user (dp), shared by the toolbar and the
+     * horizontal candidate bar.
+     */
+    val toolbarHeightDp: Int
+        get() = toolbarHeightPref.getValue().coerceIn(MIN_TOOLBAR_HEIGHT, MAX_TOOLBAR_HEIGHT)
+
+    /**
+     * Height (dp) of the horizontal candidate row. With dynamic height enabled it
+     * grows to wrap candidates whose font is larger than the configured height.
+     */
+    val candidateRowHeightDp: Int
+        get() = if (toolbarDynamicHeight) {
+            maxOf(toolbarHeightDp, candidateRequiredHeightDp)
+        } else {
+            toolbarHeightDp
+        }
+
+    /**
+     * Required height (dp) of the candidate row as measured by
+     * [HorizontalCandidateComponent]; honored only when dynamic height is on.
+     */
+    fun setCandidateRequiredHeight(heightDp: Int) {
+        if (heightDp == candidateRequiredHeightDp) return
+        candidateRequiredHeightDp = heightDp
+        onBarHeightChanged?.invoke()
+    }
+
+    var onBarHeightChanged: (() -> Unit)? = null
+
     val barHeight: Int
-        get() = if (usesInlineCompositionArea) INLINE_HEIGHT else HEIGHT
+        get() = candidateRowHeightDp +
+            (if (usesInlineCompositionArea) INLINE_PREEDIT_HEIGHT else 0)
 
     override fun onScopeSetupFinished(scope: DynamicScope) {
         ClipboardManager.lastEntry?.let {
@@ -873,9 +912,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         service.inputView?.requestBlurRefresh()
     }
 
-    private val suggestionSize by lazy {
-        Size(ViewGroup.LayoutParams.WRAP_CONTENT, context.dp(HEIGHT))
-    }
+    private val suggestionSize: Size
+        get() = Size(ViewGroup.LayoutParams.WRAP_CONTENT, context.dp(toolbarHeightDp))
 
     private val directExecutor by lazy {
         Executor { it.run() }
@@ -933,9 +971,20 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     companion object {
+        // Factory default height (dp) of the toolbar / horizontal candidate bar
         const val HEIGHT = 40
-        const val INLINE_HEIGHT = 62
         const val INLINE_PREEDIT_HEIGHT = 22
+        const val MIN_TOOLBAR_HEIGHT = 24
+        const val MAX_TOOLBAR_HEIGHT = 80
+
+        /**
+         * Toolbar height currently configured in preferences (dp), for UI built
+         * outside [KawaiiBarComponent] that must match the bar (adjusting overlay,
+         * AI suggestion overlay, previews).
+         */
+        fun configuredHeightDp(): Int =
+            ThemeManager.prefs.toolbarHeight.getValue()
+                .coerceIn(MIN_TOOLBAR_HEIGHT, MAX_TOOLBAR_HEIGHT)
     }
 
     private fun updateButtonsState() {

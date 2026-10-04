@@ -157,7 +157,7 @@
     <string name="key_border">Enable key border</string>
     <string name="brightness">Brightness</string>
     <string name="key_radius">Key radius</string>
-    <string name="navbar_radius">Navigation bar corner radius</string>
+    <string name="navbar_radius">Toolbar corner radius</string>
     <string name="text_editing_button_radius">Text editing button radius</string>
     <string name="clipboard_entry_radius">Clipboard entry radius</string>
     <string name="key_horizontal_margin">Key horizontal margin</string>
@@ -204,7 +204,7 @@
     <string name="gboard_light_other_key_tone">Non-main key area opacity</string>
     <string name="gboard_style_side_keys">Gboard style side keys</string>
     <string name="wallpaper_blend_percent">Keyboard/wallpaper blend</string>
-    <string name="navbar_border">Enable navigation bar border</string>
+    <string name="navbar_border">Enable toolbar border</string>
     <string name="light_mode_theme">Light mode themes</string>
     <string name="light_mode_theme_summary">Select multiple themes and cycle through them</string>
     <string name="dark_mode_theme">Dark mode themes</string>
@@ -234,7 +234,6 @@
     <string name="keyboard_bottom_padding">Keyboard bottom padding</string>
     <string name="keyboard_side_padding">Keyboard side padding</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Keep toolbar/candidate bar when using a physical keyboard</string>
-    <string name="physical_keyboard_horizontal_candidate_bar_summary">Keep the toolbar and horizontal candidate bar at the bottom when typing with a physical keyboard</string>
     <string name="clipboard_suggestion">Show clipboard suggestions</string>
 
     <!-- Split keyboard settings (refactored) -->
@@ -346,6 +345,9 @@
     <string name="notification_permission_message">Without the permission to post notifications, we are not able to notify you when some time-consuming operations are done.</string>
     <string name="notification_permission_title">No Notification Permission</string>
     <string name="toolbar_num_row_on_password">Show number row on toolbar when inputting password</string>
+    <string name="toolbar_height">Toolbar height</string>
+    <string name="toolbar_dynamic_height">Dynamic toolbar height</string>
+    <string name="toolbar_dynamic_height_summary">Automatically increase the height to fully fit candidates when the candidate font is too large for the candidate bar</string>
     <string name="space_long_press_behavior">Space key long press behavior</string>
     <string name="space_behavior_none">None</string>
     <string name="space_behavior_enumerate">Enumerate input methods</string>

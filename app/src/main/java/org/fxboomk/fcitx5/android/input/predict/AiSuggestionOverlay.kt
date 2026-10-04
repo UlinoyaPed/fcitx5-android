@@ -29,7 +29,8 @@ class AiSuggestionOverlay(
     var onLongFormClick: (() -> Unit)? = null
 
     private val edgeGap = context.dp(12).toFloat()
-    private val keyboardBarHeight = context.dp(KawaiiBarComponent.HEIGHT).toFloat()
+    private val keyboardBarHeight: Float
+        get() = context.dp(KawaiiBarComponent.configuredHeightDp()).toFloat()
     private val minPanelWidth = context.dp(220)
     private val maxPanelWidth = context.dp(320)
 

@@ -11,6 +11,7 @@ import android.graphics.drawable.shapes.RectShape
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.Keep
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
@@ -29,6 +30,7 @@ import org.fxboomk.fcitx5.android.core.FcitxEvent
 import org.fxboomk.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
 import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.input.bar.hasVisibleCandidateContent
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -48,6 +50,7 @@ import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
 import java.util.ArrayDeque
+import kotlin.math.ceil
 import kotlin.math.max
 
 internal const val HORIZONTAL_CANDIDATE_OUTER_PADDING_DP = 4
@@ -167,6 +170,19 @@ class HorizontalCandidateComponent :
     private val bar: KawaiiBarComponent by manager.must()
 
     private val fillStyle by AppPrefs.getInstance().keyboard.horizontalCandidateStyle
+    private val toolbarDynamicHeightPref = AppPrefs.getInstance().keyboard.toolbarDynamicHeight
+
+    // Grow the bar to fit candidates when the dynamic toolbar height is on
+    @Keep
+    private val onDynamicHeightChangeListener =
+        ManagedPreference.OnChangeListener<Boolean> { _, _ ->
+            syncDynamicBarHeight(adapter.candidates)
+        }
+
+    init {
+        toolbarDynamicHeightPref.registerOnChangeListener(onDynamicHeightChangeListener)
+    }
+
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
             if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -318,6 +334,33 @@ class HorizontalCandidateComponent :
         displayedAiStartIndex >= 0 && position >= displayedAiStartIndex
 
     private fun candidateFetchBatchSize(): Int = max(maxSpanCountPref.getValue() * 3, 24)
+
+    /**
+     * Height (dp) needed to wrap a single candidate row with the current font size
+     * and inline scale; text content does not affect a single-line height.
+     */
+    private fun measuredCandidateRowHeightDp(): Int {
+        measurementCandidateUi.apply {
+            setFontScale(if (inlineMode) INLINE_CANDIDATE_FONT_SCALE else 1f)
+            updateCandidate(CandidateWord("", "测", "", false))
+            applyConfiguredTypeface()
+            root.measure(
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            )
+        }
+        val density = context.resources.displayMetrics.density
+        return ceil(measurementCandidateUi.root.measuredHeight / density).toInt()
+    }
+
+    /**
+     * Report the height the candidate row requires so the toolbar can grow when the
+     * dynamic height setting is on; resets to the configured height when empty.
+     */
+    private fun syncDynamicBarHeight(candidates: Array<CandidateWord>) {
+        val required = if (candidates.isNotEmpty()) measuredCandidateRowHeightDp() else 0
+        bar.setCandidateRequiredHeight(required)
+    }
 
     private fun measuredCandidateTextWidth(candidate: String, layoutMinWidth: Int): Int {
         measurementCandidateUi.apply {
@@ -659,6 +702,7 @@ class HorizontalCandidateComponent :
         secondLayoutPassDone = false
         adapter.updateCandidates(candidates, total, activeIndex, indexOffset)
         bar.syncCandidateBarState(candidateEmpty = !hasVisibleCandidateContent(candidates))
+        syncDynamicBarHeight(candidates)
         if (candidates.isEmpty()) {
             refreshExpanded()
         }

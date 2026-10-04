@@ -44,6 +44,7 @@ internal object KeyboardSettingsSupport {
     )
 
     val toolbarAndInputKeys = listOf(
+        "toolbar_dynamic_height",
         "toolbar_num_row_on_password",
         "physical_keyboard_horizontal_candidate_bar",
         "show_voice_input_button",

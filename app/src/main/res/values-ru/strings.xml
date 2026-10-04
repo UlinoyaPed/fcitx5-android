@@ -125,7 +125,7 @@
     <string name="key_border">Включить границы клавиш</string>
     <string name="brightness">Яркость</string>
     <string name="key_radius">Радиус клавиш</string>
-    <string name="navbar_radius">Радиус скругления углов панели навигации</string>
+    <string name="navbar_radius">Радиус скругления углов панели инструментов</string>
     <string name="text_editing_button_radius">Радиус кнопки редактирования текста</string>
     <string name="clipboard_entry_radius">Радиус входа в буфер обмена</string>
     <string name="key_horizontal_margin">Горизонтальное поле клавиш</string>
@@ -192,7 +192,6 @@
     <string name="keyboard_bottom_padding">Нижнее поле клавиатуры</string>
     <string name="keyboard_side_padding">Боковое поле клавиатуры</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Сохранять панель инструментов/кандидатов при физической клавиатуре</string>
-    <string name="physical_keyboard_horizontal_candidate_bar_summary">Сохранять панель инструментов и горизонтальную панель кандидатов внизу при вводе с физической клавиатуры</string>
     <string name="clipboard_suggestion">Показать предложения буфера обмена</string>
     <string name="disable_addon_warn_title">Отключить дополнение</string>
     <string name="disable_addon_warn_name">Отключение %1$s также приведет к:</string>
@@ -234,6 +233,9 @@
     <string name="notification_permission_message">Без разрешения на публикацию уведомлений мы не сможем уведомить вас о выполнении некоторых сложных операций.</string>
     <string name="notification_permission_title">Нет разрешения на уведомление</string>
     <string name="toolbar_num_row_on_password">Показывать строку с цифрами на панели инструментов при вводе пароля</string>
+    <string name="toolbar_height">Высота панели инструментов</string>
+    <string name="toolbar_dynamic_height">Динамическая высота панели</string>
+    <string name="toolbar_dynamic_height_summary">Автоматически увеличивать высоту строки кандидатов, чтобы полностью вместить кандидатов, если крупный шрифт не помещается</string>
     <string name="space_long_press_behavior">Поведение при длительном нажатии клавиши пробела</string>
     <string name="space_behavior_none">Нет</string>
     <string name="space_behavior_enumerate">Перечислить методы ввода</string>
@@ -827,7 +829,7 @@
     <string name="gboard_light_other_key_tone">Непрозрачность дополнительных клавиш</string>
     <string name="gboard_style_side_keys">Боковые клавиши в стиле Gboard</string>
     <string name="wallpaper_blend_percent">Смешивание клавиатуры с обоями</string>
-    <string name="navbar_border">Включить рамку панели навигации</string>
+    <string name="navbar_border">Включить рамку панели инструментов</string>
     <string name="space_swipe_vertical_behavior">Действие при вертикальном свайпе по пробелу</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Перемещать выделение по словам</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Переключать строки кандидатов</string>

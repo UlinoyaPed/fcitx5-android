@@ -6,6 +6,8 @@ package org.fxboomk.fcitx5.android.input.bar.ui
 
 import android.content.Context
 import android.view.View
+import android.widget.LinearLayout
+import androidx.core.view.updateLayoutParams
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
@@ -29,7 +31,8 @@ class CandidateUi(
     override val ctx: Context,
     theme: Theme,
     private val horizontalView: View,
-    private val inlinePreeditUi: PreeditUi
+    private val inlinePreeditUi: PreeditUi,
+    rowHeightPx: Int = ctx.dp(KawaiiBarComponent.HEIGHT)
 ) : Ui {
 
     val expandButton = ToolButton(ctx, R.drawable.ic_baseline_expand_more_24, theme).apply {
@@ -42,7 +45,7 @@ class CandidateUi(
             inlinePreeditUi.root,
             coreLParams(matchParent, dp(KawaiiBarComponent.INLINE_PREEDIT_HEIGHT))
         )
-        add(horizontalView, coreLParams(matchParent, dp(KawaiiBarComponent.HEIGHT)))
+        add(horizontalView, coreLParams(matchParent, rowHeightPx))
     }
 
     override val root = ctx.constraintLayout {
@@ -61,6 +64,14 @@ class CandidateUi(
 
     init {
         setInlineMode(false)
+    }
+
+    fun updateRowHeight(rowHeightPx: Int) {
+        horizontalView.updateLayoutParams<LinearLayout.LayoutParams> {
+            height = rowHeightPx
+        }
+        content.requestLayout()
+        root.requestLayout()
     }
 
     fun setInlineMode(inline: Boolean) {

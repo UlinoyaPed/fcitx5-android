@@ -129,6 +129,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
 
     val keyRadius = int(R.string.key_radius, "key_radius", 4, 0, 48, "dp")
 
+    // Toolbar height in dp, shared by the toolbar and the horizontal candidate bar.
+    // Factory default is KawaiiBarComponent.HEIGHT (40dp).
+    val toolbarHeight = int(R.string.toolbar_height, "toolbar_height", 40, 24, 80, "dp")
+
     val navbarRadius = int(R.string.navbar_radius, "navbar_radius", 8, 0, 48, "dp")
 
     val clipboardEntryRadius =

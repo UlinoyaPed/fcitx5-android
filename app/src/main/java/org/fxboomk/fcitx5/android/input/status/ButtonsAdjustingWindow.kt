@@ -109,7 +109,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             orientation = LinearLayout.HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                context.dp(KawaiiBarComponent.HEIGHT)
+                context.dp(KawaiiBarComponent.configuredHeightDp())
             )
         }
     }
@@ -132,8 +132,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val collapseButton by lazy {
         ToolButton(context, R.drawable.ic_baseline_keyboard_arrow_left_24, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
-                context.dp(KawaiiBarComponent.HEIGHT),
-                context.dp(KawaiiBarComponent.HEIGHT)
+                context.dp(KawaiiBarComponent.configuredHeightDp()),
+                context.dp(KawaiiBarComponent.configuredHeightDp())
             )
             // Use force hide to bypass drag guard - explicit user exit should always work
             setOnClickListener { service.inputView?.forceHideButtonsAdjustingOverlay() }
@@ -143,8 +143,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val moreButton by lazy {
         ToolButton(context, R.drawable.ic_baseline_arrow_drop_down_24, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
-                context.dp(KawaiiBarComponent.HEIGHT),
-                context.dp(KawaiiBarComponent.HEIGHT)
+                context.dp(KawaiiBarComponent.configuredHeightDp()),
+                context.dp(KawaiiBarComponent.configuredHeightDp())
             )
             alpha = 0.45f
         }
@@ -173,7 +173,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             orientation = LinearLayout.HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                context.dp(KawaiiBarComponent.HEIGHT)
+                context.dp(KawaiiBarComponent.configuredHeightDp())
             )
             if (!keyBorder) {
                 backgroundColor = currentTheme.barColor
@@ -442,7 +442,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 ButtonIconSpec.glyph(button.icon)?.let(::setIconText)
                 layoutParams = LinearLayout.LayoutParams(
                     if (useEven) evenWidth else ViewGroup.LayoutParams.WRAP_CONTENT,
-                    context.dp(KawaiiBarComponent.HEIGHT)
+                    context.dp(KawaiiBarComponent.configuredHeightDp())
                 ).apply {
                     marginStart = context.dp(2)
                     marginEnd = context.dp(2)
@@ -517,7 +517,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
         topContainer.layoutParams = FrameLayout.LayoutParams(
             if (useEven) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
-            context.dp(KawaiiBarComponent.HEIGHT)
+            context.dp(KawaiiBarComponent.configuredHeightDp())
         )
     }
 

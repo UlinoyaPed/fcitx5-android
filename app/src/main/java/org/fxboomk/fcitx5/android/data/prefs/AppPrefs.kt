@@ -190,11 +190,16 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val inlineSuggestions = switch(R.string.inline_suggestions, "inline_suggestions", true)
         val toolbarNumRowOnPassword =
             switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", true)
+        val toolbarDynamicHeight = switch(
+            R.string.toolbar_dynamic_height,
+            "toolbar_dynamic_height",
+            false,
+            R.string.toolbar_dynamic_height_summary
+        )
         val physicalKeyboardHorizontalCandidateBar = switch(
             R.string.physical_keyboard_horizontal_candidate_bar,
             "physical_keyboard_horizontal_candidate_bar",
-            false,
-            R.string.physical_keyboard_horizontal_candidate_bar_summary
+            false
         )
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(

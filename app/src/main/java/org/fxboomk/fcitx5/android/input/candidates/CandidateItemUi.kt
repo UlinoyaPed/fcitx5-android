@@ -40,7 +40,10 @@ class CandidateItemUi(
     private val font: Typeface? = null
 ) : Ui {
 
-    private val configuredFontSize = FontProviders.getFontSize("cand_font", 20f)
+    // Re-resolve on access (FontProviders caches) so dynamic bar-height measurement
+    // tracks fontset edits without recreating this Ui
+    private val configuredFontSize: Float
+        get() = FontProviders.getFontSize("cand_font", 20f)
 
     val text = view(::AutoScaleTextView) {
         scaleMode = AutoScaleTextView.Mode.Proportional

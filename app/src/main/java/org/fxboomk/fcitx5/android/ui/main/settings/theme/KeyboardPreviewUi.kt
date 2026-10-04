@@ -42,6 +42,7 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.bar.ui.idle.ButtonsBarUi
 import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
@@ -117,9 +118,29 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
 
     private val navbarBorder = ThemeManager.prefs.navbarBorder
     private val navbarRadius = ThemeManager.prefs.navbarRadius
+    private val toolbarHeightPref = ThemeManager.prefs.toolbarHeight
     private val keyBorder by ThemeManager.prefs.keyBorder
 
     private val previewChromeChangeListener = ManagedPreference.OnChangeListener<Any> { _, _ ->
+        recalculateSize()
+    }
+
+    // Reflect toolbar height changes in the preview immediately for user feedback
+    private val toolbarHeightChangeListener = ManagedPreference.OnChangeListener<Int> { _, _ ->
+        val newHeight = ctx.dp(KawaiiBarComponent.configuredHeightDp())
+        if (newHeight == barHeight) return@OnChangeListener
+        barHeight = newHeight
+        fakeKawaiiBar.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = newHeight
+        }
+        previewMenuButton?.updateLayoutParams {
+            width = newHeight
+            height = newHeight
+        }
+        previewHideButton?.updateLayoutParams {
+            width = newHeight
+            height = newHeight
+        }
         recalculateSize()
     }
 
@@ -130,7 +151,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         visibility = View.GONE
     }
 
-    private val barHeight = ctx.dp(40)
+    private var previewMenuButton: ToolButton? = null
+    private var previewHideButton: ToolButton? = null
+    private var barHeight = ctx.dp(KawaiiBarComponent.configuredHeightDp())
     private var fakeKawaiiBar = buildToolbarPreview(theme)
     private val fakeNavbarView = view(::View)
 
@@ -405,7 +428,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             startOfParent()
             endOfParent()
         })
-        add(fakeKawaiiBar, lParams(matchConstraints, dp(40)) {
+        add(fakeKawaiiBar, lParams(matchConstraints, barHeight) {
             topOfParent()
             centerHorizontally()
         })
@@ -429,6 +452,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             onSizeMeasured?.invoke(intrinsicWidth, intrinsicHeight)
             navbarBorder.registerOnChangeListener(previewChromeChangeListener)
             navbarRadius.registerOnChangeListener(previewChromeChangeListener)
+            toolbarHeightPref.registerOnChangeListener(toolbarHeightChangeListener)
         }
 
         override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -438,6 +462,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         override fun onDetachedFromWindow() {
             navbarBorder.unregisterOnChangeListener(previewChromeChangeListener)
             navbarRadius.unregisterOnChangeListener(previewChromeChangeListener)
+            toolbarHeightPref.unregisterOnChangeListener(toolbarHeightChangeListener)
             detachPreviewFcitx()
             super.onDetachedFromWindow()
         }
@@ -470,12 +495,14 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             }
         }
         val hideButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
+        previewMenuButton = menuButton
+        previewHideButton = hideButton
         val buttonsUi = ButtonsBarUi(ctx, theme, loadToolbarButtonsConfig())
 
         return ctx.constraintLayout {
             id = View.generateViewId()
             backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
-            val buttonSize = ctx.dp(40)
+            val buttonSize = ctx.dp(KawaiiBarComponent.configuredHeightDp())
             add(menuButton, lParams(buttonSize, buttonSize) {
                 startOfParent()
                 centerVertically()
