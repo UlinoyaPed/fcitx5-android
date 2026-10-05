@@ -7,6 +7,8 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior.data
 import android.content.Context
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.input.config.DirectionalSwipeMigration
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.migration.DataMigrationManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.KeyboardRowStyleUtils
@@ -81,6 +83,8 @@ class LayoutDataManager(private val context: Context) {
         entries.clear()
         layoutHeightPercentOverrides.clear()
         
+        DirectionalSwipeMigration.migrateFile(file, ThemeManager.prefs.punctuationPosition.getValue())
+            .onFailure { android.util.Log.e("LayoutDataManager", "Swipe migration failed", it) }
         val parsed = if (file?.exists() == true && file.length() > 0) {
             parseJsonText(file.readText(), file.name)
         } else {
@@ -268,6 +272,16 @@ class LayoutDataManager(private val context: Context) {
      */
     fun saveToFile(file: File): Boolean {
         return runCatching {
+            val position = ThemeManager.prefs.punctuationPosition.getValue()
+            entries.values.forEach { rows ->
+                rows.forEach { row ->
+                    row.indices.forEach { index ->
+                        if (!KeyboardRowStyleUtils.isRowMeta(row[index])) {
+                            row[index] = LayoutJsonUtils.migrateDirectionalSwipeFields(row[index], position).toMutableMap()
+                        }
+                    }
+                }
+            }
             pruneLayoutHeightOverrides()
             normalizeAllRowsForSave()
             // 验证数据

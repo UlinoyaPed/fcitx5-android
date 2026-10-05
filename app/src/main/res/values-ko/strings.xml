@@ -370,6 +370,8 @@
     <string name="text_keyboard_layout_alt_label">대체 레이블</string>
     <string name="text_keyboard_layout_alt_label_one">대체 레이블 1</string>
     <string name="text_keyboard_layout_swipe_label">스와이프 레이블</string>
+    <string name="text_keyboard_layout_swipe_up_label">위로 스와이프 레이블</string>
+    <string name="text_keyboard_layout_swipe_down_label">아래로 스와이프 레이블</string>
 
     <!-- Macro Editor -->
     <string name="macro_editor_title">%1$s 편집</string>

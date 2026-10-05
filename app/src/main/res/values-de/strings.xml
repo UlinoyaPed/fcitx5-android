@@ -345,6 +345,8 @@
     <string name="text_keyboard_layout_alt_label">Alternatives Etikett</string>
     <string name="text_keyboard_layout_alt_label_one">Alternatives Etikett 1</string>
     <string name="text_keyboard_layout_swipe_label">Wisch-Label</string>
+    <string name="text_keyboard_layout_swipe_up_label">Wisch-Label (hoch)</string>
+    <string name="text_keyboard_layout_swipe_down_label">Wisch-Label (runter)</string>
     <string name="text_keyboard_layout_display_value_hint">Anzeigewert</string>
     <string name="text_keyboard_layout_key_label_caps">Caps</string>
     <string name="text_keyboard_layout_key_label_lang">Lang</string>

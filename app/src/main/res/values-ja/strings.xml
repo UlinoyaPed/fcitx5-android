@@ -449,6 +449,8 @@
     <string name="text_keyboard_layout_alt_label">代替ラベル</string>
     <string name="text_keyboard_layout_alt_label_one">代替ラベル 1</string>
     <string name="text_keyboard_layout_swipe_label">スワイプラベル</string>
+    <string name="text_keyboard_layout_swipe_up_label">上スワイプラベル</string>
+    <string name="text_keyboard_layout_swipe_down_label">下スワイプラベル</string>
     <string name="text_keyboard_layout_display_value_hint">表示値</string>
     <string name="text_keyboard_layout_key_label_caps">Caps</string>
     <string name="text_keyboard_layout_key_label_lang">Lang</string>

@@ -689,6 +689,8 @@
     <string name="text_keyboard_layout_alt_label">副標籤</string>
     <string name="text_keyboard_layout_alt_label_one">副標籤一</string>
     <string name="text_keyboard_layout_swipe_label">劃動標籤</string>
+    <string name="text_keyboard_layout_swipe_up_label">上劃標籤</string>
+    <string name="text_keyboard_layout_swipe_down_label">下劃標籤</string>
 
     <!-- Macro Editor -->
     <string name="macro_editor_title">編輯 %1$s</string>

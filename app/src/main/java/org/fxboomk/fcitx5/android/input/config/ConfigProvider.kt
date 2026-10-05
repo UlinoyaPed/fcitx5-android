@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import kotlinx.serialization.json.JsonObject
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import java.io.File
 
 typealias ConfigChangeListener = () -> Unit
@@ -257,8 +258,11 @@ object ConfigProviders {
         if (memoryJson != null) {
             return UserJsonConfigStore.readJson<T>(memoryJson).also { ensureWatching() }
         }
-        // Fallback to file-based reading
-        return UserJsonConfigStore.readJson<T>(provider.textKeyboardLayoutFile()).also { ensureWatching() }
+        // Persist legacy directions once, using the punctuation position at first load.
+        val file = provider.textKeyboardLayoutFile()
+        DirectionalSwipeMigration.migrateFile(file, ThemeManager.prefs.punctuationPosition.getValue())
+            .onFailure { android.util.Log.e("ConfigProviders", "Swipe migration failed", it) }
+        return UserJsonConfigStore.readJson<T>(file).also { ensureWatching() }
     }
 
     inline fun <reified T> readPopupPreset(): UserJsonConfigStore.JsonSnapshot<T>? =

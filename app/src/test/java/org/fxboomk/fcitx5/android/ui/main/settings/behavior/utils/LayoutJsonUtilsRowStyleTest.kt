@@ -299,7 +299,8 @@ class LayoutJsonUtilsRowStyleTest {
         rowStyle = rowStyle,
         visibleIndex = visibleIndex,
         visibleCount = visibleCount,
-        theme = testTheme
+        theme = testTheme,
+        punctuationPosition = org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition.Top
     )
 
     @Test

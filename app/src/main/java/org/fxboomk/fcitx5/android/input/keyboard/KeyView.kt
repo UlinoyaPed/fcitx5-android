@@ -659,6 +659,8 @@ class AltTextKeyView(
         UpperTop,
         UpperBottom,
         Independent,
+        DirectionalTopBottom,
+        DirectionalTopRightBottom,
         Hidden
     }
 
@@ -667,6 +669,7 @@ class AltTextKeyView(
     )
     private var lastLayoutMode: AltTextLayoutMode? = null
     private var lastLayoutHeight = -1
+    private var lastDirectionalLabelMask = -1
     private var remainingSpaceTopLabels = emptyList<AutoScaleTextView>()
     private var remainingSpaceBottomLabels = emptyList<AutoScaleTextView>()
 
@@ -768,6 +771,7 @@ class AltTextKeyView(
     private fun hasSecondAltText(): Boolean = !altText1.text.isNullOrBlank()
 
     private fun resolveUppercaseMode(): UppercasePosition {
+        if (def.directionalSwipeLabels) return UppercasePosition.None
         val pref = ThemeManager.prefs.uppercasePosition.getValue()
         if (pref == UppercasePosition.None) return UppercasePosition.None
         if (!altDef.supportsUppercaseHint) return UppercasePosition.None
@@ -1060,6 +1064,21 @@ class AltTextKeyView(
         if (uppercase) hideAltText1() else hideUpperText()
     }
 
+    private fun applyDirectionalSwipeLabelPositions(topRight: Boolean) {
+        applyMainTextCenterPosition()
+        hideUpperText()
+        if (altText.text.isNullOrBlank()) {
+            altText.visibility = View.GONE
+        } else {
+            placeIndependentTopLabel(altText, if (topRight) 1 else 0)
+        }
+        if (altText1.text.isNullOrBlank()) {
+            hideAltText1()
+        } else {
+            placeIndependentBottomLabel(altText1)
+        }
+    }
+
     private fun positionAltTextAtTopRight() {
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -1260,6 +1279,13 @@ class AltTextKeyView(
     }
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
+        if (def.directionalSwipeLabels) {
+            return when (ThemeManager.prefs.punctuationPosition.getValue()) {
+                PunctuationPosition.None -> AltTextLayoutMode.Hidden
+                PunctuationPosition.TopRight -> AltTextLayoutMode.DirectionalTopRightBottom
+                PunctuationPosition.Top, PunctuationPosition.Bottom -> AltTextLayoutMode.DirectionalTopBottom
+            }
+        }
         if (shouldUseIndependentAltTextPositions()) {
             return resolveIndependentLayoutMode(keyHeight)
         }
@@ -1468,18 +1494,28 @@ class AltTextKeyView(
         }
         syncUppercaseText()
         val mode = resolveLayoutMode(keyHeight)
-        if (mode == lastLayoutMode && keyHeight == lastLayoutHeight) {
-            updateRemainingSpaceLabels(keyHeight)
+        val directionalLabelMask = if (def.directionalSwipeLabels) {
+            (if (altText.text.isNullOrBlank()) 0 else 1) or
+                    (if (altText1.text.isNullOrBlank()) 0 else 2)
+        } else 0
+        if (mode == lastLayoutMode && keyHeight == lastLayoutHeight &&
+            directionalLabelMask == lastDirectionalLabelMask
+        ) {
+            // Directional occupancy is fully covered by the mask. Rewriting identical
+            // constraints here from onLayout leaves the child layout requested after
+            // the parent is clean, preventing later text changes from reaching it.
+            if (!def.directionalSwipeLabels) updateRemainingSpaceLabels(keyHeight)
             return
         }
         lastLayoutMode = mode
         lastLayoutHeight = keyHeight
+        lastDirectionalLabelMask = directionalLabelMask
         remainingSpaceTopLabels = emptyList()
         remainingSpaceBottomLabels = emptyList()
         mainText.glyphPlacement = null
         mainText.useGlyphBounds = false
         val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
-                mode == AltTextLayoutMode.PunctTopUpperBottom
+                mode == AltTextLayoutMode.PunctTopUpperBottom || def.directionalSwipeLabels
         val labelMaxHeight = if (separateMainText && keyHeight > 0) {
             // Reserve at least a third of the usable height for the main label.
             ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
@@ -1488,9 +1524,10 @@ class AltTextKeyView(
             Int.MAX_VALUE
         }
         altText.useGlyphBounds = separateMainText
+        altText1.useGlyphBounds = def.directionalSwipeLabels
         upperText.useGlyphBounds = separateMainText
         altText.maxHeight = labelMaxHeight
-        altText1.maxHeight = Int.MAX_VALUE
+        altText1.maxHeight = if (def.directionalSwipeLabels) labelMaxHeight else Int.MAX_VALUE
         upperText.maxHeight = labelMaxHeight
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             height = wrapContent
@@ -1543,6 +1580,8 @@ class AltTextKeyView(
             AltTextLayoutMode.UpperTop -> applyUpperTopPosition()
             AltTextLayoutMode.UpperBottom -> applyUpperBottomPosition()
             AltTextLayoutMode.Independent -> applyIndependentAltTextPosition()
+            AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalSwipeLabelPositions(topRight = false)
+            AltTextLayoutMode.DirectionalTopRightBottom -> applyDirectionalSwipeLabelPositions(topRight = true)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
         updateRemainingSpaceLabels(keyHeight)
@@ -1608,6 +1647,12 @@ class AltTextKeyView(
         // Fallback layouts (TopBottom/TopCorners/BottomCorners) may carry the uppercase alias
         val secondary = secondarySwipeTarget()
         return when (mode) {
+            AltTextLayoutMode.DirectionalTopBottom,
+            AltTextLayoutMode.DirectionalTopRightBottom -> if (totalY < 0) {
+                AltTextSwipeTarget.Primary.takeUnless { altText.text.isNullOrBlank() }
+            } else {
+                AltTextSwipeTarget.Secondary.takeUnless { altText1.text.isNullOrBlank() }
+            }
             AltTextLayoutMode.TopBottom,
             AltTextLayoutMode.TopCorners -> if (totalY < 0) {
                 AltTextSwipeTarget.Primary
@@ -1818,6 +1863,8 @@ class ImageAltTextKeyView(
         Top,
         TopRight,
         Bottom,
+        DirectionalTopBottom,
+        DirectionalTopRightBottom,
         Hidden
     }
 
@@ -1825,6 +1872,8 @@ class ImageAltTextKeyView(
         "key_alt_font", 10.666667f
     )
     private var lastLayoutMode: AltTextLayoutMode? = null
+    private var lastLayoutHeight = -1
+    private var lastDirectionalLabelMask = -1
 
     override val img = imageView { configure(theme, def.src, def.variant, def.viewId) }.apply {
         imageTintList = ColorStateList.valueOf(
@@ -1838,7 +1887,10 @@ class ImageAltTextKeyView(
         )
     }
 
-    val altText = view(::AutoScaleTextView) {
+    val altText = createAltText(def.altText)
+    val altText1 = createAltText(def.altText1.orEmpty())
+
+    private fun createAltText(label: String) = view(::AutoScaleTextView) {
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
@@ -1847,7 +1899,7 @@ class ImageAltTextKeyView(
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
         fontKey = "key_alt_font"
         setTypeface(typeface, Typeface.NORMAL)
-        text = def.altText
+        text = label
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         setTextColor(
             resolveAltTextColor(
@@ -1863,13 +1915,16 @@ class ImageAltTextKeyView(
         appearanceView.apply {
             add(img, lParams(wrapContent, wrapContent))
             add(altText, lParams(0, wrapContent))
+            add(altText1, lParams(0, wrapContent))
         }
         applyLayout()
     }
 
     override fun setTextScale(scale: Float) {
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
+        altText1.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
         altText.requestLayout()
+        altText1.requestLayout()
         lastLayoutMode = null
         applyLayout()
     }
@@ -1966,6 +2021,59 @@ class ImageAltTextKeyView(
         altText.gravity = Gravity.CENTER
     }
 
+    private fun applyDirectionalSwipeLabelPositions(topRight: Boolean, keyHeight: Int) {
+        val labelMaxHeight = if (keyHeight > 0) {
+            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
+                .coerceAtLeast(1)
+        } else {
+            Int.MAX_VALUE
+        }
+        listOf(altText, altText1).forEach { label ->
+            label.visibility = if (label.text.isNullOrBlank()) View.GONE else View.VISIBLE
+            label.useGlyphBounds = true
+            label.maxHeight = labelMaxHeight
+        }
+        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = parentId
+            topMargin = vMargin + cornerLabelTopSafeInset
+            bottomToBottom = unset
+            bottomMargin = 0
+            leftToLeft = parentId
+            leftMargin = hMargin
+            rightToRight = parentId
+            rightMargin = hMargin
+        }
+        altText.setPaddingRelative(0, 0, if (topRight) cornerLabelHorizontalSafeInset else 0, 0)
+        altText.gravity = if (topRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER
+        altText1.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = unset
+            topMargin = 0
+            bottomToBottom = parentId
+            bottomMargin = vMargin + dp(2)
+            leftToLeft = parentId
+            leftMargin = hMargin
+            rightToRight = parentId
+            rightMargin = hMargin
+        }
+        altText1.setPadding(0, 0, 0, 0)
+        altText1.gravity = Gravity.CENTER
+        val hasUpLabel = altText.visibility == View.VISIBLE
+        val hasDownLabel = altText1.visibility == View.VISIBLE
+        img.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            constrainedHeight = true
+            topToTop = if (hasUpLabel) unset else parentId
+            topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
+            topMargin = if (hasUpLabel) dp(2) else vMargin
+            bottomToBottom = if (hasDownLabel) unset else parentId
+            bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
+            bottomMargin = if (hasDownLabel) dp(2) else vMargin
+            startToStart = parentId
+            endToEnd = parentId
+        }
+    }
+
     private fun resolveThemeLayoutMode(): AltTextLayoutMode {
         val pref = ThemeManager.prefs.punctuationPosition.getValue()
         if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
@@ -1979,6 +2087,13 @@ class ImageAltTextKeyView(
 
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
+        if (def.directionalSwipeLabels) {
+            return when (ThemeManager.prefs.punctuationPosition.getValue()) {
+                PunctuationPosition.None -> AltTextLayoutMode.Hidden
+                PunctuationPosition.TopRight -> AltTextLayoutMode.DirectionalTopRightBottom
+                PunctuationPosition.Top, PunctuationPosition.Bottom -> AltTextLayoutMode.DirectionalTopBottom
+            }
+        }
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
         if (ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.None) {
             return AltTextLayoutMode.Hidden
@@ -2012,18 +2127,37 @@ class ImageAltTextKeyView(
                 contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
                 else -> AltTextLayoutMode.Hidden
             }
+            AltTextLayoutMode.DirectionalTopBottom,
+            AltTextLayoutMode.DirectionalTopRightBottom -> preferred
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
 
     private fun applyLayout(keyHeight: Int = appearanceView.height) {
         val mode = resolveLayoutMode(keyHeight)
-        if (mode == lastLayoutMode) return
+        val directionalLabelMask = if (def.directionalSwipeLabels) {
+            (if (altText.text.isNullOrBlank()) 0 else 1) or
+                    (if (altText1.text.isNullOrBlank()) 0 else 2)
+        } else 0
+        if (mode == lastLayoutMode && (!def.directionalSwipeLabels ||
+                    (keyHeight == lastLayoutHeight && directionalLabelMask == lastDirectionalLabelMask))
+        ) return
         lastLayoutMode = mode
+        lastLayoutHeight = keyHeight
+        lastDirectionalLabelMask = directionalLabelMask
+        altText1.visibility = View.GONE
+        img.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topToBottom = unset
+            constrainedHeight = false
+        }
         when (mode) {
             AltTextLayoutMode.Bottom -> applyBottomAltTextPosition()
             AltTextLayoutMode.Top -> applyTopAltTextPosition()
             AltTextLayoutMode.TopRight -> applyTopRightAltTextPosition()
+            AltTextLayoutMode.DirectionalTopBottom ->
+                applyDirectionalSwipeLabelPositions(topRight = false, keyHeight = keyHeight)
+            AltTextLayoutMode.DirectionalTopRightBottom ->
+                applyDirectionalSwipeLabelPositions(topRight = true, keyHeight = keyHeight)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
     }
@@ -2031,6 +2165,12 @@ class ImageAltTextKeyView(
     override fun selectAltTextSwipeTarget(totalY: Int): AltTextSwipeTarget? {
         if (totalY == 0) return null
         return when (lastLayoutMode ?: resolveLayoutMode(appearanceView.height)) {
+            AltTextLayoutMode.DirectionalTopBottom,
+            AltTextLayoutMode.DirectionalTopRightBottom -> if (totalY < 0) {
+                AltTextSwipeTarget.Primary.takeUnless { altText.text.isNullOrBlank() }
+            } else {
+                AltTextSwipeTarget.Secondary.takeUnless { altText1.text.isNullOrBlank() }
+            }
             AltTextLayoutMode.Bottom -> AltTextSwipeTarget.Primary.takeIf { totalY > 0 }
             AltTextLayoutMode.Top,
             AltTextLayoutMode.TopRight -> AltTextSwipeTarget.Primary.takeIf { totalY < 0 }
@@ -2041,6 +2181,12 @@ class ImageAltTextKeyView(
     override fun onConfigurationChanged(newConfig: Configuration) {
         lastLayoutMode = null
         applyLayout()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val height = MeasureSpec.getSize(heightMeasureSpec)
+        if (def.directionalSwipeLabels && height > 0) applyLayout(height)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun onAppearanceLayoutChanged(width: Int, height: Int) {
@@ -2066,6 +2212,7 @@ class ImageAltTextKeyView(
                 }
             )
         )
+        altText1.setTextColor(altText.currentTextColor)
         lastLayoutMode = null
         applyLayout()
     }

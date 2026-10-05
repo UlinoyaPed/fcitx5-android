@@ -883,6 +883,8 @@
     <string name="text_keyboard_layout_alt_label">Alt Label</string>
     <string name="text_keyboard_layout_alt_label_one">Alt Label 1</string>
     <string name="text_keyboard_layout_swipe_label">Swipe Label</string>
+    <string name="text_keyboard_layout_swipe_up_label">Swipe Up Label</string>
+    <string name="text_keyboard_layout_swipe_down_label">Swipe Down Label</string>
     <string name="text_keyboard_layout_row_editor_title">Edit Row Properties</string>
     <string name="text_keyboard_layout_row_editor_subtitle">Row %1$d</string>
     <string name="text_keyboard_layout_row_height_multiplier">Height Multiplier</string>

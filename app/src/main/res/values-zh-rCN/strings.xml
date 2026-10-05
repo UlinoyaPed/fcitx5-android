@@ -724,6 +724,8 @@
     <string name="text_keyboard_layout_alt_label">副标签</string>
     <string name="text_keyboard_layout_alt_label_one">副标签一</string>
     <string name="text_keyboard_layout_swipe_label">划动标签</string>
+    <string name="text_keyboard_layout_swipe_up_label">上划标签</string>
+    <string name="text_keyboard_layout_swipe_down_label">下划标签</string>
     <string name="text_keyboard_layout_row_editor_title">编辑整行属性</string>
     <string name="text_keyboard_layout_row_editor_subtitle">第 %1$d 行</string>
     <string name="text_keyboard_layout_row_height_multiplier">行高度倍比</string>

@@ -636,6 +636,8 @@
     <string name="text_keyboard_layout_alt_label">Альтернативная метка</string>
     <string name="text_keyboard_layout_alt_label_one">Альтернативная метка 1</string>
     <string name="text_keyboard_layout_swipe_label">Метка свайпа</string>
+    <string name="text_keyboard_layout_swipe_up_label">Метка свайпа вверх</string>
+    <string name="text_keyboard_layout_swipe_down_label">Метка свайпа вниз</string>
 
     <!-- Macro Editor -->
     <string name="macro_editor_title">Редактировать %1$s</string>

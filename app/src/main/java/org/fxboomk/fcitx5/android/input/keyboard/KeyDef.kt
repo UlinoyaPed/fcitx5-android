@@ -59,6 +59,8 @@ open class KeyDef(
         var rowHeightMultiplier: Float = 1f
         var altTextPositionOverride: AltTextPosition? = null
         var altText1PositionOverride: AltTextPosition? = null
+        // Function-key hints are bound to physical up/down gestures.
+        var directionalSwipeLabels: Boolean = false
 
         open class Text(
             val displayText: String,
@@ -195,7 +197,8 @@ open class KeyDef(
             backgroundColor: Int? = null,
             backgroundColorMonet: String? = null,
             shadowColor: Int? = null,
-            shadowColorMonet: String? = null
+            shadowColorMonet: String? = null,
+            val altText1: String? = null
         ) : Appearance(
             percentWidth,
             variant,
@@ -289,7 +292,9 @@ open class KeyDef(
             val downAction: KeyAction? = null,
             val upMacro: KeyAction? = null,
             val downMacro: KeyAction? = null,
-            val legacyMacro: KeyAction? = null
+            val legacyMacro: KeyAction? = null,
+            // Explicit function-key actions take priority over global defaults.
+            val overrideDefaults: Boolean = false
         ) : Behavior()
 
         class DoubleTap(

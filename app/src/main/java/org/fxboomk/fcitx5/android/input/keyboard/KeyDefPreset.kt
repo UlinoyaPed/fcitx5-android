@@ -39,9 +39,13 @@ class SymbolKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty()) {
+    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
         Appearance.Text(
             displayText = symbol,
             textSize = 23f,
@@ -57,7 +61,8 @@ class SymbolKey(
     } else {
         Appearance.AltText(
             displayText = symbol,
-            altText = swipeLabel,
+            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+            altText1 = swipeDownLabel,
             character = symbol,
             textSize = 23f,
             percentWidth = percentWidth,
@@ -68,11 +73,17 @@ class SymbolKey(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
+        }
     },
     buildSet {
         add(Behavior.Press(KeyAction.FcitxKeyAction(symbolKeyActionMapping[symbol] ?: symbol)))
-        swipe?.let { add(Behavior.Swipe(it)) }
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        } else {
+            swipe?.let { add(Behavior.Swipe(it)) }
+        }
     },
     popup ?: arrayOf(
         Popup.Preview(symbol),
@@ -181,9 +192,13 @@ class CapsKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty()) {
+    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
         Appearance.Image(
             src = R.drawable.ic_capslock_none,
             viewId = R.id.button_caps,
@@ -199,7 +214,8 @@ class CapsKey(
     } else {
         Appearance.ImageAltText(
             src = R.drawable.ic_capslock_none,
-            altText = swipeLabel,
+            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+            altText1 = swipeDownLabel,
             viewId = R.id.button_caps,
             percentWidth = percentWidth,
             variant = Variant.Alternative,
@@ -209,13 +225,19 @@ class CapsKey(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
+        }
     },
     buildSet {
         add(Behavior.Press(KeyAction.CapsAction(false)))
         add(Behavior.LongPress(KeyAction.CapsAction(true)))
         add(Behavior.DoubleTap(KeyAction.CapsAction(true)))
-        swipe?.let { add(Behavior.Swipe(it)) }
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        } else {
+            swipe?.let { add(Behavior.Swipe(it)) }
+        }
     }
 )
 
@@ -232,9 +254,13 @@ class LayoutSwitchKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty()) {
+    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
         Appearance.Text(
             displayText,
             textSize = 16f,
@@ -252,7 +278,8 @@ class LayoutSwitchKey(
     } else {
         Appearance.AltText(
             displayText = displayText,
-            altText = swipeLabel,
+            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+            altText1 = swipeDownLabel,
             character = displayText,
             textSize = 16f,
             textStyle = Typeface.BOLD,
@@ -265,11 +292,17 @@ class LayoutSwitchKey(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
+        }
     },
     buildSet {
         add(Behavior.Press(KeyAction.LayoutSwitchAction(to)))
-        swipe?.let { add(Behavior.Swipe(it)) }
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        } else {
+            swipe?.let { add(Behavior.Swipe(it)) }
+        }
     },
     arrayOf(
        Popup.Menu(
@@ -300,9 +333,13 @@ class BackspaceKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty()) {
+    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
         Appearance.Image(
             src = R.drawable.ic_baseline_backspace_24,
             percentWidth = percentWidth,
@@ -319,7 +356,8 @@ class BackspaceKey(
     } else {
         Appearance.ImageAltText(
             src = R.drawable.ic_baseline_backspace_24,
-            altText = swipeLabel,
+            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+            altText1 = swipeDownLabel,
             percentWidth = percentWidth,
             variant = variant,
             viewId = R.id.button_backspace,
@@ -330,12 +368,19 @@ class BackspaceKey(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
+        }
     },
-    setOf(
-        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace))),
-        Behavior.Repeat(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace)))
-    )
+    buildSet {
+        add(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace))))
+        add(Behavior.Repeat(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace))))
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        } else {
+            swipe?.let { add(Behavior.Swipe(it)) }
+        }
+    }
 )
 
 class QuickPhraseKey : KeyDef(
@@ -465,9 +510,13 @@ class ReturnKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty()) {
+    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
         Appearance.Image(
             src = R.drawable.ic_baseline_keyboard_return_24,
             percentWidth = percentWidth,
@@ -485,7 +534,8 @@ class ReturnKey(
     } else {
         Appearance.ImageAltText(
             src = R.drawable.ic_baseline_keyboard_return_24,
-            altText = swipeLabel,
+            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+            altText1 = swipeDownLabel,
             percentWidth = percentWidth,
             variant = Variant.Accent,
             border = Border.Special,
@@ -497,11 +547,17 @@ class ReturnKey(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
+        }
     },
     buildSet {
         add(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return))))
-        swipe?.let { add(Behavior.Swipe(it)) }
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        } else {
+            swipe?.let { add(Behavior.Swipe(it)) }
+        }
     },
     arrayOf(
         Popup.Menu(

@@ -397,6 +397,8 @@
     <string name="text_keyboard_layout_alt_label">Etiqueta alternativa</string>
     <string name="text_keyboard_layout_alt_label_one">Etiqueta alternativa 1</string>
     <string name="text_keyboard_layout_swipe_label">Etiqueta de deslizamiento</string>
+    <string name="text_keyboard_layout_swipe_up_label">Etiqueta de deslizamiento hacia arriba</string>
+    <string name="text_keyboard_layout_swipe_down_label">Etiqueta de deslizamiento hacia abajo</string>
 
     <!-- Macro Editor -->
     <string name="macro_editor_title">Editar %1$s</string>

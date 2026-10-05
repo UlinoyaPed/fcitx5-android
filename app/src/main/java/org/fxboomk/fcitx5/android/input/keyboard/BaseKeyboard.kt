@@ -747,9 +747,13 @@ abstract class BaseKeyboard(
                 swipeEnabled = true
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
-                swipeThresholdY = if (def.swipe != null) inputSwipeThreshold else disabledSwipeThreshold
+                swipeThresholdY = disabledSwipeThreshold
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
+                        GestureType.Down -> {
+                            backspaceClearTriggered = false
+                            false
+                        }
                         GestureType.Move -> {
                             val count = event.countX
                             if (count != 0) {
@@ -760,19 +764,10 @@ abstract class BaseKeyboard(
                         }
                         GestureType.Up -> {
                             dismissBackspaceClearPopup()
-                            if (
-                                def.swipe != null &&
-                                kotlin.math.abs(event.totalY) > kotlin.math.abs(event.totalX) &&
-                                shouldTriggerSymbolBySwipe(view, event.totalY)
-                            ) {
-                                onAction(def.swipe)
-                                true
-                            } else {
-                                if (!backspaceClearTriggered) {
-                                    onAction(KeyAction.DeleteSelectionAction(event.totalX))
-                                }
-                                false
+                            if (!backspaceClearTriggered) {
+                                onAction(KeyAction.DeleteSelectionAction(event.totalX))
                             }
+                            false
                         }
                         else -> false
                     }
@@ -871,6 +866,7 @@ abstract class BaseKeyboard(
             oldAppearance.margin != newAppearance.margin ||
             oldAppearance.percentWidth != newAppearance.percentWidth ||
             oldAppearance.viewId != newAppearance.viewId ||
+            oldAppearance.directionalSwipeLabels != newAppearance.directionalSwipeLabels ||
             textMetricsChanged ||
             oldAppearance.textColor != newAppearance.textColor ||
             oldAppearance.textColorMonet != newAppearance.textColorMonet ||
@@ -1020,6 +1016,8 @@ abstract class BaseKeyboard(
                 shadowColorMonet = shadowColorMonet
             )
             else -> this
+        }.also {
+            it.directionalSwipeLabels = directionalSwipeLabels
         }
     }
 
@@ -1049,6 +1047,7 @@ abstract class BaseKeyboard(
         is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
             src = src,
             altText = altText,
+            altText1 = altText1,
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
@@ -1119,6 +1118,8 @@ abstract class BaseKeyboard(
             shadowColor = source.shadowColor,
             shadowColorMonet = source.shadowColorMonet
         )
+    }.also {
+        it.directionalSwipeLabels = directionalSwipeLabels
     }
 
     private fun applyAppearance(view: KeyView, appearance: KeyDef.Appearance) {
@@ -1126,10 +1127,12 @@ abstract class BaseKeyboard(
             is AltTextKeyView -> if (appearance is KeyDef.Appearance.AltText) {
                 view.mainText.text = appearance.displayText
                 view.altText.text = appearance.altText
+                view.altText1.text = appearance.altText1.orEmpty()
             }
             is ImageAltTextKeyView -> if (appearance is KeyDef.Appearance.ImageAltText) {
                 view.img.setImageResource(appearance.src)
                 view.altText.text = appearance.altText
+                view.altText1.text = appearance.altText1.orEmpty()
             }
             is ImageTextKeyView -> if (appearance is KeyDef.Appearance.ImageText) {
                 view.mainText.text = appearance.displayText
@@ -1188,10 +1191,50 @@ abstract class BaseKeyboard(
                 }
                 is KeyDef.Behavior.Swipe -> {
                     view.swipeEnabled = true
-                    view.swipeThresholdX = disabledSwipeThreshold
+                    val isBackspace = view.def.viewId == R.id.button_backspace
+                    if (!isBackspace) view.swipeThresholdX = disabledSwipeThreshold
                     view.swipeThresholdY = inputSwipeThreshold
                     val oldOnGestureListener = view.onGestureListener ?: OnGestureListener.Empty
+                    var backspaceSwipeAxis: SwipeAxis? = null
+                    var swipeStartX = 0f
+                    var swipeStartY = 0f
                     view.onGestureListener = OnGestureListener { currentView, event ->
+                        if (isBackspace) {
+                            when (event.type) {
+                                GestureType.Down -> {
+                                    backspaceSwipeAxis = null
+                                    swipeStartX = event.x
+                                    swipeStartY = event.y
+                                }
+                                GestureType.Move -> {
+                                    if (backspaceSwipeAxis == null &&
+                                        (event.countX != 0 || event.countY != 0)
+                                    ) {
+                                        // Compare pixels, not counts: selection and input
+                                        // swipes have different thresholds.
+                                        backspaceSwipeAxis = if (
+                                            kotlin.math.abs(event.y - swipeStartY) >
+                                            kotlin.math.abs(event.x - swipeStartX)
+                                        ) SwipeAxis.Y else SwipeAxis.X
+                                    }
+                                    if (backspaceSwipeAxis == SwipeAxis.Y) {
+                                        return@OnGestureListener false
+                                    }
+                                }
+                                GestureType.Up -> {
+                                    dismissBackspaceClearPopup()
+                                    if (backspaceClearTriggered) return@OnGestureListener true
+                                    if (backspaceSwipeAxis == SwipeAxis.Y) {
+                                        val action = selectSwipeSymbolAction(currentView, event.totalY, it)
+                                        if (!event.consumed && action != null) onAction(action)
+                                        // A vertical swipe must never delete a horizontal
+                                        // selection, even when this direction has no macro.
+                                        return@OnGestureListener true
+                                    }
+                                    return@OnGestureListener oldOnGestureListener.onGesture(currentView, event)
+                                }
+                            }
+                        }
                         when (event.type) {
                             GestureType.Up -> {
                                 val action = selectSwipeSymbolAction(currentView, event.totalY, it)
@@ -1492,10 +1535,6 @@ abstract class BaseKeyboard(
         }
     }
 
-    private fun shouldTriggerSymbolBySwipe(view: View, totalY: Int): Boolean {
-        return selectSwipeAltTarget(view, totalY) != null
-    }
-
     private fun selectSwipeAltTarget(view: View, totalY: Int): AltTextSwipeTarget? {
         if (totalY == 0) return null
         return when (swipeSymbolDirection) {
@@ -1536,13 +1575,16 @@ abstract class BaseKeyboard(
 
     /**
      * 解析按物理方向（[totalY] 正负）触发的自定义划动宏。上划取 [Behavior.Swipe.upMacro]，
-     * 下划取 [Behavior.Swipe.downMacro]，并受 [swipeSymbolDirection] 约束。
+     * 下划取 [Behavior.Swipe.downMacro]。明确配置的功能键事件优先于全局方向设置。
      */
     private fun selectPhysicalSwipeMacro(
         totalY: Int,
         behavior: KeyDef.Behavior.Swipe
     ): KeyAction? {
         if (totalY == 0) return null
+        if (behavior.overrideDefaults) {
+            return if (totalY < 0) behavior.upMacro else behavior.downMacro
+        }
         return when (swipeSymbolDirection) {
             SwipeSymbolDirection.Disabled -> null
             SwipeSymbolDirection.Up -> behavior.upMacro?.takeIf { totalY < 0 }

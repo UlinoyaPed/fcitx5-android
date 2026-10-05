@@ -8,6 +8,7 @@ import android.util.Log
 import kotlinx.serialization.json.*
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
 import org.fxboomk.fcitx5.android.input.keyboard.*
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
@@ -33,6 +34,42 @@ object LayoutJsonUtils {
 
     private const val TAG = "LayoutJsonUtils"
     private const val DEFAULT_KEY_WIDTH = 0.1f
+
+    private val DIRECTIONAL_SWIPE_KEY_TYPES = setOf(
+        "CapsKey", "LayoutSwitchKey", "SymbolKey", "ReturnKey", "BackspaceKey"
+    )
+
+    /** Migrate each legacy field family once, preserving explicit directional values. */
+    fun migrateDirectionalSwipeFields(
+        keyData: Map<String, Any?>,
+        punctuationPosition: PunctuationPosition
+    ): Map<String, Any?> {
+        val result = keyData.toMutableMap()
+        val type = keyData["type"] as? String
+        if (type in DIRECTIONAL_SWIPE_KEY_TYPES) {
+            val down = punctuationPosition == PunctuationPosition.Bottom
+            for ((legacy, upField, downField) in listOf(
+                Triple("swipe", "swipeUp", "swipeDown"),
+                Triple("swipeLabel", "swipeUpLabel", "swipeDownLabel")
+            )) {
+                if (upField !in result && downField !in result && legacy in result) {
+                    result[if (down) downField else upField] = result[legacy]
+                }
+                result.remove(legacy)
+            }
+        }
+        val override = keyData["composeOverride"] as? Map<*, *>
+        if (override != null) {
+            val fields = override.entries.associate { (key, value) -> key.toString() to value }
+            val inheritedType = "type" !in fields
+            val migrated = migrateDirectionalSwipeFields(
+                if (inheritedType) fields + ("type" to type) else fields,
+                punctuationPosition
+            )
+            result["composeOverride"] = if (inheritedType) migrated - "type" else migrated
+        }
+        return result
+    }
 
     /**
      * 基础布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
@@ -63,6 +100,8 @@ object LayoutJsonUtils {
         "altLabel",
         "altLabel1",
         "subLabel",
+        "swipeUpLabel",
+        "swipeDownLabel",
         "weight",
         "rowHeightPercent",
         "tap",
@@ -262,7 +301,11 @@ object LayoutJsonUtils {
             altLabel1 = obj["altLabel1"]?.jsonPrimitive?.content,
             longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.content,
             subLabel = obj["subLabel"]?.jsonPrimitive?.content,
-            swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.content,
+            swipeLabel = if (type in DIRECTIONAL_SWIPE_KEY_TYPES &&
+                ("swipeUpLabel" in obj || "swipeDownLabel" in obj)
+            ) null else obj["swipeLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeUpLabel = obj["swipeUpLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeDownLabel = obj["swipeDownLabel"]?.jsonPrimitive?.contentOrNull,
             weight = parseOptionalFloat(obj["weight"]),
             textColor = parseOptionalInt(obj["textColor"]),
             textColorMonet = obj["textColorMonet"]?.jsonPrimitive?.contentOrNull,
@@ -273,9 +316,11 @@ object LayoutJsonUtils {
             shadowColor = parseOptionalInt(obj["shadowColor"]),
             shadowColorMonet = obj["shadowColorMonet"]?.jsonPrimitive?.contentOrNull,
             tap = obj["tap"]?.jsonObject?.let { parseMacroAction(it) },
-            swipeUp = obj["swipeUp"]?.jsonObject?.let { parseMacroAction(it) },
-            swipeDown = obj["swipeDown"]?.jsonObject?.let { parseMacroAction(it) },
-            swipe = obj["swipe"]?.jsonObject?.let { parseMacroAction(it) },
+            swipeUp = (obj["swipeUp"] as? JsonObject)?.let { parseMacroAction(it) },
+            swipeDown = (obj["swipeDown"] as? JsonObject)?.let { parseMacroAction(it) },
+            swipe = if (type in DIRECTIONAL_SWIPE_KEY_TYPES &&
+                ("swipeUp" in obj || "swipeDown" in obj)
+            ) null else obj["swipe"]?.jsonObject?.let { parseMacroAction(it) },
             longPress = obj["longPress"]?.jsonObject?.let { parseMacroAction(it) },
             independentColor = independentColor,
             composeOverride = composeOverride
@@ -523,10 +568,12 @@ object LayoutJsonUtils {
      * @property altLabel 备选标签（MacroKey）
      * @property altLabel1 第二备选标签（MacroKey）
      * @property subLabel 子标签（LayoutSwitchKey）
-    * @property swipeLabel 划动标签（支持 swipe 的普通键）
+     * @property swipeLabel 旧版单个划动标签（仅用于迁移）
+     * @property swipeUpLabel 普通键的上划提示标签
+     * @property swipeDownLabel 普通键的下划提示标签
      * @property weight 权重
      * @property tap 点击宏（MacroKey）
-     * @property swipe 划动宏（MacroKey）
+     * @property swipe 旧版单个划动宏（仅用于兼容或迁移）
      * @property longPress 长按宏（MacroKey）
      */
     data class KeyJson(
@@ -541,6 +588,8 @@ object LayoutJsonUtils {
         val longPressLabel: String? = null,  // MacroKey 使用
         val subLabel: String? = null,  // LayoutSwitchKey 使用
         val swipeLabel: String? = null,  // 非 Macro 的 swipe 提示
+        val swipeUpLabel: String? = null,
+        val swipeDownLabel: String? = null,
         val weight: Float? = null,
         val textColor: Int? = null,
         val textColorMonet: String? = null,
@@ -551,9 +600,9 @@ object LayoutJsonUtils {
         val shadowColor: Int? = null,
         val shadowColorMonet: String? = null,
         val tap: MacroAction? = null,  // MacroKey 使用
-        val swipeUp: MacroAction? = null,  // MacroKey 使用（划动事件-上划）
-        val swipeDown: MacroAction? = null,  // MacroKey 使用（划动事件-下划）
-        val swipe: MacroAction? = null,  // MacroKey 使用（旧版划动事件，仅兼容回退）
+        val swipeUp: MacroAction? = null,  // 按实际方向绑定的上划事件
+        val swipeDown: MacroAction? = null,  // 按实际方向绑定的下划事件
+        val swipe: MacroAction? = null,  // 旧版划动事件，仅用于兼容或迁移
         val longPress: MacroAction? = null,  // MacroKey 使用
         val independentColor: Boolean? = null,
         val composeOverride: KeyJson? = null
@@ -603,6 +652,10 @@ object LayoutJsonUtils {
                 json["weight"] = appearance.percentWidth
                 keyDef.swipeLabel?.let { json["swipeLabel"] = it }
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeUp?.let { json["swipeUp"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
+                keyDef.swipeUpLabel?.let { json["swipeUpLabel"] = it }
+                keyDef.swipeDownLabel?.let { json["swipeDownLabel"] = it }
             }
             is LayoutSwitchKey -> {
                 json["label"] = (appearance as? KeyDef.Appearance.Text)?.displayText
@@ -610,6 +663,10 @@ object LayoutJsonUtils {
                 json["weight"] = appearance.percentWidth
                 keyDef.swipeLabel?.let { json["swipeLabel"] = it }
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeUp?.let { json["swipeUp"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
+                keyDef.swipeUpLabel?.let { json["swipeUpLabel"] = it }
+                keyDef.swipeDownLabel?.let { json["swipeDownLabel"] = it }
             }
             is CommaKey -> {
                 json["weight"] = appearance.percentWidth
@@ -625,16 +682,28 @@ object LayoutJsonUtils {
                 json["weight"] = appearance.percentWidth
                 keyDef.swipeLabel?.let { json["swipeLabel"] = it }
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeUp?.let { json["swipeUp"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
+                keyDef.swipeUpLabel?.let { json["swipeUpLabel"] = it }
+                keyDef.swipeDownLabel?.let { json["swipeDownLabel"] = it }
             }
             is ReturnKey -> {
                 json["weight"] = appearance.percentWidth
                 keyDef.swipeLabel?.let { json["swipeLabel"] = it }
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeUp?.let { json["swipeUp"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
+                keyDef.swipeUpLabel?.let { json["swipeUpLabel"] = it }
+                keyDef.swipeDownLabel?.let { json["swipeDownLabel"] = it }
             }
             is BackspaceKey -> {
                 json["weight"] = appearance.percentWidth
                 keyDef.swipeLabel?.let { json["swipeLabel"] = it }
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeUp?.let { json["swipeUp"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
+                keyDef.swipeUpLabel?.let { json["swipeUpLabel"] = it }
+                keyDef.swipeDownLabel?.let { json["swipeDownLabel"] = it }
             }
             is MacroKey -> {
                 json["label"] = keyDef.label
@@ -754,8 +823,33 @@ object LayoutJsonUtils {
         rowStyle: RowStyle = RowStyle(),
         visibleIndex: Int = 0,
         visibleCount: Int = 1,
-        theme: Theme = ThemeManager.activeTheme
+        theme: Theme = ThemeManager.activeTheme,
+        punctuationPosition: PunctuationPosition? = null
     ): KeyDef {
+        val resolvedKey = if (key.type in DIRECTIONAL_SWIPE_KEY_TYPES &&
+            (key.swipe != null || key.swipeLabel != null)
+        ) {
+            val fields = migrateDirectionalSwipeFields(
+                mapOf(
+                    "type" to key.type,
+                    "swipe" to key.swipe,
+                    "swipeLabel" to key.swipeLabel,
+                    "swipeUp" to key.swipeUp,
+                    "swipeDown" to key.swipeDown,
+                    "swipeUpLabel" to key.swipeUpLabel,
+                    "swipeDownLabel" to key.swipeDownLabel
+                ).filterValues { it != null },
+                punctuationPosition ?: ThemeManager.prefs.punctuationPosition.getValue()
+            )
+            key.copy(
+                swipe = null,
+                swipeLabel = null,
+                swipeUp = fields["swipeUp"] as? MacroAction,
+                swipeDown = fields["swipeDown"] as? MacroAction,
+                swipeUpLabel = fields["swipeUpLabel"] as? String,
+                swipeDownLabel = fields["swipeDownLabel"] as? String
+            )
+        } else key
         // Row width is expressed as a multiple of the normal 0.1 key fraction;
         // explicit key weights, including 0 (fill remaining space), take precedence.
         val rowKeyWidth = rowStyle.keyWidthMultiplier?.times(DEFAULT_KEY_WIDTH)
@@ -808,8 +902,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "CapsKey" -> CapsKey(
-                swipe = key.swipe,
-                swipeLabel = key.swipeLabel,
+                swipeUp = resolvedKey.swipeUp,
+                swipeDown = resolvedKey.swipeDown,
+                swipeUpLabel = resolvedKey.swipeUpLabel,
+                swipeDownLabel = resolvedKey.swipeDownLabel,
                 percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -821,8 +917,10 @@ object LayoutJsonUtils {
             "LayoutSwitchKey" -> LayoutSwitchKey(
                 displayText = key.label ?: "?123",
                 to = key.subLabel ?: "",
-                swipe = key.swipe,
-                swipeLabel = key.swipeLabel,
+                swipeUp = resolvedKey.swipeUp,
+                swipeDown = resolvedKey.swipeDown,
+                swipeUpLabel = resolvedKey.swipeUpLabel,
+                swipeDownLabel = resolvedKey.swipeDownLabel,
                 percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -861,8 +959,10 @@ object LayoutJsonUtils {
             )
             "SymbolKey" -> SymbolKey(
                 symbol = key.label ?: ".",
-                swipe = key.swipe,
-                swipeLabel = key.swipeLabel,
+                swipeUp = resolvedKey.swipeUp,
+                swipeDown = resolvedKey.swipeDown,
+                swipeUpLabel = resolvedKey.swipeUpLabel,
+                swipeDownLabel = resolvedKey.swipeDownLabel,
                 percentWidth = key.weight ?: rowKeyWidth ?: 0.1f,
                 variant = KeyDef.Appearance.Variant.Alternative,
                 textColor = key.textColor,
@@ -873,8 +973,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "ReturnKey" -> ReturnKey(
-                swipe = key.swipe,
-                swipeLabel = key.swipeLabel,
+                swipeUp = resolvedKey.swipeUp,
+                swipeDown = resolvedKey.swipeDown,
+                swipeUpLabel = resolvedKey.swipeUpLabel,
+                swipeDownLabel = resolvedKey.swipeDownLabel,
                 percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -884,8 +986,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "BackspaceKey" -> BackspaceKey(
-                swipe = key.swipe,
-                swipeLabel = key.swipeLabel,
+                swipeUp = resolvedKey.swipeUp,
+                swipeDown = resolvedKey.swipeDown,
+                swipeUpLabel = resolvedKey.swipeUpLabel,
+                swipeDownLabel = resolvedKey.swipeDownLabel,
                 percentWidth = key.weight ?: rowKeyWidth ?: 0.15f,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
@@ -954,7 +1058,8 @@ object LayoutJsonUtils {
                 rowStyle = rowStyle,
                 visibleIndex = visibleIndex,
                 visibleCount = visibleCount,
-                theme = theme
+                theme = theme,
+                punctuationPosition = punctuationPosition
             )
             overrideDef.independentColor = override.independentColor ?: false
             keyDef.composeOverride = overrideDef
