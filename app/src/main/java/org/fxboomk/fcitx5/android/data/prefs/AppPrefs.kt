@@ -304,6 +304,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "text_keyboard_layout_profile_collapsed",
             ""
         ).apply { register() }
+        // 布局管理页中隐藏未定制基础布局的配置名，换行分隔
+        val textKeyboardLayoutProfileFiltered = ManagedPreference.PString(
+            sharedPreferences,
+            "text_keyboard_layout_profile_filtered",
+            ""
+        ).apply { register() }
         val langSwitchKeyLongPressBehavior = enumList(
             R.string.lang_switch_key_long_press_behavior,
             "lang_switch_key_long_press_behavior",

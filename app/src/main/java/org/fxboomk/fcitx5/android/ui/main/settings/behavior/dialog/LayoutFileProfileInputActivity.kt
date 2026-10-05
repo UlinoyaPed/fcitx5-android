@@ -10,6 +10,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.LinearLayout
@@ -73,17 +74,18 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
+            // 布局名称在预览图上方
+            addView(nameSection, LinearLayout.LayoutParams(matchParent, wrapContent))
             val previewScroll = ScrollView(this@LayoutFileProfileInputActivity).apply {
                 addView(previewContent, LinearLayout.LayoutParams(matchParent, wrapContent))
             }
+            // 预览占据中间剩余全部空间
             addView(previewScroll, LinearLayout.LayoutParams(matchParent, 0, 1f))
-            val scroll = ScrollView(this@LayoutFileProfileInputActivity).apply {
-                addView(
-                    content,
-                    LinearLayout.LayoutParams(matchParent, wrapContent)
-                )
+            val settingsScroll = ScrollView(this@LayoutFileProfileInputActivity).apply {
+                addView(settingsSection, LinearLayout.LayoutParams(matchParent, wrapContent))
             }
-            addView(scroll, LinearLayout.LayoutParams(matchParent, wrapContent))
+            // 键盘高度等设置固定在页面底部
+            addView(settingsScroll, LinearLayout.LayoutParams(matchParent, wrapContent))
         }
     }
 
@@ -108,21 +110,23 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             val pad = dp(16)
-            setPadding(pad, pad, pad, pad)
+            // 顶部间距收窄，减少文件名输入区与预览图之间的空隙
+            setPadding(pad, dp(8), pad, pad)
         }
     }
 
-    private val content by lazy {
+    /** 顶部"布局名称"输入区：单行形式，"布局文件名："标签与输入框同行。 */
+    private val nameSection by lazy {
         LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
             val pad = dp(16)
-            setPadding(pad, pad, pad, pad)
+            setPadding(pad, pad, pad, 0)
 
             addView(TextView(this@LayoutFileProfileInputActivity).apply {
                 text = getString(R.string.text_keyboard_layout_file_name)
-                textSize = 13f
-                setTypeface(typeface, Typeface.BOLD)
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                textSize = 14f
+                setTextColor(styledColor(android.R.attr.textColorPrimary))
             })
 
             profileInput = AppCompatEditText(this@LayoutFileProfileInputActivity).apply {
@@ -131,10 +135,20 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
             addView(
                 profileInput,
                 LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
                 )
             )
+        }
+    }
+
+    /** 底部"键盘高度"设置区；新建配置时的"复制当前文件内容"开关也放在这里。 */
+    private val settingsSection by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = dp(16)
+            setPadding(pad, dp(8), pad, pad)
         }
     }
 
@@ -180,7 +194,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
                 isChecked = initialCopyCurrent
                 setOnCheckedChangeListener { _, _ -> updateSaveButtonState() }
             }
-            content.addView(
+            settingsSection.addView(
                 copySwitch,
                 LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -188,7 +202,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
                 )
             )
         }
-        content.addView(TextView(this).apply {
+        settingsSection.addView(TextView(this).apply {
             text = intent.getStringExtra(EXTRA_HEIGHT_TARGET_LABEL)
                 ?: getString(R.string.keyboard_height)
             textSize = 13f
@@ -253,8 +267,10 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
             fcitxConnection.runImmediately { currentIme() }
         }.getOrNull()
         previewLayoutName = when {
-            ime != null && entries.containsKey(ime.uniqueName) -> ime.uniqueName
-            ime != null && entries.containsKey(ime.displayName) -> ime.displayName
+            ime != null && (entries.containsKey(ime.uniqueName) ||
+                entries.keys.any { it.startsWith("${ime.uniqueName}:") }) -> ime.uniqueName
+            ime != null && (entries.containsKey(ime.displayName) ||
+                entries.keys.any { it.startsWith("${ime.displayName}:") }) -> ime.displayName
             entries.containsKey(LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY) ->
                 LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY
             else -> null
@@ -266,9 +282,10 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         previewManager = KeyboardPreviewManager(
             this,
             previewContainer,
-            entries
-        ) { key ->
-            dataManager.getLayoutHeightPercentOverride(key) ?: dataManager.profileHeightOverrides
+            entries,
+            dataManager::getLayoutHeightPercentOverride
+        ).apply {
+            profileHeightPercentProvider = { dataManager.profileHeightOverrides }
         }
         previewManager?.updatePreview(previewLayoutName!!, previewSubModeLabel, fcitxConnection)
         updatePreviewHeight()
@@ -369,7 +386,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         }
         group.addView(valueLabel)
         group.addView(seekBar)
-        content.addView(group)
+        settingsSection.addView(group)
         return seekBar
     }
 }

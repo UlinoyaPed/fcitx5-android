@@ -25,7 +25,7 @@ import splitties.dimensions.dp
 
 class LayoutFileProfileInputActivityTest {
     @Test
-    fun previewStaysAboveFixedSettingsInBothThemesAndEntryModes() {
+    fun nameAtTopAndHeightsAtBottomInBothThemesAndEntryModes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val originalMode = AppCompatDelegate.getDefaultNightMode()
         try {
@@ -66,14 +66,17 @@ class LayoutFileProfileInputActivityTest {
     private fun verifyLayout(activity: LayoutFileProfileInputActivity) {
         val toolbar = descendants(activity.window.decorView).filterIsInstance<Toolbar>().single()
         val root = toolbar.parent as ViewGroup
-        val previewScroll = root.getChildAt(1) as ScrollView
-        val settingsScroll = root.getChildAt(2) as ScrollView
+        // 结构：工具栏 / 顶部布局名称 / 预览（占中间剩余空间）/ 底部键盘高度
+        val nameSection = root.getChildAt(1) as ViewGroup
+        val previewScroll = root.getChildAt(2) as ScrollView
+        val settingsScroll = root.getChildAt(3) as ScrollView
         val preview = previewScroll.getChildAt(0) as ViewGroup
         assertEquals(activity.getString(R.string.text_keyboard_layout_customize_preview),
             (preview.getChildAt(0) as TextView).text.toString())
         assertEquals(2, preview.childCount)
         assertTrue(descendants(preview).none { it is SeekBar || it is AppCompatEditText })
-        assertEquals(1, descendants(settingsScroll).filterIsInstance<AppCompatEditText>().count())
+        assertEquals(1, descendants(nameSection).filterIsInstance<AppCompatEditText>().count())
+        assertTrue(descendants(settingsScroll).none { it is AppCompatEditText })
         val sliders = descendants(settingsScroll).filterIsInstance<SeekBar>().toList()
         assertEquals(2, sliders.size)
         val save = toolbar.menu.getItem(0)
@@ -100,14 +103,16 @@ class LayoutFileProfileInputActivityTest {
                 sliders.forEach { it.progress = 0 }
                 layout(activity.dp(width), activity.dp(height))
                 val before = bounds()
-                val settingsTop = settingsScroll.top
+                val nameTop = nameSection.top
                 sliders.forEach { it.progress = it.max }
                 layout(activity.dp(width), activity.dp(height))
                 assertTrue(save.isEnabled)
-                assertEquals("Preview growth must not move settings", settingsTop, settingsScroll.top)
+                assertEquals("Name section must stay fixed", nameTop, nameSection.top)
                 assertEquals("Slider positions must stay fixed", before, bounds())
-                assertEquals(root.height - root.paddingBottom, settingsScroll.bottom)
-                assertTrue(previewScroll.bottom <= settingsScroll.top)
+                assertEquals("Height settings must stay at page bottom",
+                    root.height - root.paddingBottom, settingsScroll.bottom)
+                assertTrue("Preview must sit above height settings",
+                    previewScroll.bottom <= settingsScroll.top)
                 assertTrue("Preview must retain visible space", previewScroll.height > 0)
             }
         } finally {

@@ -7,6 +7,7 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior.data
 import android.content.Context
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.config.DirectionalSwipeMigration
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
@@ -407,12 +408,18 @@ class LayoutDataManager(private val context: Context) {
         return entries.keys.toList()
     }
 
-    /**
-     * 获取基础布局名称，按当前文件中的顺序返回。
-     */
+    /** 所有已保存的基础布局组，供当前布局来源匹配使用，不受界面过滤影响。 */
     fun baseLayoutNames(): List<String> = entries.keys
-        .filter { !it.contains(':') }
-        .toList()
+        .map { it.substringBefore(':') }.filter { it.isNotBlank() }.distinct()
+
+    /** 只读界面入口：启用的输入法，以及仍有定制内容或子布局的历史布局。 */
+    fun baseLayoutNames(inputMethods: Array<InputMethodEntry>): List<String> {
+        val customizedBases = baseLayoutNames().filterTo(mutableSetOf()) { base ->
+            getLayoutHeightPercentOverride(base)?.isEmpty() == false ||
+                entries[base]?.let { !matchesDefaultPreset(it) } == true
+        }
+        return availableBaseLayoutNames(entries.keys, inputMethods, customizedBases)
+    }
 
     /**
      * 获取基础布局下的专属子布局，按当前文件中的顺序返回。
@@ -1058,13 +1065,46 @@ class LayoutDataManager(private val context: Context) {
 
 /**
  * 深度比较：Map/List 递归比较，数字按数值比较（忽略 Int/Float 等类型差异）。
+ * Map 中值为 null 的键与"键不存在"等价（保存时 null 字段会被剔除，而内存快照
+ * 可能保留显式 null，如 keyDefToJson 写入的 weight=null），比较前先剔除，
+ * 保证文件往返数据与内存预设可以判等。
  * 供"与出厂默认预设比对"等场景使用。
  */
 internal fun deepEquals(a: Any?, b: Any?): Boolean = when {
     a is Number && b is Number -> a.toDouble() == b.toDouble()
-    a is Map<*, *> && b is Map<*, *> ->
-        a.size == b.size && a.keys.all { key -> deepEquals(a[key], b[key]) }
+    a is Map<*, *> && b is Map<*, *> -> {
+        val aEntries = a.filterValues { it != null }
+        val bEntries = b.filterValues { it != null }
+        aEntries.size == bEntries.size &&
+            aEntries.keys.all { key -> deepEquals(aEntries[key], bEntries[key]) }
+    }
     a is List<*> && b is List<*> ->
         a.size == b.size && a.indices.all { deepEquals(a[it], b[it]) }
     else -> a == b
+}
+
+/** UI enumeration only; hidden preset entries are neither deleted nor materialized. */
+internal fun availableBaseLayoutNames(
+    storedKeys: Collection<String>,
+    inputMethods: Array<InputMethodEntry>,
+    customizedBases: Set<String> = emptySet()
+): List<String> {
+    val storedBases = storedKeys.map { it.substringBefore(':') }.filter { it.isNotBlank() }.distinct()
+    val childBases = storedKeys.filter { ':' in it }.mapTo(mutableSetOf()) { it.substringBefore(':') }
+    val enabledBases = inputMethods.filter { it.uniqueName.isNotBlank() }.map { ime ->
+        baseLayoutKeyForIme(storedBases, ime)
+    }.toSet()
+    return buildList {
+        addAll(storedBases.filter { it in enabledBases || it in customizedBases || it in childBases })
+        addAll(enabledBases.filter { it !in this })
+    }
+}
+
+/** Use the same IME key priority for list enumeration and the editor's initial selection. */
+internal fun baseLayoutKeyForIme(baseLayoutKeys: Collection<String>, ime: InputMethodEntry): String = when {
+    ime.uniqueName in baseLayoutKeys -> ime.uniqueName
+    ime.displayName in baseLayoutKeys -> ime.displayName
+    // English uses the shared default until it has its own saved layout group.
+    ime.uniqueName == "keyboard-us" -> LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY
+    else -> ime.uniqueName
 }

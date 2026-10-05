@@ -32,6 +32,61 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtil
 import splitties.dimensions.dp
 import java.io.File
 
+internal fun resolvePreviewRows(
+    entries: Map<String, List<List<Map<String, Any?>>>>,
+    layoutName: String,
+    subModeKey: String?
+): List<List<Map<String, Any?>>>? = subModeKey?.let { entries[it] }
+    ?: entries[layoutName]
+    ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
+
+/** Match runtime inheritance without letting one orientation mask the other. */
+internal fun resolvePreviewHeightOverrides(
+    entries: Map<String, List<List<Map<String, Any?>>>>,
+    layoutName: String,
+    subModeLabel: String?,
+    heightProvider: (String) -> LayoutHeightPercentOverrides?,
+    profileHeight: LayoutHeightPercentOverrides? = null
+): LayoutHeightPercentOverrides {
+    val child = subModeLabel?.takeIf { it.isNotEmpty() }
+        ?.let { "$layoutName:$it" }
+        ?.takeIf { it in entries }
+        ?.let(heightProvider)
+    val base = layoutName.takeIf { it in entries }?.let(heightProvider)
+    // An explicit base opts out of global-default layout metadata, even if it
+    // does not override height. Only virtual parents / child-only IMEs inherit it.
+    val default = if (layoutName !in entries) {
+        LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY.takeIf { it in entries }?.let(heightProvider)
+    } else null
+    return LayoutHeightPercentOverrides(
+        portrait = child?.portrait ?: base?.portrait ?: default?.portrait ?: profileHeight?.portrait,
+        landscape = child?.landscape ?: base?.landscape ?: default?.landscape ?: profileHeight?.landscape
+    )
+}
+
+internal fun buildPreviewSubModeMap(
+    entries: Map<String, List<List<Map<String, Any?>>>>,
+    layoutName: String,
+    subModeKey: String?,
+    currentRows: List<List<Map<String, Any?>>>,
+    previewSubModeLabel: String?
+): MutableMap<String, JsonElement> {
+    val subModeMap = mutableMapOf<String, JsonElement>()
+    val currentRowsArray = JsonArray(currentRows.map(LayoutJsonUtils::rowToJsonElement))
+
+    if (subModeKey != null && entries.containsKey(subModeKey)) {
+        subModeMap[previewSubModeLabel ?: "default"] = currentRowsArray
+        val defaultRows = entries[layoutName] ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
+        defaultRows?.let {
+            subModeMap["default"] = JsonArray(it.map(LayoutJsonUtils::rowToJsonElement))
+        }
+    } else {
+        subModeMap["default"] = currentRowsArray
+    }
+
+    return subModeMap
+}
+
 /**
  * Keyboard preview manager, responsible for previewing keyboard layouts.
  *
@@ -57,6 +112,10 @@ class KeyboardPreviewManager(
     private val entries: Map<String, List<List<Map<String, Any?>>>>,
     private val layoutHeightPercentProvider: (String) -> LayoutHeightPercentOverrides? = { null }
 ) {
+    // Separate profile fallback from per-entry metadata so it cannot mask base
+    // or default heights. Keep the existing constructor/callback contract intact.
+    internal var profileHeightPercentProvider: () -> LayoutHeightPercentOverrides? = { null }
+
     private var previewKeyboard: TextKeyboard? = null
     // 单层预览图层：背景、模糊遮罩、键盘都放进这个固定高度的 FrameLayout，
     // 无论外层容器是纵向 LinearLayout 还是 FrameLayout，预览高度都只等于一个键盘高度。
@@ -80,7 +139,7 @@ class KeyboardPreviewManager(
 
         // Try to load submode-specific layout first
         val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-        val rows = subModeKey?.let { entries[it] } ?: entries[layoutName] ?: return
+        val rows = resolvePreviewRows(entries, layoutName, subModeKey) ?: return
 
         previewBlurMask.bindKeyboard(null)
 
@@ -132,27 +191,13 @@ class KeyboardPreviewManager(
         subModeKey: String?,
         currentRows: List<List<Map<String, Any?>>>,
         previewSubModeLabel: String?
-    ): MutableMap<String, JsonElement> {
-        val subModeMap = mutableMapOf<String, JsonElement>()
-
-        val currentRowsArray = JsonArray(currentRows.map(LayoutJsonUtils::rowToJsonElement))
-
-        if (subModeKey != null && entries.containsKey(subModeKey)) {
-            // Editing a submode layout - add it with its label
-            subModeMap[previewSubModeLabel ?: "default"] = currentRowsArray
-            // Also add default layout if it exists (for fallback)
-            val defaultRows = entries[layoutName]
-            if (defaultRows != null) {
-                val defaultRowsArray = JsonArray(defaultRows.map(LayoutJsonUtils::rowToJsonElement))
-                subModeMap["default"] = defaultRowsArray
-            }
-        } else {
-            // Editing default layout
-            subModeMap["default"] = currentRowsArray
-        }
-
-        return subModeMap
-    }
+    ): MutableMap<String, JsonElement> = buildPreviewSubModeMap(
+        entries,
+        layoutName,
+        subModeKey,
+        currentRows,
+        previewSubModeLabel
+    )
 
     /**
      * Create keyboard preview view.
@@ -175,16 +220,15 @@ class KeyboardPreviewManager(
             val isLandscape = context.resources.configuration.orientation ==
                 Configuration.ORIENTATION_LANDSCAPE
             // 编辑专属子模式布局时优先取该子模式的高度覆写，未配置则回退基础布局
-            val subModeOverrideKey = previewSubModeLabel
-                ?.takeIf { it.isNotBlank() && entries.containsKey("$layoutName:$it") }
-                ?.let { "$layoutName:$it" }
-            val layoutHeightOverride = subModeOverrideKey?.let(layoutHeightPercentProvider)
-                ?: layoutHeightPercentProvider(layoutName)
+            val layoutHeightOverride = resolvePreviewHeightOverrides(
+                entries, layoutName, previewSubModeLabel,
+                layoutHeightPercentProvider, profileHeightPercentProvider()
+            )
             val heightPercent = if (isLandscape) {
-                layoutHeightOverride?.landscape
+                layoutHeightOverride.landscape
                     ?: keyboardPrefs.keyboardHeightPercentLandscape.getValue()
             } else {
-                layoutHeightOverride?.portrait
+                layoutHeightOverride.portrait
                     ?: keyboardPrefs.keyboardHeightPercent.getValue()
             }
             val keyboardHeight = screenHeight * heightPercent / 100

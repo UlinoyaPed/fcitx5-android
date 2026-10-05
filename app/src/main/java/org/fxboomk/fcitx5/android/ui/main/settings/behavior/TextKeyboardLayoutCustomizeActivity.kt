@@ -30,6 +30,8 @@ import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.KeyboardPreviewManager
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.resolvePreviewHeightOverrides
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.resolvePreviewRows
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fxboomk.fcitx5.android.utils.saveIconTint
 import org.fxboomk.fcitx5.android.utils.toast
@@ -69,7 +71,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
     private var subModeLabel: String? = null
     private lateinit var dataManager: LayoutDataManager
 
-    /** 实际生效的布局键：有专属子布局键时为 "layout:submode"，否则为基础布局键 */
+    /** 写入目标：子模式即使尚未定制，也必须写入自己的键，不能修改继承来源。 */
     private lateinit var effectiveKey: String
 
     private var initialPortraitHeight: Int? = null
@@ -110,7 +112,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
 
         dataManager = LayoutDataManager(this)
         dataManager.loadFromFile(UserConfigFiles.textKeyboardLayoutJson(profileName))
-        effectiveKey = if (subModeLabel != null && dataManager.entries.containsKey("$layoutKey:$subModeLabel")) {
+        effectiveKey = if (!subModeLabel.isNullOrEmpty()) {
             "$layoutKey:$subModeLabel"
         } else {
             layoutKey
@@ -177,13 +179,13 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
 
     private fun buildBottomBar(): LinearLayout {
         val keyboardPrefs = AppPrefs.getInstance().keyboard
-        val override = dataManager.getLayoutHeightPercentOverride(effectiveKey)
-        val fileLevel = dataManager.profileHeightOverrides
-        initialPortraitHeight = override?.portrait
-            ?: fileLevel?.portrait
+        val override = resolvePreviewHeightOverrides(
+            dataManager.entries, layoutKey, subModeLabel,
+            dataManager::getLayoutHeightPercentOverride, dataManager.profileHeightOverrides
+        )
+        initialPortraitHeight = override.portrait
             ?: keyboardPrefs.keyboardHeightPercent.getValue()
-        initialLandscapeHeight = override?.landscape
-            ?: fileLevel?.landscape
+        initialLandscapeHeight = override.landscape
             ?: keyboardPrefs.keyboardHeightPercentLandscape.getValue()
 
         val pad = dp(16)
@@ -250,9 +252,10 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         previewManager = KeyboardPreviewManager(
             this,
             previewContainer,
-            dataManager.entries
-        ) { key ->
-            dataManager.getLayoutHeightPercentOverride(key) ?: dataManager.profileHeightOverrides
+            dataManager.entries,
+            dataManager::getLayoutHeightPercentOverride
+        ).apply {
+            profileHeightPercentProvider = { dataManager.profileHeightOverrides }
         }
         previewManager?.updatePreview(layoutKey, subModeLabel, fcitxConnection)
         updatePreviewHeight()
@@ -306,6 +309,16 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         if (portrait == initialPortraitHeight && landscape == initialLandscapeHeight) {
             return true
         }
+        if (!dataManager.entries.containsKey(effectiveKey)) {
+            val inheritedRows = resolvePreviewRows(dataManager.entries, layoutKey, effectiveKey)
+                ?: run {
+                    toast(getString(R.string.text_keyboard_layout_manage_save_failed))
+                    return false
+                }
+            dataManager.entries[effectiveKey] = inheritedRows.map { row ->
+                row.map { key -> key.toMutableMap() }.toMutableList()
+            }.toMutableList()
+        }
         dataManager.setLayoutHeightPercentOverride(
             effectiveKey,
             LayoutHeightPercentOverrides(portrait = portrait, landscape = landscape)
@@ -325,7 +338,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
 
     private fun openLayoutEditor() {
         // 先保存高度，保证编辑器内预览与当前设置一致
-        saveHeights()
+        if (!saveHeights()) return
         startActivity(Intent(this, TextKeyboardLayoutEditorActivity::class.java).apply {
             putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_PROFILE, profileName)
             putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_LAYOUT, layoutKey)

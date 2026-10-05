@@ -14,6 +14,7 @@ internal data class TextKeyboardLayoutResolution(
     val sourceKey: String,
     val root: JsonElement,
     val subMode: JsonElement?,
+    val globalDefault: JsonElement?,
     val rows: JsonArray?,
 )
 
@@ -23,7 +24,7 @@ internal fun resolveTextKeyboardLayout(
     displayName: String,
     subModeLabel: String,
 ): TextKeyboardLayoutResolution? {
-    val (sourceKey, root) = when {
+    val (matchedSourceKey, root) = when {
         json[uniqueName] != null -> uniqueName to json.getValue(uniqueName)
         json[displayName] != null -> displayName to json.getValue(displayName)
         json["default"] != null -> "default" to json.getValue("default")
@@ -31,20 +32,26 @@ internal fun resolveTextKeyboardLayout(
     }
     val layout = root as? JsonObject
     val subMode = layout?.get(subModeLabel)
-    val rowsSource = when (root) {
-        is JsonArray -> root
-        is JsonObject -> (
-            subMode
-                ?: root["default"]
-                ?: root[""]
-            )
-        else -> null
+    val isChildOnlyLayout = layout != null && layout["default"] == null && layout[""] == null
+    val globalDefault = json["default"]?.takeIf { matchedSourceKey != "default" }
+    val rowSources = when (root) {
+        is JsonArray -> listOf(matchedSourceKey to root)
+        is JsonObject -> listOfNotNull(
+            subMode?.let { matchedSourceKey to it },
+            (root["default"] ?: root[""])?.let { matchedSourceKey to it },
+            globalDefault?.let { "default" to it },
+        )
+        else -> listOfNotNull(globalDefault?.let { "default" to it })
     }
+    val (sourceKey, rows) = rowSources.firstNotNullOfOrNull { (key, source) ->
+        source.rowsOrNull()?.let { key to it }
+    } ?: (matchedSourceKey to null)
     return TextKeyboardLayoutResolution(
         sourceKey = sourceKey,
         root = root,
         subMode = subMode,
-        rows = rowsSource.rowsOrNull(),
+        globalDefault = globalDefault?.takeIf { isChildOnlyLayout },
+        rows = rows,
     )
 }
 
@@ -56,7 +63,9 @@ internal fun TextKeyboardLayoutResolution.keyboardHeightPercentOverride(
     } else {
         "keyboard_height_percent"
     }
-    return layoutHeightPercentFromMeta(subMode, key) ?: layoutHeightPercentFromMeta(root, key)
+    return layoutHeightPercentFromMeta(subMode, key)
+        ?: layoutHeightPercentFromMeta(root, key)
+        ?: layoutHeightPercentFromMeta(globalDefault, key)
 }
 
 /**

@@ -12,6 +12,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
@@ -22,9 +23,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import splitties.resources.styledColor
@@ -39,6 +43,180 @@ class TextKeyboardLayoutCustomizeActivityTest {
 
     @Test
     fun saveStateAndTintFollowChangesInDarkMode() = verifySaveState(dark = true)
+
+    @Test
+    fun viewingMissingBaseDoesNotWriteLayoutEntry() {
+        val profile = "virtual-view-test-${UUID.randomUUID()}"
+        val file = requireNotNull(UserConfigFiles.textKeyboardLayoutJson(profile))
+        val originalText = createDefaultProfile(file)
+        var activity: TextKeyboardLayoutCustomizeActivity? = null
+        try {
+            activity = startActivity(profile, "virtual-ime")
+            instrumentation.waitForIdleSync()
+            assertEquals(originalText, file.readText())
+            val reloaded = LayoutDataManager(instrumentation.targetContext).apply { loadFromFile(file) }
+            assertTrue("Viewing must not materialize a virtual base", "virtual-ime" !in reloaded.entries)
+        } finally {
+            instrumentation.runOnMainSync { activity?.finish() }
+            instrumentation.waitForIdleSync()
+            file.delete()
+        }
+    }
+
+    @Test
+    fun changedHeightSaveMaterializesMissingBaseFromDefault() {
+        val profile = "virtual-save-test-${UUID.randomUUID()}"
+        val file = requireNotNull(UserConfigFiles.textKeyboardLayoutJson(profile))
+        createDefaultProfile(file)
+        var activity: TextKeyboardLayoutCustomizeActivity? = null
+        try {
+            val editor = startActivity(profile, "virtual-ime")
+            activity = editor
+            instrumentation.waitForIdleSync()
+            instrumentation.runOnMainSync {
+                val slider = descendants(editor.window.decorView).filterIsInstance<SeekBar>().first()
+                slider.progress = changedProgress(slider)
+                val save = toolbar(editor).menu.getItem(0)
+                assertTrue(save.isEnabled)
+                assertTrue(toolbar(editor).menu.performIdentifierAction(save.itemId, 0))
+            }
+            instrumentation.waitForIdleSync()
+
+            val reloaded = LayoutDataManager(editor).apply { loadFromFile(file) }
+            val defaultRows = reloaded.entries.getValue(LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY)
+            val virtualRows = reloaded.entries.getValue("virtual-ime")
+            assertEquals(defaultRows, virtualRows)
+            assertNotSame(defaultRows, virtualRows)
+            assertNotSame(defaultRows.first(), virtualRows.first())
+            assertNotSame(defaultRows.first().first(), virtualRows.first().first())
+            assertTrue(reloaded.getLayoutHeightPercentOverride("virtual-ime") != null)
+        } finally {
+            instrumentation.runOnMainSync { activity?.finish() }
+            instrumentation.waitForIdleSync()
+            file.delete()
+        }
+    }
+
+    @Test
+    fun failedHeightSaveDoesNotOpenLayoutEditor() {
+        val profile = "virtual-save-failure-test-${UUID.randomUUID()}"
+        val file = requireNotNull(UserConfigFiles.textKeyboardLayoutJson(profile))
+        createDefaultProfile(file)
+        var activity: TextKeyboardLayoutCustomizeActivity? = null
+        val monitor = instrumentation.addMonitor(
+            TextKeyboardLayoutEditorActivity::class.java.name,
+            null,
+            false
+        )
+        try {
+            val editor = startActivity(profile, "virtual-ime")
+            activity = editor
+            instrumentation.waitForIdleSync()
+            assertTrue(file.delete())
+            assertTrue(file.mkdir())
+            instrumentation.runOnMainSync {
+                val slider = descendants(editor.window.decorView).filterIsInstance<SeekBar>().first()
+                slider.progress = changedProgress(slider)
+                descendants(editor.window.decorView).filterIsInstance<Button>()
+                    .single { it.text == editor.getString(R.string.text_keyboard_layout_manage_more_customize) }
+                    .performClick()
+            }
+            assertNull(monitor.waitForActivityWithTimeout(500))
+        } finally {
+            instrumentation.removeMonitor(monitor)
+            instrumentation.runOnMainSync { activity?.finish() }
+            instrumentation.waitForIdleSync()
+            file.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun inheritedChildHeightSaveOnlyMaterializesChildNotBaseOrSibling() =
+        verifyChildHeightIsolation(explicitBase = true, existingChild = false)
+
+    @Test
+    fun virtualParentChildHeightSaveOnlyMaterializesChildNotParentOrSibling() =
+        verifyChildHeightIsolation(explicitBase = false, existingChild = false)
+
+    @Test
+    fun customizedChildInheritsMissingOrientationWithoutChangingBaseOrSibling() =
+        verifyChildHeightIsolation(explicitBase = true, existingChild = true)
+
+    @Test
+    fun childOnlyHeightInheritsDefaultWithoutMaterializingParent() =
+        verifyChildHeightIsolation(explicitBase = false, existingChild = true)
+
+    private fun verifyChildHeightIsolation(explicitBase: Boolean, existingChild: Boolean) {
+        val profile = "child-height-test-${UUID.randomUUID()}"
+        val file = requireNotNull(UserConfigFiles.textKeyboardLayoutJson(profile))
+        val manager = LayoutDataManager(instrumentation.targetContext).apply {
+            loadFromFile(null)
+            entries.clear()
+            entries["default"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "d")))
+            entries["ime:sibling"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "s")))
+            if (explicitBase) {
+                entries["ime"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "b")))
+                setLayoutHeightPercentOverride("ime", LayoutHeightPercentOverrides(portrait = 43))
+            }
+            if (existingChild) {
+                entries["ime:child"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "c")))
+                setLayoutHeightPercentOverride("ime:child", LayoutHeightPercentOverrides(landscape = 56))
+            }
+            setLayoutHeightPercentOverride("default", LayoutHeightPercentOverrides(64, 65))
+            setLayoutHeightPercentOverride("ime:sibling", LayoutHeightPercentOverrides(71, 72))
+            setProfileHeightOverrides(LayoutHeightPercentOverrides(32, 33))
+        }
+        assertTrue(manager.saveToFile(file))
+        val originalText = file.readText()
+        var activity: TextKeyboardLayoutCustomizeActivity? = null
+        val expectedPortrait = if (explicitBase) 43 else 64
+        val expectedLandscape = if (existingChild) 56 else if (explicitBase) 33 else 65
+        try {
+            val editor = startActivity(profile, "ime", "child")
+            activity = editor
+            instrumentation.waitForIdleSync()
+            instrumentation.runOnMainSync {
+                val sliders = descendants(editor.window.decorView).filterIsInstance<SeekBar>().toList()
+                assertEquals(listOf(expectedPortrait, expectedLandscape), sliders.map { it.progress + 10 })
+                assertSaveState(editor, enabled = false)
+                assertEquals("Viewing must not write", originalText, file.readText())
+                // Returning a slider to its inherited value must also be a no-op save.
+                sliders[0].progress += 1
+                sliders[0].progress -= 1
+                assertTrue(editor.onOptionsItemSelected(toolbar(editor).menu.getItem(0)))
+                assertEquals("Unchanged save must not materialize rows", originalText, file.readText())
+                sliders[0].progress += 1
+                assertTrue(toolbar(editor).menu.performIdentifierAction(toolbar(editor).menu.getItem(0).itemId, 0))
+                assertSaveState(editor, enabled = false)
+            }
+            instrumentation.waitForIdleSync()
+            val reloaded = LayoutDataManager(editor).apply { loadFromFile(file) }
+            assertEquals(
+                LayoutHeightPercentOverrides(expectedPortrait + 1, expectedLandscape),
+                reloaded.getLayoutHeightPercentOverride("ime:child")
+            )
+            assertEquals(manager.entries.keys + "ime:child", reloaded.entries.keys)
+            for (key in listOf("default", "ime", "ime:sibling")) {
+                assertEquals("Rows changed for $key", manager.entries[key], reloaded.entries[key])
+                assertEquals("Height changed for $key", manager.getLayoutHeightPercentOverride(key),
+                    reloaded.getLayoutHeightPercentOverride(key))
+            }
+            assertEquals(manager.profileHeightOverrides, reloaded.profileHeightOverrides)
+            val source = if (existingChild) "ime:child" else if (explicitBase) "ime" else "default"
+            assertEquals(manager.entries[source], reloaded.entries["ime:child"])
+            if (!existingChild) {
+                val inherited = reloaded.entries.getValue(source)
+                val child = reloaded.entries.getValue("ime:child")
+                assertNotSame(inherited, child)
+                assertNotSame(inherited.first(), child.first())
+                assertNotSame(inherited.first().first(), child.first().first())
+            }
+        } finally {
+            instrumentation.runOnMainSync { activity?.finish() }
+            instrumentation.waitForIdleSync()
+            file.delete()
+        }
+    }
 
     private fun verifySaveState(dark: Boolean) {
         val originalMode = AppCompatDelegate.getDefaultNightMode()
@@ -123,6 +301,26 @@ class TextKeyboardLayoutCustomizeActivityTest {
 
     private fun changedProgress(slider: SeekBar): Int =
         if (slider.progress < slider.max) slider.progress + 1 else slider.progress - 1
+
+    private fun createDefaultProfile(file: java.io.File): String {
+        val manager = LayoutDataManager(instrumentation.targetContext)
+        manager.loadFromFile(null)
+        assertTrue(manager.saveToFile(file))
+        return file.readText()
+    }
+
+    private fun startActivity(profile: String, layout: String, subMode: String? = null): TextKeyboardLayoutCustomizeActivity {
+        val intent = Intent(
+            instrumentation.targetContext,
+            TextKeyboardLayoutCustomizeActivity::class.java
+        ).apply {
+            putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_PROFILE, profile)
+            putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_LAYOUT, layout)
+            subMode?.let { putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_SUBMODE, it) }
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return instrumentation.startActivitySync(intent) as TextKeyboardLayoutCustomizeActivity
+    }
 
     private fun assertHeightControlsStayFixed(activity: TextKeyboardLayoutCustomizeActivity) {
         val root = toolbar(activity).parent as ViewGroup
