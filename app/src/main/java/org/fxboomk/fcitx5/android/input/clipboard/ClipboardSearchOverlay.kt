@@ -7,11 +7,14 @@ package org.fxboomk.fcitx5.android.input.clipboard
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fxboomk.fcitx5.android.R
@@ -73,6 +76,9 @@ class ClipboardSearchOverlay(
             onInputChanged()
         }
         ui.setOnCategorySelectedListener { category ->
+            if (categoryExplicitlySelected && selectedCategory == category) {
+                return@setOnCategorySelectedListener
+            }
             selectedCategory = category
             categoryExplicitlySelected = true
             onInputChanged()
@@ -159,7 +165,10 @@ class ClipboardSearchOverlay(
             return
         }
         val category = selectedCategory
-        ui.showMessage(ui.ctx.getString(R.string.clipboard_search_searching))
+        // Keep the presented results visible until their replacement is committed.
+        if (!ui.recyclerView.isVisible) {
+            ui.showMessage(ui.ctx.getString(R.string.clipboard_search_searching))
+        }
         searchJob = scope.launch(Dispatchers.Main.immediate) {
             delay(120)
             val result = runCatching {
@@ -171,6 +180,7 @@ class ClipboardSearchOverlay(
                     )
                 }
             }.getOrElse {
+                if (it is CancellationException) throw it
                 if (inputState.text.trim() == query && selectedCategory == category) {
                     adapter.submitList(emptyList())
                     ui.showMessage(ui.ctx.getString(R.string.clipboard_search_no_results))
@@ -178,20 +188,25 @@ class ClipboardSearchOverlay(
                 return@launch
             }
             if (inputState.text.trim() != query || selectedCategory != category) return@launch
-            adapter.submitList(result.entries)
-            if (result.entries.isEmpty()) {
-                ui.showMessage(ui.ctx.getString(R.string.clipboard_search_no_results))
-            } else {
-                val status = if (result.usedAutomaticFallback) {
-                    R.string.clipboard_search_auto_all_results
-                } else when (result.category) {
-                    ClipboardSearchCategory.All -> R.string.clipboard_search_all_results
-                    ClipboardSearchCategory.Favorites -> R.string.clipboard_search_favorite_results
-                    ClipboardSearchCategory.Local -> R.string.clipboard_search_local_results
-                    ClipboardSearchCategory.Remote -> R.string.clipboard_search_remote_results
-                    ClipboardSearchCategory.Media -> R.string.clipboard_search_media_results
+            val requestJob = coroutineContext.job
+            adapter.submitList(result.entries) {
+                if (requestJob.isCancelled || inputState.text.trim() != query ||
+                    selectedCategory != category
+                ) return@submitList
+                if (result.entries.isEmpty()) {
+                    ui.showMessage(ui.ctx.getString(R.string.clipboard_search_no_results))
+                } else {
+                    val status = if (result.usedAutomaticFallback) {
+                        R.string.clipboard_search_auto_all_results
+                    } else when (result.category) {
+                        ClipboardSearchCategory.All -> R.string.clipboard_search_all_results
+                        ClipboardSearchCategory.Favorites -> R.string.clipboard_search_favorite_results
+                        ClipboardSearchCategory.Local -> R.string.clipboard_search_local_results
+                        ClipboardSearchCategory.Remote -> R.string.clipboard_search_remote_results
+                        ClipboardSearchCategory.Media -> R.string.clipboard_search_media_results
+                    }
+                    ui.showResults(ui.ctx.getString(status, result.entries.size))
                 }
-                ui.showResults(ui.ctx.getString(status, result.entries.size))
             }
         }
     }

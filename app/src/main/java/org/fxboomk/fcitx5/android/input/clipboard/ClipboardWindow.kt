@@ -23,6 +23,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -261,6 +262,7 @@ class ClipboardWindow : InputWindow.ExtendedInputWindow<ClipboardWindow>() {
     }
 
     private fun submitCategory(category: ClipboardCategory) {
+        if (currentCategory == category && adapterSubmitJob?.isActive == true) return
         currentCategory = category
         ui.setSelectedCategory(category)
         adapterSubmitJob?.cancel()
@@ -489,6 +491,9 @@ class ClipboardWindow : InputWindow.ExtendedInputWindow<ClipboardWindow>() {
         // manually switch to initial ui
         ui.switchUiByState(initialState)
         adapter.addLoadStateListener {
+            // A refresh is not a new empty/non-empty result. Keep the current view
+            // until Paging has presented the replacement category.
+            if (it.refresh !is LoadState.NotLoading) return@addLoadStateListener
             val empty = it.append.endOfPaginationReached && adapter.itemCount < 1
             stateMachine.push(ClipboardDbUpdated, ClipboardDbEmpty to empty)
         }

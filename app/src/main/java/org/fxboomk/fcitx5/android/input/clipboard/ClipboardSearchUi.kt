@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import org.fxboomk.fcitx5.android.R
@@ -46,6 +47,7 @@ import splitties.views.setPaddingDp
 class ClipboardSearchUi(override val ctx: Context, private val theme: Theme) : Ui {
 
     private var renderedCursor = 0
+    private val categoryButtonBackgrounds = mutableMapOf<TextView, GradientDrawable>()
 
     val backButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_back_24, theme).apply {
         contentDescription = ctx.getString(R.string.back_to_keyboard)
@@ -163,21 +165,25 @@ class ClipboardSearchUi(override val ctx: Context, private val theme: Theme) : U
         })
     }
 
-    private fun createCategoryButton(textRes: Int) = textView {
-        gravity = gravityCenter
-        text = ctx.getString(textRes)
-        textSize = 13f
-        setPaddingDp(4, 0, 4, 0)
-        background = categoryBackground(selected = false)
-        setTextColor(theme.keyTextColor)
+    private fun createCategoryButton(textRes: Int): TextView {
+        val fill = GradientDrawable().apply {
+            cornerRadius = ctx.dp(16).toFloat()
+            setColor(theme.keyBackgroundColor)
+        }
+        return textView {
+            gravity = gravityCenter
+            text = ctx.getString(textRes)
+            textSize = 13f
+            setPaddingDp(4, 0, 4, 0)
+            background = categoryBackground(fill)
+            isSelected = false
+            setTextColor(theme.keyTextColor)
+        }.also { categoryButtonBackgrounds[it] = fill }
     }
 
-    private fun categoryBackground(selected: Boolean) = RippleDrawable(
+    private fun categoryBackground(fill: GradientDrawable) = RippleDrawable(
         ColorStateList.valueOf(theme.keyPressHighlightColor),
-        GradientDrawable().apply {
-            cornerRadius = ctx.dp(16).toFloat()
-            setColor(if (selected) theme.accentKeyBackgroundColor else theme.keyBackgroundColor)
-        },
+        fill,
         GradientDrawable().apply {
             cornerRadius = ctx.dp(16).toFloat()
             setColor(Color.WHITE)
@@ -196,7 +202,11 @@ class ClipboardSearchUi(override val ctx: Context, private val theme: Theme) : U
     fun setSelectedCategory(category: ClipboardSearchCategory) {
         categoryButtons.forEach { (buttonCategory, button) ->
             val selected = buttonCategory == category
-            button.background = categoryBackground(selected)
+            if (button.isSelected == selected) return@forEach
+            button.isSelected = selected
+            categoryButtonBackgrounds.getValue(button).setColor(
+                if (selected) theme.accentKeyBackgroundColor else theme.keyBackgroundColor
+            )
             button.setTextColor(if (selected) theme.accentKeyTextColor else theme.keyTextColor)
         }
     }
