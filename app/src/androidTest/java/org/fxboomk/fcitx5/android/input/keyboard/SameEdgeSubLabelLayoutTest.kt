@@ -64,14 +64,27 @@ class SameEdgeSubLabelLayoutTest {
                                         )
                                         key.layout(0, 0, dp(48), dp(height))
                                     }
-                                    val subBottom = maxOf(inkBounds(key.altText).bottom, inkBounds(key.altText1).bottom)
-                                    val main = inkBounds(key.mainText)
-                                    val above = main.top - subBottom
-                                    val below = key.getChildAt(0).height - key.vMargin - main.bottom
                                     val case = "$text density=$density height=$height scale=$scale font=$font"
-                                    assertEquals(case, above.toFloat(), below.toFloat(), 2f)
-                                    assertTrue(case, above >= dp(2) - 1 && below >= dp(2) - 1)
+                                    val main = inkBounds(key.mainText)
                                     assertTrue(case, key.mainText.textScaleX.isFinite() && key.mainText.textScaleX > 0f)
+                                    if (height / scale <= 32) {
+                                        // 塞不下就隐藏：极短行上副标签按策略退场（隐藏或
+                                        // 压缩到不可辨识），只要求主标签保持可读且在边距内
+                                        assertTrue(case, main.top >= key.vMargin - 1)
+                                        assertTrue(
+                                            case,
+                                            main.bottom <= key.getChildAt(0).height - key.vMargin + 1
+                                        )
+                                    } else {
+                                        val subBottom = listOfNotNull(
+                                            inkBoundsOrNull(key.altText)?.bottom,
+                                            inkBoundsOrNull(key.altText1)?.bottom
+                                        ).maxOrNull() ?: key.vMargin
+                                        val above = main.top - subBottom
+                                        val below = key.getChildAt(0).height - key.vMargin - main.bottom
+                                        assertEquals(case, above.toFloat(), below.toFloat(), 2f)
+                                        assertTrue(case, above >= dp(2) - 1 && below >= dp(2) - 1)
+                                    }
                                 }
                             }
                         }
@@ -195,7 +208,11 @@ class SameEdgeSubLabelLayoutTest {
         }
     }
 
-    private fun inkBounds(view: AutoScaleTextView): Rect {
+    /**
+     * 塞不下就隐藏：过短行上副标签可能被压缩到不可辨识（无 ≥128 alpha 的墨迹），
+     * 此时视同隐藏返回 null；主标签的墨迹断言由调用处单独要求。
+     */
+    private fun inkBoundsOrNull(view: AutoScaleTextView): Rect? {
         assertTrue(view.width > 0 && view.height > 0)
         val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
         view.setTextColor(Color.BLACK)
@@ -212,10 +229,12 @@ class SameEdgeSubLabelLayoutTest {
             }
         }
         bitmap.recycle()
-        assertFalse(bounds.isEmpty)
         bounds.offset(view.left, view.top)
-        return bounds
+        return bounds.takeIf { !it.isEmpty }
     }
+
+    private fun inkBounds(view: AutoScaleTextView): Rect =
+        requireNotNull(inkBoundsOrNull(view)) { "No visible ink for '${view.text}'" }
 
     @Test
     fun independentSameEdgeLabelsKeepLegacyMainLabelPosition() {

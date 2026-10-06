@@ -1805,8 +1805,15 @@ class AltTextKeyView(
                 }
                 val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
                 val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
-                val minGap = glyphs.maxOf { (key) -> key.dp(2) }
-                val availableHeight = (bandBottom - bandTop - minGap * 2).coerceAtLeast(0f)
+                // 1px is absorbed by ink rasterization; the measured ink gap is dp(2)-1
+                val minGap = glyphs.maxOf { (key) -> key.dp(2) - 1 }
+                // Prefer keeping the two-pixel breathing room, but on very short rows
+                // the band can be thinner than the reserved gaps; shrink the glyph to
+                // the raw band instead of scaling it out of sight. One pixel per edge
+                // is dropped to absorb rasterization rounding of the scaled ink.
+                val reserved = bandBottom - bandTop - minGap * 2
+                val availableHeight =
+                    if (reserved > 0f) reserved else (bandBottom - bandTop).coerceAtLeast(0f) - 2f
                 val heightScale = min(1f, availableHeight / (glyphBottom - glyphTop))
                 // Align actual ink, not font metrics, halfway through the free band.
                 val baseline = (bandTop + bandBottom - (glyphTop + glyphBottom) * heightScale) / 2f

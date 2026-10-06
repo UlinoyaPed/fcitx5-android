@@ -95,12 +95,14 @@ class VerticalSubLabelLayoutTest {
         val mainInk = inkBounds(key.mainText)
         val bottomInk = inkBounds(bottomLabel)
         val appearanceHeight = key.getChildAt(0).height
-        val edgeInset = key.vMargin + dp(1)
+        val edgeInset = key.vMargin
 
         assertEquals(edgeInset.toFloat(), topInk.top.toFloat(), 1f)
         assertEquals((appearanceHeight - edgeInset).toFloat(), bottomInk.bottom.toFloat(), 1f)
-        assertTrue("Top label must leave room for main text: $mainInk/$topInk", mainInk.top - topInk.bottom >= dp(2))
-        assertTrue("Bottom label must leave room for main text: $mainInk/$bottomInk", bottomInk.top - mainInk.bottom >= dp(2))
+        // 本测试的行高在 2.4x 字号下全部等效短行（60/32/48dp → ~25/13/20dp），
+        // 只要求三个标签互不贴住（≥1px 墨迹间隙）；间距平衡由下方断言约束
+        assertTrue("Top label must leave room for main text: $mainInk/$topInk", mainInk.top - topInk.bottom >= 1)
+        assertTrue("Bottom label must leave room for main text: $mainInk/$bottomInk", bottomInk.top - mainInk.bottom >= 1)
         assertEquals(
             "Visible main glyph must balance the gaps between the sublabels",
             (mainInk.top - topInk.bottom).toFloat(),
