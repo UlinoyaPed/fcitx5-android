@@ -12,7 +12,7 @@ This fork mainly strengthens two areas:
 
 ## Recent Updates
 
-After consolidating the latest 20 commits, this round of updates mainly falls into the following areas:
+After consolidating the latest 20 commits through October 6, 2026, this round of updates mainly falls into the following areas:
 
 - Keyboard layout editing, preview, and management were reworked end to end:
   - A standalone "Keyboard layout management" page now lists every layout with set-as-default, move-up ordering, and collapse, and is the entry point for per-key edit/reset, QR import/share, and layout CRUD; ordering and collapse state are persisted.
@@ -20,6 +20,7 @@ After consolidating the latest 20 commits, this round of updates mainly falls in
   - Keyboard height now supports three-level overrides (profile < base layout < submode), and the space-key preview shows uppercase letters and the current layout name.
   - Opening the layout editor now reads available schemes from the deployed Rime schema_list instead of forcing the target IME active, so the input method you are actually using is no longer switched out from under you; Rime layouts are hidden when the plugin is not loaded.
   - The layout preview was rebuilt as a fixed-height container whose background matches exactly one keyboard height instead of overflowing vertically, and previewing a Rime layout uses the Rime engine's own space-key label, icon, and identity rather than inheriting the active IME's (e.g. builtin shuangpin's "双").
+  - The layout manager shows the active “profile - input method - Rime schema” chain and can hide base layouts that have not been customized; groups with customized child layouts remain visible.
 - Candidates and gestures are faster and less error-prone:
   - Candidates support swipe-up character selection and swipe-down frequency reset, with an explicit cancel area outside the candidate region, and the expanded candidate window uses a more compact adaptive grid.
   - The decompose ("拆字") and reset-frequency ("重置词频") gestures are now gated behind a long press (long press the candidate first, then drag up/down), so a plain up/down drag no longer triggers them and stays free for scrolling the expanded candidate window.
@@ -28,10 +29,15 @@ After consolidating the latest 20 commits, this round of updates mainly falls in
   - A customizable uppercase-key (caps) toggle was added: a persistent caps lock now uses Shift semantics instead of a physical CapsLock, so Rime no longer treats it as a mode switch and mis-commits the key, and the lock state survives keyboard rebuilds and layout switches.
   - MacroKey gains physical-direction (up/down) swipe macros that take priority over the display-direction alt-label swipe; the legacy single "swipe" field remains as a fallback with a transparent one-time migration on first edit, and the key editor splits "Swipe Event" into "Swipe Event (Up)" and "Swipe Event (Down)".
   - Symbol-key labels are mapped to ASCII equivalents (e.g. "。" → ".") through a mapping table in KeyDefPreset before reaching the engine, making the logic clearer and testable, and a non-ASCII custom symbol label tops up the candidate before commit.
+  - Punctuation swipe commit strategy can be configured independently; key widths support per-key overrides with legacy weight conversion, making non-uniform custom layouts easier to build.
+- Theme management and previews continue to improve:
+  - Theme previews support a horizontal theme-pool carousel, while the theme list can toggle pool membership directly and smart-collapse groups; duplicate cards and stale files left after deletion are cleaned up.
 - Settings, schema management, and localization fixes:
   - Opening Settings no longer grabs focus and pops up the keyboard: the search box is a placeholder that instantiates and focuses the SearchView only on tap, resets its query when the page stops, and highlights the target preference when scrolling to a result.
   - Rime schema management is now routed from the Android menu to the standalone schema-management implementation.
   - Locale resolution is fixed to derive the bare language code from languageWithCountry and to fall back zh_*_#Hans/Hant to zh_CN/TW.
+  - AI predictions now follow the same prediction-space behavior as native and Rime candidates: when AI or Rime suggestions are visible, the space key can commit the prediction or insert a normal space according to the active policy, without a separate AI-only commit preference.
+  - Clipboard category switching and search refresh are more stable, reducing stale results when changing categories or reopening the search overlay.
 
 ## Highlights
 
@@ -104,6 +110,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Keyboard height supports three-level overrides that cascade in order: profile < base layout < submode.
 - Opening the layout editor no longer switches the input method you are actually using (it reads the deployed Rime schema_list instead), and previewing a Rime layout uses the Rime engine's own identity, space-key label, and icon, with the preview background matching exactly one keyboard height.
 - The keyboard layout editor can move a complete row upward, and alternate characters for custom keys preserve their original text.
+- The layout manager shows the active “profile - input method - Rime schema” chain and can hide base layouts that have not been customized; groups with customized child layouts remain visible.
 - MacroKey supports configuring macros by physical swipe direction (up/down); the key editor splits "Swipe Event" into separate up and down entries and migrates legacy configuration automatically.
 - Toolbar and keyboard buttons can be configured to toggle the number keyboard.
 - Custom keyboard keys can show configurable uppercase hints, and modified keys are marked with a distinct editor border.
@@ -114,6 +121,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Toolbar buttons support both icon-font and drawable-based icon sources, making style unification easier.
 - Toolbar button icons can be customized with iconfont code points for a consistent icon-font style.
 - Toolbar previews support custom button icons and inline font sizes, with icons tinted according to the active theme.
+- Toolbar height can be configured independently, and the candidate bar wraps dynamically within the available space so narrow screens and larger fonts remain usable.
 - The main settings page supports search with cross-page navigation, automatic positioning, and highlighting of matched settings; opening the page no longer grabs focus and pops up the keyboard, since the search box activates only after tapping its placeholder.
 - Layout, key, font, and popup editors use state-aware save icons.
 - The input bar includes a more semantic hide-keyboard icon for better visual clarity.
@@ -134,11 +142,12 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Each mode can keep multiple themes for fast visual switching.
 - Theme editing provides explicit save, share, and import actions, while previews stay aligned with current keyboard behavior.
 - Theme import tolerates unknown fields in foreign fork theme JSON, so third-party themes import smoothly.
+- Theme previews support a horizontal theme-pool carousel; the theme list can toggle pool membership directly and smart-collapse groups, while duplicate cards and stale files left after deletion are cleaned up.
 
 ### 8. Preserving the Fcitx5 plugin architecture
 
 - The main app still loads additional input engines or feature plugins through the plugin mechanism.
-- Beyond the main app, this repository also includes plugins/components such as RIME, Anthy, UniKey, Thai, Hangul, Sayura, and Jyutping.
+- Beyond the main app, this repository also includes plugins/components such as RIME, Anthy, UniKey, Thai, Hangul, Chewing, Sayura, Jyutping, and clipboard filtering/synchronization.
 - Compatibility with external plugin installation and integration scenarios is preserved.
 
 ## Supported input methods
@@ -148,6 +157,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
   - Pinyin / Shuangpin / Wubi / Cangjie / custom tables
   - Zhuyin / Bopomofo
   - Jyutping
+  - Chewing
 - Vietnamese
 - Japanese
 - Korean
