@@ -67,7 +67,7 @@
     <string name="install_update">Install update</string>
     <string name="upgrade_latest">Upgrade latest</string>
     <string name="update_download_background">Background</string>
-    <string name="update_download_background_running">Updating in background...</string>
+    <string name="update_download_background_running">Updating in background…</string>
     <string name="update_mirror_accelerate">Mirror acceleration</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">You are already on the latest release</string>
@@ -362,9 +362,9 @@
     <string name="space_key_label_mode_default">Default</string>
     <string name="space_key_label_mode_compact_when_submode">Compact when submode is active</string>
     <string name="space_key_label_mode_submode_only">Submode only</string>
-    <string name="prediction_space_behavior" translatable="false">预测时空格键行为</string>
-    <string name="prediction_space_behavior_commit_space" translatable="false">上屏空格字符</string>
-    <string name="prediction_space_behavior_commit_prediction" translatable="false">提交首个预测项</string>
+    <string name="prediction_space_behavior">预测时空格键行为</string>
+    <string name="prediction_space_behavior_commit_space">上屏空格字符</string>
+    <string name="prediction_space_behavior_commit_prediction">提交首个预测项</string>
     <string name="prediction_backspace_behavior">Backspace behavior during prediction</string>
     <string name="prediction_backspace_behavior_delete_text">Delete text before cursor</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Dismiss candidates and show toolbar</string>
@@ -382,10 +382,10 @@
     <string name="delete_theme">Delete Theme</string>
     <string name="delete_theme_msg">Do you really want to delete theme \"%1$s\"?</string>
     <string name="capture_heap_dump">Capture heap dump</string>
-    <string name="llm_enable" translatable="false">启用 LLM 预测</string>
-    <string name="llm_enable_summary" translatable="false">使用 LLM 提供预测候选。</string>
-    <string name="llm_auto_predict" translatable="false">启用自动预测</string>
-    <string name="llm_auto_predict_summary" translatable="false">候选字词上屏后自动触发预测；关闭后仅可通过工具栏的 AI 候选按钮手动触发。</string>
+    <string name="llm_enable">启用 LLM 预测</string>
+    <string name="llm_enable_summary">使用 LLM 提供预测候选。</string>
+    <string name="llm_auto_predict">启用自动预测</string>
+    <string name="llm_auto_predict_summary">候选字词上屏后自动触发预测；关闭后仅可通过工具栏的 AI 候选按钮手动触发。</string>
     <string name="llm_local_model_status" translatable="false">本地模型状态</string>
     <string name="llm_local_model_not_configured" translatable="false">未配置本地模型</string>
     <string name="llm_local_model_source_imported" translatable="false">手动导入</string>
@@ -469,9 +469,9 @@
     <string name="ai_clip_error_invalid_response" translatable="false">模型服务返回了无效结果，请稍后重试</string>
     <string name="ai_clip_error_generic" translatable="false">模型预测失败，请稍后重试</string>
     <string name="ai_clip_error_next_endpoint" translatable="false">下次请求将切换到下一个已启用端点</string>
-    <string name="llm_provider" translatable="false">模型服务商</string>
-    <string name="llm_provider_local_ai" translatable="false">本地</string>
-    <string name="llm_provider_custom" translatable="false">自定义</string>
+    <string name="llm_provider">模型服务商</string>
+    <string name="llm_provider_local_ai">本地</string>
+    <string name="llm_provider_custom">自定义</string>
     <string name="llm_provider_openai" translatable="false">OpenAI</string>
     <string name="llm_provider_gemini" translatable="false">Google</string>
     <string name="llm_provider_anthropic" translatable="false">Anthropic</string>
@@ -499,9 +499,9 @@
     <string name="llm_model" translatable="false">模型名称</string>
     <string name="llm_model_status" translatable="false">模型名称与状态</string>
     <string name="llm_model_summary_hint" translatable="false">可手动填写，也可远程拉取后选择</string>
-    <string name="llm_model_status_remote_ready" translatable="false">状态：远端模型可用</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">状态：远端模型不可用</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">状态：未填写模型名称</string>
+    <string name="llm_model_status_remote_ready">状态：远端模型可用</string>
+    <string name="llm_model_status_remote_unavailable">状态：远端模型不可用</string>
+    <string name="llm_model_status_remote_missing_name">状态：未填写模型名称</string>
     <string name="llm_model_status_remote_summary" translatable="false">%1$s\n%2$s</string>
     <string name="llm_model_select" translatable="false">选择模型</string>
     <string name="llm_model_fetching" translatable="false">正在远程拉取模型列表…</string>
@@ -513,43 +513,43 @@
     <string name="llm_model_group_empty" translatable="false">空</string>
     <string name="llm_fetch_models" translatable="false">拉取模型列表</string>
     <string name="llm_api_key" translatable="false">API 密钥</string>
-    <string name="llm_api_key_set" translatable="false">已配置，%1$s</string>
+    <string name="llm_api_key_set">已配置，%1$s</string>
     <string name="llm_test_connectivity" translatable="false">连通性检测</string>
     <string name="llm_connectivity_checking" translatable="false">正在检测服务连通性…</string>
     <string name="llm_connectivity_success" translatable="false">连接成功，发现 %1$d 个模型。\n%2$s</string>
     <string name="llm_connectivity_failed" translatable="false">连通性检测失败：%1$s</string>
     <string name="llm_debounce_ms" translatable="false">请求防抖 (ms)</string>
-    <string name="llm_sample_count" translatable="false">采样次数</string>
+    <string name="llm_sample_count">采样次数</string>
     <string name="llm_max_prediction_candidates" translatable="false">最多预测候选数</string>
     <string name="llm_prediction_display_mode">预测项显示方式</string>
     <string name="llm_prediction_display_mode_floating_window">悬浮窗</string>
     <string name="llm_prediction_display_mode_candidate_bar_overlay">候选栏(覆盖)</string>
     <string name="llm_prediction_display_mode_candidate_expanded">候选展开区</string>
-    <string name="llm_max_output_tokens" translatable="false">最大输出词元数</string>
-    <string name="llm_max_output_tokens_summary" translatable="false">%1$d。该参数会随请求发送给 LLM，可理解为本次回答的大致长度：数值越大，通常能生成更长内容，但不是最终显示字数的硬性上限。</string>
-    <string name="llm_max_context_chars" translatable="false">最大上下文字数</string>
-    <string name="llm_settings_title" translatable="false">智能预测</string>
-    <string name="llm_advanced" translatable="false">高级</string>
-    <string name="llm_advanced_summary" translatable="false">配置空格提交预测、人设与口吻，以及采样与上下文等高级参数。</string>
-    <string name="llm_persona_style" translatable="false">人设与口吻</string>
-    <string name="llm_sample_count_summary" translatable="false">当前为 %1$d 次。数值越大，系统会多试几种说法，再挑更合适的结果。</string>
-    <string name="llm_max_context_chars_summary" translatable="false">当前为 %1$d 字。数值越大，系统参考的前文越多，但响应可能稍慢一点。</string>
-    <string name="llm_custom_persona" translatable="false">默认人设</string>
-    <string name="llm_custom_persona_summary" translatable="false">你可以更详细地描述你想设定的人设与口吻。</string>
-    <string name="llm_persona_custom_short" translatable="false">默认人设</string>
-    <string name="llm_persona_custom_summary" translatable="false">默认人设，不预设任何描述。</string>
-    <string name="llm_persona_social_star" translatable="false">社交达人</string>
-    <string name="llm_persona_social_star_description" translatable="false">情商在线，幽默风趣的社交达人</string>
-    <string name="llm_persona_workplace_elite" translatable="false">职场精英</string>
-    <string name="llm_persona_workplace_elite_description" translatable="false">大厂满嘴职场话术的产品经理</string>
-    <string name="llm_social_star_persona" translatable="false">社交达人人设</string>
-    <string name="llm_workplace_elite_persona" translatable="false">职场精英人设</string>
-    <string name="llm_persona_suffix" translatable="false">人设</string>
-    <string name="llm_persona_add" translatable="false">新增人设</string>
-    <string name="llm_persona_name_hint" translatable="false">输入新的人设名称</string>
-    <string name="llm_persona_custom_name_description" translatable="false">%1$s。在下方还可以补充更详细的人设描述。</string>
-    <string name="llm_persona_current_label" translatable="false">当前已选</string>
-    <string name="llm_persona_delete_confirm" translatable="false">删除人设“%1$s”？</string>
+    <string name="llm_max_output_tokens">最大输出词元数</string>
+    <string name="llm_max_output_tokens_summary">%1$d。该参数会随请求发送给 LLM，可理解为本次回答的大致长度：数值越大，通常能生成更长内容，但不是最终显示字数的硬性上限。</string>
+    <string name="llm_max_context_chars">最大上下文字数</string>
+    <string name="llm_settings_title">智能预测</string>
+    <string name="llm_advanced">高级</string>
+    <string name="llm_advanced_summary">配置人设与口吻，以及采样与上下文等高级参数。</string>
+    <string name="llm_persona_style">人设与口吻</string>
+    <string name="llm_sample_count_summary">当前为 %1$d 次。数值越大，系统会多试几种说法，再挑更合适的结果。</string>
+    <string name="llm_max_context_chars_summary">当前为 %1$d 字。数值越大，系统参考的前文越多，但响应可能稍慢一点。</string>
+    <string name="llm_custom_persona">默认人设</string>
+    <string name="llm_custom_persona_summary">你可以更详细地描述你想设定的人设与口吻。</string>
+    <string name="llm_persona_custom_short">默认人设</string>
+    <string name="llm_persona_custom_summary">默认人设，不预设任何描述。</string>
+    <string name="llm_persona_social_star">社交达人</string>
+    <string name="llm_persona_social_star_description">情商在线，幽默风趣的社交达人</string>
+    <string name="llm_persona_workplace_elite">职场精英</string>
+    <string name="llm_persona_workplace_elite_description">大厂满嘴职场话术的产品经理</string>
+    <string name="llm_social_star_persona">社交达人人设</string>
+    <string name="llm_workplace_elite_persona">职场精英人设</string>
+    <string name="llm_persona_suffix">人设</string>
+    <string name="llm_persona_add">新增人设</string>
+    <string name="llm_persona_name_hint">输入新的人设名称</string>
+    <string name="llm_persona_custom_name_description">%1$s。在下方还可以补充更详细的人设描述。</string>
+    <string name="llm_persona_current_label">当前已选</string>
+    <string name="llm_persona_delete_confirm">删除人设“%1$s”？</string>
     <string name="plugins">Plugins</string>
     <string name="manage_plugins">Manage Plugins</string>
     <string name="manage_plugins_hint">Select one or more plugins, then choose a management action below.</string>
@@ -760,7 +760,7 @@
     <string name="tokenized_clipboard_copied">Copied selected tokens</string>
     <string name="tokenized_clipboard_empty_selection">Select one or more tokens first</string>
     <string name="tokenized_clipboard_empty_state">No tokens available</string>
-    <string name="tokenized_clipboard_loading">Processing...</string>
+    <string name="tokenized_clipboard_loading">Processing…</string>
     <string name="split_words">Split words</string>
     <string name="default_emoji_skin_tone">Default emoji skin tone modifier</string>
     <string name="emoji_skin_tone_none">No modifier</string>
@@ -1064,8 +1064,8 @@
     <string name="background_blur_radius">Background Blur Radius</string>
     <string name="no_blur">No Blur</string>
     <string name="edit_text_playground">EditText Playground</string>
-    <string name="voice_status_connecting">Connecting...</string>
-    <string name="voice_status_loading">Loading...</string>
+    <string name="voice_status_connecting">Connecting…</string>
+    <string name="voice_status_loading">Loading…</string>
     <string name="voice_error_no_permission">RECORD_AUDIO permission not granted</string>
     <string name="voice_error_failed">Voice input failed</string>
     <string name="voice_error_invalid_provider">Invalid voice input provider</string>

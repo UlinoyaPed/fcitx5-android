@@ -74,14 +74,14 @@
     <string name="theme">Tema</string>
     <string name="brightness">Brillo</string>
     <string name="configure">Configurar</string>
-    <string name="choose_image">Elegir imagen...</string>
+    <string name="choose_image">Elegir imagen…</string>
     <string name="add_background_image">Agregar imagen de fondo…</string>
     <string name="change_background_image">Cambiar imagen de fondo…</string>
     <string name="clear_background_image">Quitar imagen de fondo</string>
     <string name="dark_keys">Teclas oscuras</string>
     <string name="punctuation_position">Posición de puntuación</string>
     <string name="disable_animation">Desactivar animación</string>
-    <string name="import_from_file">Importar desde archivo...</string>
+    <string name="import_from_file">Importar desde archivo…</string>
     <string name="light_mode_theme">Tema en modo claro</string>
     <string name="light_mode_theme_summary">Seleccionar varios temas y alternar entre ellos</string>
     <string name="dark_mode_theme">Tema en modo oscuro</string>
@@ -120,9 +120,9 @@
     <string name="delete_all_pinned_items">¿Quiere eliminar todos los elementos anclados?</string>
     <string name="table_file_does_not_exist_title">Tabla no disponible</string>
     <string name="import_table">Importar tabla</string>
-    <string name="table_from_zip">Desde ZIP...</string>
-    <string name="table_select_files">Desde archivos separados...</string>
-    <string name="table_file_placeholder">Seleccionar archivo...</string>
+    <string name="table_from_zip">Desde ZIP…</string>
+    <string name="table_select_files">Desde archivos separados…</string>
+    <string name="table_file_placeholder">Seleccionar archivo…</string>
     <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
     <string name="space_behavior_none">Ninguno</string>
     <string name="space_behavior_enumerate">Enumerar métodos de entrada</string>
@@ -804,7 +804,7 @@
     <string name="tokenized_clipboard_send">Enviar</string>
     <string name="tokenized_clipboard_empty_selection">Seleccione primero uno o más tokens</string>
     <string name="tokenized_clipboard_empty_state">Sin tokens disponibles</string>
-    <string name="tokenized_clipboard_loading">Procesando...</string>
+    <string name="tokenized_clipboard_loading">Procesando…</string>
     <string name="tokenized_clipboard_copied">Tokens seleccionados copiados</string>
     <string name="clipboard_limit_local">Límite del historial local</string>
     <string name="clipboard_limit_remote">Límite del historial de otros dispositivos</string>
@@ -814,7 +814,7 @@
     <string name="install_update">Instalar actualización</string>
     <string name="upgrade_latest">Actualizar a la última</string>
     <string name="update_download_background">Segundo plano</string>
-    <string name="update_download_background_running">Actualizando en segundo plano...</string>
+    <string name="update_download_background_running">Actualizando en segundo plano…</string>
     <string name="update_mirror_accelerate">Acelerar con espejo</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">Ya tiene la última versión estable</string>
@@ -887,7 +887,7 @@
     <string name="llm_max_context_chars">Máximo de caracteres de contexto</string>
     <string name="llm_settings_title">Predicción inteligente</string>
     <string name="llm_advanced">Avanzado</string>
-    <string name="llm_advanced_summary">Configura confirmar predicciones con espacio, la persona y el tono, además de parámetros avanzados como muestreo y contexto.</string>
+    <string name="llm_advanced_summary">Configura la persona y el tono, además de parámetros avanzados como muestreo y contexto.</string>
     <string name="llm_persona_style">Persona y tono</string>
     <string name="llm_sample_count_summary">Actualmente es %1$d. Cuanto mayor sea el valor, más formas de decirlo probará el sistema antes de elegir el resultado más adecuado.</string>
     <string name="llm_max_context_chars_summary">Actualmente es %1$d caracteres. Cuanto mayor sea el valor, más contexto anterior tendrá en cuenta el sistema, aunque la respuesta puede tardar un poco más.</string>
@@ -925,19 +925,19 @@
     <string name="share_receive_invalid_path">Ruta de destino no válida.</string>
     <string name="share_receive_file_imported">Archivo importado: %1$s</string>
     <string name="share_receive_files_imported">Se importaron %1$d archivos.</string>
-    <string name="llm_model_status_remote_ready" translatable="false">Estado: modelo remoto disponible</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">Estado: modelo remoto no disponible</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">Estado: nombre del modelo sin completar</string>
-    <string name="llm_api_key_set" translatable="false">Configurado, %1$s</string>
+    <string name="llm_model_status_remote_ready">Estado: modelo remoto disponible</string>
+    <string name="llm_model_status_remote_unavailable">Estado: modelo remoto no disponible</string>
+    <string name="llm_model_status_remote_missing_name">Estado: nombre del modelo sin completar</string>
+    <string name="llm_api_key_set">Configurado, %1$s</string>
     <string name="preedit_style">Estilo del área de composición</string>
     <string name="preedit_style_default">Predeterminado</string>
     <string name="preedit_style_inline_candidate_bar">Barra de candidatos integrada</string>
     <string name="settings_search_hint">Buscar ajustes</string>
     <string name="settings_search_results">Resultados de búsqueda</string>
     <string name="settings_search_no_results">No hay ajustes coincidentes</string>
-    <string name="settings_search_loading_fcitx">Cargando ajustes de Fcitx...</string>
-    <string name="voice_status_connecting">Conectando...</string>
-    <string name="voice_status_loading">Cargando...</string>
+    <string name="settings_search_loading_fcitx">Cargando ajustes de Fcitx…</string>
+    <string name="voice_status_connecting">Conectando…</string>
+    <string name="voice_status_loading">Cargando…</string>
     <string name="voice_error_no_permission">Permiso RECORD_AUDIO no concedido</string>
     <string name="voice_error_failed">Falló la entrada de voz</string>
     <string name="voice_error_invalid_provider">Proveedor de entrada de voz no válido</string>
@@ -955,4 +955,8 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">Expandido</string>
     <string name="theme_category_collapsed">Contraído</string>
+
+    <string name="theme_preview_previous">Tema anterior</string>
+    <string name="theme_preview_next">Tema siguiente</string>
+    <string name="theme_preview_in_use">En uso</string>
 </resources>

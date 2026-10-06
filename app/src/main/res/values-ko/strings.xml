@@ -802,7 +802,7 @@
     <string name="tokenized_clipboard_send">전송</string>
     <string name="tokenized_clipboard_empty_selection">먼저 하나 이상의 토큰을 선택하세요</string>
     <string name="tokenized_clipboard_empty_state">사용 가능한 토큰이 없습니다</string>
-    <string name="tokenized_clipboard_loading">처리 중...</string>
+    <string name="tokenized_clipboard_loading">처리 중…</string>
     <string name="tokenized_clipboard_copied">선택한 토큰이 복사되었습니다</string>
     <string name="clipboard_limit_local">로컬 기록 제한</string>
     <string name="clipboard_limit_remote">다른 기기 기록 제한</string>
@@ -812,7 +812,7 @@
     <string name="install_update">업데이트 설치</string>
     <string name="upgrade_latest">최신 버전으로 업그레이드</string>
     <string name="update_download_background">백그라운드</string>
-    <string name="update_download_background_running">백그라운드에서 업데이트 중...</string>
+    <string name="update_download_background_running">백그라운드에서 업데이트 중…</string>
     <string name="update_mirror_accelerate">미러 가속</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">현재 최신 안정 버전입니다</string>
@@ -887,7 +887,7 @@
     <string name="llm_max_context_chars">최대 문맥 글자 수</string>
     <string name="llm_settings_title">스마트 예측</string>
     <string name="llm_advanced">고급</string>
-    <string name="llm_advanced_summary">스페이스로 예측 확정, 페르소나와 말투, 샘플링과 문맥 등의 고급 매개변수를 설정합니다.</string>
+    <string name="llm_advanced_summary">페르소나와 말투, 샘플링과 문맥 등의 고급 매개변수를 설정합니다.</string>
     <string name="llm_persona_style">페르소나와 말투</string>
     <string name="llm_sample_count_summary">현재 %1$d회입니다. 값이 클수록 시스템이 더 다양한 표현을 시도한 뒤 더 적절한 결과를 고릅니다.</string>
     <string name="llm_max_context_chars_summary">현재 %1$d자입니다. 값이 클수록 더 많은 앞문맥을 참고하지만 응답은 조금 느려질 수 있습니다.</string>
@@ -925,19 +925,19 @@
     <string name="share_receive_invalid_path">대상 경로가 올바르지 않습니다.</string>
     <string name="share_receive_file_imported">파일을 가져왔습니다: %1$s</string>
     <string name="share_receive_files_imported">파일 %1$d개를 가져왔습니다.</string>
-    <string name="llm_model_status_remote_ready" translatable="false">상태: 원격 모델 사용 가능</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">상태: 원격 모델 사용 불가</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">상태: 모델 이름 미입력</string>
-    <string name="llm_api_key_set" translatable="false">구성됨, %1$s</string>
+    <string name="llm_model_status_remote_ready">상태: 원격 모델 사용 가능</string>
+    <string name="llm_model_status_remote_unavailable">상태: 원격 모델 사용 불가</string>
+    <string name="llm_model_status_remote_missing_name">상태: 모델 이름 미입력</string>
+    <string name="llm_api_key_set">구성됨, %1$s</string>
     <string name="preedit_style">조합 영역 스타일</string>
     <string name="preedit_style_default">기본값</string>
     <string name="preedit_style_inline_candidate_bar">인라인 후보 표시줄</string>
     <string name="settings_search_hint">설정 검색</string>
     <string name="settings_search_results">검색 결과</string>
     <string name="settings_search_no_results">일치하는 설정이 없습니다</string>
-    <string name="settings_search_loading_fcitx">Fcitx 설정을 불러오는 중...</string>
-    <string name="voice_status_connecting">연결 중...</string>
-    <string name="voice_status_loading">불러오는 중...</string>
+    <string name="settings_search_loading_fcitx">Fcitx 설정을 불러오는 중…</string>
+    <string name="voice_status_connecting">연결 중…</string>
+    <string name="voice_status_loading">불러오는 중…</string>
     <string name="voice_error_no_permission">RECORD_AUDIO 권한이 부여되지 않았습니다</string>
     <string name="voice_error_failed">음성 입력에 실패했습니다</string>
     <string name="voice_error_invalid_provider">잘못된 음성 입력 제공자입니다</string>
@@ -955,4 +955,8 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">펼쳐짐</string>
     <string name="theme_category_collapsed">접힘</string>
+
+    <string name="theme_preview_previous">이전 테마</string>
+    <string name="theme_preview_next">다음 테마</string>
+    <string name="theme_preview_in_use">사용 중</string>
 </resources>

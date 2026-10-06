@@ -116,7 +116,7 @@
     <string name="navbar_radius">Eckenradius der Werkzeugleiste</string>
     <string name="key_horizontal_margin">Horizontaler Tastenrand</string>
     <string name="key_vertical_margin">Vertikaler Tastenrand</string>
-    <string name="choose_image">Bild wählen ...</string>
+    <string name="choose_image">Bild wählen …</string>
     <string name="add_background_image">Hintergrundbild hinzufügen…</string>
     <string name="change_background_image">Hintergrundbild ändern…</string>
     <string name="clear_background_image">Hintergrundbild entfernen</string>
@@ -124,7 +124,7 @@
     <string name="recrop_image">Bild neu zuschneiden</string>
     <string name="punctuation_pos_top_right">Oben rechts</string>
     <string name="disable_animation">Animation deaktivieren</string>
-    <string name="import_from_file">Aus Dataei importieren ...</string>
+    <string name="import_from_file">Aus Dataei importieren …</string>
     <string name="exception_theme_json">Kann json-Thema nicht finden</string>
     <string name="exception_theme_json_requires_zip">Dieses Theme verweist auf Hintergrundbilder, die eine einzelne JSON-Datei nicht enthalten kann; exportiere das Theme als ZIP und importiere stattdessen die ZIP-Datei</string>
     <string name="add_to_theme_pool">Zum Themenpool hinzufügen</string>
@@ -170,9 +170,9 @@
     <string name="table_already_exists">Konfigurationsdatei der Tabelleneingabemethode \"%1$s\" existiert schon</string>
     <string name="table_file_does_not_exist_title">Tabelle nicht auffindbar</string>
     <string name="import_table">Tabelle importieren</string>
-    <string name="table_from_zip">Aus ZIP-Datei...</string>
-    <string name="table_select_files">Aus getrennten Dateien ...</string>
-    <string name="table_file_placeholder">Datei auswählen ...</string>
+    <string name="table_from_zip">Aus ZIP-Datei…</string>
+    <string name="table_select_files">Aus getrennten Dateien …</string>
+    <string name="table_file_placeholder">Datei auswählen …</string>
     <string name="table_conf_select_title">Konfigurationsdatei (.conf oder .conf.in) der Eingabemethode</string>
     <string name="table_dict_select_title">Wörterbuch Tabelle (.dict oder .txt)</string>
     <string name="exception_table_dict_filename">Die Erweiterung von \"%1$s\" weist nicht auf ein Wörterbuch hin (.dict oder .txt)</string>
@@ -646,7 +646,7 @@
     <string name="exception_theme_src_image">Originalbild des Theme-Hintergrunds konnte nicht gespeichert werden</string>
     <string name="exception_user_data_filename">Datei %1$s hat keine fcitx5-android-Benutzerdaten-Erweiterung</string>
     <string name="exception_user_data_metadata">Metadaten der Benutzerdaten nicht gefunden</string>
-    <string name="exception_user_data_package_name_mismatch">Benutzerdaten passen nicht zu dieser App</string>
+    <string name="exception_user_data_package_name_mismatch">Benutzerdaten passen nicht zu dieser App (gefundenes Paket: %1$s)</string>
     <string name="expand_candidates_list">Kandidatenliste erweitern</string>
     <string name="expand_keypress_area">Tastenbereich bis an den Rand erweitern</string>
     <string name="expanded_candidate_grid_span_count">Spaltenanzahl bei erweiterter Kandidaten-Rasteransicht</string>
@@ -801,7 +801,7 @@
     <string name="tokenized_clipboard_copied">Ausgewählte Tokens kopiert</string>
     <string name="tokenized_clipboard_empty_selection">Wählen Sie zuerst ein oder mehrere Tokens aus</string>
     <string name="tokenized_clipboard_empty_state">Keine Tokens verfügbar</string>
-    <string name="tokenized_clipboard_loading">Wird verarbeitet...</string>
+    <string name="tokenized_clipboard_loading">Wird verarbeitet…</string>
     <string name="clipboard_limit_local">Lokales Verlaufslimit der Zwischenablage</string>
     <string name="clipboard_limit_remote">Verlaufslimit anderer Geräte</string>
     <string name="clipboard_limit_media">Verlaufslimit für Bilder und Dateien</string>
@@ -810,7 +810,7 @@
     <string name="install_update">Update installieren</string>
     <string name="upgrade_latest">Auf neueste Version aktualisieren</string>
     <string name="update_download_background">Hintergrund</string>
-    <string name="update_download_background_running">Update läuft im Hintergrund...</string>
+    <string name="update_download_background_running">Update läuft im Hintergrund…</string>
     <string name="update_mirror_accelerate">Spiegelserver nutzen</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">Sie verwenden bereits die neueste stabile Version</string>
@@ -883,7 +883,7 @@
     <string name="llm_max_context_chars">Maximale Kontextzeichen</string>
     <string name="llm_settings_title">Intelligente Vorhersage</string>
     <string name="llm_advanced">Erweitert</string>
-    <string name="llm_advanced_summary">Konfiguriert das Bestätigen per Leertaste, Persona und Tonfall sowie erweiterte Parameter wie Sampling und Kontext.</string>
+    <string name="llm_advanced_summary">Konfiguriert Persona und Tonfall sowie erweiterte Parameter wie Sampling und Kontext.</string>
     <string name="llm_persona_style">Persona und Tonfall</string>
     <string name="llm_sample_count_summary">Aktuell %1$d. Je höher der Wert, desto mehr Formulierungen probiert das System aus und wählt dann das passendere Ergebnis.</string>
     <string name="llm_max_context_chars_summary">Aktuell %1$d Zeichen. Je höher der Wert, desto mehr vorheriger Kontext wird berücksichtigt, aber die Antwort kann etwas langsamer werden.</string>
@@ -921,19 +921,19 @@
     <string name="share_receive_invalid_path">Ungültiger Zielpfad.</string>
     <string name="share_receive_file_imported">Datei importiert: %1$s</string>
     <string name="share_receive_files_imported">%1$d Dateien importiert.</string>
-    <string name="llm_model_status_remote_ready" translatable="false">Status: Remote-Modell verfügbar</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">Status: Remote-Modell nicht verfügbar</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">Status: Modellname nicht ausgefüllt</string>
-    <string name="llm_api_key_set" translatable="false">Konfiguriert, %1$s</string>
+    <string name="llm_model_status_remote_ready">Status: Remote-Modell verfügbar</string>
+    <string name="llm_model_status_remote_unavailable">Status: Remote-Modell nicht verfügbar</string>
+    <string name="llm_model_status_remote_missing_name">Status: Modellname nicht ausgefüllt</string>
+    <string name="llm_api_key_set">Konfiguriert, %1$s</string>
     <string name="preedit_style">Stil des Eingabebereichs</string>
     <string name="preedit_style_default">Standard</string>
     <string name="preedit_style_inline_candidate_bar">Inline-Kandidatenleiste</string>
     <string name="settings_search_hint">Einstellungen durchsuchen</string>
     <string name="settings_search_results">Suchergebnisse</string>
     <string name="settings_search_no_results">Keine passenden Einstellungen</string>
-    <string name="settings_search_loading_fcitx">Fcitx-Einstellungen werden geladen...</string>
-    <string name="voice_status_connecting">Verbindung wird hergestellt...</string>
-    <string name="voice_status_loading">Wird geladen...</string>
+    <string name="settings_search_loading_fcitx">Fcitx-Einstellungen werden geladen…</string>
+    <string name="voice_status_connecting">Verbindung wird hergestellt…</string>
+    <string name="voice_status_loading">Wird geladen…</string>
     <string name="voice_error_no_permission">Berechtigung RECORD_AUDIO nicht erteilt</string>
     <string name="voice_error_failed">Spracheingabe fehlgeschlagen</string>
     <string name="voice_error_invalid_provider">Ungültiger Spracheingabeanbieter</string>
@@ -951,4 +951,8 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">Ausgeklappt</string>
     <string name="theme_category_collapsed">Eingeklappt</string>
+
+    <string name="theme_preview_previous">Vorheriges Design</string>
+    <string name="theme_preview_next">Nächstes Design</string>
+    <string name="theme_preview_in_use">Wird verwendet</string>
 </resources>

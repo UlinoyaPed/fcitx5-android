@@ -479,7 +479,7 @@
     <string name="import_user_data">导入用户数据</string>
     <string name="exception_user_data_filename">文件 %1$s 的拓展名不是 fcitx5-android 用户数据</string>
     <string name="exception_user_data_metadata">找不到用户数据的元数据</string>
-    <string name="exception_user_data_package_name_mismatch">用户数据与当前应用不匹配</string>
+    <string name="exception_user_data_package_name_mismatch">用户数据与当前应用不匹配（找到的包名：%1$s）</string>
     <string name="user_data_imported">已导入来自 %1$s 的用户数据，正在重启…</string>
     <string name="confirm_import_user_data">导入用户数据会覆盖本地设置与输入历史，并且在重启应用后才能生效。继续吗？</string>
     <string name="restart_channel">应用重启</string>
@@ -583,7 +583,7 @@
     <string name="tokenized_clipboard_copied">已复制选中的词块</string>
     <string name="tokenized_clipboard_empty_selection">请先选择一个或多个词块</string>
     <string name="tokenized_clipboard_empty_state">没有可用的词块</string>
-    <string name="tokenized_clipboard_loading">处理中...</string>
+    <string name="tokenized_clipboard_loading">处理中…</string>
     <string name="split_words">拆词</string>
     <string name="default_emoji_skin_tone">默认表情肤色</string>
     <string name="emoji_skin_tone_none">无</string>
@@ -902,12 +902,12 @@
     <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
     <string name="text_keyboard_layout_compose_override_editor_title">编辑合成中按键</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">独立按键颜色</string>
-    <string name="llm_model_status_remote_ready" translatable="false">状态：远端模型可用</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">状态：远端模型不可用</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">状态：未填写模型名称</string>
-    <string name="llm_api_key_set" translatable="false">已配置，%1$s</string>
-    <string name="voice_status_connecting">正在连接...</string>
-    <string name="voice_status_loading">正在加载...</string>
+    <string name="llm_model_status_remote_ready">状态：远端模型可用</string>
+    <string name="llm_model_status_remote_unavailable">状态：远端模型不可用</string>
+    <string name="llm_model_status_remote_missing_name">状态：未填写模型名称</string>
+    <string name="llm_api_key_set">已配置，%1$s</string>
+    <string name="voice_status_connecting">正在连接…</string>
+    <string name="voice_status_loading">正在加载…</string>
     <string name="voice_error_no_permission">未授予 RECORD_AUDIO 权限</string>
     <string name="voice_error_failed">语音输入失败</string>
     <string name="voice_error_invalid_provider">无效的语音输入提供方</string>
@@ -925,4 +925,38 @@
     <string name="theme_category_title">%1$s（%2$d）</string>
     <string name="theme_category_expanded">已展开</string>
     <string name="theme_category_collapsed">已折叠</string>
+
+    <string name="llm_enable">启用 LLM 预测</string>
+    <string name="llm_enable_summary">使用 LLM 提供预测候选。</string>
+    <string name="llm_auto_predict">启用自动预测</string>
+    <string name="llm_auto_predict_summary">候选字词上屏后自动触发预测；关闭后仅可通过工具栏的 AI 候选按钮手动触发。</string>
+    <string name="llm_provider">模型服务商</string>
+    <string name="llm_provider_local_ai">本地</string>
+    <string name="llm_provider_custom">自定义</string>
+    <string name="llm_sample_count">采样次数</string>
+    <string name="llm_max_output_tokens">最大输出词元数</string>
+    <string name="llm_max_output_tokens_summary">%1$d。该参数会随请求发送给 LLM，可理解为本次回答的大致长度：数值越大，通常能生成更长内容，但不是最终显示字数的硬性上限。</string>
+    <string name="llm_max_context_chars">最大上下文字数</string>
+    <string name="llm_settings_title">智能预测</string>
+    <string name="llm_advanced">高级</string>
+    <string name="llm_advanced_summary">配置人设与口吻，以及采样与上下文等高级参数。</string>
+    <string name="llm_persona_style">人设与口吻</string>
+    <string name="llm_sample_count_summary">当前为 %1$d 次。数值越大，系统会多试几种说法，再挑更合适的结果。</string>
+    <string name="llm_max_context_chars_summary">当前为 %1$d 字。数值越大，系统参考的前文越多，但响应可能稍慢一点。</string>
+    <string name="llm_custom_persona">默认人设</string>
+    <string name="llm_custom_persona_summary">你可以更详细地描述你想设定的人设与口吻。</string>
+    <string name="llm_persona_custom_short">默认人设</string>
+    <string name="llm_persona_custom_summary">默认人设，不预设任何描述。</string>
+    <string name="llm_persona_social_star">社交达人</string>
+    <string name="llm_persona_social_star_description">情商在线，幽默风趣的社交达人</string>
+    <string name="llm_persona_workplace_elite">职场精英</string>
+    <string name="llm_persona_workplace_elite_description">大厂满嘴职场话术的产品经理</string>
+    <string name="llm_social_star_persona">社交达人人设</string>
+    <string name="llm_workplace_elite_persona">职场精英人设</string>
+    <string name="llm_persona_suffix">人设</string>
+    <string name="llm_persona_add">新增人设</string>
+    <string name="llm_persona_name_hint">输入新的人设名称</string>
+    <string name="llm_persona_custom_name_description">%1$s。在下方还可以补充更详细的人设描述。</string>
+    <string name="llm_persona_current_label">当前已选</string>
+    <string name="llm_persona_delete_confirm">删除人设“%1$s”？</string>
 </resources>

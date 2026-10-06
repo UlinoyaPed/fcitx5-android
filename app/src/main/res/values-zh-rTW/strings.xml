@@ -384,7 +384,7 @@
     <string name="import_user_data">匯入使用者資料</string>
     <string name="exception_user_data_filename">%1$s 副檔名並不是 fcitx5-android 使用者資料</string>
     <string name="exception_user_data_metadata">無法找到使用者資料的中繼資料</string>
-    <string name="exception_user_data_package_name_mismatch">使用者資料與目前應用程式不符合</string>
+    <string name="exception_user_data_package_name_mismatch">使用者資料與目前應用程式不符合（找到的套件：%1$s）</string>
     <string name="user_data_imported">已匯入來自 %1$s 的使用者資料，正在重新啟動</string>
     <string name="confirm_import_user_data">匯入使用者資料將會覆寫本機設定與輸入歷史，並且需要重新啟動來使變動生效。是否繼續？</string>
     <string name="restart_channel">重新啟動應用程式</string>
@@ -488,7 +488,7 @@
     <string name="tokenized_clipboard_copied">已複製所選權杖</string>
     <string name="tokenized_clipboard_empty_selection">先選擇一個或多個權杖</string>
     <string name="tokenized_clipboard_empty_state">沒有可用的權杖</string>
-    <string name="tokenized_clipboard_loading">處理中...</string>
+    <string name="tokenized_clipboard_loading">處理中…</string>
     <string name="emoji_and_symbols">表情和符號</string>
     <string name="default_emoji_skin_tone">默認表情膚色修改</string>
     <string name="emoji_skin_tone_none">不修改</string>
@@ -909,7 +909,7 @@
     <string name="llm_max_context_chars">最大上下文字數</string>
     <string name="llm_settings_title">智慧預測</string>
     <string name="llm_advanced">進階</string>
-    <string name="llm_advanced_summary">設定空格提交預測、人設與口吻，以及採樣與上下文等進階參數。</string>
+    <string name="llm_advanced_summary">設定人設與口吻，以及採樣與上下文等進階參數。</string>
     <string name="llm_persona_style">人設與口吻</string>
     <string name="llm_sample_count_summary">目前為 %1$d 次。數值越大，系統會多嘗試幾種說法，再挑選更合適的結果。</string>
     <string name="llm_max_context_chars_summary">目前為 %1$d 字。數值越大，系統參考的前文越多，但回應可能會稍慢一些。</string>
@@ -929,12 +929,12 @@
     <string name="llm_persona_custom_name_description">%1$s。下方還可以補充更詳細的人設描述。</string>
     <string name="llm_persona_current_label">目前已選</string>
     <string name="llm_persona_delete_confirm">刪除人設「%1$s」？</string>
-    <string name="llm_model_status_remote_ready" translatable="false">狀態：遠端模型可用</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">狀態：遠端模型不可用</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">狀態：未填寫模型名稱</string>
-    <string name="llm_api_key_set" translatable="false">已配置，%1$s</string>
-    <string name="voice_status_connecting">正在連線...</string>
-    <string name="voice_status_loading">正在載入...</string>
+    <string name="llm_model_status_remote_ready">狀態：遠端模型可用</string>
+    <string name="llm_model_status_remote_unavailable">狀態：遠端模型不可用</string>
+    <string name="llm_model_status_remote_missing_name">狀態：未填寫模型名稱</string>
+    <string name="llm_api_key_set">已配置，%1$s</string>
+    <string name="voice_status_connecting">正在連線…</string>
+    <string name="voice_status_loading">正在載入…</string>
     <string name="voice_error_no_permission">未授予 RECORD_AUDIO 權限</string>
     <string name="voice_error_failed">語音輸入失敗</string>
     <string name="voice_error_invalid_provider">無效的語音輸入提供者</string>

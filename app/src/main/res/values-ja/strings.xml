@@ -303,7 +303,7 @@
     <string name="import_user_data">ユーザーデータをインポートする</string>
     <string name="exception_user_data_filename">%1$s のファイル拡張子はfcitx5-androidのユーザーデータを示していません</string>
     <string name="exception_user_data_metadata">ユーザーデータのメタデータが見つかりません</string>
-    <string name="exception_user_data_package_name_mismatch">ユーザーデータが現在のアプリに適合しません</string>
+    <string name="exception_user_data_package_name_mismatch">ユーザーデータが現在のアプリに適合しません（検出されたパッケージ: %1$s）</string>
     <string name="user_data_imported">%1$s のユーザーデータをインポートしました。再起動します…</string>
     <string name="restart_channel">アプリの再起動</string>
     <string name="restart_notify_msg">アプリが再起動されました。ここをクリックして開きます</string>
@@ -802,7 +802,7 @@
     <string name="tokenized_clipboard_send">送信</string>
     <string name="tokenized_clipboard_empty_selection">まず1つ以上のトークンを選択してください</string>
     <string name="tokenized_clipboard_empty_state">利用可能なトークンはありません</string>
-    <string name="tokenized_clipboard_loading">処理中...</string>
+    <string name="tokenized_clipboard_loading">処理中…</string>
     <string name="tokenized_clipboard_copied">選択したトークンをコピーしました</string>
     <string name="clipboard_limit_local">ローカル履歴の上限</string>
     <string name="clipboard_limit_remote">他のデバイスの履歴上限</string>
@@ -812,7 +812,7 @@
     <string name="install_update">更新をインストール</string>
     <string name="upgrade_latest">最新版へ更新</string>
     <string name="update_download_background">バックグラウンド</string>
-    <string name="update_download_background_running">バックグラウンドで更新中...</string>
+    <string name="update_download_background_running">バックグラウンドで更新中…</string>
     <string name="update_mirror_accelerate">ミラーで高速化</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">現在、最新の安定版です</string>
@@ -885,7 +885,7 @@
     <string name="llm_max_context_chars">最大コンテキスト文字数</string>
     <string name="llm_settings_title">スマート予測</string>
     <string name="llm_advanced">詳細設定</string>
-    <string name="llm_advanced_summary">スペースでの予測確定、ペルソナと口調、サンプリングやコンテキストなどの詳細パラメータを設定します。</string>
+    <string name="llm_advanced_summary">ペルソナと口調、サンプリングやコンテキストなどの詳細パラメータを設定します。</string>
     <string name="llm_persona_style">ペルソナと話し方</string>
     <string name="llm_sample_count_summary">現在は %1$d 回です。値を大きくすると、システムがより多くの言い回しを試し、その中からより適切な結果を選びます。</string>
     <string name="llm_max_context_chars_summary">現在は %1$d 文字です。値を大きくすると前後文をより多く参照しますが、応答はやや遅くなる場合があります。</string>
@@ -923,19 +923,19 @@
     <string name="share_receive_invalid_path">対象パスが無効です。</string>
     <string name="share_receive_file_imported">ファイルをインポートしました: %1$s</string>
     <string name="share_receive_files_imported">%1$d 個のファイルをインポートしました。</string>
-    <string name="llm_model_status_remote_ready" translatable="false">状態: リモートモデル利用可能</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">状態: リモートモデル利用不可</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">状態: モデル名未入力</string>
-    <string name="llm_api_key_set" translatable="false">設定済み、%1$s</string>
+    <string name="llm_model_status_remote_ready">状態: リモートモデル利用可能</string>
+    <string name="llm_model_status_remote_unavailable">状態: リモートモデル利用不可</string>
+    <string name="llm_model_status_remote_missing_name">状態: モデル名未入力</string>
+    <string name="llm_api_key_set">設定済み、%1$s</string>
     <string name="preedit_style">入力中の表示スタイル</string>
     <string name="preedit_style_default">標準</string>
     <string name="preedit_style_inline_candidate_bar">インライン候補バー</string>
     <string name="settings_search_hint">設定を検索</string>
     <string name="settings_search_results">検索結果</string>
     <string name="settings_search_no_results">一致する設定はありません</string>
-    <string name="settings_search_loading_fcitx">Fcitx の設定を読み込んでいます...</string>
-    <string name="voice_status_connecting">接続中...</string>
-    <string name="voice_status_loading">読み込み中...</string>
+    <string name="settings_search_loading_fcitx">Fcitx の設定を読み込んでいます…</string>
+    <string name="voice_status_connecting">接続中…</string>
+    <string name="voice_status_loading">読み込み中…</string>
     <string name="voice_error_no_permission">RECORD_AUDIO 権限が付与されていません</string>
     <string name="voice_error_failed">音声入力に失敗しました</string>
     <string name="voice_error_invalid_provider">無効な音声入力プロバイダーです</string>
@@ -953,4 +953,8 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">展開済み</string>
     <string name="theme_category_collapsed">折りたたみ済み</string>
+
+    <string name="theme_preview_previous">前のテーマ</string>
+    <string name="theme_preview_next">次のテーマ</string>
+    <string name="theme_preview_in_use">使用中</string>
 </resources>

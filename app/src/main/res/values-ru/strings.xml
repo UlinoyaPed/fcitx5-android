@@ -308,7 +308,7 @@
     <string name="import_user_data">Импорт пользовательских данных</string>
     <string name="exception_user_data_filename">Расширение имени файла %1$s не указывает на пользовательские данные fcitx5-android</string>
     <string name="exception_user_data_metadata">Невозможно найти метаданные пользовательских данных</string>
-    <string name="exception_user_data_package_name_mismatch">Пользовательские данные не соответствуют текущему приложению</string>
+    <string name="exception_user_data_package_name_mismatch">Пользовательские данные не соответствуют текущему приложению (обнаружен пакет: %1$s)</string>
     <string name="user_data_imported">Пользовательские данные %1$s  были импортированы, перезапуск…</string>
     <string name="confirm_import_user_data">Импорт пользовательских данных переопределит локальные настройки и историю ввода, и потребуется перезапустить приложение, чтобы изменения вступили в силу. Продолжить?</string>
     <string name="restart_channel">Перезапуск приложения</string>
@@ -802,7 +802,7 @@
     <string name="tokenized_clipboard_send">Отправить</string>
     <string name="tokenized_clipboard_empty_selection">Сначала выберите один или несколько токенов</string>
     <string name="tokenized_clipboard_empty_state">Нет доступных токенов</string>
-    <string name="tokenized_clipboard_loading">Обработка...</string>
+    <string name="tokenized_clipboard_loading">Обработка…</string>
     <string name="tokenized_clipboard_copied">Выбранные токены скопированы</string>
     <string name="clipboard_limit_local">Лимит локальной истории буфера обмена</string>
     <string name="clipboard_limit_remote">Лимит истории буфера обмена других устройств</string>
@@ -812,7 +812,7 @@
     <string name="install_update">Установить обновление</string>
     <string name="upgrade_latest">Обновить до последней</string>
     <string name="update_download_background">В фоне</string>
-    <string name="update_download_background_running">Обновление в фоне...</string>
+    <string name="update_download_background_running">Обновление в фоне…</string>
     <string name="update_mirror_accelerate">Ускорить через зеркало</string>
     <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">У вас уже установлена последняя стабильная версия</string>
@@ -885,7 +885,7 @@
     <string name="llm_max_context_chars">Максимум символов контекста</string>
     <string name="llm_settings_title">Умное предсказание</string>
     <string name="llm_advanced">Дополнительно</string>
-    <string name="llm_advanced_summary">Настройка подтверждения пробелом, персоны и тона, а также сэмплирования, контекста и других расширенных параметров.</string>
+    <string name="llm_advanced_summary">Настройка персоны и тона, а также сэмплирования, контекста и других расширенных параметров.</string>
     <string name="llm_persona_style">Персона и тон</string>
     <string name="llm_sample_count_summary">Сейчас: %1$d. Чем больше значение, тем больше вариантов формулировок попробует система перед выбором лучшего результата.</string>
     <string name="llm_max_context_chars_summary">Сейчас: %1$d символов. Чем больше значение, тем больше предыдущего контекста учитывается, но ответ может стать немного медленнее.</string>
@@ -923,19 +923,19 @@
     <string name="share_receive_invalid_path">Недопустимый путь назначения.</string>
     <string name="share_receive_file_imported">Файл импортирован: %1$s</string>
     <string name="share_receive_files_imported">Импортировано файлов: %1$d.</string>
-    <string name="llm_model_status_remote_ready" translatable="false">Статус: удаленная модель доступна</string>
-    <string name="llm_model_status_remote_unavailable" translatable="false">Статус: удаленная модель недоступна</string>
-    <string name="llm_model_status_remote_missing_name" translatable="false">Статус: имя модели не указано</string>
-    <string name="llm_api_key_set" translatable="false">Настроено, %1$s</string>
+    <string name="llm_model_status_remote_ready">Статус: удаленная модель доступна</string>
+    <string name="llm_model_status_remote_unavailable">Статус: удаленная модель недоступна</string>
+    <string name="llm_model_status_remote_missing_name">Статус: имя модели не указано</string>
+    <string name="llm_api_key_set">Настроено, %1$s</string>
     <string name="preedit_style">Стиль области ввода</string>
     <string name="preedit_style_default">По умолчанию</string>
     <string name="preedit_style_inline_candidate_bar">Встроенная панель кандидатов</string>
     <string name="settings_search_hint">Поиск настроек</string>
     <string name="settings_search_results">Результаты поиска</string>
     <string name="settings_search_no_results">Нет подходящих настроек</string>
-    <string name="settings_search_loading_fcitx">Загрузка настроек Fcitx...</string>
-    <string name="voice_status_connecting">Подключение...</string>
-    <string name="voice_status_loading">Загрузка...</string>
+    <string name="settings_search_loading_fcitx">Загрузка настроек Fcitx…</string>
+    <string name="voice_status_connecting">Подключение…</string>
+    <string name="voice_status_loading">Загрузка…</string>
     <string name="voice_error_no_permission">Разрешение RECORD_AUDIO не предоставлено</string>
     <string name="voice_error_failed">Сбой голосового ввода</string>
     <string name="voice_error_invalid_provider">Недопустимый поставщик голосового ввода</string>
@@ -953,4 +953,8 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">Развернуто</string>
     <string name="theme_category_collapsed">Свернуто</string>
+
+    <string name="theme_preview_previous">Предыдущая тема</string>
+    <string name="theme_preview_next">Следующая тема</string>
+    <string name="theme_preview_in_use">Используется</string>
 </resources>
