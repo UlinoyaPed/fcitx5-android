@@ -815,6 +815,11 @@ class AltTextKeyView(
 
     private fun applyMainTextCenterPosition() {
         mainText.gravity = Gravity.CENTER
+        val params = mainText.layoutParams as ConstraintLayout.LayoutParams
+        if (params.topMargin == 0 && params.bottomMargin == 0 &&
+            params.bottomToTop == unset && params.topToTop == parentId &&
+            params.bottomToBottom == parentId
+        ) return
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             topMargin = 0
             bottomMargin = 0
@@ -1612,19 +1617,27 @@ class AltTextKeyView(
                     .coerceAtLeast(1)
                 // Same-edge corner labels need a bounded band; mixed-edge labels
                 // already have independent edge constraints and their own sizing.
-                visibleLabels.forEach { it.maxHeight = maxLabelHeight }
+                visibleLabels.forEach {
+                    if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
+                }
             }
             mainText.useGlyphBounds = true
             // A full-height drawing region avoids clipping ink positioned relative
             // to other glyphs rather than their (larger) TextView boxes.
-            mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                height = 0
-                topToTop = parentId
-                bottomToBottom = parentId
-                topToBottom = unset
-                bottomToTop = unset
-                topMargin = 0
-                bottomMargin = 0
+            val params = mainText.layoutParams as ConstraintLayout.LayoutParams
+            if (params.height != 0 || params.topToTop != parentId ||
+                params.bottomToBottom != parentId || params.topToBottom != unset ||
+                params.bottomToTop != unset || params.topMargin != 0 || params.bottomMargin != 0
+            ) {
+                mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    height = 0
+                    topToTop = parentId
+                    bottomToBottom = parentId
+                    topToBottom = unset
+                    bottomToTop = unset
+                    topMargin = 0
+                    bottomMargin = 0
+                }
             }
         } else {
             mainText.glyphPlacement = null

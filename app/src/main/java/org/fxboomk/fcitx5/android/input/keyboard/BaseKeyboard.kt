@@ -649,6 +649,11 @@ abstract class BaseKeyboard(
                 row.children.forEach { child ->
                     (child as? AltTextKeyView)?.refreshLayout()
                 }
+                // A stable-height global-layout callback runs after onLayout's
+                // row alignment. Restore it before drawing this frame, rather
+                // than leaving the labels at their per-view fallback baseline.
+                // Actual geometry changes are realigned again by onLayout.
+                AltTextKeyView.alignRemainingSpaceMainLabels(row.children.filterIsInstance<AltTextKeyView>().toList())
             }
         }
     }
