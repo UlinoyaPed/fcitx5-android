@@ -42,7 +42,7 @@ class DirectionalSwipeLabelTest {
 
     @Test
     fun allFiveKeyTypesKeepUpAboveDownRegardlessOfRowPosition() = onMain {
-        listOf(PunctuationPosition.Top, PunctuationPosition.TopRight, PunctuationPosition.Bottom)
+        PunctuationPosition.entries
             .forEach { position ->
                 ThemeManager.prefs.punctuationPosition.setValue(position)
                 definitions("UP", "DOWN").forEach { definition ->
@@ -54,12 +54,7 @@ class DirectionalSwipeLabelTest {
                     assertEquals(View.VISIBLE, key.up.visibility)
                     assertEquals(View.VISIBLE, key.down.visibility)
                     assertTrue(key.up.bottom < key.down.top)
-                    assertEquals(
-                        if (position == PunctuationPosition.TopRight) {
-                            Gravity.END or Gravity.CENTER_VERTICAL
-                        } else Gravity.CENTER,
-                        key.up.gravity
-                    )
+                    assertEquals(Gravity.CENTER, key.up.gravity)
                     assertEquals(AltTextSwipeTarget.Primary, key.hints.selectAltTextSwipeTarget(-20))
                     assertEquals(AltTextSwipeTarget.Secondary, key.hints.selectAltTextSwipeTarget(20))
                 }
@@ -85,7 +80,7 @@ class DirectionalSwipeLabelTest {
     }
 
     @Test
-    fun hiddenPunctuationHidesBothDirectionalLabelsDespiteRowOverrides() = onMain {
+    fun hiddenLetterPunctuationKeepsFunctionLabelsAndTheirSwipeTargets() = onMain {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         definitions("UP", "DOWN").forEach { definition ->
             definition.appearance.altTextPositionOverride = KeyDef.Appearance.AltTextPosition.Top
@@ -93,10 +88,11 @@ class DirectionalSwipeLabelTest {
             val key = createView(definition)
             layout(key.view)
 
-            assertEquals(View.GONE, key.up.visibility)
-            assertEquals(View.GONE, key.down.visibility)
-            assertNull(key.hints.selectAltTextSwipeTarget(-20))
-            assertNull(key.hints.selectAltTextSwipeTarget(20))
+            assertEquals(View.VISIBLE, key.up.visibility)
+            assertEquals(View.VISIBLE, key.down.visibility)
+            assertTrue(key.up.bottom < key.down.top)
+            assertEquals(AltTextSwipeTarget.Primary, key.hints.selectAltTextSwipeTarget(-20))
+            assertEquals(AltTextSwipeTarget.Secondary, key.hints.selectAltTextSwipeTarget(20))
         }
     }
 

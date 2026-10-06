@@ -92,6 +92,17 @@ abstract class KeyView(
 ) :
     CustomGestureView(ctx) {
 
+    protected fun punctuationPositionForKey(): PunctuationPosition {
+        val character = (def as? KeyDef.Appearance.AltText)?.character?.singleOrNull()
+        return if (character != null && (character in 'a'..'z' || character in 'A'..'Z')) {
+            ThemeManager.prefs.punctuationPosition.getValue()
+        } else {
+            // Other keys keep the default position; explicit layout overrides
+            // and physical up/down swipe labels are resolved by their views.
+            PunctuationPosition.Bottom
+        }
+    }
+
     internal var useFloatingGboardSideKeyStyle: Boolean = false
         set(value) {
             if (field == value) return
@@ -1257,7 +1268,7 @@ class AltTextKeyView(
     }
 
     private fun resolveThemeLayoutMode(): AltTextLayoutMode {
-        val pref = ThemeManager.prefs.punctuationPosition.getValue()
+        val pref = punctuationPositionForKey()
         if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
         return when (pref) {
             PunctuationPosition.Top -> AltTextLayoutMode.Top
@@ -1268,7 +1279,7 @@ class AltTextKeyView(
     }
 
     private fun resolveThemeCornerPairLayoutMode(): AltTextLayoutMode {
-        return when (ThemeManager.prefs.punctuationPosition.getValue()) {
+        return when (punctuationPositionForKey()) {
             PunctuationPosition.Top, PunctuationPosition.TopRight -> AltTextLayoutMode.TopCorners
             PunctuationPosition.Bottom -> AltTextLayoutMode.BottomCorners
             PunctuationPosition.None -> AltTextLayoutMode.Hidden
@@ -1277,7 +1288,7 @@ class AltTextKeyView(
 
     /**
      * The punctuation sublabel position for this key: the row-level override set in
-     * the layout editor when present, otherwise the global theme preference.
+     * the layout editor when present, otherwise the punctuation position applicable to this key.
      */
     private fun effectivePunctuationPosition(): PunctuationPosition {
         return independentPosition(def.altTextPositionOverride)
@@ -1285,7 +1296,7 @@ class AltTextKeyView(
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
         if (def.directionalSwipeLabels) {
-            return when (ThemeManager.prefs.punctuationPosition.getValue()) {
+            return when (punctuationPositionForKey()) {
                 PunctuationPosition.None -> AltTextLayoutMode.Hidden
                 PunctuationPosition.TopRight -> AltTextLayoutMode.DirectionalTopRightBottom
                 PunctuationPosition.Top, PunctuationPosition.Bottom -> AltTextLayoutMode.DirectionalTopBottom
@@ -1318,7 +1329,7 @@ class AltTextKeyView(
             KeyDef.Appearance.AltTextPosition.TopRight -> PunctuationPosition.TopRight
             KeyDef.Appearance.AltTextPosition.Bottom -> PunctuationPosition.Bottom
             KeyDef.Appearance.AltTextPosition.TopBottom, null ->
-                ThemeManager.prefs.punctuationPosition.getValue()
+                punctuationPositionForKey()
         }
     }
 
@@ -1326,7 +1337,7 @@ class AltTextKeyView(
         val override = def.altText1PositionOverride
         if (override != null) return independentPosition(override)
         // No explicit 副字符一位置: the uppercase hint keeps following the global
-        // uppercase position, everything else follows the global punctuation position.
+        // uppercase position; other labels use the punctuation position for this key.
         if (resolveUppercaseMode() != UppercasePosition.None) {
             return when (ThemeManager.prefs.uppercasePosition.getValue()) {
                 UppercasePosition.Top -> PunctuationPosition.Top
@@ -1425,9 +1436,9 @@ class AltTextKeyView(
     private fun resolvePunctuationLayoutMode(keyHeight: Int): AltTextLayoutMode {
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
         // An explicit row-level override must display even when the global
-        // preference hides sublabels everywhere else
+        // preference hides letter-key punctuation
         if (def.altTextPositionOverride == null &&
-            ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.None
+            punctuationPositionForKey() == PunctuationPosition.None
         ) {
             return AltTextLayoutMode.Hidden
         }
@@ -2095,7 +2106,7 @@ class ImageAltTextKeyView(
     }
 
     private fun resolveThemeLayoutMode(): AltTextLayoutMode {
-        val pref = ThemeManager.prefs.punctuationPosition.getValue()
+        val pref = punctuationPositionForKey()
         if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
         return when (pref) {
             PunctuationPosition.Top -> AltTextLayoutMode.Top
@@ -2108,14 +2119,14 @@ class ImageAltTextKeyView(
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
         if (def.directionalSwipeLabels) {
-            return when (ThemeManager.prefs.punctuationPosition.getValue()) {
+            return when (punctuationPositionForKey()) {
                 PunctuationPosition.None -> AltTextLayoutMode.Hidden
                 PunctuationPosition.TopRight -> AltTextLayoutMode.DirectionalTopRightBottom
                 PunctuationPosition.Top, PunctuationPosition.Bottom -> AltTextLayoutMode.DirectionalTopBottom
             }
         }
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
-        if (ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.None) {
+        if (punctuationPositionForKey() == PunctuationPosition.None) {
             return AltTextLayoutMode.Hidden
         }
         val preferred = when (def.altTextPositionOverride) {
