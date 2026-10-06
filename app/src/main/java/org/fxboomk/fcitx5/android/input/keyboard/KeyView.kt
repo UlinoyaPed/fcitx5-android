@@ -817,8 +817,8 @@ class AltTextKeyView(
         mainText.gravity = Gravity.CENTER
         val params = mainText.layoutParams as ConstraintLayout.LayoutParams
         if (params.topMargin == 0 && params.bottomMargin == 0 &&
-            params.bottomToTop == unset && params.topToTop == parentId &&
-            params.bottomToBottom == parentId
+            params.bottomToTop == params.unset && params.topToTop == params.parentId &&
+            params.bottomToBottom == params.parentId
         ) return
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             topMargin = 0
@@ -1625,9 +1625,9 @@ class AltTextKeyView(
             // A full-height drawing region avoids clipping ink positioned relative
             // to other glyphs rather than their (larger) TextView boxes.
             val params = mainText.layoutParams as ConstraintLayout.LayoutParams
-            if (params.height != 0 || params.topToTop != parentId ||
-                params.bottomToBottom != parentId || params.topToBottom != unset ||
-                params.bottomToTop != unset || params.topMargin != 0 || params.bottomMargin != 0
+            if (params.height != 0 || params.topToTop != params.parentId ||
+                params.bottomToBottom != params.parentId || params.topToBottom != params.unset ||
+                params.bottomToTop != params.unset || params.topMargin != 0 || params.bottomMargin != 0
             ) {
                 mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     height = 0
