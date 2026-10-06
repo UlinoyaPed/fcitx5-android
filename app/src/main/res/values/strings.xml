@@ -531,8 +531,6 @@
     <string name="llm_settings_title" translatable="false">智能预测</string>
     <string name="llm_advanced" translatable="false">高级</string>
     <string name="llm_advanced_summary" translatable="false">配置空格提交预测、人设与口吻，以及采样与上下文等高级参数。</string>
-    <string name="llm_space_commit_prediction" translatable="false">空格提交预测</string>
-    <string name="llm_space_commit_prediction_summary" translatable="false">默认关闭。开启后，当编辑光标后出现预测提示气泡时，按空格会提交第一个预测项。</string>
     <string name="llm_persona_style" translatable="false">人设与口吻</string>
     <string name="llm_sample_count_summary" translatable="false">当前为 %1$d 次。数值越大，系统会多试几种说法，再挑更合适的结果。</string>
     <string name="llm_max_context_chars_summary" translatable="false">当前为 %1$d 字。数值越大，系统参考的前文越多，但响应可能稍慢一点。</string>

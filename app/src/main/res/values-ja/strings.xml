@@ -886,8 +886,6 @@
     <string name="llm_settings_title">スマート予測</string>
     <string name="llm_advanced">詳細設定</string>
     <string name="llm_advanced_summary">スペースでの予測確定、ペルソナと口調、サンプリングやコンテキストなどの詳細パラメータを設定します。</string>
-    <string name="llm_space_commit_prediction">スペースで予測を確定</string>
-    <string name="llm_space_commit_prediction_summary">初期状態ではオフです。オンにすると、カーソル後ろに予測バブルが表示されたときに、スペースキーで最初の候補を確定できます。</string>
     <string name="llm_persona_style">ペルソナと話し方</string>
     <string name="llm_sample_count_summary">現在は %1$d 回です。値を大きくすると、システムがより多くの言い回しを試し、その中からより適切な結果を選びます。</string>
     <string name="llm_max_context_chars_summary">現在は %1$d 文字です。値を大きくすると前後文をより多く参照しますが、応答はやや遅くなる場合があります。</string>

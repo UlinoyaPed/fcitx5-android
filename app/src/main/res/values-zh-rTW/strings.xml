@@ -910,8 +910,6 @@
     <string name="llm_settings_title">智慧預測</string>
     <string name="llm_advanced">進階</string>
     <string name="llm_advanced_summary">設定空格提交預測、人設與口吻，以及採樣與上下文等進階參數。</string>
-    <string name="llm_space_commit_prediction">空格提交預測</string>
-    <string name="llm_space_commit_prediction_summary">預設關閉。開啟後，當編輯游標後出現預測提示氣泡時，按空格會提交第一個預測項。</string>
     <string name="llm_persona_style">人設與口吻</string>
     <string name="llm_sample_count_summary">目前為 %1$d 次。數值越大，系統會多嘗試幾種說法，再挑選更合適的結果。</string>
     <string name="llm_max_context_chars_summary">目前為 %1$d 字。數值越大，系統參考的前文越多，但回應可能會稍慢一些。</string>

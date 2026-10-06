@@ -15,6 +15,7 @@ class PredictionSpaceBehaviorDeciderTest {
             shouldCommitPredictionOnSpace(
                 hasVisibleCandidates = true,
                 hasNativePredictionCandidatesVisible = true,
+                hasAiPredictionCandidatesVisible = false,
                 predictionSpaceBehavior = PredictionSpaceBehavior.CommitSpace,
             )
         )
@@ -26,6 +27,7 @@ class PredictionSpaceBehaviorDeciderTest {
             shouldCommitPredictionOnSpace(
                 hasVisibleCandidates = true,
                 hasNativePredictionCandidatesVisible = true,
+                hasAiPredictionCandidatesVisible = false,
                 predictionSpaceBehavior = PredictionSpaceBehavior.CommitPrediction,
             )
         )
@@ -37,6 +39,7 @@ class PredictionSpaceBehaviorDeciderTest {
             shouldCommitPredictionOnSpace(
                 hasVisibleCandidates = true,
                 hasNativePredictionCandidatesVisible = false,
+                hasAiPredictionCandidatesVisible = false,
                 predictionSpaceBehavior = PredictionSpaceBehavior.CommitSpace,
             )
         )
@@ -48,8 +51,41 @@ class PredictionSpaceBehaviorDeciderTest {
             shouldCommitPredictionOnSpace(
                 hasVisibleCandidates = false,
                 hasNativePredictionCandidatesVisible = true,
+                hasAiPredictionCandidatesVisible = false,
                 predictionSpaceBehavior = PredictionSpaceBehavior.CommitPrediction,
             )
         )
+    }
+
+    @Test
+    fun commitSpaceDisablesAiPredictionCommitInEveryPresentation() {
+        for (hasVisibleCandidates in listOf(false, true)) {
+            for (hasNativePredictionCandidatesVisible in listOf(false, true)) {
+                assertFalse(
+                    shouldCommitPredictionOnSpace(
+                        hasVisibleCandidates = hasVisibleCandidates,
+                        hasNativePredictionCandidatesVisible = hasNativePredictionCandidatesVisible,
+                        hasAiPredictionCandidatesVisible = true,
+                        predictionSpaceBehavior = PredictionSpaceBehavior.CommitSpace,
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun commitPredictionEnablesAiPredictionCommitInEveryPresentation() {
+        for (hasVisibleCandidates in listOf(false, true)) {
+            for (hasNativePredictionCandidatesVisible in listOf(false, true)) {
+                assertTrue(
+                    shouldCommitPredictionOnSpace(
+                        hasVisibleCandidates = hasVisibleCandidates,
+                        hasNativePredictionCandidatesVisible = hasNativePredictionCandidatesVisible,
+                        hasAiPredictionCandidatesVisible = true,
+                        predictionSpaceBehavior = PredictionSpaceBehavior.CommitPrediction,
+                    )
+                )
+            }
+        }
     }
 }

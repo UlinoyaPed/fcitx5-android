@@ -453,7 +453,6 @@ object SettingsSearchIndex {
             SettingsSearchResult(advanced, listOf(llm), SettingsRoute.Llm, "llm_advanced_entry", context.getString(R.string.llm_advanced_summary)),
             SettingsSearchResult(context.getString(R.string.llm_local_model_import), listOf(llm), SettingsRoute.Llm, "llm_local_model_import_entry", context.getString(R.string.llm_local_model_import_merged_summary)),
             SettingsSearchResult(context.getString(R.string.llm_model_test), listOf(llm), SettingsRoute.Llm, "llm_model_test", context.getString(R.string.llm_model_test_summary)),
-            SettingsSearchResult(context.getString(R.string.llm_space_commit_prediction), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_SPACE_COMMIT_PREDICTION, context.getString(R.string.llm_space_commit_prediction_summary)),
             SettingsSearchResult(context.getString(R.string.llm_persona_style), listOf(llm, advanced), SettingsRoute.LlmAdvanced, "llm_persona_list"),
             SettingsSearchResult(context.getString(R.string.llm_custom_persona), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_CUSTOM_PERSONA, context.getString(R.string.llm_custom_persona_summary)),
             SettingsSearchResult(context.getString(R.string.llm_sample_count), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_SAMPLE_COUNT),

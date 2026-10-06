@@ -45,7 +45,6 @@ import org.fxboomk.fcitx5.android.input.keyboard.KeyAction.UnicodeAction
 import org.fxboomk.fcitx5.android.input.keyboard.KeyAction.VoiceInputHoldEnd
 import org.fxboomk.fcitx5.android.input.picker.PickerWindow
 import org.fxboomk.fcitx5.android.input.predict.AiSuggestionStripComponent
-import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fxboomk.fcitx5.android.input.wm.InputWindowManager
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
@@ -204,11 +203,6 @@ class CommonKeyActionListener :
                         action.sym.keyCode == KeyEvent.KEYCODE_ESCAPE && aiSuggestionStrip.hasVisibleSuggestions() -> {
                             service.lifecycleScope.launch { aiSuggestionStrip.dismissVisibleSuggestions() }
                         }
-                        action.sym.sym == FcitxKeyMapping.FcitxKey_space &&
-                            LlmPrefs.read(service.applicationContext).spaceCommitPrediction &&
-                            aiSuggestionStrip.hasVisibleSuggestions() -> {
-                            service.lifecycleScope.launch { aiSuggestionStrip.commitPrimarySuggestion() }
-                        }
                         action.sym.keyCode == KeyEvent.KEYCODE_ESCAPE -> {
                             sendKey(action.sym, action.states)
                         }
@@ -242,23 +236,32 @@ class CommonKeyActionListener :
                                     dismissPredictionCandidatesToToolbar(nativePredictionCandidatesVisible)
                             }
                         }
-                        action.sym.sym == FcitxKeyMapping.FcitxKey_space &&
-                            predictionSpaceBehavior == PredictionSpaceBehavior.CommitSpace &&
-                            isRimeInputMethod() &&
-                            hasNativePredictionCandidatesVisible() -> {
-                            service.commitText(" ")
-                        }
-                        action.sym.sym == FcitxKeyMapping.FcitxKey_space &&
-                            shouldCommitPredictionOnSpace(
-                                hasVisibleCandidates = service.hasVisibleCandidates(),
-                                hasNativePredictionCandidatesVisible = hasNativePredictionCandidatesVisible(),
-                                predictionSpaceBehavior = predictionSpaceBehavior,
-                            ) -> {
-                            val selected = withContext(Dispatchers.Main.immediate) {
-                                service.selectVisibleCandidateHighlight()
-                            }
-                            if (!selected) {
-                                sendKey(action.sym, action.states)
+                        action.sym.sym == FcitxKeyMapping.FcitxKey_space -> {
+                            val aiPredictionVisible = !hasPreedit() && aiSuggestionStrip.hasVisibleSuggestions()
+                            val nativePredictionVisible = hasNativePredictionCandidatesVisible()
+                            when {
+                                shouldCommitPredictionOnSpace(
+                                    hasVisibleCandidates = service.hasVisibleCandidates(),
+                                    hasNativePredictionCandidatesVisible = nativePredictionVisible,
+                                    hasAiPredictionCandidatesVisible = aiPredictionVisible,
+                                    predictionSpaceBehavior = predictionSpaceBehavior,
+                                ) -> {
+                                    val selected = withContext(Dispatchers.Main.immediate) {
+                                        if (aiPredictionVisible) {
+                                            aiSuggestionStrip.commitPrimarySuggestion()
+                                        } else {
+                                            service.selectVisibleCandidateHighlight()
+                                        }
+                                    }
+                                    if (!selected) {
+                                        sendKey(action.sym, action.states)
+                                    }
+                                }
+                                predictionSpaceBehavior == PredictionSpaceBehavior.CommitSpace &&
+                                    (aiPredictionVisible || (isRimeInputMethod() && nativePredictionVisible)) -> {
+                                    service.commitText(" ")
+                                }
+                                else -> sendKey(action.sym, action.states)
                             }
                         }
                         action.sym.sym == FcitxKeyMapping.FcitxKey_Up &&

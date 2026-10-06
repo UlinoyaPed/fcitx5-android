@@ -886,8 +886,6 @@
     <string name="llm_settings_title">Умное предсказание</string>
     <string name="llm_advanced">Дополнительно</string>
     <string name="llm_advanced_summary">Настройка подтверждения пробелом, персоны и тона, а также сэмплирования, контекста и других расширенных параметров.</string>
-    <string name="llm_space_commit_prediction">Подтверждать предсказание пробелом</string>
-    <string name="llm_space_commit_prediction_summary">По умолчанию выключено. Если включить, при появлении всплывающей подсказки после курсора нажатие пробела подтвердит первый вариант предсказания.</string>
     <string name="llm_persona_style">Персона и тон</string>
     <string name="llm_sample_count_summary">Сейчас: %1$d. Чем больше значение, тем больше вариантов формулировок попробует система перед выбором лучшего результата.</string>
     <string name="llm_max_context_chars_summary">Сейчас: %1$d символов. Чем больше значение, тем больше предыдущего контекста учитывается, но ответ может стать немного медленнее.</string>

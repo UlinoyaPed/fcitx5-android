@@ -26,7 +26,6 @@ import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.ui.main.settings.DialogSeekBarPreference
 import org.fxboomk.fcitx5.android.ui.main.settings.PreferenceScrollHelper
-import org.fxboomk.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fxboomk.fcitx5.android.utils.toast
 
 class LlmAdvancedSettingsFragment : PaddingPreferenceFragment() {
@@ -43,14 +42,6 @@ class LlmAdvancedSettingsFragment : PaddingPreferenceFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferences?.let(LlmPrefs::migrateSeekBarBackedPreferences)
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
-            addPreference(MySwitchPreference(context).apply {
-                key = LlmPrefs.KEY_SPACE_COMMIT_PREDICTION
-                setTitle(R.string.llm_space_commit_prediction)
-                setSummary(R.string.llm_space_commit_prediction_summary)
-                setDefaultValue(false)
-                isIconSpaceReserved = false
-                isSingleLineTitle = false
-            })
             addPreference(personaPresetPreference())
             addPreference(customPersonaPreference())
             addPreference(sampleCountPreference())

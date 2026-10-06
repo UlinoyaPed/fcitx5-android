@@ -888,8 +888,6 @@
     <string name="llm_settings_title">스마트 예측</string>
     <string name="llm_advanced">고급</string>
     <string name="llm_advanced_summary">스페이스로 예측 확정, 페르소나와 말투, 샘플링과 문맥 등의 고급 매개변수를 설정합니다.</string>
-    <string name="llm_space_commit_prediction">스페이스로 예측 확정</string>
-    <string name="llm_space_commit_prediction_summary">기본값은 꺼짐입니다. 켜면 편집 커서 뒤에 예측 말풍선이 나타났을 때 스페이스 키로 첫 번째 예측 항목을 확정할 수 있습니다.</string>
     <string name="llm_persona_style">페르소나와 말투</string>
     <string name="llm_sample_count_summary">현재 %1$d회입니다. 값이 클수록 시스템이 더 다양한 표현을 시도한 뒤 더 적절한 결과를 고릅니다.</string>
     <string name="llm_max_context_chars_summary">현재 %1$d자입니다. 값이 클수록 더 많은 앞문맥을 참고하지만 응답은 조금 느려질 수 있습니다.</string>

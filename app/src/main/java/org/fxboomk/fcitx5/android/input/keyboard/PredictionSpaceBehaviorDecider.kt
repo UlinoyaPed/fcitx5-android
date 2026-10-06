@@ -7,7 +7,8 @@ package org.fxboomk.fcitx5.android.input.keyboard
 internal fun shouldCommitPredictionOnSpace(
     hasVisibleCandidates: Boolean,
     hasNativePredictionCandidatesVisible: Boolean,
+    hasAiPredictionCandidatesVisible: Boolean,
     predictionSpaceBehavior: PredictionSpaceBehavior,
-): Boolean = hasVisibleCandidates &&
-    (!hasNativePredictionCandidatesVisible ||
+): Boolean = (hasVisibleCandidates || hasAiPredictionCandidatesVisible) &&
+    ((!hasNativePredictionCandidatesVisible && !hasAiPredictionCandidatesVisible) ||
         predictionSpaceBehavior == PredictionSpaceBehavior.CommitPrediction)

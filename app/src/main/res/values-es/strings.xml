@@ -888,8 +888,6 @@
     <string name="llm_settings_title">Predicción inteligente</string>
     <string name="llm_advanced">Avanzado</string>
     <string name="llm_advanced_summary">Configura confirmar predicciones con espacio, la persona y el tono, además de parámetros avanzados como muestreo y contexto.</string>
-    <string name="llm_space_commit_prediction">Confirmar predicción con espacio</string>
-    <string name="llm_space_commit_prediction_summary">Desactivado por defecto. Si se activa, cuando aparezca la burbuja de sugerencia detrás del cursor, pulsar espacio confirmará la primera predicción.</string>
     <string name="llm_persona_style">Persona y tono</string>
     <string name="llm_sample_count_summary">Actualmente es %1$d. Cuanto mayor sea el valor, más formas de decirlo probará el sistema antes de elegir el resultado más adecuado.</string>
     <string name="llm_max_context_chars_summary">Actualmente es %1$d caracteres. Cuanto mayor sea el valor, más contexto anterior tendrá en cuenta el sistema, aunque la respuesta puede tardar un poco más.</string>

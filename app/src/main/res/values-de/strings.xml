@@ -884,8 +884,6 @@
     <string name="llm_settings_title">Intelligente Vorhersage</string>
     <string name="llm_advanced">Erweitert</string>
     <string name="llm_advanced_summary">Konfiguriert das Bestätigen per Leertaste, Persona und Tonfall sowie erweiterte Parameter wie Sampling und Kontext.</string>
-    <string name="llm_space_commit_prediction">Vorhersage mit Leertaste übernehmen</string>
-    <string name="llm_space_commit_prediction_summary">Standardmäßig deaktiviert. Wenn aktiviert, übernimmt die Leertaste den ersten Vorhersageeintrag, sobald hinter dem Cursor eine Vorhersageblase erscheint.</string>
     <string name="llm_persona_style">Persona und Tonfall</string>
     <string name="llm_sample_count_summary">Aktuell %1$d. Je höher der Wert, desto mehr Formulierungen probiert das System aus und wählt dann das passendere Ergebnis.</string>
     <string name="llm_max_context_chars_summary">Aktuell %1$d Zeichen. Je höher der Wert, desto mehr vorheriger Kontext wird berücksichtigt, aber die Antwort kann etwas langsamer werden.</string>
