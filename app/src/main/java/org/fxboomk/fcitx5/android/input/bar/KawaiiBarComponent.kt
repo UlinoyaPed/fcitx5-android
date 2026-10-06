@@ -808,8 +808,13 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
      */
     fun setCandidateRequiredHeight(heightDp: Int) {
         if (heightDp == candidateRequiredHeightDp) return
+        val previousRowHeight = candidateRowHeightDp
         candidateRequiredHeightDp = heightDp
-        onBarHeightChanged?.invoke()
+        // Keep the measured requirement even when dynamic height is disabled,
+        // but do not resize the keyboard for an unchanged visible row height.
+        if (candidateRowHeightDp != previousRowHeight) {
+            onBarHeightChanged?.invoke()
+        }
     }
 
     var onBarHeightChanged: (() -> Unit)? = null

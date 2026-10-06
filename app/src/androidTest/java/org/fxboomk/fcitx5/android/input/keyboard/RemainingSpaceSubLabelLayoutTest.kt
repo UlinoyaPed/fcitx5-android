@@ -26,6 +26,7 @@ import org.fxboomk.fcitx5.android.input.keyboard.KeyDef.Appearance.AltTextPositi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.roundToInt
@@ -309,6 +310,56 @@ class RemainingSpaceSubLabelLayoutTest {
             }
             assertTrue("Different occupancy bands need independent baselines: $groupBaselines",
                 groupBaselines.max() - groupBaselines.min() > 2)
+        }
+    }
+
+    @Test
+    fun stableHeightRefreshPreservesRowPlacementInTheImmediateDraw() = withPreferences {
+        val definitions = listOf(
+            AlphabetKey("g", "?", "É", displayText = "g"),
+            AlphabetKey("É", "…", "主", displayText = "É"),
+        )
+        val keyboard = object : BaseKeyboard(context, ThemePreset.MaterialLight, { listOf(definitions) }) {}
+        val keys = (keyboard.getChildAt(0) as ViewGroup).children.filterIsInstance<AltTextKeyView>().toList()
+        keys.forEach { configureText(it, Typeface.SANS_SERIF, 1f) }
+        for (height in listOf(64, 32, 72)) {
+            repeat(3) {
+                keyboard.requestLayout()
+                measureAndLayout(keyboard, 96, height)
+            }
+            val before = keys.map { inkBounds(it.mainText) }
+            // Model InputView's global-layout callback: refresh after row layout,
+            // then draw immediately without another measure/layout pass.
+            repeat(2) {
+                keyboard.refreshAltTextLayouts()
+                keys.forEach { assertNotNull(it.mainText.glyphPlacement) }
+                assertEquals("Refresh must not draw a fallback position at height=$height",
+                    before, keys.map { inkBounds(it.mainText) })
+                measureAndLayout(keyboard, 96, height)
+                assertEquals("The following layout must preserve the same ink",
+                    before, keys.map { inkBounds(it.mainText) })
+            }
+        }
+    }
+
+    @Test
+    fun unchangedOrdinaryLabelsDoNotRequestAnotherLayout() = withPreferences {
+        for (position in listOf(PunctuationPosition.Top, PunctuationPosition.None)) {
+            ThemeManager.prefs.punctuationPosition.setValue(position)
+            val key = createKey(appearance())
+            layoutKey(key)
+            repeat(3) {
+                // Force the parent through its callbacks with identical geometry.
+                key.requestLayout()
+                measureAndLayout(key, 48, 64)
+                assertFalse("The key must finish layout for $position", key.isLayoutRequested)
+                for (label in listOf(key.mainText, key.altText, key.altText1, key.upperText)) {
+                    if (label.visibility == View.VISIBLE) {
+                        assertFalse("Unchanged '${label.text}' must not request another layout",
+                            label.isLayoutRequested)
+                    }
+                }
+            }
         }
     }
 
