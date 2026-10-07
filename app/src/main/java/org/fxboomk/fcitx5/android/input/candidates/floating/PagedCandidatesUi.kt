@@ -5,7 +5,6 @@
 
 package org.fxboomk.fcitx5.android.input.candidates.floating
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -14,18 +13,22 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.View.MeasureSpec
 import android.widget.TextView
 import androidx.core.view.updateLayoutParams
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
-import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.FlexboxLayout
 import org.fxboomk.fcitx5.android.core.FcitxEvent
 import org.fxboomk.fcitx5.android.core.FcitxEvent.PagedCandidateEvent.LayoutHint
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.input.keyboard.CustomGestureView
 import splitties.views.dsl.core.Ui
-import splitties.views.dsl.recyclerview.recyclerView
 
+/**
+ * Floating candidate page content. A plain [FlexboxLayout] is used instead of a
+ * RecyclerView+LayoutManager on purpose: page content is small, and a deterministic
+ * single-pass measure keeps the wrapping window from oscillating (growing a blank band
+ * between rows, or flickering blank) when the highlight moves or candidates update.
+ */
 class PagedCandidatesUi(
     override val ctx: Context,
     val theme: Theme,
@@ -56,92 +59,12 @@ class PagedCandidatesUi(
         }
     }
 
-    sealed class UiHolder(open val ui: Ui) : RecyclerView.ViewHolder(ui.root) {
-        class Candidate(override val ui: LabeledCandidateItemUi) : UiHolder(ui)
-        class Pagination(override val ui: PaginationUi) : UiHolder(ui)
-    }
-
-    private val candidatesAdapter = object : RecyclerView.Adapter<UiHolder>() {
-        init {
-            setHasStableIds(true)
-        }
-
-        override fun getItemId(position: Int): Long =
-            data.candidates.getOrNull(position).hashCode().toLong()
-
-        override fun getItemCount() =
-            data.candidates.size + (if (data.hasPrev || data.hasNext) 1 else 0)
-
-        override fun getItemViewType(position: Int) = if (position < data.candidates.size) 0 else 1
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UiHolder {
-            return when (viewType) {
-                0 -> UiHolder.Candidate(LabeledCandidateItemUi(ctx, theme, setupTextView, highlightRadius))
-                else -> UiHolder.Pagination(PaginationUi(ctx, theme)).apply {
-                    ui.prevIcon.setOnClickListener {
-                        onPrevPage.invoke()
-                    }
-                    ui.nextIcon.setOnClickListener {
-                        onNextPage.invoke()
-                    }
-                }
-            }.apply {
-                // assign default LayoutParams, otherwise updateLayoutParams won't work
-                ui.root.layoutParams = FlexboxLayoutManager.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-            }
-        }
-
-        override fun onBindViewHolder(holder: UiHolder, position: Int) {
-            when (holder) {
-                is UiHolder.Candidate -> {
-                    val candidate = data.candidates[position]
-                    holder.ui.update(candidate, active = position == activeIndex)
-                    holder.ui.root.setOnClickListener {
-                        onCandidateClick.invoke(position)
-                    }
-                    holder.ui.root.setOnLongClickListener { v ->
-                        onCandidateAction.invoke(position, candidate.text, v)
-                        true
-                    }
-                    onBindCandidateGesture(holder.ui.root, position, candidate.text)
-                    holder.ui.root.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
-                        width = if (isVertical) MATCH_PARENT else WRAP_CONTENT
-                    }
-                }
-                is UiHolder.Pagination -> {
-                    holder.ui.update(data)
-                    holder.ui.root.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
-                        flexGrow = 1f
-                        width = if (isVertical) MATCH_PARENT else WRAP_CONTENT
-                        alignSelf = if (isVertical) AlignItems.STRETCH else AlignItems.CENTER
-                    }
-                }
-            }
-        }
-
-        override fun onViewRecycled(holder: UiHolder) {
-            if (holder is UiHolder.Candidate) {
-                holder.ui.root.setOnClickListener(null)
-                holder.ui.root.setOnLongClickListener(null)
-                onUnbindCandidateGesture(holder.ui.root)
-            }
-            super.onViewRecycled(holder)
-        }
-    }
-
-    private val candidatesLayoutManager = FlexboxLayoutManager(ctx).apply {
+    override val root = FlexboxLayout(ctx).apply {
+        isFocusable = false
+        overScrollMode = View.OVER_SCROLL_NEVER
         flexWrap = FlexWrap.WRAP
     }
 
-    override val root = recyclerView {
-        isFocusable = false
-        adapter = candidatesAdapter
-        layoutManager = candidatesLayoutManager
-        overScrollMode = View.OVER_SCROLL_NEVER
-        itemAnimator = null
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     fun update(
         data: FcitxEvent.PagedCandidateEvent.Data,
         orientation: FloatingCandidatesOrientation,
@@ -155,21 +78,105 @@ class PagedCandidatesUi(
         }
         val newActiveIndex = activeIndexOverride ?: data.cursorIndex
         // Skip update if nothing changed to avoid unnecessary rebind/redraw.
-        if (this.data === data && this.isVertical == newIsVertical && this.activeIndex == newActiveIndex) return
+        if (this.data == data && this.isVertical == newIsVertical && this.activeIndex == newActiveIndex) return
 
         this.data = data
         this.isVertical = newIsVertical
         this.activeIndex = newActiveIndex
-        candidatesLayoutManager.apply {
-            if (isVertical) {
-                flexDirection = FlexDirection.COLUMN
-                alignItems = AlignItems.STRETCH
+        root.flexDirection = if (isVertical) FlexDirection.COLUMN else FlexDirection.ROW
+        root.alignItems = if (isVertical) AlignItems.STRETCH else AlignItems.BASELINE
+        reconcileChildren()
+    }
+
+    private fun itemCount(): Int =
+        data.candidates.size + (if (data.hasPrev || data.hasNext) 1 else 0)
+
+    /**
+     * Reconcile the flex children against the current page: reuse existing item views per
+     * position (matching their tag type), create or drop views as the page size changes.
+     */
+    private fun reconcileChildren() {
+        val count = itemCount()
+        while (root.childCount > count) {
+            val last = root.getChildAt(root.childCount - 1)
+            detachChild(last)
+            root.removeView(last)
+        }
+        for (position in 0 until count) {
+            val existing = root.getChildAt(position)
+            val wantedType = if (position < data.candidates.size) {
+                LabeledCandidateItemUi::class.java
             } else {
-                flexDirection = FlexDirection.ROW
-                alignItems = AlignItems.BASELINE
+                PaginationUi::class.java
+            }
+            val child = if (existing != null && existing.tag?.javaClass == wantedType) {
+                existing
+            } else {
+                if (existing != null) {
+                    detachChild(existing)
+                    root.removeViewAt(position)
+                }
+                val created = when (wantedType) {
+                    LabeledCandidateItemUi::class.java -> createCandidateView()
+                    else -> createPaginationView()
+                }
+                root.addView(created, position)
+                created
+            }
+            bindChild(child, position)
+        }
+    }
+
+    private fun createCandidateView(): View {
+        val ui = LabeledCandidateItemUi(ctx, theme, setupTextView, highlightRadius)
+        ui.root.layoutParams = FlexboxLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        ui.root.tag = ui
+        return ui.root
+    }
+
+    private fun createPaginationView(): View {
+        val ui = PaginationUi(ctx, theme)
+        ui.prevIcon.setOnClickListener { onPrevPage.invoke() }
+        ui.nextIcon.setOnClickListener { onNextPage.invoke() }
+        ui.root.layoutParams = FlexboxLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        ui.root.tag = ui
+        return ui.root
+    }
+
+    private fun bindChild(child: View, position: Int) {
+        when (val tag = child.tag) {
+            is LabeledCandidateItemUi -> {
+                val candidate = data.candidates[position]
+                tag.update(candidate, active = position == activeIndex)
+                child.setOnClickListener {
+                    onCandidateClick.invoke(position)
+                }
+                child.setOnLongClickListener { v ->
+                    onCandidateAction.invoke(position, candidate.text, v)
+                    true
+                }
+                onBindCandidateGesture(child as CustomGestureView, position, candidate.text)
+                child.updateLayoutParams<FlexboxLayout.LayoutParams> {
+                    width = if (isVertical) MATCH_PARENT else WRAP_CONTENT
+                }
+            }
+            is PaginationUi -> {
+                tag.update(data)
+                child.updateLayoutParams<FlexboxLayout.LayoutParams> {
+                    flexGrow = 1f
+                    width = if (isVertical) MATCH_PARENT else WRAP_CONTENT
+                    alignSelf = if (isVertical) AlignItems.STRETCH else AlignItems.CENTER
+                }
             }
         }
-        candidatesAdapter.notifyDataSetChanged()
+    }
+
+    private fun detachChild(child: View) {
+        if (child.tag is LabeledCandidateItemUi) {
+            child.setOnClickListener(null)
+            child.setOnLongClickListener(null)
+            onUnbindCandidateGesture(child as CustomGestureView)
+        }
     }
 
     private fun shouldUseVerticalLayout(
