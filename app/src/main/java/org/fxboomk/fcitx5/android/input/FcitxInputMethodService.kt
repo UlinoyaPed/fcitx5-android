@@ -1636,6 +1636,23 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    /**
+     * True while a key event originated on the IME's own window (e.g. the system
+     * navigation collapse button) is being dispatched. The editor tool-type update fired
+     * from such events must not flip the keyboard mode: that re-lays out InputView with
+     * the full keyboard right before the IME hides, which flashes on screen.
+     *
+     * Known issue (observed 2026-10-07, unresolved): with the physical-keyboard
+     * candidate bar enabled and the toolbar docked, tapping the system collapse button
+     * (the down-chevron of the IME navigation bar) briefly raises the full virtual
+     * keyboard and collapses it again — a visible flash. The tool-type flip is
+     * suppressed here, yet the flash persists, so the framework's collapse flow must
+     * re-lay out the input view through at least one more path that has not been
+     * identified. The crash this flow also triggered (NaN anchor positions reaching
+     * CandidatesView) is fixed; see onUpdateCursorAnchorInfo.
+     */
+    private var handlingImeWindowKeyEvent = false
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_CAPS_LOCK) {
             simulatedCapsLockPressed = true
@@ -1649,7 +1666,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             forceShowSelf()
         }
-        return forwardKeyEvent(event) || super.onKeyDown(keyCode, event)
+        handlingImeWindowKeyEvent = true
+        try {
+            return forwardKeyEvent(event) || super.onKeyDown(keyCode, event)
+        } finally {
+            handlingImeWindowKeyEvent = false
+        }
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -1663,7 +1685,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 TextKeyboard.refreshCapsPresentationOnAll()
             }
         }
-        return forwardKeyEvent(event) || super.onKeyUp(keyCode, event)
+        handlingImeWindowKeyEvent = true
+        try {
+            return forwardKeyEvent(event) || super.onKeyUp(keyCode, event)
+        } finally {
+            handlingImeWindowKeyEvent = false
+        }
     }
 
     public fun sendSimulatedCapsLockTapFromMacro() {
@@ -1691,6 +1718,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     @RequiresApi(34)
     override fun onUpdateEditorToolType(toolType: Int) {
         super.onUpdateEditorToolType(toolType)
+        // Key events from the IME's own window (system collapse button) carry a touch
+        // tool type; honoring them would flip to the virtual keyboard and flash the
+        // key rows right before the IME hides.
+        if (handlingImeWindowKeyEvent) return
         inputDeviceManager.evaluateOnUpdateEditorToolType(toolType, this)
     }
 
@@ -1891,8 +1922,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             inputView?.updateAiSuggestionCursorAnchor(null, contentSize)
             return
         }
-        // params of `Matrix.mapPoints` must be [x0, y0, x1, y1]
-        info.matrix.mapPoints(anchorPosition)
         val (xOffset, yOffset) = decorLocation
         anchorPosition[0] -= xOffset
         anchorPosition[1] -= yOffset
