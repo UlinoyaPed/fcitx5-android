@@ -51,9 +51,9 @@ class InputDeviceManager(
         iv.handleEvents = isVirtual || useHorizontalCandidateBar
         iv.visibility = if (isVirtual || useHorizontalCandidateBar) View.VISIBLE else View.GONE
 
-        // Hide preedit in InputView only when CandidatesView is responsible for floating preedit.
-        // Physical-keyboard horizontal candidate bar still uses InputView preedit.
-        iv.setPreeditVisibility(!(useFloatingAlways && isVirtual))
+        // Hide preedit in InputView when CandidatesView is responsible for floating preedit
+        // (virtual keyboard, or the docked toolbar running alongside the floating candidates)
+        iv.setPreeditVisibility(!(useFloatingAlways && (isVirtual || useHorizontalCandidateBar)))
 
         // In "Always" mode, manually update space label when InputView doesn't handle events
         if (useFloatingAlways && isVirtual) {
@@ -65,16 +65,22 @@ class InputDeviceManager(
         val cv = candidatesView ?: return
         val floatingMode = floatingModeProvider()
         val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
+        if (useFloatingAlways) {
+            // "Always" mode: CandidatesView displays preedit and candidates for both
+            // keyboards. With the physical-keyboard bar enabled it runs alongside the
+            // docked toolbar, which stops showing its own candidate strip
+            // (see KawaiiBarComponent.isFloatingCandidatesActive).
+            cv.handleEvents = true
+            cv.visibility = View.VISIBLE
+            return
+        }
         if (usePhysicalKeyboardHorizontalCandidateBar(isVirtual)) {
             cv.handleEvents = false
             cv.visibility = View.GONE
             return
         }
 
-        // When using "Always" floating mode, CandidatesView should handle events for both virtual and physical keyboard
-        cv.handleEvents = !isVirtual || useFloatingAlways
-
-        // Control visibility based on mode
+        cv.handleEvents = !isVirtual
         when (floatingMode) {
             FloatingCandidatesMode.SystemDefault -> {
                 // System default: use system's built-in candidate window
@@ -88,8 +94,7 @@ class InputDeviceManager(
                 cv.visibility = if (isVirtual) View.GONE else cv.visibility
             }
             FloatingCandidatesMode.Always -> {
-                // Keep visible for both virtual and physical keyboard
-                // Actual visibility is controlled by content
+                // handled above
                 cv.visibility = View.VISIBLE
             }
         }

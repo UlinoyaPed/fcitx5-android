@@ -877,12 +877,13 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     /**
      * Whether the floating candidates window is responsible for displaying candidates,
-     * meaning KawaiiBar should NOT show its own candidate bar.
+     * meaning KawaiiBar should NOT show its own candidate bar. With the physical-keyboard
+     * bar enabled this still holds in "Always" mode: the toolbar keeps docking, but the
+     * floating window shows the candidates (see InputDeviceManager).
      */
     private fun isFloatingCandidatesActive(): Boolean {
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
-        return floatingMode == FloatingCandidatesMode.Always &&
-            !service.inputDeviceManager.isPhysicalCandidateBarMode
+        return floatingMode == FloatingCandidatesMode.Always
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {
