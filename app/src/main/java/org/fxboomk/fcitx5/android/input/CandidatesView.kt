@@ -22,6 +22,7 @@ import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fxboomk.fcitx5.android.input.candidates.isCandidateVisibleToUser
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fxboomk.fcitx5.android.input.candidates.floating.PagedCandidatesUi
 import org.fxboomk.fcitx5.android.input.font.FontProviders
@@ -152,6 +153,10 @@ class CandidatesView(
     }
 
     override fun handleFcitxEvent(it: FcitxEvent<*>) {
+        if (service.shouldSuppressHardwarePredictionCandidates()) {
+            clearPredictionCandidates()
+            return
+        }
         when (it) {
             is FcitxEvent.InputPanelEvent -> {
                 inputPanel = it.data
@@ -200,6 +205,29 @@ class CandidatesView(
     }
 
     fun hasCandidates(): Boolean = paged.candidates.isNotEmpty() && visibility == VISIBLE
+
+    internal fun clearPredictionCandidates() {
+        inputPanel = FcitxEvent.InputPanelEvent.Data()
+        paged = FcitxEvent.PagedCandidateEvent.Data.Empty
+        activeCandidateOverride = null
+        updateUi()
+    }
+
+    internal fun hasVisiblePredictionCandidate(digit: Int? = null): Boolean {
+        val index = digit?.minus(1) ?: (activeCandidateOverride ?: paged.cursorIndex)
+        return index in paged.candidates.indices &&
+            candidatesUi.root.getChildAt(index)?.isCandidateVisibleToUser() == true
+    }
+
+    internal fun selectVisiblePredictionCandidate(digit: Int? = null): Boolean {
+        if (!hasVisiblePredictionCandidate(digit)) return false
+        val index = digit?.minus(1) ?: (activeCandidateOverride ?: paged.cursorIndex)
+        val expected = paged
+        service.postFcitxJob {
+            if (!service.hardwarePredictionSession.isSuppressed) selectPrediction(index, expected)
+        }
+        return true
+    }
 
     fun moveActiveCandidate(delta: Int): Boolean {
         if (delta == 0 || paged.candidates.isEmpty()) return false

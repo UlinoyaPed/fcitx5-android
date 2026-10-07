@@ -54,6 +54,8 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override var inputPanelCached = FcitxEvent.InputPanelEvent.Data()
         private set
 
+    private val predictionCandidateSnapshot = PredictionCandidateSnapshot()
+
     // TODO: custom log rule
     override fun setLogRule(verbose: Boolean) {
         setupLogStream(verbose)
@@ -109,6 +111,16 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         withFcitxContext { sendKeySymToFcitx(sym.sym, states.toInt(), code, up, timestamp) }
 
     override suspend fun select(idx: Int): Boolean = withFcitxContext { selectCandidate(idx) }
+    override suspend fun selectPrediction(idx: Int, expected: FcitxEvent.PagedCandidateEvent.Data): Boolean =
+        withFcitxContext {
+            if (clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty() ||
+                !predictionCandidateSnapshot.consume(expected)
+            ) {
+                false
+            } else {
+                selectCandidate(idx)
+            }
+        }
     override suspend fun isEmpty(): Boolean = withFcitxContext { isInputPanelEmpty() }
     override suspend fun reset() = withFcitxContext { resetInputContext() }
     override suspend fun moveCursor(position: Int) = withFcitxContext { repositionCursor(position) }
@@ -555,6 +567,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             }
             is FcitxEvent.ClientPreeditEvent -> clientPreeditCached = event.data
             is FcitxEvent.InputPanelEvent -> inputPanelCached = event.data
+            is FcitxEvent.PagedCandidateEvent -> predictionCandidateSnapshot.update(event.data)
             else -> {}
         }
     }

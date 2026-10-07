@@ -82,6 +82,10 @@ import org.fxboomk.fcitx5.android.input.cursor.CursorTracker
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
 import org.fxboomk.fcitx5.android.input.keyboard.resolveHardwarePredictionDigit
 import org.fxboomk.fcitx5.android.input.keyboard.shouldHardwareSpaceCommitPrediction
+import org.fxboomk.fcitx5.android.input.keyboard.HardwarePredictionSession
+import org.fxboomk.fcitx5.android.input.keyboard.isHardwarePredictionDismissKey
+import org.fxboomk.fcitx5.android.input.keyboard.isHardwarePredictionSelectionKey
+import org.fxboomk.fcitx5.android.input.keyboard.shouldConsumeHardwarePredictionDismiss
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
 import org.fxboomk.fcitx5.android.utils.ClipboardSharedContent
 import org.fxboomk.fcitx5.android.utils.ClipboardUriStore
@@ -460,13 +464,32 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty()
     }
 
+    internal val hardwarePredictionSession = HardwarePredictionSession()
+    private val selectedHardwarePredictionKeys = mutableSetOf<Pair<Int, Int>>()
+    // Accessed only by the sequential fcitx job queue, including the matching key-up.
+    private val dismissedHardwarePredictionKeys = mutableSetOf<Pair<Int, Int>>()
+
+    internal fun shouldSuppressHardwarePredictionCandidates(): Boolean =
+        hardwarePredictionSession.blocksCandidates(hasPreeditCached())
+
+    private fun onPredictionTextCommitted(text: String) {
+        if (hardwarePredictionSession.onTextCommitted(text)) {
+            inputView?.resumeHardwarePredictionAfterCommit()
+        }
+    }
+
     /**
-     * Hardware-key shortcuts over AI prediction items while a physical keyboard drives the
+     * Hardware-key shortcuts over visible prediction items while a physical keyboard drives the
      * session: a digit key commits the candidate bar item carrying the matching index
      * label, and space always commits the item labeled 1 regardless of the prediction
      * space behavior setting (which keeps governing the virtual keyboard).
      */
     private fun handleHardwarePredictionKeyEvent(event: KeyEvent): Boolean {
+        val key = event.deviceId to event.keyCode
+        if (key in selectedHardwarePredictionKeys) {
+            if (event.action == KeyEvent.ACTION_UP) selectedHardwarePredictionKeys.remove(key)
+            return true
+        }
         if (inputDeviceManager.isVirtualKeyboard) return false
         if (event.action != KeyEvent.ACTION_DOWN) return false
         if (
@@ -477,13 +500,15 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         ) {
             return false
         }
-        if (event.keyCode == KeyEvent.KEYCODE_SPACE) {
+        val hasPreedit = hasPreeditCached()
+        if (hardwarePredictionSession.blocksCandidates(hasPreedit)) return false
+        val selected = if (event.keyCode == KeyEvent.KEYCODE_SPACE) {
             if (
                 !shouldHardwareSpaceCommitPrediction(
-                    hasFloatingCandidates = hasFloatingCandidates(),
+                    hasFloatingCandidates = candidatesView?.hasVisiblePredictionCandidate() == true,
                     hasCandidateBarItems = inputView?.hasDisplayedCandidates() == true,
                     hasAiPredictionCandidatesVisible = inputView?.hasVisibleAiSuggestions() == true,
-                    hasPreedit = hasPreeditCached(),
+                    hasPreedit = hasPreedit,
                 )
             ) {
                 return false
@@ -491,15 +516,24 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             // Always commit the first prediction: the floating candidates window's
             // highlighted item when it is up, otherwise the candidate bar's first
             // displayed item, otherwise the primary AI suggestion from the bubble state.
-            if (hasFloatingCandidates()) {
-                return candidatesView?.selectActiveCandidate() == true
+            candidatesView?.selectVisiblePredictionCandidate() == true ||
+                inputView?.selectVisiblePredictionCandidate(1) == true ||
+                (inputView?.hasVisibleAiSuggestions() == true &&
+                    inputView?.commitPrimaryAiSuggestion() == true)
+        } else {
+            val digit = resolveHardwarePredictionDigit(event.keyCode) ?: return false
+            if (hasPreedit) {
+                inputDeviceManager.isPhysicalCandidateBarMode &&
+                    inputView?.hasVisiblePredictionCandidate(digit) == true &&
+                    inputView?.selectHorizontalCandidateByDigit(digit) == true
+            } else {
+                candidatesView?.selectVisiblePredictionCandidate(digit) == true ||
+                    (inputDeviceManager.isPhysicalCandidateBarMode &&
+                        inputView?.selectVisiblePredictionCandidate(digit) == true)
             }
-            if (inputView?.selectFirstDisplayedCandidate() == true) return true
-            return inputView?.commitPrimaryAiSuggestion() == true
         }
-        val digit = resolveHardwarePredictionDigit(event.keyCode) ?: return false
-        return inputDeviceManager.isPhysicalCandidateBarMode &&
-            inputView?.selectHorizontalCandidateByDigit(digit) == true
+        if (selected) selectedHardwarePredictionKeys.add(key)
+        return selected
     }
 
     private fun refreshViewsForFontChange() {
@@ -672,6 +706,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return
         }
         when (event) {
+            is FcitxEvent.CandidateListEvent -> {
+                if (event.data.candidates.isNotEmpty()) clearSuppressedNativePrediction()
+            }
+            is FcitxEvent.PagedCandidateEvent -> {
+                if (event.data.candidates.isNotEmpty()) clearSuppressedNativePrediction()
+            }
             is FcitxEvent.ReadyEvent -> {
                 resetCandidatePagingModeCache()
             }
@@ -713,7 +753,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                             )
                             return@event
                         }
-                        currentInputConnection?.sendKeyEvent(keyEvent)
+                        val sent = currentInputConnection?.sendKeyEvent(keyEvent) == true
+                        if (sent && keyEvent.action == KeyEvent.ACTION_DOWN &&
+                            keyEvent.unicodeChar > 0 && !keyEvent.isCtrlPressed &&
+                            !keyEvent.isAltPressed && !keyEvent.isMetaPressed
+                        ) {
+                            onPredictionTextCommitted(Character.toString(keyEvent.unicodeChar))
+                        }
                         if (KeyEvent.isModifierKey(keyEvent.keyCode)) {
                             when (keyEvent.action) {
                                 KeyEvent.ACTION_DOWN -> {
@@ -934,6 +980,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 ic.finishComposingText()
             }
             refreshInputViewSelectionAfterEdit()
+            onPredictionTextCommitted(text)
             afterCommitUpdateCalculatorSuggestion(text)
             return
         }
@@ -953,6 +1000,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }
         refreshInputViewSelectionAfterEdit()
+        onPredictionTextCommitted(text)
         afterCommitUpdateCalculatorSuggestion(text)
     }
 
@@ -960,6 +1008,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         contentView.post {
             val latest = selection.latest
             inputView?.updateSelection(latest.start, latest.end)
+        }
+    }
+
+    private fun clearSuppressedNativePrediction() {
+        if (!shouldSuppressHardwarePredictionCandidates()) return
+        postFcitxJob {
+            // A commit or fresh composition may have arrived while this job was queued.
+            if (shouldSuppressHardwarePredictionCandidates() && !isEmpty()) reset()
         }
     }
 
@@ -1444,6 +1500,17 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         } else {
             event
         }
+        val hardware = !inputDeviceManager.isVirtualKeyboard
+        val dismissPrediction = hardware && isHardwarePredictionDismissKey(event.keyCode)
+        val hadAiPrediction = if (dismissPrediction && event.action == KeyEvent.ACTION_DOWN) {
+            hardwarePredictionSession.cancel()
+            val hadPrediction = inputView?.cancelHardwarePrediction() == true
+            if (!hasPreeditCached()) {
+                candidatesView?.clearPredictionCandidates()
+                inputView?.restoreToolbarAfterPredictionCancelled()
+            }
+            hadPrediction
+        } else false
         if (handleVisibleCandidateArrowKeyEvent(forwardedEvent)) {
             return true
         }
@@ -1466,6 +1533,36 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             val adjustedSym = adjustAlphabetSymForCaps(sym, states)
             val up = forwardedEvent.action == KeyEvent.ACTION_UP
             postFcitxJob {
+                val key = forwardedEvent.deviceId to forwardedEvent.keyCode
+                if (key in dismissedHardwarePredictionKeys) {
+                    if (up) dismissedHardwarePredictionKeys.remove(key)
+                    cachedKeyEvents.remove(timestamp)
+                    return@postFcitxJob
+                }
+                val hasPreedit = clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty()
+                if (dismissPrediction && !up) {
+                    val hasNativePrediction = !hasPreedit && !isEmpty()
+                    if (hasNativePrediction) reset()
+                    if (shouldConsumeHardwarePredictionDismiss(
+                            hasPreedit = hasPreedit,
+                            hasNativeCandidates = hasNativePrediction,
+                            hasAiRequestOrCandidates = hadAiPrediction,
+                            hasModifiers = forwardedEvent.isShiftPressed || forwardedEvent.isAltPressed ||
+                                forwardedEvent.isCtrlPressed || forwardedEvent.isMetaPressed,
+                        )
+                    ) {
+                        dismissedHardwarePredictionKeys.add(key)
+                        cachedKeyEvents.remove(timestamp)
+                        return@postFcitxJob
+                    }
+                }
+                // Visible predictions were selected above. Never let an engine select
+                // a hidden (or not-yet-rendered) prediction from a raw digit/space event.
+                if (hardware && !up && !hasPreedit &&
+                    isHardwarePredictionSelectionKey(forwardedEvent.keyCode)
+                ) {
+                    reset()
+                }
                 sendKey(adjustedSym, states, forwardedEvent.scanCode, up, timestamp)
             }
             return true
@@ -1783,6 +1880,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         isInInputLifecycleCriticalPhase = true
         try {
+            if (!restarting) hardwarePredictionSession.reset()
+            selectedHardwarePredictionKeys.clear()
+            postFcitxJob { dismissedHardwarePredictionKeys.clear() }
             val inputSessionGeneration = ++this.inputSessionGeneration
             selection.resetTo(attribute.initialSelStart, attribute.initialSelEnd)
             resetComposingState()

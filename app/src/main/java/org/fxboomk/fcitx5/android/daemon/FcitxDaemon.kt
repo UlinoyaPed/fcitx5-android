@@ -15,6 +15,7 @@ import org.fxboomk.fcitx5.android.FcitxApplication
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.Fcitx
 import org.fxboomk.fcitx5.android.core.FcitxAPI
+import org.fxboomk.fcitx5.android.core.FcitxEvent
 import org.fxboomk.fcitx5.android.core.FcitxLifecycle
 import org.fxboomk.fcitx5.android.core.lifeCycleScope
 import org.fxboomk.fcitx5.android.core.whenReady
@@ -53,6 +54,11 @@ object FcitxDaemon {
 
             override suspend fun activateRimeSchemaAction(id: Int) =
                 realFcitx.activateRimeSchemaAction(id)
+
+            override suspend fun selectPrediction(
+                idx: Int,
+                expected: FcitxEvent.PagedCandidateEvent.Data,
+            ) = realFcitx.selectPrediction(idx, expected)
         }
     }
 

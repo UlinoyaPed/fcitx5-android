@@ -486,6 +486,18 @@ class AiSuggestionStripComponent(
         suppressPredictionUntilNextCommit("backspace")
     }
 
+    fun cancelHardwarePrediction(): Boolean {
+        val wasActive = activeSuggestions.isNotEmpty() || panelVisible || errorMessage != null ||
+            (predictorCreated && predictor.hasPendingRequest())
+        suppressPredictionUntilNextCommit("hardware-dismiss")
+        return wasActive
+    }
+
+    fun resumeHardwarePredictionAfterCommit() {
+        predictionSuppressed = false
+        suppressionUntilCommitRevision = -1
+    }
+
     internal fun commitSuggestionFromUi(suggestion: String) {
         if (taskMode == LlmTaskMode.Translate || isTranslatePanelMode()) {
             commitTranslatedText(suggestion)
@@ -536,6 +548,10 @@ class AiSuggestionStripComponent(
     }
 
     private fun requestPredictionIfNeeded(trigger: PredictionTrigger = PredictionTrigger.Automatic) {
+        if (service.hardwarePredictionSession.isSuppressed) {
+            clearSuggestions(resetRequestState = true)
+            return
+        }
         val isAutomatic = trigger == PredictionTrigger.Automatic
         val keepSingleTextPanelVisible = shouldKeepSingleTextPanelVisible()
         if (!allowPrediction || (!keepSingleTextPanelVisible && (hasClientPreedit || hasInputPanelPreedit)) || !selectionCollapsed) {
@@ -1028,6 +1044,10 @@ class AiSuggestionStripComponent(
         configOverride: LlmPrefs.Config? = null,
         trigger: PredictionTrigger = PredictionTrigger.Automatic,
     ): Boolean {
+        if (service.hardwarePredictionSession.isSuppressed) {
+            clearSuggestions(resetRequestState = true)
+            return false
+        }
         val config = configOverride ?: LlmPrefs.read(service.applicationContext)
         if (taskMode == LlmTaskMode.Translate) {
             return requestTranslateContent(config, trigger)

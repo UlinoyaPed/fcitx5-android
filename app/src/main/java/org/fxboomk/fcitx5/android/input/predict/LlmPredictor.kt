@@ -169,6 +169,8 @@ internal class LlmPredictor(
         pendingJob = null
     }
 
+    fun hasPendingRequest(): Boolean = pendingJob?.isActive == true
+
     fun close() {
         cancel()
         scope.cancel()

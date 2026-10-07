@@ -36,6 +36,7 @@ import org.fxboomk.fcitx5.android.input.bar.hasVisibleCandidateContent
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fxboomk.fcitx5.android.input.candidates.CandidateItemUi
 import org.fxboomk.fcitx5.android.input.candidates.CandidateViewHolder
+import org.fxboomk.fcitx5.android.input.candidates.isCandidateVisibleToUser
 import org.fxboomk.fcitx5.android.input.candidates.expanded.decoration.FlexboxVerticalDecoration
 import org.fxboomk.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode.AlwaysFillWidth
 import org.fxboomk.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode.AutoFillWidth
@@ -308,6 +309,23 @@ class HorizontalCandidateComponent :
 
     fun hasCandidates(): Boolean = adapter.candidates.isNotEmpty()
 
+    internal fun hasVisiblePredictionCandidate(digit: Int): Boolean {
+        val position = digit - 1
+        if (position !in adapter.candidates.indices || view.hasPendingAdapterUpdates()) return false
+        return view.findViewHolderForAdapterPosition(position)?.itemView?.isCandidateVisibleToUser() == true
+    }
+
+    internal fun selectVisiblePredictionCandidate(digit: Int): Boolean {
+        if (!hasVisiblePredictionCandidate(digit)) return false
+        if (selectByDigitKey(digit)) return true
+        val index = digit - 1 + adapter.indexOffset
+        val expected = lastPagedData ?: return false
+        service.postFcitxJob {
+            if (!service.hardwarePredictionSession.isSuppressed) selectPrediction(index, expected)
+        }
+        return true
+    }
+
     fun hasNativeCandidates(): Boolean = nativeCandidateSnapshot.candidates.isNotEmpty()
 
     fun isShowingAiSuggestions(): Boolean = showingAiSuggestions
@@ -365,19 +383,6 @@ class HorizontalCandidateComponent :
             return true
         }
         return false
-    }
-
-    /**
-     * Commit the item labeled 1, i.e. the first displayed item: the calculator result or
-     * an AI prediction when the bar leads with one, otherwise the first native candidate
-     * through fcitx. Returns false when nothing is displayed.
-     */
-    fun selectFirstDisplayedCandidate(): Boolean {
-        if (adapter.candidates.isEmpty()) return false
-        if (selectByDigitKey(1)) return true
-        val index = adapter.indexOffset
-        fcitx.launchOnReady { it.select(index) }
-        return true
     }
 
     private fun isCalculatorCandidatePosition(position: Int): Boolean =
@@ -696,6 +701,7 @@ class HorizontalCandidateComponent :
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         pendingLegacyCandidateUpdate = null
         if (data == lastPagedData) {
+            lastPagedData = data
             return
         }
         lastPagedData = data

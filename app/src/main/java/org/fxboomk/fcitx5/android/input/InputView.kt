@@ -70,6 +70,7 @@ import org.fxboomk.fcitx5.android.input.candidates.expanded.window.BaseExpandedC
 import org.fxboomk.fcitx5.android.input.candidates.expanded.window.FlexboxExpandedCandidateWindow
 import org.fxboomk.fcitx5.android.input.candidates.expanded.window.GridExpandedCandidateWindow
 import org.fxboomk.fcitx5.android.input.predict.AiSuggestionOverlay
+import org.fxboomk.fcitx5.android.input.candidates.isCandidateVisibleToUser
 import org.fxboomk.fcitx5.android.input.predict.AiSuggestionStripComponent
 import org.fxboomk.fcitx5.android.input.predict.hasInteractiveAiContent
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
@@ -1308,12 +1309,27 @@ class InputView(
     fun selectHorizontalCandidateByDigit(digit: Int): Boolean =
         horizontalCandidate.selectByDigitKey(digit)
 
-    fun selectFirstDisplayedCandidate(): Boolean =
-        horizontalCandidate.selectFirstDisplayedCandidate()
+    fun hasDisplayedCandidates(): Boolean = horizontalCandidate.hasVisiblePredictionCandidate(1)
 
-    fun hasDisplayedCandidates(): Boolean = horizontalCandidate.hasCandidates()
+    internal fun hasVisiblePredictionCandidate(digit: Int): Boolean =
+        horizontalCandidate.hasVisiblePredictionCandidate(digit)
 
-    fun hasVisibleAiSuggestions(): Boolean = aiSuggestionStrip.hasVisibleSuggestions()
+    fun hasVisibleAiSuggestions(): Boolean {
+        val state = latestAiSuggestionPresentationState
+        if (state.isLoading || !aiSuggestionOverlay.isCandidateVisibleToUser() ||
+            !aiSuggestionStrip.hasVisibleSuggestions()
+        ) return false
+        // A loading/streaming panel may retain an earlier suggestion internally.
+        return state.mode != AiSuggestionStripComponent.PresentationMode.PanelVisible ||
+            state.panelSuggestions.firstOrNull() == state.suggestions.firstOrNull()
+    }
+
+    internal fun selectVisiblePredictionCandidate(digit: Int): Boolean =
+        horizontalCandidate.selectVisiblePredictionCandidate(digit)
+
+    internal fun cancelHardwarePrediction(): Boolean = aiSuggestionStrip.cancelHardwarePrediction()
+
+    internal fun resumeHardwarePredictionAfterCommit() = aiSuggestionStrip.resumeHardwarePredictionAfterCommit()
 
     fun commitPrimaryAiSuggestion(): Boolean = aiSuggestionStrip.commitPrimarySuggestion()
 
@@ -2688,17 +2704,23 @@ class InputView(
     override fun handleFcitxEvent(it: FcitxEvent<*>) {
         when (it) {
             is FcitxEvent.CandidateListEvent -> {
-                broadcaster.onCandidateUpdate(it.data)
+                val data = if (service.shouldSuppressHardwarePredictionCandidates()) {
+                    FcitxEvent.CandidateListEvent.Data(total = 0)
+                } else it.data
+                broadcaster.onCandidateUpdate(data)
             }
             is FcitxEvent.PagedCandidateEvent -> {
+                val data = if (service.shouldSuppressHardwarePredictionCandidates()) {
+                    FcitxEvent.PagedCandidateEvent.Data.Empty
+                } else it.data
                 preeditEmptyState.updatePreeditEmptyState()
                 broadcaster.onCandidateUpdate(
                     FcitxEvent.CandidateListEvent.Data(
                         total = -1,
-                        candidates = it.data.candidates
+                        candidates = data.candidates
                     )
                 )
-                broadcaster.onPagedCandidateUpdate(it.data)
+                broadcaster.onPagedCandidateUpdate(data)
             }
             is FcitxEvent.ClientPreeditEvent -> {
                 if (clipboardSearchActive) return
