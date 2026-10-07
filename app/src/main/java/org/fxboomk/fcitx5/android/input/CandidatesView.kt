@@ -244,7 +244,13 @@ class CandidatesView(
         } else {
             calculatePositionByCursorAnchor(parentWidth, parentHeight, selfWidth, selfHeight)
         }
-        
+        if (tX.isNaN() || tY.isNaN()) {
+            // Keep the previous position; rounding NaN would crash. The next valid
+            // cursor anchor update repositions the window.
+            shouldUpdatePosition = false
+            return
+        }
+
         translationX = tX
         translationY = tY
         // update touchEventReceiverWindow's position after CandidatesView's

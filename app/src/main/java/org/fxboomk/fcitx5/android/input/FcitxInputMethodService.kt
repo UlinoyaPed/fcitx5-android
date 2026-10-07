@@ -307,7 +307,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val isKeyboardVisible = inputDeviceManager.isVirtualKeyboard
 
         // Fallback: if system doesn't provide valid cursor position, use keyboard top
-        if (cursorTop <= 0f || cursorBottom <= 0f) {
+        // (NaN comparisons are always false, so non-finite values must be caught explicitly)
+        if (cursorTop <= 0f || cursorBottom <= 0f ||
+            cursorTop.isNaN() || cursorBottom.isNaN()
+        ) {
             // Assume cursor is near keyboard top
             cursorBottom = keyboardTop
             cursorTop = keyboardTop
@@ -1878,8 +1881,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (!decorLocationUpdated) {
             updateDecorLocation()
         }
+        // params of `Matrix.mapPoints` must be [x0, y0, x1, y1]
+        info.matrix.mapPoints(anchorPosition)
         if (anchorPosition.any(Float::isNaN)) {
-            // anchor candidates view to bottom-left corner in case CursorAnchorInfo is invalid
+            // a degenerate editor matrix can make the mapping produce NaN even from
+            // finite inputs; anchor the candidates view to the bottom-left corner
+            // instead of persisting NaN into the anchor state
             candidatesView?.updateCursorAnchor(contentSize)
             inputView?.updateAiSuggestionCursorAnchor(null, contentSize)
             return
