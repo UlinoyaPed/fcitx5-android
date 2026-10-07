@@ -225,4 +225,21 @@ class HorizontalCandidateComponentTest {
         assertEquals(listOf("native1", "native2", "ai1"), placement.candidates.toList())
         assertEquals(1, placement.visibleAiCount)
     }
+
+    @Test
+    fun `numbers candidates by displayed position for digit keys up to nine`() {
+        assertEquals(1, indexLabelForPosition(position = 0, enabled = true))
+        assertEquals(9, indexLabelForPosition(position = 8, enabled = true))
+    }
+
+    @Test
+    fun `hides index number beyond selectable digit keys`() {
+        assertEquals(null, indexLabelForPosition(position = 9, enabled = true))
+    }
+
+    @Test
+    fun `hides index numbers on the virtual keyboard`() {
+        assertEquals(null, indexLabelForPosition(position = 0, enabled = false))
+        assertEquals(null, indexLabelForPosition(position = 8, enabled = false))
+    }
 }

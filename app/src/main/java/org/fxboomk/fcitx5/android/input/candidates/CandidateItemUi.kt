@@ -10,11 +10,14 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.graphics.ColorUtils
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import org.fxboomk.fcitx5.android.core.CandidateWord
@@ -76,9 +79,37 @@ class CandidateItemUi(
     private var currentCandidate = CandidateWord.Empty
     private var isActive = false
     private var hasFirstCandidateStyle = false
+    private var indexLabelNumber: Int? = null
 
     private val activeForegroundColor: Int
         get() = if (theme.isDark) Color.BLACK else Color.WHITE
+
+    /**
+     * Small selection-key number drawn at the top-right corner; only meaningful when a
+     * physical keyboard drives the candidate bar. `null` hides the label.
+     */
+    fun setIndexLabel(number: Int?) {
+        if (indexLabelNumber == number) return
+        indexLabelNumber = number
+        if (number == null) {
+            indexLabel.visibility = View.GONE
+        } else {
+            indexLabel.text = number.toString()
+            indexLabel.visibility = View.VISIBLE
+        }
+        renderIndexLabelColor()
+    }
+
+    private fun renderIndexLabelColor() {
+        val highlighted = isActive || hasFirstCandidateStyle
+        indexLabel.setTextColor(
+            if (highlighted) {
+                ColorUtils.setAlphaComponent(activeForegroundColor, 190)
+            } else {
+                theme.candidateCommentColor
+            }
+        )
+    }
 
     private fun updateHighlightRadius() {
         val radius = highlightRadius
@@ -165,6 +196,7 @@ class CandidateItemUi(
         val highlighted = isActive || hasFirstCandidateStyle
         val fg = if (highlighted) activeForegroundColor else theme.candidateTextColor
         val altFg = if (highlighted) activeForegroundColor else theme.candidateCommentColor
+        renderIndexLabelColor()
         text.setTextColor(fg)
         text.text = buildSpannedString {
             color(fg) {
@@ -188,11 +220,23 @@ class CandidateItemUi(
         })
     }
 
+    private val indexLabel = view(::TextView) {
+        // Selection-key number for physical keyboard; measured size is kept out of the
+        // candidate text metrics on purpose (overlay only, so bar-height math is unchanged)
+        textSize = 10f
+        includeFontPadding = false
+        visibility = View.GONE
+    }
+
     private val candidateRoot = view(::ScrollableCandidateGestureView) {
         background = normalBackground
         longPressFeedbackEnabled = false
         add(content, lParams(wrapContent, matchParent) {
             gravity = gravityCenter
+        })
+        add(indexLabel, lParams(wrapContent, wrapContent) {
+            gravity = Gravity.TOP or Gravity.END
+            marginEnd = ctx.dp(2)
         })
     }
 

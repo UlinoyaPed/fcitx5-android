@@ -62,6 +62,16 @@ internal fun activeCandidateIndex(cursorIndex: Int, candidateCount: Int): Int {
     return cursorIndex.coerceIn(0, candidateCount - 1)
 }
 
+/**
+ * Selection-key number shown at the top-right corner of a candidate item when a physical
+ * keyboard drives the bar. fcitx selects candidates with digit keys 1-9, so items beyond
+ * the ninth position get no label.
+ */
+internal fun indexLabelForPosition(position: Int, enabled: Boolean): Int? =
+    if (enabled && position in 0 until MAX_INDEX_LABEL) position + 1 else null
+
+private const val MAX_INDEX_LABEL = 9
+
 internal data class HorizontalCandidateLayoutSizing(
     val minWidth: Int,
     val flexGrow: Float,
@@ -195,10 +205,21 @@ class HorizontalCandidateComponent :
     private var layoutMinWidth = 0
     private var layoutFlexGrow = 1f
     private var inlineMode = false
+    private var indexLabelsEnabled = false
 
     fun setInlineMode(inline: Boolean) {
         if (inlineMode == inline) return
         inlineMode = inline
+        adapter.notifyDataSetChanged()
+    }
+
+    /**
+     * Show selection-key numbers on candidate items (including AI prediction items) while
+     * the bar doubles as the physical-keyboard candidate display; hidden on the touch keyboard.
+     */
+    fun setIndexLabelsEnabled(enabled: Boolean) {
+        if (indexLabelsEnabled == enabled) return
+        indexLabelsEnabled = enabled
         adapter.notifyDataSetChanged()
     }
 
@@ -526,6 +547,7 @@ class HorizontalCandidateComponent :
                 holder.ui.setFontScale(
                     if (inlineMode) INLINE_CANDIDATE_FONT_SCALE else 1f
                 )
+                holder.ui.setIndexLabel(indexLabelForPosition(position, indexLabelsEnabled))
                 val isCalculatorCandidate = isCalculatorCandidatePosition(position)
                 val isAiCandidate = isAiCandidatePosition(position)
                 holder.itemView.setOnClickListener {

@@ -1715,6 +1715,7 @@ class InputView(
         val enableFloating = !isFloating
         if (enableFloating && isPhysicalCandidateBarMode) {
             isPhysicalCandidateBarMode = false
+            horizontalCandidate.setIndexLabelsEnabled(false)
         }
         if (isFloating) {
             saveFloatingPosition(
@@ -2997,6 +2998,7 @@ class InputView(
             isFloating = false
         }
         isPhysicalCandidateBarMode = enabled
+        horizontalCandidate.setIndexLabelsEnabled(enabled)
         if (!enabled && floatingKeyboardEnabled && !isOneHanded) {
             isFloating = true
         }
