@@ -1305,6 +1305,18 @@ class InputView(
     fun selectHorizontalCandidateHighlight(): Boolean =
         horizontalCandidate.selectActiveCandidate()
 
+    fun selectHorizontalCandidateByDigit(digit: Int): Boolean =
+        horizontalCandidate.selectByDigitKey(digit)
+
+    fun selectFirstDisplayedCandidate(): Boolean =
+        horizontalCandidate.selectFirstDisplayedCandidate()
+
+    fun hasDisplayedCandidates(): Boolean = horizontalCandidate.hasCandidates()
+
+    fun hasVisibleAiSuggestions(): Boolean = aiSuggestionStrip.hasVisibleSuggestions()
+
+    fun commitPrimaryAiSuggestion(): Boolean = aiSuggestionStrip.commitPrimarySuggestion()
+
     private var oneHandOnRight = true
     private var oneHandWidthPx = 0
     private var lastTouchX = 0f

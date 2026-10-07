@@ -348,6 +348,38 @@ class HorizontalCandidateComponent :
         return true
     }
 
+    /**
+     * Commit the displayed item carrying the index label [digit] (1-9) when it is the
+     * calculator result or an AI prediction. Native candidate positions return false so
+     * the digit key keeps flowing to fcitx for engine-side selection.
+     */
+    fun selectByDigitKey(digit: Int): Boolean {
+        val position = digit - 1
+        if (position !in adapter.candidates.indices) return false
+        if (isCalculatorCandidatePosition(position)) {
+            calculatorSuggestion?.let(inputView::commitCalculatorSuggestionFromUi)
+            return true
+        }
+        if (isAiCandidatePosition(position)) {
+            inputView.commitAiSuggestionFromUi(adapter.candidates[position].text)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Commit the item labeled 1, i.e. the first displayed item: the calculator result or
+     * an AI prediction when the bar leads with one, otherwise the first native candidate
+     * through fcitx. Returns false when nothing is displayed.
+     */
+    fun selectFirstDisplayedCandidate(): Boolean {
+        if (adapter.candidates.isEmpty()) return false
+        if (selectByDigitKey(1)) return true
+        val index = adapter.indexOffset
+        fcitx.launchOnReady { it.select(index) }
+        return true
+    }
+
     private fun isCalculatorCandidatePosition(position: Int): Boolean =
         position == displayedCalculatorIndex
 

@@ -80,6 +80,8 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.cursor.CursorRange
 import org.fxboomk.fcitx5.android.input.cursor.CursorTracker
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
+import org.fxboomk.fcitx5.android.input.keyboard.resolveHardwarePredictionDigit
+import org.fxboomk.fcitx5.android.input.keyboard.shouldHardwareSpaceCommitPrediction
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
 import org.fxboomk.fcitx5.android.utils.ClipboardSharedContent
 import org.fxboomk.fcitx5.android.utils.ClipboardUriStore
@@ -449,6 +451,52 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             moveVisibleCandidateHighlightOnMain(delta)
         }
         return true
+    }
+
+    private fun hasPreeditCached(): Boolean = fcitx.runImmediately {
+        clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty()
+    }
+
+    /**
+     * Hardware-key shortcuts over AI prediction items while a physical keyboard drives the
+     * session: a digit key commits the candidate bar item carrying the matching index
+     * label, and space always commits the item labeled 1 regardless of the prediction
+     * space behavior setting (which keeps governing the virtual keyboard).
+     */
+    private fun handleHardwarePredictionKeyEvent(event: KeyEvent): Boolean {
+        if (inputDeviceManager.isVirtualKeyboard) return false
+        if (event.action != KeyEvent.ACTION_DOWN) return false
+        if (
+            event.isShiftPressed ||
+            event.isAltPressed ||
+            event.isCtrlPressed ||
+            event.isMetaPressed
+        ) {
+            return false
+        }
+        if (event.keyCode == KeyEvent.KEYCODE_SPACE) {
+            if (
+                !shouldHardwareSpaceCommitPrediction(
+                    hasFloatingCandidates = hasFloatingCandidates(),
+                    hasCandidateBarItems = inputView?.hasDisplayedCandidates() == true,
+                    hasAiPredictionCandidatesVisible = inputView?.hasVisibleAiSuggestions() == true,
+                    hasPreedit = hasPreeditCached(),
+                )
+            ) {
+                return false
+            }
+            // Always commit the first prediction: the floating candidates window's
+            // highlighted item when it is up, otherwise the candidate bar's first
+            // displayed item, otherwise the primary AI suggestion from the bubble state.
+            if (hasFloatingCandidates()) {
+                return candidatesView?.selectActiveCandidate() == true
+            }
+            if (inputView?.selectFirstDisplayedCandidate() == true) return true
+            return inputView?.commitPrimaryAiSuggestion() == true
+        }
+        val digit = resolveHardwarePredictionDigit(event.keyCode) ?: return false
+        return inputDeviceManager.isPhysicalCandidateBarMode &&
+            inputView?.selectHorizontalCandidateByDigit(digit) == true
     }
 
     private fun refreshViewsForFontChange() {
@@ -1394,6 +1442,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             event
         }
         if (handleVisibleCandidateArrowKeyEvent(forwardedEvent)) {
+            return true
+        }
+        if (handleHardwarePredictionKeyEvent(forwardedEvent)) {
             return true
         }
         cachedKeyEvents.put(timestamp, forwardedEvent)
