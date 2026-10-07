@@ -406,7 +406,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         ui.setHideKeyboardIsVoiceInput(
             shouldShowVoiceInput,
             View.OnClickListener { view ->
-                service.restoreVirtualKeyboardForKawaiiBarAction()
+                // Restoring the virtual keyboard re-lays out InputView with the key rows
+                // and flashes them right before the IME hides; only the voice handoff
+                // needs the restore.
+                if (shouldShowVoiceInput) {
+                    service.restoreVirtualKeyboardForKawaiiBarAction()
+                }
                 hideKeyboardOrVoiceCallback.onClick(view)
             }
         )
@@ -466,7 +471,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
         ui.hideKeyboardButton.apply {
             setOnClickListener {
-                restoreVirtualKeyboardMode()
+                // No virtual-keyboard restore here: re-laying out InputView with the key
+                // rows flashes them right before the IME window hides.
                 hideKeyboardCallback.onClick(it)
             }
             swipeEnabled = true
@@ -863,7 +869,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         idleUi.setHideKeyboardIsVoiceInput(
             shouldShowVoiceInput,
             View.OnClickListener { view ->
-                service.restoreVirtualKeyboardForKawaiiBarAction()
+                // Restoring the virtual keyboard re-lays out InputView with the key rows
+                // and flashes them right before the IME hides; only the voice handoff
+                // needs the restore.
+                if (shouldShowVoiceInput) {
+                    service.restoreVirtualKeyboardForKawaiiBarAction()
+                }
                 hideKeyboardOrVoiceCallback.onClick(view)
             }
         )
