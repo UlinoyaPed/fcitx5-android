@@ -351,6 +351,7 @@
     <string name="vertical">Вертикальная</string>
     <string name="always">Всегда</string>
     <string name="candidates_position">Позиция окна кандидатов</string>
+    <string name="candidates_position_smart">Умная</string>
     <string name="top_left">Вверху слева</string>
     <string name="top_right">Вверху справа</string>
     <string name="bottom_left">Внизу слева</string>
