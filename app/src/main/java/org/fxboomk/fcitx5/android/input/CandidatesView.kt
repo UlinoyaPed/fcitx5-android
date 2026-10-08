@@ -25,6 +25,8 @@ import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMo
 import org.fxboomk.fcitx5.android.input.candidates.isCandidateVisibleToUser
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fxboomk.fcitx5.android.input.candidates.floating.PagedCandidatesUi
+import org.fxboomk.fcitx5.android.input.candidates.floating.calculateSmartFloatingCandidatesPosition
+import org.fxboomk.fcitx5.android.input.candidates.floating.nextFloatingCandidateIndex
 import org.fxboomk.fcitx5.android.input.font.FontProviders
 import org.fxboomk.fcitx5.android.input.preedit.PreeditUi
 import splitties.dimensions.dp
@@ -103,6 +105,7 @@ class CandidatesView(
     private var isVirtualKeyboardVisible = true
 
     private var shouldUpdatePosition = false
+    private var preeditAtBottom = false
 
     /**
      * layout update may or may not cause [CandidatesView]'s size [onSizeChanged],
@@ -121,7 +124,9 @@ class CandidatesView(
         if (shouldUpdatePosition) {
             updatePosition()
         }
-        true
+        // A side change can reorder the content. Lay it out before showing either
+        // the visual window or its touch receiver at the new position.
+        !isLayoutRequested
     }
 
     private val touchEventReceiverWindow = TouchEventReceiverWindow(this)
@@ -202,6 +207,7 @@ class CandidatesView(
             // RecyclerView won't update its items when ancestor view is GONE
             visibility = INVISIBLE
         }
+        shouldUpdatePosition = true
     }
 
     fun hasCandidates(): Boolean = paged.candidates.isNotEmpty() && visibility == VISIBLE
@@ -230,10 +236,12 @@ class CandidatesView(
     }
 
     fun moveActiveCandidate(delta: Int): Boolean {
-        if (delta == 0 || paged.candidates.isEmpty()) return false
-        val base = activeCandidateOverride ?: paged.cursorIndex
-        val next = (base + delta).coerceIn(paged.candidates.indices)
-        if (next == base) return false
+        val next = nextFloatingCandidateIndex(
+            currentIndex = activeCandidateOverride ?: paged.cursorIndex,
+            delta = delta,
+            candidateCount = paged.candidates.size,
+            reversed = candidatesUi.isReversed
+        ) ?: return false
         activeCandidateOverride = next
         updateUi()
         return true
@@ -267,7 +275,38 @@ class CandidatesView(
         val selfWidth = w.toFloat()
         val selfHeight = h.toFloat()
         
-        val (tX, tY) = if (useKeyboardPosition) {
+        val smartPosition = if (floatingPosition == FloatingCandidatesVirtualKeyboardPosition.Smart) {
+            val screenBottom = parentHeight - bottomInsets
+            val bottomLimit = if (isVirtualKeyboardVisible &&
+                candidatesPrefs.mode.getValue() == FloatingCandidatesMode.Always
+            ) {
+                keyboardBounds[1].takeIf { it.isFinite() && it > 0f }
+                    ?.coerceAtMost(screenBottom) ?: screenBottom
+            } else {
+                screenBottom
+            }
+            calculateSmartFloatingCandidatesPosition(
+                parentWidth = parentWidth,
+                bottomLimit = bottomLimit,
+                selfWidth = selfWidth,
+                selfHeight = selfHeight,
+                cursorX = anchorPosition[0],
+                cursorTop = anchorPosition[2],
+                cursorBottom = anchorPosition[1],
+                gap = dp(4).toFloat(),
+                isRtl = layoutDirection == LAYOUT_DIRECTION_RTL
+            )
+        } else null
+
+        if (updateContentOrder(smartPosition?.isAboveCursor == true)) {
+            shouldUpdatePosition = true
+            return
+        }
+
+        val (tX, tY) = if (smartPosition != null) {
+            // FrameLayout places an RTL child at the right edge before translation.
+            Pair(smartPosition.x - left, smartPosition.y - top)
+        } else if (useKeyboardPosition) {
             calculatePositionByKeyboardBounds(parentWidth, parentHeight, selfWidth, selfHeight)
         } else {
             calculatePositionByCursorAnchor(parentWidth, parentHeight, selfWidth, selfHeight)
@@ -282,8 +321,38 @@ class CandidatesView(
         translationX = tX
         translationY = tY
         // update touchEventReceiverWindow's position after CandidatesView's
-        touchEventReceiverWindow.showAt(tX.roundToInt(), tY.roundToInt(), w, h)
+        touchEventReceiverWindow.showAt(
+            (smartPosition?.x ?: tX).roundToInt(),
+            (smartPosition?.y ?: tY).roundToInt(), w, h
+        )
         shouldUpdatePosition = false
+    }
+
+    private fun updateContentOrder(aboveCursor: Boolean): Boolean {
+        candidatesUi.setWindowAboveCursor(aboveCursor)
+        val reverse = candidatesUi.isReversed
+        if (preeditAtBottom == reverse) return false
+        preeditAtBottom = reverse
+        preeditUi.root.layoutParams = lParams(wrapContent, wrapContent) {
+            startOfParent()
+            if (reverse) {
+                below(candidatesUi.root)
+                bottomOfParent()
+            } else {
+                topOfParent()
+            }
+        }
+        candidatesUi.root.layoutParams = lParams(matchConstraints, wrapContent) {
+            matchConstraintMinWidth = wrapContent
+            centerHorizontally()
+            if (reverse) {
+                topOfParent()
+            } else {
+                below(preeditUi.root)
+                bottomOfParent()
+            }
+        }
+        return true
     }
 
     private fun calculatePositionByCursorAnchor(
@@ -362,6 +431,7 @@ class CandidatesView(
         gap: Float
     ): Float {
         return when (floatingPosition) {
+            FloatingCandidatesVirtualKeyboardPosition.Smart,
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.BottomLeft -> {
                 gap
@@ -388,6 +458,7 @@ class CandidatesView(
         val switchThreshold = selfHeight * 2f
 
         return when (floatingPosition) {
+            FloatingCandidatesVirtualKeyboardPosition.Smart,
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
                 val spaceAbove = cursorTop - gap
@@ -507,6 +578,7 @@ class CandidatesView(
 
         // Calculate X position based on floatingPosition
         val tX: Float = when (floatingPosition) {
+            FloatingCandidatesVirtualKeyboardPosition.Smart,
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.BottomLeft -> {
                 gap
@@ -519,6 +591,7 @@ class CandidatesView(
 
         // Calculate Y position based on floatingPosition
         val tY: Float = when (floatingPosition) {
+            FloatingCandidatesVirtualKeyboardPosition.Smart,
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
                 // Top of screen
