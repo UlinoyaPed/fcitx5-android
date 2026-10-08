@@ -349,6 +349,7 @@
     <string name="vertical">세로</string>
     <string name="always">항상</string>
     <string name="candidates_position">후보 창 위치</string>
+    <string name="candidates_position_smart">스마트</string>
     <string name="top_left">왼쪽 상단</string>
     <string name="top_right">오른쪽 상단</string>
     <string name="bottom_left">왼쪽 하단</string>

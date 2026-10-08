@@ -570,6 +570,7 @@
     <string name="vertical">縦</string>
     <string name="always">常に</string>
     <string name="candidates_position">候補ウィンドウの位置</string>
+    <string name="candidates_position_smart">スマート</string>
     <string name="top_left">左上</string>
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>

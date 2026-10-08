@@ -522,6 +522,7 @@
     <string name="vertical">纵向</string>
     <string name="always">始终</string>
     <string name="candidates_position">候选窗口位置</string>
+    <string name="candidates_position_smart">智能</string>
     <string name="top_left">左上</string>
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
