@@ -46,6 +46,10 @@ class PagedCandidatesUi(
     private var activeIndex = -1
 
     private var isVertical = false
+    private var windowAboveCursor = false
+
+    val isReversed: Boolean
+        get() = isVertical && windowAboveCursor
 
     private val measurementCandidateUi by lazy {
         LabeledCandidateItemUi(ctx, theme, setupTextView, highlightRadius).also {
@@ -83,9 +87,25 @@ class PagedCandidatesUi(
         this.data = data
         this.isVertical = newIsVertical
         this.activeIndex = newActiveIndex
-        root.flexDirection = if (isVertical) FlexDirection.COLUMN else FlexDirection.ROW
+        updateFlexDirection()
         root.alignItems = if (isVertical) AlignItems.STRETCH else AlignItems.BASELINE
         reconcileChildren()
+    }
+
+    fun setWindowAboveCursor(above: Boolean) {
+        if (windowAboveCursor == above) return
+        windowAboveCursor = above
+        updateFlexDirection()
+    }
+
+    private fun updateFlexDirection() {
+        // Reverse only visual layout: child indices, labels and actions still refer
+        // to the engine's original candidate order, including numeric selection.
+        root.flexDirection = when {
+            isReversed -> FlexDirection.COLUMN_REVERSE
+            isVertical -> FlexDirection.COLUMN
+            else -> FlexDirection.ROW
+        }
     }
 
     private fun itemCount(): Int =
