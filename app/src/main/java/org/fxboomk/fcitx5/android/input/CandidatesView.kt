@@ -336,7 +336,7 @@ class CandidatesView(
         } else {
             calculatePositionByCursorAnchor(parentWidth, parentHeight, selfWidth, selfHeight)
         }
-        if (tX.isNaN() || tY.isNaN()) {
+        if (!tX.isFinite() || !tY.isFinite()) {
             // Keep the previous position; rounding NaN would crash. The next valid
             // cursor anchor update repositions the window.
             shouldUpdatePosition = false
@@ -354,7 +354,7 @@ class CandidatesView(
     }
 
     private fun updateContentOrder(aboveCursor: Boolean): Boolean {
-        candidatesUi.setWindowAboveCursor(aboveCursor)
+        candidatesUi.setWindowAboveCursor(aboveCursor && candidatesPrefs.reverseAboveCursor.getValue())
         val reverse = candidatesUi.isReversed
         if (preeditAtBottom == reverse) return false
         preeditAtBottom = reverse

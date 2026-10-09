@@ -960,4 +960,15 @@
     <string name="theme_preview_previous">Tema anterior</string>
     <string name="theme_preview_next">Tema siguiente</string>
     <string name="theme_preview_in_use">En uso</string>
+
+    <string name="llm_space_commit_prediction">Confirmar predicción de IA con espacio</string>
+    <string name="llm_space_commit_prediction_summary">Desactivado por defecto. Al activarlo, espacio confirma la primera predicción de IA visible fuera de la composición; al desactivarlo, introduce un espacio.</string>
+    <string name="personal_candidate_index_labels">Mostrar números en la barra de candidatos del teclado físico</string>
+    <string name="personal_hardware_digit_selection">Seleccionar candidatos con teclas numéricas físicas</string>
+    <string name="personal_hardware_space_selection">Confirmar el candidato resaltado con el espacio físico</string>
+    <string name="personal_hardware_prediction_dismiss">Descartar predicciones con Escape o Retroceso físicos</string>
+    <string name="personal_digit_swipe_selection">Seleccionar candidatos nativos deslizando las etiquetas numéricas</string>
+    <string name="personal_dock_toolbar">Mostrar candidatos flotantes junto a la barra del teclado físico</string>
+    <string name="personal_reverse_above_cursor">Invertir candidatos verticales sobre el cursor</string>
+    <string name="personal_punctuation_letters_only">Aplicar la posición de puntuación solo a las letras</string>
 </resources>

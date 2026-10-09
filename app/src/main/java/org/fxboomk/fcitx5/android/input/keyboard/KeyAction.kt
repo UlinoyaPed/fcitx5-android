@@ -105,6 +105,8 @@ sealed class KeyAction {
         val followPunctuationMode: Boolean = false
     ) : KeyAction()
 
+    data class SelectCandidateAction(val index: Int, val fallbackDigit: Char) : KeyAction()
+
     data class CapsAction(val lock: Boolean) : KeyAction()
 
     data object QuickPhraseAction : KeyAction()

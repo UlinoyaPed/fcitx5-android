@@ -1084,4 +1084,15 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">Expanded</string>
     <string name="theme_category_collapsed">Collapsed</string>
+
+    <string name="llm_space_commit_prediction">Commit AI prediction with space</string>
+    <string name="llm_space_commit_prediction_summary">Off by default. When enabled, space commits the first visible AI prediction outside composition; when disabled, space remains literal.</string>
+    <string name="personal_candidate_index_labels">Show candidate index labels on the physical keyboard bar</string>
+    <string name="personal_hardware_digit_selection">Select candidates with physical digit keys</string>
+    <string name="personal_hardware_space_selection">Select the highlighted candidate with physical space</string>
+    <string name="personal_hardware_prediction_dismiss">Dismiss predictions with physical Escape or Backspace</string>
+    <string name="personal_digit_swipe_selection">Select native candidates by swiping digit sublabels</string>
+    <string name="personal_dock_toolbar">Keep floating candidates alongside the physical keyboard toolbar</string>
+    <string name="personal_reverse_above_cursor">Reverse vertical candidates above the cursor</string>
+    <string name="personal_punctuation_letters_only">Apply punctuation position only to letter keys</string>
 </resources>

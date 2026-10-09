@@ -10,6 +10,7 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.test.platform.app.InstrumentationRegistry
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
@@ -26,9 +27,12 @@ class DirectionalSwipeLabelTest {
     private val context = instrumentation.targetContext
     private lateinit var originalPosition: PunctuationPosition
     private var originalSideKeyStyle = false
+    private var originalLetterOnly = false
 
     @Before
     fun savePreferences() {
+        originalLetterOnly = AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.getValue()
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(true)
         originalPosition = ThemeManager.prefs.punctuationPosition.getValue()
         originalSideKeyStyle = ThemeManager.prefs.gboardStyleSideKeys.getValue()
         ThemeManager.prefs.gboardStyleSideKeys.setValue(false)
@@ -36,6 +40,7 @@ class DirectionalSwipeLabelTest {
 
     @After
     fun restorePreferences() {
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(originalLetterOnly)
         ThemeManager.prefs.punctuationPosition.setValue(originalPosition)
         ThemeManager.prefs.gboardStyleSideKeys.setValue(originalSideKeyStyle)
     }

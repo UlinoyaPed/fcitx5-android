@@ -2,6 +2,8 @@
 
 [English](./README.en.md)
 
+本仓库维护 UlinoyaPed 的个人版本：接收经过审查的上游更新，新功能必须可控，保留已有设置与操作习惯。开关位置、维护规则和验证记录见 [MAINTENANCE.md](./MAINTENANCE.md)。
+
 天鹅输入法是基于 [Fcitx5 for Android](https://github.com/fcitx5-android/fcitx5-android) 深度定制的一版 Android 输入法。  
 当前主程序应用名为 `天鹅输入法`，主程序包名为 `org.fxboomk.fcitx5.android`。
 

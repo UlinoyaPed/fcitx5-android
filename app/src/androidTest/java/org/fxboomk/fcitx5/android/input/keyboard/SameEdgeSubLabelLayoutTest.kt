@@ -82,8 +82,23 @@ class SameEdgeSubLabelLayoutTest {
                                         ).maxOrNull() ?: key.vMargin
                                         val above = main.top - subBottom
                                         val below = key.getChildAt(0).height - key.vMargin - main.bottom
-                                        assertEquals(case, above.toFloat(), below.toFloat(), 2f)
-                                        assertTrue(case, above >= dp(2) - 1 && below >= dp(2) - 1)
+                                        // Check the placement geometry tightly, separately from rasterized ink.
+                                        val mainGeometry = key.mainText.renderedGlyphBounds().apply {
+                                            offset(key.mainText.left.toFloat(), key.mainText.top.toFloat())
+                                        }
+                                        val subGeometryBottom = listOf(key.altText, key.altText1)
+                                            .filter { it.visibility == View.VISIBLE }
+                                            .maxOfOrNull { it.top + it.renderedGlyphBounds().bottom }
+                                            ?: key.vMargin.toFloat()
+                                        assertEquals("Placement geometry: $case",
+                                            mainGeometry.top - subGeometryBottom,
+                                            key.getChildAt(0).height - key.vMargin - mainGeometry.bottom, 0.01f)
+                                        // Match RemainingSpaceSubLabelLayoutTest: fallback fonts and
+                                        // alpha-threshold rasterization vary with density, unlike geometry.
+                                        val inkTolerance = maxOf(2f, context.resources.displayMetrics.density * 1.5f)
+                                        assertEquals(case, above.toFloat(), below.toFloat(), inkTolerance)
+                                        assertTrue("$case gaps=$above/$below minimum=${dp(2) - 1}",
+                                            above >= dp(2) - 1 && below >= dp(2) - 1)
                                     }
                                 }
                             }

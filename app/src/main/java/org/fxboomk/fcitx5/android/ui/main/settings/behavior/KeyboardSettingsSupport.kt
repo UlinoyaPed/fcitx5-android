@@ -47,6 +47,8 @@ internal object KeyboardSettingsSupport {
         "toolbar_dynamic_height",
         "toolbar_num_row_on_password",
         "physical_keyboard_horizontal_candidate_bar",
+        "personal_candidate_index_labels",
+        "personal_dock_toolbar",
         "show_voice_input_button",
         "preferred_voice_input"
     )
@@ -63,6 +65,11 @@ internal object KeyboardSettingsSupport {
         "space_long_press_behavior",
         "space_swipe_vertical_behavior",
         "prediction_space_behavior",
+        "personal_hardware_digit_selection",
+        "personal_hardware_space_selection",
+        "personal_hardware_prediction_dismiss",
+        "personal_digit_swipe_selection",
+        "personal_punctuation_letters_only",
         "prediction_backspace_behavior"
     )
 
@@ -84,6 +91,7 @@ internal object KeyboardSettingsSupport {
     val candidateWindowKeys = listOf(
         "candidates_window_orientation",
         "virtual_keyboard_candidates_position",
+        "personal_reverse_above_cursor",
         "candidates_window_padding",
         "candidates_window_radius",
         "candidates_window_min_width"

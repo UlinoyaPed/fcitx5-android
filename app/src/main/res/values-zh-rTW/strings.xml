@@ -953,4 +953,15 @@
     <string name="theme_category_title">%1$s（%2$d）</string>
     <string name="theme_category_expanded">已展開</string>
     <string name="theme_category_collapsed">已摺疊</string>
+
+    <string name="llm_space_commit_prediction">空格提交 AI 預測</string>
+    <string name="llm_space_commit_prediction_summary">預設關閉。開啟後，非預編輯狀態下按空格提交目前顯示的第一個 AI 預測項；關閉時保留空格輸入。</string>
+    <string name="personal_candidate_index_labels">實體鍵盤候選列顯示序號</string>
+    <string name="personal_hardware_digit_selection">實體數字鍵選擇候選</string>
+    <string name="personal_hardware_space_selection">實體空白鍵提交反白候選</string>
+    <string name="personal_hardware_prediction_dismiss">實體 Esc 或退格取消預測</string>
+    <string name="personal_digit_swipe_selection">滑動數字副字元選擇原生候選</string>
+    <string name="personal_dock_toolbar">實體鍵盤工具列與候選浮窗並行顯示</string>
+    <string name="personal_reverse_above_cursor">游標上方的直排候選倒序顯示</string>
+    <string name="personal_punctuation_letters_only">僅對字母鍵套用標點位置設定</string>
 </resources>

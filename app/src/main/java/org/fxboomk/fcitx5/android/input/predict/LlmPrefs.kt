@@ -36,6 +36,7 @@ object LlmPrefs {
     const val KEY_MAX_OUTPUT_TOKENS = KEY_PREFIX + "max_output_tokens"
     const val KEY_MAX_PREDICTION_CANDIDATES = KEY_PREFIX + "max_prediction_candidates"
     const val KEY_MAX_CONTEXT_CHARS = KEY_PREFIX + "max_context_chars"
+    const val KEY_SPACE_COMMIT_PREDICTION = KEY_PREFIX + "space_commit_prediction"
     const val KEY_PREDICTION_DISPLAY_MODE = KEY_PREFIX + "prediction_display_mode"
     const val KEY_PERSONA_PRESET = KEY_PREFIX + "persona_preset"
     const val KEY_CUSTOM_PERSONA = KEY_PREFIX + "custom_persona"
@@ -64,6 +65,7 @@ object LlmPrefs {
         KEY_MAX_OUTPUT_TOKENS,
         KEY_MAX_PREDICTION_CANDIDATES,
         KEY_MAX_CONTEXT_CHARS,
+        KEY_SPACE_COMMIT_PREDICTION,
         KEY_PREDICTION_DISPLAY_MODE,
         KEY_PERSONA_PRESET,
         KEY_CUSTOM_PERSONA,
@@ -449,6 +451,7 @@ object LlmPrefs {
         val maxPredictionCandidates: Int = DEFAULT_MAX_PREDICTION_CANDIDATES,
         val maxContextChars: Int,
         val preferLastCommit: Boolean,
+        val spaceCommitPrediction: Boolean = false,
         val predictionDisplayMode: PredictionDisplayMode = PredictionDisplayMode.FloatingWindow,
         val personaPreset: PersonaPreset = PersonaPreset.Custom,
         val personaName: String = "",
@@ -565,6 +568,7 @@ object LlmPrefs {
             maxPredictionCandidates = maxPredictionCandidates,
             maxContextChars = maxContextChars,
             preferLastCommit = true,
+            spaceCommitPrediction = prefs.getBoolean(KEY_SPACE_COMMIT_PREDICTION, false),
             predictionDisplayMode = PredictionDisplayMode.from(
                 prefs.getString(KEY_PREDICTION_DISPLAY_MODE, PredictionDisplayMode.FloatingWindow.value)
             ),

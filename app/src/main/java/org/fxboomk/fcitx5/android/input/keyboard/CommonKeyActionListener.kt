@@ -45,6 +45,7 @@ import org.fxboomk.fcitx5.android.input.keyboard.KeyAction.UnicodeAction
 import org.fxboomk.fcitx5.android.input.keyboard.KeyAction.VoiceInputHoldEnd
 import org.fxboomk.fcitx5.android.input.picker.PickerWindow
 import org.fxboomk.fcitx5.android.input.predict.AiSuggestionStripComponent
+import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fxboomk.fcitx5.android.input.wm.InputWindowManager
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
@@ -205,6 +206,15 @@ class CommonKeyActionListener :
                         action.sym.keyCode == KeyEvent.KEYCODE_ESCAPE && aiSuggestionStrip.hasVisibleSuggestions() -> {
                             service.lifecycleScope.launch { aiSuggestionStrip.dismissVisibleSuggestions() }
                         }
+                        action.sym.sym == FcitxKeyMapping.FcitxKey_space &&
+                            shouldCommitAiPredictionOnSpace(
+                                hasPreedit(), withContext(Dispatchers.Main.immediate) {
+                                    service.inputView?.hasVisibleAiCandidates() == true
+                                },
+                                LlmPrefs.read(service.applicationContext).spaceCommitPrediction,
+                            ) -> {
+                            service.lifecycleScope.launch { aiSuggestionStrip.commitPrimarySuggestion() }
+                        }
                         action.sym.keyCode == KeyEvent.KEYCODE_ESCAPE -> {
                             sendKey(action.sym, action.states)
                         }
@@ -240,10 +250,13 @@ class CommonKeyActionListener :
                         }
                         action.sym.sym == FcitxKeyMapping.FcitxKey_space -> {
                             val aiPredictionVisible = !hasPreedit() && withContext(Dispatchers.Main.immediate) {
-                                service.inputView?.hasVisibleAiSuggestions() == true
+                                service.inputView?.hasVisibleAiCandidates() == true
                             }
                             val nativePredictionVisible = hasNativePredictionCandidatesVisible()
                             when {
+                                aiPredictionVisible &&
+                                    !LlmPrefs.read(service.applicationContext).spaceCommitPrediction &&
+                                    service.highlightedNativeCandidateIndex() == null -> service.commitText(" ")
                                 shouldCommitPredictionOnSpace(
                                     hasVisibleCandidates = service.hasVisibleCandidates(),
                                     hasNativePredictionCandidatesVisible = nativePredictionVisible,
@@ -279,19 +292,15 @@ class CommonKeyActionListener :
                         }
                     }
                 }
-                is CommitAction -> service.postFcitxJob {
-                    // 检查是否是数字副字符划动选择候选的特殊标记 "\0<digit>"
-                    if (action.text.startsWith('\u0000') && action.text.length == 2) {
-                        val digitChar = action.text[1]
-                        if (digitChar.isDigit()) {
-                            // 数字 1-9 对应索引 0-8，数字 0 对应索引 9
-                            val candidateIndex = if (digitChar == '0') 9 else digitChar.digitToInt() - 1
-                            select(candidateIndex)
-                            return@postFcitxJob
-                        }
+                is KeyAction.SelectCandidateAction -> service.postFcitxJob {
+                    if (!kbdPrefs.digitSwipeSelection.getValue() || !service.hasVisibleNativeCandidates() ||
+                        !select(action.index)
+                    ) {
+                        commitAndReset()
+                        service.commitText(action.fallbackDigit.toString())
                     }
-
-                    // 正常的 CommitAction 处理
+                }
+                is CommitAction -> service.postFcitxJob {
                     val text = if (action.followPunctuationMode) {
                         val isPassword = service.currentInputEditorInfo?.let {
                             CapabilityFlags.fromEditorInfo(it).has(CapabilityFlag.Password)

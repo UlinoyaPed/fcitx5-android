@@ -1579,7 +1579,7 @@ abstract class BaseKeyboard(
 
     /**
      * 处理数字副字符划动的智能逻辑：
-     * - 有候选时：通过特殊标记告知 CommonKeyActionListener 选择对应序号的候选
+     * - 开关启用且有原生候选时：用明确的动作选择对应序号的候选
      * - 没有候选时：直接输出数字字符
      */
     private fun handleDigitSwipeAction(action: KeyAction): KeyAction {
@@ -1588,22 +1588,12 @@ abstract class BaseKeyboard(
             return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
         }
 
-        // 检查是否是数字字符（'0'-'9'）
-        val digitChar = action.text.singleOrNull()
-        if (digitChar == null || !digitChar.isDigit()) {
-            return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
-        }
-
-        // 如果没有候选，直接输出数字字符
-        val svc = getService()
-        if (svc == null || !svc.hasVisibleCandidates()) {
-            return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
-        }
-
-        // 有候选时，使用特殊标记来告知 CommonKeyActionListener 这是一个数字选择候选的操作
-        // CommonKeyActionListener 会识别这个特殊格式并调用 select(candidateIndex)
-        val marker = 0.toChar().toString()
-        return KeyAction.CommitAction(marker + action.text, action.followPunctuationMode)
+        val index = digitSwipeCandidateIndex(
+            action.text,
+            prefs.keyboard.digitSwipeSelection.getValue(),
+            getService()?.hasVisibleNativeCandidates() == true,
+        ) ?: return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
+        return KeyAction.SelectCandidateAction(index, action.text.single())
     }
 
     /**

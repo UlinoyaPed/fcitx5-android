@@ -1327,6 +1327,9 @@ class InputView(
             state.panelSuggestions.firstOrNull() == state.suggestions.firstOrNull()
     }
 
+    internal fun hasVisibleAiCandidates(): Boolean =
+        hasVisibleAiSuggestions() || horizontalCandidate.hasVisibleAiSuggestions()
+
     internal fun selectVisiblePredictionCandidate(digit: Int? = null): Boolean =
         horizontalCandidate.selectVisiblePredictionCandidate(digit)
 
@@ -2211,8 +2214,12 @@ class InputView(
 
     @Keep
     private val onCandidatePreferenceChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
-        if (key == physicalKeyboardHorizontalCandidateBar.key) {
+        if (key == physicalKeyboardHorizontalCandidateBar.key ||
+            key == keyboardPrefs.dockToolbarWithFloatingCandidates.key ||
+            key == keyboardPrefs.candidateIndexLabels.key
+        ) {
             service.inputDeviceManager.onPhysicalKeyboardHorizontalCandidateBarChanged()
+            kawaiiBar.onPreeditEmptyStateUpdate(preeditEmptyState.isEmpty)
         }
     }
 
@@ -3026,6 +3033,7 @@ class InputView(
     }
 
     internal fun setPhysicalCandidateBarMode(enabled: Boolean) {
+        horizontalCandidate.setIndexLabelsEnabled(enabled && keyboardPrefs.candidateIndexLabels.getValue())
         if (isPhysicalCandidateBarMode == enabled) return
         if (enabled && isFloating) {
             saveFloatingPosition(
@@ -3035,7 +3043,6 @@ class InputView(
             isFloating = false
         }
         isPhysicalCandidateBarMode = enabled
-        horizontalCandidate.setIndexLabelsEnabled(enabled)
         if (!enabled && floatingKeyboardEnabled && !isOneHanded) {
             isFloating = true
         }

@@ -960,4 +960,15 @@
     <string name="theme_preview_previous">이전 테마</string>
     <string name="theme_preview_next">다음 테마</string>
     <string name="theme_preview_in_use">사용 중</string>
+
+    <string name="llm_space_commit_prediction">스페이스로 AI 예측 확정</string>
+    <string name="llm_space_commit_prediction_summary">기본값은 꺼짐입니다. 켜면 조합 중이 아닐 때 스페이스로 표시된 첫 AI 예측을 확정합니다. 끄면 공백을 입력합니다.</string>
+    <string name="personal_candidate_index_labels">물리 키보드 후보 표시줄에 번호 표시</string>
+    <string name="personal_hardware_digit_selection">물리 숫자 키로 후보 선택</string>
+    <string name="personal_hardware_space_selection">물리 스페이스 키로 강조된 후보 확정</string>
+    <string name="personal_hardware_prediction_dismiss">물리 Esc 또는 Backspace로 예측 취소</string>
+    <string name="personal_digit_swipe_selection">숫자 보조 라벨을 스와이프하여 기본 후보 선택</string>
+    <string name="personal_dock_toolbar">물리 키보드 도구 모음과 후보 창 함께 표시</string>
+    <string name="personal_reverse_above_cursor">커서 위의 세로 후보를 역순으로 표시</string>
+    <string name="personal_punctuation_letters_only">문장 부호 위치를 문자 키에만 적용</string>
 </resources>

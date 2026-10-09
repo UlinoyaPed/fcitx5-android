@@ -960,4 +960,15 @@
     <string name="llm_persona_custom_name_description">%1$s。在下方还可以补充更详细的人设描述。</string>
     <string name="llm_persona_current_label">当前已选</string>
     <string name="llm_persona_delete_confirm">删除人设“%1$s”？</string>
+
+    <string name="personal_candidate_index_labels">实体键盘候选栏显示序号</string>
+    <string name="personal_hardware_digit_selection">实体键数字键选择候选</string>
+    <string name="personal_hardware_space_selection">实体键空格提交高亮候选</string>
+    <string name="personal_hardware_prediction_dismiss">实体键 Esc 或退格取消预测</string>
+    <string name="personal_digit_swipe_selection">划动数字副字符选择原生候选</string>
+    <string name="personal_dock_toolbar">实体键盘工具栏与候选浮窗并行显示</string>
+    <string name="personal_reverse_above_cursor">光标上方的竖排候选倒序显示</string>
+    <string name="personal_punctuation_letters_only">仅对字母键应用标点位置设置</string>
+    <string name="llm_space_commit_prediction">空格提交 AI 预测</string>
+    <string name="llm_space_commit_prediction_summary">默认关闭。开启后，非预编辑状态下按空格提交当前显示的首个 AI 预测项；关闭时保留空格输入。</string>
 </resources>

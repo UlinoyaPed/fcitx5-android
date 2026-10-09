@@ -2,6 +2,8 @@
 
 [简体中文](./README.md)
 
+This repository maintains UlinoyaPed’s personal version. Upstream updates are reviewed, new behaviors require independent controls, and existing preferences are preserved. See [MAINTENANCE.md](./MAINTENANCE.md) for controls, maintenance policy and validation records.
+
 Swan Input Method is a deeply customized Android IME based on [Fcitx5 for Android](https://github.com/fcitx5-android/fcitx5-android).  
 The current app name is `天鹅输入法`, and the main package name is `org.fxboomk.fcitx5.android`.
 

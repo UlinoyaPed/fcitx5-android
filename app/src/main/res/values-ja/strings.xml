@@ -958,4 +958,15 @@
     <string name="theme_preview_previous">前のテーマ</string>
     <string name="theme_preview_next">次のテーマ</string>
     <string name="theme_preview_in_use">使用中</string>
+
+    <string name="llm_space_commit_prediction">スペースで AI 予測を確定</string>
+    <string name="llm_space_commit_prediction_summary">初期状態はオフです。オンの場合、変換中でなければスペースで表示中の最初の AI 予測を確定します。オフの場合は空白を入力します。</string>
+    <string name="personal_candidate_index_labels">物理キーボードの候補バーに番号を表示</string>
+    <string name="personal_hardware_digit_selection">物理数字キーで候補を選択</string>
+    <string name="personal_hardware_space_selection">物理スペースキーで選択中の候補を確定</string>
+    <string name="personal_hardware_prediction_dismiss">物理 Esc または Backspace で予測を取り消す</string>
+    <string name="personal_digit_swipe_selection">数字の副ラベルをスワイプして通常候補を選択</string>
+    <string name="personal_dock_toolbar">物理キーボードのツールバーと候補ウィンドウを併用</string>
+    <string name="personal_reverse_above_cursor">カーソル上の縦候補を逆順に表示</string>
+    <string name="personal_punctuation_letters_only">句読点の位置設定を英字キーだけに適用</string>
 </resources>

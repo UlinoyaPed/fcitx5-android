@@ -457,6 +457,7 @@ object SettingsSearchIndex {
             SettingsSearchResult(context.getString(R.string.llm_custom_persona), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_CUSTOM_PERSONA, context.getString(R.string.llm_custom_persona_summary)),
             SettingsSearchResult(context.getString(R.string.llm_sample_count), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_SAMPLE_COUNT),
             SettingsSearchResult(context.getString(R.string.llm_max_context_chars), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_MAX_CONTEXT_CHARS),
+            SettingsSearchResult(context.getString(R.string.llm_space_commit_prediction), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_SPACE_COMMIT_PREDICTION),
             SettingsSearchResult(context.getString(R.string.llm_max_output_tokens), listOf(llm, advanced), SettingsRoute.LlmAdvanced, LlmPrefs.KEY_MAX_OUTPUT_TOKENS)
         )
     }

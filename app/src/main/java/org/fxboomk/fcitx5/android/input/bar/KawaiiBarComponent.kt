@@ -894,7 +894,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
      */
     private fun isFloatingCandidatesActive(): Boolean {
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
-        return floatingMode == FloatingCandidatesMode.Always
+        return floatingMode == FloatingCandidatesMode.Always &&
+            (!service.inputDeviceManager.isPhysicalCandidateBarMode ||
+                AppPrefs.getInstance().keyboard.dockToolbarWithFloatingCandidates.getValue())
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {

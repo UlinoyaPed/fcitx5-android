@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.input.keyboard
 
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
@@ -93,6 +95,9 @@ abstract class KeyView(
     CustomGestureView(ctx) {
 
     protected fun punctuationPositionForKey(): PunctuationPosition {
+        if (!AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.getValue()) {
+            return ThemeManager.prefs.punctuationPosition.getValue()
+        }
         val character = (def as? KeyDef.Appearance.AltText)?.character?.singleOrNull()
         return if (character != null && (character in 'a'..'z' || character in 'A'..'Z')) {
             ThemeManager.prefs.punctuationPosition.getValue()
@@ -1816,16 +1821,15 @@ class AltTextKeyView(
                 }
                 val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
                 val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
-                // 1px is absorbed by ink rasterization; the measured ink gap is dp(2)-1
-                val minGap = glyphs.maxOf { (key) -> key.dp(2) - 1 }
+                // Reserve the full 2dp geometrically. Rasterized fallback/accent glyphs
+                // can extend past paint bounds, so subtracting a pixel here loses the
+                // minimum visible gap on high-density, large-font rows.
+                val minGap = glyphs.maxOf { (key) -> key.dp(2) }
                 // Prefer keeping the two-pixel breathing room, but on very short rows
                 // the band can be thinner than the reserved gaps; shrink the glyph to
                 // the raw band instead of scaling it out of sight. One pixel per edge
                 // is dropped to absorb rasterization rounding of the scaled ink.
-                val reserved = bandBottom - bandTop - minGap * 2
-                val availableHeight =
-                    if (reserved > 0f) reserved else (bandBottom - bandTop).coerceAtLeast(0f) - 2f
-                val heightScale = min(1f, availableHeight / (glyphBottom - glyphTop))
+                val heightScale = remainingSpaceMainGlyphScale(bandBottom - bandTop, minGap.toFloat(), glyphBottom - glyphTop)
                 // Align actual ink, not font metrics, halfway through the free band.
                 val baseline = (bandTop + bandBottom - (glyphTop + glyphBottom) * heightScale) / 2f
                 glyphs.forEach { (key, _, widthScale) ->

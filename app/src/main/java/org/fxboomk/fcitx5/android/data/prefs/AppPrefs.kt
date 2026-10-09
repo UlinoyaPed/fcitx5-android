@@ -201,6 +201,13 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "physical_keyboard_horizontal_candidate_bar",
             false
         )
+        val candidateIndexLabels = switch(R.string.personal_candidate_index_labels, "personal_candidate_index_labels", false)
+        val hardwareDigitSelection = switch(R.string.personal_hardware_digit_selection, "personal_hardware_digit_selection", false)
+        val hardwareSpaceSelection = switch(R.string.personal_hardware_space_selection, "personal_hardware_space_selection", false)
+        val hardwarePredictionDismiss = switch(R.string.personal_hardware_prediction_dismiss, "personal_hardware_prediction_dismiss", false)
+        val digitSwipeSelection = switch(R.string.personal_digit_swipe_selection, "personal_digit_swipe_selection", false)
+        val dockToolbarWithFloatingCandidates = switch(R.string.personal_dock_toolbar, "personal_dock_toolbar", false)
+        val punctuationPositionLettersOnly = switch(R.string.personal_punctuation_letters_only, "personal_punctuation_letters_only", false)
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,
@@ -503,6 +510,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "virtual_keyboard_candidates_position",
             FloatingCandidatesVirtualKeyboardPosition.TopLeft
         )
+        val reverseAboveCursor = switch(R.string.personal_reverse_above_cursor, "personal_reverse_above_cursor", false)
 
         val windowMinWidth = int(
             R.string.candidates_window_min_width,

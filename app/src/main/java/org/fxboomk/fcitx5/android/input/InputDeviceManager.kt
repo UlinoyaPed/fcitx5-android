@@ -53,7 +53,8 @@ class InputDeviceManager(
 
         // Hide preedit in InputView when CandidatesView is responsible for floating preedit
         // (virtual keyboard, or the docked toolbar running alongside the floating candidates)
-        iv.setPreeditVisibility(!(useFloatingAlways && (isVirtual || useHorizontalCandidateBar)))
+        iv.setPreeditVisibility(!(useFloatingAlways && (isVirtual ||
+            (useHorizontalCandidateBar && AppPrefs.getInstance().keyboard.dockToolbarWithFloatingCandidates.getValue()))))
 
         // In "Always" mode, manually update space label when InputView doesn't handle events
         if (useFloatingAlways && isVirtual) {
@@ -65,7 +66,8 @@ class InputDeviceManager(
         val cv = candidatesView ?: return
         val floatingMode = floatingModeProvider()
         val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
-        if (useFloatingAlways) {
+        if (useFloatingAlways && (!usePhysicalKeyboardHorizontalCandidateBar(isVirtual) ||
+                AppPrefs.getInstance().keyboard.dockToolbarWithFloatingCandidates.getValue())) {
             // "Always" mode: CandidatesView displays preedit and candidates for both
             // keyboards. With the physical-keyboard bar enabled it runs alongside the
             // docked toolbar, which stops showing its own candidate strip

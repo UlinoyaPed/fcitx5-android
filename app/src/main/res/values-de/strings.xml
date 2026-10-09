@@ -956,4 +956,15 @@
     <string name="theme_preview_previous">Vorheriges Design</string>
     <string name="theme_preview_next">Nächstes Design</string>
     <string name="theme_preview_in_use">Wird verwendet</string>
+
+    <string name="llm_space_commit_prediction">KI-Vorhersage mit Leertaste bestätigen</string>
+    <string name="llm_space_commit_prediction_summary">Standardmäßig aus. Wenn aktiviert, bestätigt die Leertaste außerhalb einer Komposition die erste sichtbare KI-Vorhersage. Andernfalls bleibt sie ein Leerzeichen.</string>
+    <string name="personal_candidate_index_labels">Kandidaten im physischen Tastaturbalken nummerieren</string>
+    <string name="personal_hardware_digit_selection">Kandidaten mit physischen Zifferntasten auswählen</string>
+    <string name="personal_hardware_space_selection">Markierten Kandidaten mit physischer Leertaste bestätigen</string>
+    <string name="personal_hardware_prediction_dismiss">Vorhersagen mit physischer Escape- oder Rücktaste verwerfen</string>
+    <string name="personal_digit_swipe_selection">Native Kandidaten durch Wischen auf Ziffern auswählen</string>
+    <string name="personal_dock_toolbar">Schwebende Kandidaten neben der physischen Tastaturleiste anzeigen</string>
+    <string name="personal_reverse_above_cursor">Vertikale Kandidaten über dem Cursor umkehren</string>
+    <string name="personal_punctuation_letters_only">Satzzeichenposition nur auf Buchstabentasten anwenden</string>
 </resources>

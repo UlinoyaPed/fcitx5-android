@@ -958,4 +958,15 @@
     <string name="theme_preview_previous">Предыдущая тема</string>
     <string name="theme_preview_next">Следующая тема</string>
     <string name="theme_preview_in_use">Используется</string>
+
+    <string name="llm_space_commit_prediction">Подтверждать прогноз ИИ пробелом</string>
+    <string name="llm_space_commit_prediction_summary">По умолчанию выключено. При включении пробел подтверждает первый видимый прогноз ИИ вне композиции; при выключении вводит пробел.</string>
+    <string name="personal_candidate_index_labels">Показывать номера в строке кандидатов физической клавиатуры</string>
+    <string name="personal_hardware_digit_selection">Выбирать кандидатов физическими цифровыми клавишами</string>
+    <string name="personal_hardware_space_selection">Подтверждать выделенный кандидат физическим пробелом</string>
+    <string name="personal_hardware_prediction_dismiss">Отменять прогнозы физическими Escape или Backspace</string>
+    <string name="personal_digit_swipe_selection">Выбирать обычные кандидаты свайпом по цифровым меткам</string>
+    <string name="personal_dock_toolbar">Показывать плавающие кандидаты вместе с панелью физической клавиатуры</string>
+    <string name="personal_reverse_above_cursor">Обратный порядок вертикальных кандидатов над курсором</string>
+    <string name="personal_punctuation_letters_only">Применять положение знаков препинания только к буквам</string>
 </resources>

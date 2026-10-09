@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.test.platform.app.InstrumentationRegistry
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.UppercasePosition
@@ -27,9 +28,12 @@ class PunctuationPositionScopeTest {
     private lateinit var originalPosition: PunctuationPosition
     private lateinit var originalUppercasePosition: UppercasePosition
     private var originalSideKeyStyle = false
+    private var originalLetterOnly = false
 
     @Before
     fun savePreferences() {
+        originalLetterOnly = AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.getValue()
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(true)
         originalPosition = ThemeManager.prefs.punctuationPosition.getValue()
         originalUppercasePosition = ThemeManager.prefs.uppercasePosition.getValue()
         originalSideKeyStyle = ThemeManager.prefs.gboardStyleSideKeys.getValue()
@@ -39,9 +43,24 @@ class PunctuationPositionScopeTest {
 
     @After
     fun restorePreferences() {
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(originalLetterOnly)
         ThemeManager.prefs.punctuationPosition.setValue(originalPosition)
         ThemeManager.prefs.uppercasePosition.setValue(originalUppercasePosition)
         ThemeManager.prefs.gboardStyleSideKeys.setValue(originalSideKeyStyle)
+    }
+
+    @Test
+    fun turningLetterOnlyOffRestoresGlobalNonletterPosition() = onMain {
+        val key = textView(AlphabetKey("7", "!"))
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(false)
+        applyPosition(key, PunctuationPosition.None)
+        assertEquals(View.GONE, key.altText.visibility)
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(true)
+        applyPosition(key, PunctuationPosition.None)
+        assertEquals(View.VISIBLE, key.altText.visibility)
+        AppPrefs.getInstance().keyboard.punctuationPositionLettersOnly.setValue(false)
+        applyPosition(key, PunctuationPosition.None)
+        assertEquals(View.GONE, key.altText.visibility)
     }
 
     @Test

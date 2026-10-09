@@ -26,6 +26,7 @@ class KeyboardCandidateSettingsOrganizationTest {
             listOf(
                 "candidates_window_orientation",
                 "virtual_keyboard_candidates_position",
+                "personal_reverse_above_cursor",
                 "candidates_window_padding",
                 "candidates_window_radius",
                 "candidates_window_min_width"

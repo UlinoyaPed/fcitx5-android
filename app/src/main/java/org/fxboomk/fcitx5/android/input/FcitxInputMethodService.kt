@@ -84,7 +84,7 @@ import org.fxboomk.fcitx5.android.input.keyboard.resolveHardwarePredictionDigit
 import org.fxboomk.fcitx5.android.input.keyboard.shouldHardwareSpaceCommitPrediction
 import org.fxboomk.fcitx5.android.input.keyboard.HardwarePredictionSession
 import org.fxboomk.fcitx5.android.input.keyboard.isHardwarePredictionDismissKey
-import org.fxboomk.fcitx5.android.input.keyboard.isHardwarePredictionSelectionKey
+import org.fxboomk.fcitx5.android.input.keyboard.isHardwareCandidateShortcutEnabled
 import org.fxboomk.fcitx5.android.input.keyboard.shouldConsumeHardwarePredictionDismiss
 import org.fxboomk.fcitx5.android.utils.InputMethodUtil
 import org.fxboomk.fcitx5.android.utils.ClipboardSharedContent
@@ -313,7 +313,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // Fallback: if system doesn't provide valid cursor position, use keyboard top
         // (NaN comparisons are always false, so non-finite values must be caught explicitly)
         if (cursorTop <= 0f || cursorBottom <= 0f ||
-            cursorTop.isNaN() || cursorBottom.isNaN()
+            !cursorTop.isFinite() || !cursorBottom.isFinite()
         ) {
             // Assume cursor is near keyboard top
             cursorBottom = keyboardTop
@@ -377,6 +377,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private val recreateInputViewPrefs: Array<ManagedPreference<*>> = arrayOf(
         prefs.candidates.candidateHighlightRadius,
         prefs.keyboard.expandKeypressArea,
+        prefs.keyboard.punctuationPositionLettersOnly,
         prefs.advanced.disableAnimation,
         prefs.advanced.ignoreSystemWindowInsets,
     )
@@ -510,7 +511,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private val dismissedHardwarePredictionKeys = mutableSetOf<Pair<Int, Int>>()
 
     internal fun shouldSuppressHardwarePredictionCandidates(): Boolean =
-        hardwarePredictionSession.blocksCandidates(hasPreeditCached())
+        prefs.keyboard.hardwarePredictionDismiss.getValue() && hardwarePredictionSession.blocksCandidates(hasPreeditCached())
 
     private fun onPredictionTextCommitted(text: String) {
         if (hardwarePredictionSession.onTextCommitted(text)) {
@@ -531,6 +532,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return true
         }
         if (inputDeviceManager.isVirtualKeyboard) return false
+        if (!hardwareCandidateShortcutEnabled(event.keyCode)) return false
         if (event.action != KeyEvent.ACTION_DOWN) return false
         if (
             event.isShiftPressed ||
@@ -583,6 +585,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (selected) selectedHardwarePredictionKeys.add(key)
         return selected
     }
+
+    private fun hardwareCandidateShortcutEnabled(keyCode: Int): Boolean =
+        isHardwareCandidateShortcutEnabled(
+            keyCode,
+            prefs.keyboard.hardwareDigitSelection.getValue(),
+            prefs.keyboard.hardwareSpaceSelection.getValue(),
+        )
 
     private fun refreshViewsForFontChange() {
         val theme = ThemeManager.activeTheme
@@ -1529,6 +1538,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     // override fun onEvaluateFullscreenMode() = false // Removed duplicate
 
     private fun forwardKeyEvent(event: KeyEvent, preserveModifierState: Boolean = false): Boolean {
+        if (!prefs.keyboard.hardwarePredictionDismiss.getValue() && hardwarePredictionSession.isSuppressed) {
+            hardwarePredictionSession.reset()
+            inputView?.resumeHardwarePredictionAfterCommit()
+        }
         // reason to use a self increment index rather than timestamp:
         // KeyUp and KeyDown events actually can happen on the same time
         val timestamp = cachedKeyEventIndex++
@@ -1549,7 +1562,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             event
         }
         val hardware = !inputDeviceManager.isVirtualKeyboard
-        val dismissPrediction = hardware && isHardwarePredictionDismissKey(event.keyCode)
+        val dismissPrediction = hardware && prefs.keyboard.hardwarePredictionDismiss.getValue() &&
+            isHardwarePredictionDismissKey(event.keyCode) &&
+            !event.isShiftPressed && !event.isAltPressed && !event.isCtrlPressed && !event.isMetaPressed
         val hadAiPrediction = if (dismissPrediction && event.action == KeyEvent.ACTION_DOWN) {
             hardwarePredictionSession.cancel()
             val hadPrediction = inputView?.cancelHardwarePrediction() == true
@@ -1607,7 +1622,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 // Visible predictions were selected above. Never let an engine select
                 // a hidden (or not-yet-rendered) prediction from a raw digit/space event.
                 if (hardware && !up && !hasPreedit &&
-                    isHardwarePredictionSelectionKey(forwardedEvent.keyCode)
+                    hardwareCandidateShortcutEnabled(forwardedEvent.keyCode)
                 ) {
                     reset()
                 }
@@ -2062,7 +2077,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         // params of `Matrix.mapPoints` must be [x0, y0, x1, y1]
         info.matrix.mapPoints(anchorPosition)
-        if (anchorPosition.any(Float::isNaN)) {
+        if (anchorPosition.any { !it.isFinite() }) {
             // a degenerate editor matrix can make the mapping produce NaN even from
             // finite inputs; anchor the candidates view to the bottom-left corner
             // instead of persisting NaN into the anchor state
