@@ -29,14 +29,13 @@ class HardwarePredictionKeyDeciderTest {
     }
 
     @Test
-    fun `hardware space commits the first prediction in prediction state`() {
+    fun `hardware space commits a visible candidate`() {
         assertEquals(
             true,
             shouldHardwareSpaceCommitPrediction(
                 hasFloatingCandidates = true,
                 hasCandidateBarItems = false,
                 hasAiPredictionCandidatesVisible = false,
-                hasPreedit = false,
             )
         )
         assertEquals(
@@ -45,7 +44,6 @@ class HardwarePredictionKeyDeciderTest {
                 hasFloatingCandidates = false,
                 hasCandidateBarItems = true,
                 hasAiPredictionCandidatesVisible = false,
-                hasPreedit = false,
             )
         )
         assertEquals(
@@ -54,29 +52,18 @@ class HardwarePredictionKeyDeciderTest {
                 hasFloatingCandidates = false,
                 hasCandidateBarItems = false,
                 hasAiPredictionCandidatesVisible = true,
-                hasPreedit = false,
             )
         )
     }
 
     @Test
-    fun `hardware space keeps engine behavior while composing or without predictions`() {
-        assertEquals(
-            false,
-            shouldHardwareSpaceCommitPrediction(
-                hasFloatingCandidates = true,
-                hasCandidateBarItems = true,
-                hasAiPredictionCandidatesVisible = true,
-                hasPreedit = true,
-            )
-        )
+    fun `hardware space keeps engine behavior without any visible candidate`() {
         assertEquals(
             false,
             shouldHardwareSpaceCommitPrediction(
                 hasFloatingCandidates = false,
                 hasCandidateBarItems = false,
                 hasAiPredictionCandidatesVisible = false,
-                hasPreedit = false,
             )
         )
     }

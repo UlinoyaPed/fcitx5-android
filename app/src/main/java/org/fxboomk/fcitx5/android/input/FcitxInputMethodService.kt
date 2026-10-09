@@ -423,17 +423,18 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
 
     /**
-     * Move the engine candidate cursor without depending on the user's Up/Down bindings.
-     * Fcitx Pinyin and Rime use Tab/Shift+Tab for candidate navigation by default, while
-     * other engines retain the historical arrow-key path for compatibility.
+     * Move the engine candidate cursor without depending on the user's own key bindings.
+     * Pinyin keeps fcitx's Tab/Shift+Tab candidate-navigation fallback (its Up/Down are
+     * bound to paging instead), so it is driven with Tab. Rime overrides that fallback and
+     * moves the highlight with the arrow keys, as do the remaining engines.
      */
     internal fun postCandidateCursorNavigation(delta: Int): Job {
         require(delta != 0)
         return postFcitxJob {
             val entry = inputMethodEntryCached
-            val tabNavigation = entry.addon == "rime" ||
-                entry.icon == "fcitx-rime" ||
-                entry.addon == "pinyin" ||
+            // Rime moves the candidate highlight with the arrow keys, not Tab; only Pinyin
+            // and look-alikes keep fcitx's Tab/Shift+Tab candidate-navigation fallback.
+            val tabNavigation = entry.addon == "pinyin" ||
                 entry.uniqueName.contains("pinyin", ignoreCase = true) ||
                 entry.name.contains("pinyin", ignoreCase = true)
             val sym = if (tabNavigation) {
@@ -458,9 +459,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         candidatesView?.highlightedNativeCandidateIndex()
             ?: inputView?.takeIf { it.isShown }?.highlightedNativeCandidateIndex()
 
-    private fun moveVisibleCandidateHighlightOnMain(delta: Int) {
+    private fun moveVisibleCandidateHighlightOnMain(delta: Int, syncEngine: Boolean = false) {
         lifecycleScope.launch(Dispatchers.Main.immediate) {
-            moveVisibleCandidateHighlight(delta)
+            moveVisibleCandidateHighlight(delta, syncEngine)
         }
     }
 
@@ -491,7 +492,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return false
         }
         if (event.action == KeyEvent.ACTION_DOWN) {
-            moveVisibleCandidateHighlightOnMain(delta)
+            // Physical arrow keys own the highlight here, so keep fcitx's candidate cursor
+            // in step with it. Otherwise a forwarded combination key (e.g. Ctrl+T) would act
+            // on the engine's first candidate instead of the one the user highlighted.
+            moveVisibleCandidateHighlightOnMain(delta, syncEngine = true)
         }
         return true
     }
@@ -544,7 +548,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                     hasFloatingCandidates = candidatesView?.hasVisiblePredictionCandidate() == true,
                     hasCandidateBarItems = inputView?.hasDisplayedCandidates() == true,
                     hasAiPredictionCandidatesVisible = inputView?.hasVisibleAiSuggestions() == true,
-                    hasPreedit = hasPreedit,
                 )
             ) {
                 return false

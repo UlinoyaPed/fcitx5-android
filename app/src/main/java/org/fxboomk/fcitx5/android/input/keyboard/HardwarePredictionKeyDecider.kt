@@ -24,17 +24,18 @@ internal fun resolveHardwarePredictionDigit(keyCode: Int): Int? = when (keyCode)
 }
 
 /**
- * On a physical keyboard, space always commits the item carrying index label 1 while the
- * prediction state is showing (no preedit), regardless of the prediction space behavior
- * setting that governs the virtual keyboard. The label-1 item is the first prediction
- * shown: the floating candidates window's highlighted item when it is up, otherwise the
- * candidate bar's first displayed item, otherwise the primary AI suggestion from the
- * floating bubble.
+ * On a physical keyboard, space commits a visible candidate instead of going to the engine,
+ * regardless of the prediction space behavior setting that governs the virtual keyboard.
+ * True whenever candidate UI is showing: the floating candidates window, the candidate bar,
+ * or the primary AI suggestion from the floating bubble. The caller then commits the
+ * highlighted candidate while composing, or the first prediction when none is being composed.
+ *
+ * The composing/prediction split lives in the caller because forwarding space to the engine
+ * while composing would commit the engine cursor (the first item) rather than the item the
+ * user highlighted with the arrow keys, which only move the Android-side highlight.
  */
 internal fun shouldHardwareSpaceCommitPrediction(
     hasFloatingCandidates: Boolean,
     hasCandidateBarItems: Boolean,
     hasAiPredictionCandidatesVisible: Boolean,
-    hasPreedit: Boolean,
-): Boolean = (hasFloatingCandidates || hasCandidateBarItems || hasAiPredictionCandidatesVisible) &&
-    !hasPreedit
+): Boolean = hasFloatingCandidates || hasCandidateBarItems || hasAiPredictionCandidatesVisible
