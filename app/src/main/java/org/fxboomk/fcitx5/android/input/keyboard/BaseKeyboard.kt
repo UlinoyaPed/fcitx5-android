@@ -774,7 +774,6 @@ abstract class BaseKeyboard(
                             }
                             false
                         }
-                        else -> false
                     }
                 }
             }
@@ -1559,7 +1558,7 @@ abstract class BaseKeyboard(
         totalY: Int,
         behavior: KeyDef.Behavior.Swipe
     ): KeyAction? {
-        // 按物理方向绑定的自定义划动宏（“划动事件(上划)/(下划)”）优先级最高，
+        // 按物理方向绑定的自定义划动宏（”划动事件(上划)/(下划)”）优先级最高，
         // 高于副标签提交动作；它按实际手势方向判定，不依赖副标签的显示布局。
         selectPhysicalSwipeMacro(totalY, behavior)?.let { return it }
         val action = when (selectSwipeAltTarget(view, totalY)) {
@@ -1574,8 +1573,37 @@ abstract class BaseKeyboard(
             null -> null
         }
         return action?.let {
-            punctuationSwipeAction(it, prefs.keyboard.punctuationSwipeStrategy.getValue())
+            handleDigitSwipeAction(it)
         }
+    }
+
+    /**
+     * 处理数字副字符划动的智能逻辑：
+     * - 有候选时：通过特殊标记告知 CommonKeyActionListener 选择对应序号的候选
+     * - 没有候选时：直接输出数字字符
+     */
+    private fun handleDigitSwipeAction(action: KeyAction): KeyAction {
+        // 只处理 CommitAction
+        if (action !is KeyAction.CommitAction) {
+            return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
+        }
+
+        // 检查是否是数字字符（'0'-'9'）
+        val digitChar = action.text.singleOrNull()
+        if (digitChar == null || !digitChar.isDigit()) {
+            return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
+        }
+
+        // 如果没有候选，直接输出数字字符
+        val svc = getService()
+        if (svc == null || !svc.hasVisibleCandidates()) {
+            return punctuationSwipeAction(action, prefs.keyboard.punctuationSwipeStrategy.getValue())
+        }
+
+        // 有候选时，使用特殊标记来告知 CommonKeyActionListener 这是一个数字选择候选的操作
+        // CommonKeyActionListener 会识别这个特殊格式并调用 select(candidateIndex)
+        val marker = 0.toChar().toString()
+        return KeyAction.CommitAction(marker + action.text, action.followPunctuationMode)
     }
 
     /**

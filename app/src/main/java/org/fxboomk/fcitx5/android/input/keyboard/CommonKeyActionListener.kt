@@ -142,12 +142,14 @@ class CommonKeyActionListener :
     // there should be a new fcitx API for this
     private suspend fun FcitxAPI.commitAndReset() {
         if (inputMethodEntryCached.languageCode.startsWith("zh")) {
-            // Chinese: select 1st candidate if available
+            // Commit the visible highlight before a literal symbol/text action.
             // Check for candidates in prediction mode (preedit empty but candidates available)
             val hasCandidates = horizontalCandidate.adapter.total > 0
             if (clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty() || hasCandidates) {
-                // preedit not empty or prediction candidates available, select the first candidate
-                select(0)
+                val index = withContext(Dispatchers.Main.immediate) {
+                    service.highlightedNativeCandidateIndex()
+                }
+                select(index ?: 0)
             }
         } else {
             // Other languages: commit preedit as-is
@@ -237,7 +239,9 @@ class CommonKeyActionListener :
                             }
                         }
                         action.sym.sym == FcitxKeyMapping.FcitxKey_space -> {
-                            val aiPredictionVisible = !hasPreedit() && aiSuggestionStrip.hasVisibleSuggestions()
+                            val aiPredictionVisible = !hasPreedit() && withContext(Dispatchers.Main.immediate) {
+                                service.inputView?.hasVisibleAiSuggestions() == true
+                            }
                             val nativePredictionVisible = hasNativePredictionCandidatesVisible()
                             when {
                                 shouldCommitPredictionOnSpace(
@@ -247,11 +251,9 @@ class CommonKeyActionListener :
                                     predictionSpaceBehavior = predictionSpaceBehavior,
                                 ) -> {
                                     val selected = withContext(Dispatchers.Main.immediate) {
-                                        if (aiPredictionVisible) {
-                                            aiSuggestionStrip.commitPrimarySuggestion()
-                                        } else {
-                                            service.selectVisibleCandidateHighlight()
-                                        }
+                                        service.selectVisibleCandidateHighlight() ||
+                                            (aiPredictionVisible &&
+                                                service.inputView?.commitPrimaryAiSuggestion() == true)
                                     }
                                     if (!selected) {
                                         sendKey(action.sym, action.states)
@@ -278,6 +280,18 @@ class CommonKeyActionListener :
                     }
                 }
                 is CommitAction -> service.postFcitxJob {
+                    // 检查是否是数字副字符划动选择候选的特殊标记 "\0<digit>"
+                    if (action.text.startsWith('\u0000') && action.text.length == 2) {
+                        val digitChar = action.text[1]
+                        if (digitChar.isDigit()) {
+                            // 数字 1-9 对应索引 0-8，数字 0 对应索引 9
+                            val candidateIndex = if (digitChar == '0') 9 else digitChar.digitToInt() - 1
+                            select(candidateIndex)
+                            return@postFcitxJob
+                        }
+                    }
+
+                    // 正常的 CommitAction 处理
                     val text = if (action.followPunctuationMode) {
                         val isPassword = service.currentInputEditorInfo?.let {
                             CapabilityFlags.fromEditorInfo(it).has(CapabilityFlag.Password)

@@ -79,6 +79,12 @@ class CandidatesView(
     private var inputPanel = FcitxEvent.InputPanelEvent.Data()
     private var paged = FcitxEvent.PagedCandidateEvent.Data.Empty
     private var activeCandidateOverride: Int? = null
+    /** Last engine cursor position; the UI highlight may temporarily differ. */
+    private var engineCandidateCursorIndex = -1
+
+    private fun effectiveCandidateCursorIndex(data: FcitxEvent.PagedCandidateEvent.Data): Int =
+        if (data.candidates.isEmpty()) -1
+        else data.cursorIndex.coerceIn(0, data.candidates.lastIndex)
 
     /**
      * horizontal, bottom, top
@@ -121,6 +127,9 @@ class CandidatesView(
      * and before any actual drawing to avoid flicker
      */
     private val preDrawListener = OnPreDrawListener {
+        // The observer is shared with the whole IME window. A hidden candidate
+        // view may keep a pending layout forever because GONE views are skipped.
+        if (!isShown) return@OnPreDrawListener true
         if (shouldUpdatePosition) {
             updatePosition()
         }
@@ -143,7 +152,7 @@ class CandidatesView(
 
     private val candidatesUi = PagedCandidatesUi(
         ctx, theme, setupTextView,
-        onCandidateClick = { index -> fcitx.launchOnReady { it.select(index) } },
+        onCandidateClick = { index -> service.postFcitxJob { select(index) } },
         onCandidateAction = { index, text, view -> showCandidateActionMenu(index, text, view) },
         onBindCandidateGesture = ::bindCandidateGesture,
         onUnbindCandidateGesture = ::unbindCandidateGesture,
@@ -172,6 +181,7 @@ class CandidatesView(
                     activeCandidateOverride = null
                 }
                 paged = it.data
+                engineCandidateCursorIndex = effectiveCandidateCursorIndex(it.data)
                 updateUi()
             }
             else -> {}
@@ -199,7 +209,7 @@ class CandidatesView(
             data = paged,
             orientation = orientation,
             maxRowWidthPx = maxCandidateRowWidth,
-            activeIndexOverride = activeCandidateOverride
+            activeIndexOverride = activeCandidateOverride ?: effectiveCandidateCursorIndex(paged)
         )
         if (evaluateVisibility()) {
             visibility = VISIBLE
@@ -210,24 +220,25 @@ class CandidatesView(
         shouldUpdatePosition = true
     }
 
-    fun hasCandidates(): Boolean = paged.candidates.isNotEmpty() && visibility == VISIBLE
+    fun hasCandidates(): Boolean = paged.candidates.isNotEmpty()
 
     internal fun clearPredictionCandidates() {
         inputPanel = FcitxEvent.InputPanelEvent.Data()
         paged = FcitxEvent.PagedCandidateEvent.Data.Empty
         activeCandidateOverride = null
+        engineCandidateCursorIndex = -1
         updateUi()
     }
 
     internal fun hasVisiblePredictionCandidate(digit: Int? = null): Boolean {
-        val index = digit?.minus(1) ?: (activeCandidateOverride ?: paged.cursorIndex)
+        val index = digit?.minus(1) ?: (activeCandidateOverride ?: effectiveCandidateCursorIndex(paged))
         return index in paged.candidates.indices &&
             candidatesUi.root.getChildAt(index)?.isCandidateVisibleToUser() == true
     }
 
     internal fun selectVisiblePredictionCandidate(digit: Int? = null): Boolean {
         if (!hasVisiblePredictionCandidate(digit)) return false
-        val index = digit?.minus(1) ?: (activeCandidateOverride ?: paged.cursorIndex)
+        val index = digit?.minus(1) ?: (activeCandidateOverride ?: effectiveCandidateCursorIndex(paged))
         val expected = paged
         service.postFcitxJob {
             if (!service.hardwarePredictionSession.isSuppressed) selectPrediction(index, expected)
@@ -235,25 +246,39 @@ class CandidatesView(
         return true
     }
 
-    fun moveActiveCandidate(delta: Int): Boolean {
+    fun moveActiveCandidate(delta: Int, syncEngine: Boolean = false): Boolean {
         val next = nextFloatingCandidateIndex(
-            currentIndex = activeCandidateOverride ?: paged.cursorIndex,
+            currentIndex = activeCandidateOverride ?: effectiveCandidateCursorIndex(paged),
             delta = delta,
             candidateCount = paged.candidates.size,
             reversed = candidatesUi.isReversed
         ) ?: return false
         activeCandidateOverride = next
+        // Keep fcitx's cursor in step with the Android-side highlight without
+        // depending on the user's Up/Down bindings.
+        if (syncEngine) {
+            val indexDelta = next - engineCandidateCursorIndex
+            if (indexDelta != 0) {
+                service.postCandidateCursorNavigation(indexDelta)
+                engineCandidateCursorIndex = next
+            }
+        }
         updateUi()
         return true
     }
 
     fun selectActiveCandidate(): Boolean {
         if (paged.candidates.isEmpty()) return false
-        val index = activeCandidateOverride ?: paged.cursorIndex
+        val index = activeCandidateOverride ?: effectiveCandidateCursorIndex(paged)
         if (index !in paged.candidates.indices) return false
-        fcitx.launchOnReady { it.select(index) }
+        service.postFcitxJob { select(index) }
         return true
     }
+
+    internal fun highlightedNativeCandidateIndex(): Int? =
+        (activeCandidateOverride ?: effectiveCandidateCursorIndex(paged)).takeIf {
+            hasCandidates() && it in paged.candidates.indices
+        }
 
     private var bottomInsets = 0
 

@@ -1300,8 +1300,11 @@ class InputView(
 
     fun hasHorizontalNativeCandidates(): Boolean = horizontalCandidate.hasNativeCandidates()
 
-    fun moveHorizontalCandidateHighlight(delta: Int): Boolean =
-        horizontalCandidate.moveActiveCandidate(delta)
+    internal fun highlightedNativeCandidateIndex(): Int? =
+        horizontalCandidate.highlightedNativeCandidateIndex()
+
+    fun moveHorizontalCandidateHighlight(delta: Int, syncEngine: Boolean = false): Boolean =
+        horizontalCandidate.moveActiveCandidate(delta, syncEngine)
 
     fun selectHorizontalCandidateHighlight(): Boolean =
         horizontalCandidate.selectActiveCandidate()
@@ -1324,7 +1327,7 @@ class InputView(
             state.panelSuggestions.firstOrNull() == state.suggestions.firstOrNull()
     }
 
-    internal fun selectVisiblePredictionCandidate(digit: Int): Boolean =
+    internal fun selectVisiblePredictionCandidate(digit: Int? = null): Boolean =
         horizontalCandidate.selectVisiblePredictionCandidate(digit)
 
     internal fun cancelHardwarePrediction(): Boolean = aiSuggestionStrip.cancelHardwarePrediction()

@@ -408,10 +408,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun hasVisibleNativeCandidates(): Boolean =
         hasFloatingCandidates() || inputView?.hasHorizontalNativeCandidates() == true
 
-    fun moveVisibleCandidateHighlight(delta: Int): Boolean =
+    fun moveVisibleCandidateHighlight(delta: Int, syncEngine: Boolean = false): Boolean =
         when {
-            hasFloatingCandidates() -> candidatesView?.moveActiveCandidate(delta) == true
-            inputView?.hasHorizontalCandidates() == true -> inputView?.moveHorizontalCandidateHighlight(delta) == true
+            hasFloatingCandidates() -> candidatesView?.moveActiveCandidate(delta, syncEngine) == true
+            inputView?.hasHorizontalCandidates() == true -> inputView?.moveHorizontalCandidateHighlight(delta, syncEngine) == true
             else -> false
         }
 
@@ -421,6 +421,42 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             inputView?.hasHorizontalCandidates() == true -> inputView?.selectHorizontalCandidateHighlight() == true
             else -> false
         }
+
+    /**
+     * Move the engine candidate cursor without depending on the user's Up/Down bindings.
+     * Fcitx Pinyin and Rime use Tab/Shift+Tab for candidate navigation by default, while
+     * other engines retain the historical arrow-key path for compatibility.
+     */
+    internal fun postCandidateCursorNavigation(delta: Int): Job {
+        require(delta != 0)
+        return postFcitxJob {
+            val entry = inputMethodEntryCached
+            val tabNavigation = entry.addon == "rime" ||
+                entry.icon == "fcitx-rime" ||
+                entry.addon == "pinyin" ||
+                entry.uniqueName.contains("pinyin", ignoreCase = true) ||
+                entry.name.contains("pinyin", ignoreCase = true)
+            val sym = if (tabNavigation) {
+                FcitxKeyMapping.FcitxKey_Tab
+            } else if (delta < 0) {
+                FcitxKeyMapping.FcitxKey_Up
+            } else {
+                FcitxKeyMapping.FcitxKey_Down
+            }
+            val states = if (tabNavigation && delta < 0) {
+                KeyStates(KeyState.Shift, KeyState.Virtual)
+            } else {
+                KeyStates.Virtual
+            }
+            repeat(kotlin.math.abs(delta)) {
+                sendKey(KeySym(sym), states)
+            }
+        }
+    }
+
+    internal fun highlightedNativeCandidateIndex(): Int? =
+        candidatesView?.highlightedNativeCandidateIndex()
+            ?: inputView?.takeIf { it.isShown }?.highlightedNativeCandidateIndex()
 
     private fun moveVisibleCandidateHighlightOnMain(delta: Int) {
         lifecycleScope.launch(Dispatchers.Main.immediate) {
@@ -481,7 +517,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     /**
      * Hardware-key shortcuts over visible prediction items while a physical keyboard drives the
      * session: a digit key commits the candidate bar item carrying the matching index
-     * label, and space always commits the item labeled 1 regardless of the prediction
+     * label, and space commits the highlighted item regardless of the prediction
      * space behavior setting (which keeps governing the virtual keyboard).
      */
     private fun handleHardwarePredictionKeyEvent(event: KeyEvent): Boolean {
@@ -513,13 +549,22 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             ) {
                 return false
             }
-            // Always commit the first prediction: the floating candidates window's
-            // highlighted item when it is up, otherwise the candidate bar's first
-            // displayed item, otherwise the primary AI suggestion from the bubble state.
-            candidatesView?.selectVisiblePredictionCandidate() == true ||
-                inputView?.selectVisiblePredictionCandidate(1) == true ||
-                (inputView?.hasVisibleAiSuggestions() == true &&
-                    inputView?.commitPrimaryAiSuggestion() == true)
+            if (hasPreedit) {
+                // Arrow navigation changes the UI highlight independently of the engine.
+                // Normal candidates need select(), since selectPrediction() rejects preedit.
+                when {
+                    candidatesView?.hasVisiblePredictionCandidate() == true ->
+                        candidatesView?.selectActiveCandidate() == true
+                    inputView?.hasDisplayedCandidates() == true ->
+                        inputView?.selectHorizontalCandidateHighlight() == true
+                    else -> false
+                }
+            } else {
+                // Prefer the highlighted native/AI candidate, then a visible AI panel item.
+                candidatesView?.selectVisiblePredictionCandidate() == true ||
+                    inputView?.selectVisiblePredictionCandidate() == true ||
+                    inputView?.commitPrimaryAiSuggestion() == true
+            }
         } else {
             val digit = resolveHardwarePredictionDigit(event.keyCode) ?: return false
             if (hasPreedit) {

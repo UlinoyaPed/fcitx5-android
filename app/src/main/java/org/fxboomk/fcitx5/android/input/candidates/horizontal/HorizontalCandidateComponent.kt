@@ -27,6 +27,9 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.CapabilityFlags
 import org.fxboomk.fcitx5.android.core.CandidateWord
 import org.fxboomk.fcitx5.android.core.FcitxEvent
+import org.fxboomk.fcitx5.android.core.FcitxKeyMapping
+import org.fxboomk.fcitx5.android.core.KeyStates
+import org.fxboomk.fcitx5.android.core.KeySym
 import org.fxboomk.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
 import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
@@ -61,6 +64,22 @@ internal const val HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP = 4
 internal fun activeCandidateIndex(cursorIndex: Int, candidateCount: Int): Int {
     if (candidateCount <= 0) return -1
     return cursorIndex.coerceIn(0, candidateCount - 1)
+}
+
+/** Space uses the highlight; an explicit selection key keeps its numbered position. */
+internal fun predictionCandidateIndex(digit: Int?, activeIndex: Int, candidateCount: Int): Int? =
+    (digit?.minus(1) ?: activeIndex).takeIf { it in 0 until candidateCount }
+
+internal fun RecyclerView.isPredictionCandidateVisible(
+    position: Int,
+    index: Int,
+    candidate: CandidateWord,
+): Boolean {
+    val holder = findViewHolderForAdapterPosition(position) as? CandidateViewHolder ?: return false
+    // Highlight-only updates may be pending when the next key arrives. Verify the
+    // rendered candidate itself so those updates cannot send space back to the engine.
+    return holder.bindingAdapterPosition == position && holder.idx == index &&
+        holder.candidate == candidate && holder.itemView.isCandidateVisibleToUser()
 }
 
 /**
@@ -254,6 +273,10 @@ class HorizontalCandidateComponent :
     )
 
     private var nativeCandidateSnapshot = NativeCandidateSnapshot()
+    /** UI-owned highlight. Engine events may omit the cursor and must not reset it. */
+    private var activeCandidateOverride: Int? = null
+    /** Absolute engine cursor, kept locally while the UI can highlight AI items. */
+    private var engineNativeCursorIndex = -1
     private var displayedCalculatorIndex = -1
 
     private data class RowWindow(
@@ -309,16 +332,33 @@ class HorizontalCandidateComponent :
 
     fun hasCandidates(): Boolean = adapter.candidates.isNotEmpty()
 
-    internal fun hasVisiblePredictionCandidate(digit: Int): Boolean {
-        val position = digit - 1
-        if (position !in adapter.candidates.indices || view.hasPendingAdapterUpdates()) return false
-        return view.findViewHolderForAdapterPosition(position)?.itemView?.isCandidateVisibleToUser() == true
+    private fun effectiveActiveCandidateIndex(fallback: Int = adapter.activeIndex): Int =
+        activeCandidateOverride?.takeIf { it in adapter.candidates.indices } ?: fallback
+
+    internal fun hasVisiblePredictionCandidate(digit: Int? = null): Boolean {
+        val position = predictionCandidateIndex(
+            digit,
+            effectiveActiveCandidateIndex(),
+            adapter.candidates.size,
+        ) ?: return false
+        return view.isPredictionCandidateVisible(
+            position, position + adapter.indexOffset, adapter.candidates[position]
+        )
     }
 
-    internal fun selectVisiblePredictionCandidate(digit: Int): Boolean {
+    internal fun hasVisibleAiSuggestions(): Boolean = adapter.candidates.indices.any {
+        isAiCandidatePosition(it) && hasVisiblePredictionCandidate(it + 1)
+    }
+
+    internal fun selectVisiblePredictionCandidate(digit: Int? = null): Boolean {
         if (!hasVisiblePredictionCandidate(digit)) return false
-        if (selectByDigitKey(digit)) return true
-        val index = digit - 1 + adapter.indexOffset
+        val position = predictionCandidateIndex(
+            digit,
+            effectiveActiveCandidateIndex(),
+            adapter.candidates.size,
+        ) ?: return false
+        if (selectByDigitKey(position + 1)) return true
+        val index = position + adapter.indexOffset
         val expected = lastPagedData ?: return false
         service.postFcitxJob {
             if (!service.hardwarePredictionSession.isSuppressed) selectPrediction(index, expected)
@@ -338,33 +378,57 @@ class HorizontalCandidateComponent :
         clearNativeCandidateFlow()
         resetRowWindowState()
         updateNativeCandidateSnapshot(emptyArray(), 0, 0, -1)
+        activeCandidateOverride = null
+        engineNativeCursorIndex = -1
         aiSuggestions = emptyList()
         calculatorSuggestion = null
         renderCurrentCandidates()
     }
 
-    fun moveActiveCandidate(delta: Int): Boolean {
+    fun moveActiveCandidate(delta: Int, syncEngine: Boolean = false): Boolean {
         if (delta == 0 || adapter.candidates.isEmpty()) return false
-        val nextIndex = moveActiveCandidateIndex(adapter.activeIndex, delta, adapter.candidates.size)
-        if (nextIndex == adapter.activeIndex) return false
+        val previousIndex = activeCandidateIndex(
+            effectiveActiveCandidateIndex(),
+            adapter.candidates.size,
+        )
+        val nextIndex = moveActiveCandidateIndex(previousIndex, delta, adapter.candidates.size)
+        if (nextIndex == previousIndex) return false
+        activeCandidateOverride = nextIndex
         adapter.updateActiveIndex(nextIndex)
+        // AI/calculator items are not engine candidates. When the highlight lands
+        // on a native item, synchronize the engine cursor from its last known
+        // absolute position so native → AI → native transitions remain correct.
+        if (syncEngine && pagedCandidateFlowActive && nextIndex < displayedNativeCount) {
+            val targetIndex = nativeCandidateSnapshot.indexOffset + nextIndex
+            val currentIndex = engineNativeCursorIndex.takeIf { it >= 0 }
+                ?: (nativeCandidateSnapshot.indexOffset + nativeCandidateSnapshot.activeIndex)
+            val indexDelta = targetIndex - currentIndex
+            if (indexDelta != 0) {
+                service.postCandidateCursorNavigation(indexDelta)
+                engineNativeCursorIndex = targetIndex
+            }
+        }
         return true
     }
 
     fun selectActiveCandidate(): Boolean {
-        val idx = adapter.activeIndex
+        val idx = effectiveActiveCandidateIndex()
         if (idx !in adapter.candidates.indices) return false
         if (isCalculatorCandidatePosition(idx)) {
             calculatorSuggestion?.let(inputView::commitCalculatorSuggestionFromUi)
             return true
         }
         if (isAiCandidatePosition(idx)) {
+            if (!hasVisiblePredictionCandidate(idx + 1)) return false
             inputView.commitAiSuggestionFromUi(adapter.candidates[idx].text)
             return true
         }
-        fcitx.launchOnReady { it.select(idx + adapter.indexOffset) }
+        service.postFcitxJob { select(idx + adapter.indexOffset) }
         return true
     }
+
+    internal fun highlightedNativeCandidateIndex(): Int? =
+        effectiveActiveCandidateIndex().takeIf { it in 0 until displayedNativeCount }?.plus(adapter.indexOffset)
 
     /**
      * Commit the displayed item carrying the index label [digit] (1-9) when it is the
@@ -379,6 +443,7 @@ class HorizontalCandidateComponent :
             return true
         }
         if (isAiCandidatePosition(position)) {
+            if (!hasVisiblePredictionCandidate(digit)) return false
             inputView.commitAiSuggestionFromUi(adapter.candidates[position].text)
             return true
         }
@@ -591,9 +656,14 @@ class HorizontalCandidateComponent :
                     if (isCalculatorCandidate) {
                         calculatorSuggestion?.let(inputView::commitCalculatorSuggestionFromUi)
                     } else if (isAiCandidate) {
+                        val currentPosition = holder.bindingAdapterPosition
+                        if (!hasVisiblePredictionCandidate(currentPosition + 1) ||
+                            !isAiCandidatePosition(currentPosition) ||
+                            adapter.candidates[currentPosition].text != holder.text
+                        ) return@setOnClickListener
                         inputView.commitAiSuggestionFromUi(holder.text)
                     } else {
-                        fcitx.launchOnReady { it.select(holder.idx) }
+                        service.postFcitxJob { select(holder.idx) }
                     }
                 }
                 // The long-press action menu, decompose ("拆字") and reset-frequency ("重置词频")
@@ -682,6 +752,11 @@ class HorizontalCandidateComponent :
         lastPagedData = null
         val candidates = data.candidates
         val total = data.total
+        if (!nativeCandidateSnapshot.candidates.contentEquals(candidates) ||
+            nativeCandidateSnapshot.indexOffset != 0
+        ) {
+            activeCandidateOverride = null
+        }
         val activeIndex = activeCandidateIndex(0, normalizedSingleRowCandidates(candidates).size)
         updateNativeCandidateSnapshot(
             candidates = candidates,
@@ -689,6 +764,7 @@ class HorizontalCandidateComponent :
             indexOffset = 0,
             activeIndex = activeIndex,
         )
+        engineNativeCursorIndex = activeIndex
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         pendingLegacyCandidateUpdate = Runnable {
             pendingLegacyCandidateUpdate = null
@@ -706,13 +782,15 @@ class HorizontalCandidateComponent :
         }
         lastPagedData = data
         val candidates = data.candidates
+        if (!nativeCandidateSnapshot.candidates.contentEquals(candidates) ||
+            nativeCandidateSnapshot.indexOffset != 0
+        ) {
+            activeCandidateOverride = null
+        }
         resetRowWindowState()
-        renderCandidateWindow(
-            candidates,
-            -1,
-            0,
-            activeCandidateIndex(data.cursorIndex, normalizedSingleRowCandidates(candidates).size)
-        )
+        val activeIndex = activeCandidateIndex(data.cursorIndex, normalizedSingleRowCandidates(candidates).size)
+        renderCandidateWindow(candidates, -1, 0, activeIndex)
+        engineNativeCursorIndex = activeIndex
     }
 
     // memo of the last rendered inputs; identical inputs produce no new render work
@@ -760,7 +838,12 @@ class HorizontalCandidateComponent :
         layoutFlexGrow = sizing.flexGrow
         secondLayoutPassNeeded = sizing.secondLayoutPassNeeded
         secondLayoutPassDone = false
-        adapter.updateCandidates(candidates, total, activeIndex, indexOffset)
+        adapter.updateCandidates(
+            candidates,
+            total,
+            effectiveActiveCandidateIndex(activeIndex),
+            indexOffset,
+        )
         bar.syncCandidateBarState(candidateEmpty = !hasVisibleCandidateContent(candidates))
         syncDynamicBarHeight(candidates)
         if (candidates.isEmpty()) {
