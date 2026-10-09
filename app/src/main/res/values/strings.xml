@@ -364,7 +364,7 @@
     <string name="space_key_label_mode_submode_only">Submode only</string>
     <string name="prediction_space_behavior">预测时空格键行为</string>
     <string name="prediction_space_behavior_commit_space">上屏空格字符</string>
-    <string name="prediction_space_behavior_commit_prediction">提交首个预测项</string>
+    <string name="prediction_space_behavior_commit_prediction">提交高亮预测项</string>
     <string name="prediction_backspace_behavior">Backspace behavior during prediction</string>
     <string name="prediction_backspace_behavior_delete_text">Delete text before cursor</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Dismiss candidates and show toolbar</string>

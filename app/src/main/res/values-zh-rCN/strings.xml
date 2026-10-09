@@ -357,7 +357,7 @@
     <string name="space_key_label_mode_submode_only">仅显示子模式</string>
     <string name="prediction_space_behavior">预测时空格键行为</string>
     <string name="prediction_space_behavior_commit_space">上屏空格字符</string>
-    <string name="prediction_space_behavior_commit_prediction">提交首个预测项</string>
+    <string name="prediction_space_behavior_commit_prediction">提交高亮预测项</string>
     <string name="prediction_backspace_behavior">预测时退格键行为</string>
     <string name="prediction_backspace_behavior_delete_text">删除光标前文本</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">取消候选并显示工具栏</string>

@@ -519,7 +519,7 @@
     <string name="space_key_label_mode_submode_only">Только подрежим</string>
     <string name="prediction_space_behavior">Поведение пробела при предсказании</string>
     <string name="prediction_space_behavior_commit_space">Вставить пробел</string>
-    <string name="prediction_space_behavior_commit_prediction">Подтвердить первый вариант предсказания</string>
+    <string name="prediction_space_behavior_commit_prediction">Подтвердить выделенный вариант предсказания</string>
     <string name="prediction_backspace_behavior">Поведение Backspace при предсказании</string>
     <string name="prediction_backspace_behavior_delete_text">Удалить текст перед курсором</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Скрыть кандидаты и показать панель инструментов</string>

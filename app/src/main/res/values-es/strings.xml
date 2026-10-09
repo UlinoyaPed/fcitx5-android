@@ -256,7 +256,7 @@
     <string name="space_key_label_mode_submode_only">Solo submodo</string>
     <string name="prediction_space_behavior">Acción de la barra espaciadora durante la predicción</string>
     <string name="prediction_space_behavior_commit_space">Insertar un espacio</string>
-    <string name="prediction_space_behavior_commit_prediction">Confirmar la primera predicción</string>
+    <string name="prediction_space_behavior_commit_prediction">Confirmar la predicción resaltada</string>
     <string name="prediction_backspace_behavior">Acción de retroceso durante la predicción</string>
     <string name="prediction_backspace_behavior_delete_text">Eliminar texto antes del cursor</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Descartar candidatos y mostrar la barra de herramientas</string>

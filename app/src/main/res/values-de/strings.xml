@@ -187,7 +187,7 @@
     <string name="space_key_label_mode_submode_only">Nur Untermodus</string>
     <string name="prediction_space_behavior">Leertastenverhalten bei Vorhersagen</string>
     <string name="prediction_space_behavior_commit_space">Leerzeichen eingeben</string>
-    <string name="prediction_space_behavior_commit_prediction">Ersten Vorhersageeintrag übernehmen</string>
+    <string name="prediction_space_behavior_commit_prediction">Hervorgehobenen Vorhersageeintrag übernehmen</string>
     <string name="prediction_backspace_behavior">Rücktastenverhalten bei Vorhersagen</string>
     <string name="prediction_backspace_behavior_delete_text">Text vor dem Cursor löschen</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Kandidaten ausblenden und Symbolleiste anzeigen</string>

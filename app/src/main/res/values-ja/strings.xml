@@ -462,7 +462,7 @@
     <string name="space_key_label_mode_submode_only">サブモードのみ</string>
     <string name="prediction_space_behavior">予測時のスペースキー動作</string>
     <string name="prediction_space_behavior_commit_space">スペース文字を入力</string>
-    <string name="prediction_space_behavior_commit_prediction">先頭の予測候補を確定</string>
+    <string name="prediction_space_behavior_commit_prediction">ハイライトされた予測候補を確定</string>
     <string name="prediction_backspace_behavior">予測時のバックスペースキー動作</string>
     <string name="prediction_backspace_behavior_delete_text">カーソル前の文字を削除</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">候補を閉じてツールバーを表示</string>
