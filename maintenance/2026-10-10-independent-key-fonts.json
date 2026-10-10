@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-10",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "bcdd1a650e7438d69bd84bdc95aa52af0160bcaa",
+  "requirement": "Main and secondary font sizes must not change each other’s rendered size, position or visibility.",
+  "changes": [
+    "Allocate main and hint regions from key geometry only; each edge reserves one fifth of the usable height.",
+    "Fit each category within its own region, preserving the whole-key typographic baseline and minimum gaps.",
+    "Remove font-metric layout selection and cross-label hiding/shrinking, including uppercase-only hints.",
+    "Preserve hidden-hint main geometry and language/case stability; no new preference.",
+    "Persist the requirement in maintenance documentation and the existing weekly task prompt; scheduling unchanged."
+  ],
+  "validation": {
+    "baseline_new_instrumentation_tests": 2,
+    "baseline_new_instrumentation_failures": 2,
+    "unit_tests": 598,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "android_instrumentation_tests": 73,
+    "android_instrumentation_failures": 0,
+    "instrumentation_time_seconds": 67.915,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "independence_densities_dpi": [
+      240,
+      520
+    ],
+    "independence_row_heights_dp": [
+      32,
+      62,
+      80
+    ],
+    "main_font_sizes_sp": [
+      4,
+      24,
+      48,
+      96
+    ],
+    "secondary_font_sizes_sp": [
+      4,
+      10.666667,
+      24,
+      64
+    ],
+    "debug_build": "passed",
+    "test_apk_build": "passed",
+    "release_abi": "arm64-v8a",
+    "release_build": "passed",
+    "lint": "passed",
+    "release_apks_verified": 1,
+    "release_signing_key": "temporary local verification certificate",
+    "lint_errors": 0,
+    "lint_warnings": 375,
+    "gitnexus": {
+      "changed_count": 66,
+      "affected_count": 10,
+      "changed_files": 6,
+      "risk_level": "high",
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "bcdd1a650e7438d69bd84bdc95aa52af0160bcaa",
+      "result_arrays_complete": true,
+      "includes_existing_native_submodule_worktree_in_changed_files": true
+    }
+  },
+  "limits": [
+    "No physical-device verification.",
+    "Graph results are lower bounds, with unresolved dispatch and scope/process-discovery limits.",
+    "Local release signing uses a temporary verification certificate; production signing runs in GitHub Actions with repository Secrets."
+  ]
+}

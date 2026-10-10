@@ -686,8 +686,6 @@ class AltTextKeyView(
     private var lastLayoutMode: AltTextLayoutMode? = null
     private var lastLayoutHeight = -1
     private var lastDirectionalLabelMask = -1
-    private var remainingSpaceTopLabels = emptyList<AutoScaleTextView>()
-    private var remainingSpaceBottomLabels = emptyList<AutoScaleTextView>()
 
     /**
      * The base-class `def` is typed as the generic [KeyDef.Appearance];
@@ -1358,23 +1356,17 @@ class AltTextKeyView(
     }
 
     private fun resolveIndependentLayoutMode(keyHeight: Int): AltTextLayoutMode {
-        if (keyHeight <= 0) return AltTextLayoutMode.Independent
-        val contentHeight = keyHeight - vMargin * 2
-        val primary = independentPosition(def.altTextPositionOverride)
-        val secondary = independentAltText1Position()
-        if (!altText.text.isNullOrBlank() &&
-            (primary == PunctuationPosition.Top || primary == PunctuationPosition.TopRight) &&
-            (secondary == PunctuationPosition.Top || secondary == PunctuationPosition.TopRight)
-        ) {
-            return if (contentHeight >= cornerLabelTopSafeInset + dp(4) + 3) {
-                AltTextLayoutMode.Independent
-            } else AltTextLayoutMode.Hidden
-        }
-        val minHeight = max(
-            altText.paint.run { fontMetrics.bottom - fontMetrics.top },
-            altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
-        ) + cornerLabelTopSafeInset
-        return if (contentHeight >= minHeight) AltTextLayoutMode.Independent else AltTextLayoutMode.Hidden
+        return if (hasSubLabelSpace(keyHeight)) AltTextLayoutMode.Independent else AltTextLayoutMode.Hidden
+    }
+
+    private fun hasSubLabelSpace(keyHeight: Int): Boolean = keyHeight <= 0 ||
+            keyHeight - vMargin * 2 >= cornerLabelTopSafeInset * 2 + dp(4) + 3
+
+    /** Each edge gets one fifth of the usable height, independently of every font size. */
+    private fun subLabelHeightLimit(keyHeight: Int): Int {
+        if (keyHeight <= 0) return Int.MAX_VALUE
+        return ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset) - dp(4)) / 5)
+            .coerceAtLeast(1)
     }
 
     private fun resolveUppercaseLayoutMode(keyHeight: Int, uppercase: UppercasePosition): AltTextLayoutMode {
@@ -1398,48 +1390,7 @@ class AltTextKeyView(
             }
             UppercasePosition.None -> AltTextLayoutMode.Hidden
         }
-        if (keyHeight <= 0) return preferred
-
-        val contentHeight = keyHeight - vMargin * 2
-        val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val upperHeight = upperText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        // Compact overlays only need the sublabel itself to fit: the centered main
-        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
-        // so its unscaled metrics must not gate the compact minimum height.
-        val compactMinHeight = altHeight + cornerLabelTopSafeInset
-        val dualCompactMinHeight = max(compactMinHeight, upperHeight + cornerLabelTopSafeInset)
-        val upperCompactMinHeight = upperHeight + cornerLabelTopSafeInset
-        val upperStackedMinHeight = mainHeight + upperHeight + dp(1)
-
-        return when (preferred) {
-            AltTextLayoutMode.UpperTopPunctBottom,
-            AltTextLayoutMode.PunctTopUpperBottom -> when {
-                // All three labels can scale inside their own regions on short rows.
-                contentHeight >= cornerLabelTopSafeInset * 2 + dp(4) + 3 -> preferred
-                else -> resolvePunctuationLayoutMode(keyHeight)
-            }
-            AltTextLayoutMode.PunctUpperTopCorners,
-            AltTextLayoutMode.PunctTopRightUpperTopLeft -> when {
-                contentHeight >= cornerLabelTopSafeInset + dp(4) + 3 -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.PunctTopRightUpperBottom,
-            AltTextLayoutMode.PunctUpperBottomCorners -> when {
-                contentHeight >= dualCompactMinHeight -> preferred
-                // Not enough room for both sublabels: fall back to punctuation-only layout
-                else -> resolvePunctuationLayoutMode(keyHeight)
-            }
-            AltTextLayoutMode.UpperTop -> when {
-                contentHeight >= upperCompactMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.UpperBottom -> when {
-                contentHeight >= upperStackedMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            else -> resolvePunctuationLayoutMode(keyHeight)
-        }
+        return if (hasSubLabelSpace(keyHeight)) preferred else AltTextLayoutMode.Hidden
     }
 
     private fun resolvePunctuationLayoutMode(keyHeight: Int): AltTextLayoutMode {
@@ -1467,47 +1418,7 @@ class AltTextKeyView(
             }
             null -> if (hasSecondAlt) resolveThemeCornerPairLayoutMode() else resolveThemeLayoutMode()
         }
-        if (keyHeight <= 0) return preferred
-
-        val contentHeight = keyHeight - vMargin * 2
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val altText1Height = altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
-        // Compact overlays only need the sublabel itself to fit: the centered main
-        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
-        // so its unscaled metrics must not gate the compact minimum height.
-        val compactMinHeight = altHeight + cornerLabelTopSafeInset
-        val topBottomCompactMinHeight = max(compactMinHeight, altText1Height + cornerLabelTopSafeInset)
-
-        return when (preferred) {
-            AltTextLayoutMode.TopBottom -> when {
-                contentHeight >= topBottomCompactMinHeight -> AltTextLayoutMode.TopBottom
-                hasSecondAlt && contentHeight >= compactMinHeight -> resolveThemeCornerPairLayoutMode()
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Bottom -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.Bottom
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.TopCorners -> when {
-                contentHeight >= cornerLabelTopSafeInset + dp(4) + 3 -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.BottomCorners -> when {
-                contentHeight >= compactMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Top -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.Top
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.TopRight -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
-            // Uppercase modes are resolved in resolveUppercaseLayoutMode and never reach here
-            else -> resolveThemeLayoutMode()
-        }
+        return if (hasSubLabelSpace(keyHeight)) preferred else AltTextLayoutMode.Hidden
     }
 
     private fun applyLayout(keyHeight: Int = appearanceView.height) {
@@ -1535,25 +1446,17 @@ class AltTextKeyView(
         lastLayoutMode = mode
         lastLayoutHeight = keyHeight
         lastDirectionalLabelMask = directionalLabelMask
-        remainingSpaceTopLabels = emptyList()
-        remainingSpaceBottomLabels = emptyList()
         // Keep the last measured placement until the next layout supplies its
         // replacement, instead of drawing an unaligned intermediate frame.
         mainText.useGlyphBounds = false
         val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
                 mode == AltTextLayoutMode.PunctTopUpperBottom || def.directionalSwipeLabels
-        val labelMaxHeight = if (separateMainText && keyHeight > 0) {
-            // Reserve at least a third of the usable height for the main label.
-            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
-                .coerceAtLeast(1)
-        } else {
-            Int.MAX_VALUE
-        }
+        val labelMaxHeight = subLabelHeightLimit(keyHeight)
         altText.useGlyphBounds = separateMainText
         altText1.useGlyphBounds = def.directionalSwipeLabels
         upperText.useGlyphBounds = separateMainText
         altText.maxHeight = labelMaxHeight
-        altText1.maxHeight = if (def.directionalSwipeLabels) labelMaxHeight else Int.MAX_VALUE
+        altText1.maxHeight = labelMaxHeight
         upperText.maxHeight = labelMaxHeight
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             height = wrapContent
@@ -1616,32 +1519,9 @@ class AltTextKeyView(
         val visibleLabels = listOf(altText, altText1, upperText).filter {
             it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
         }
-        remainingSpaceTopLabels = visibleLabels.filter {
-            (it.layoutParams as ConstraintLayout.LayoutParams).topToTop == ConstraintLayout.LayoutParams.PARENT_ID
-        }
-        remainingSpaceBottomLabels = visibleLabels.filter {
-            (it.layoutParams as ConstraintLayout.LayoutParams).bottomToBottom == ConstraintLayout.LayoutParams.PARENT_ID
-        }
-        // Preserve each sublabel's anchor, but reserve room for the main ink and
-        // two gaps, including on short rows with oversized fonts.
-        if (visibleLabels.isNotEmpty()) {
-            val topInset = remainingSpaceTopLabels.maxOfOrNull {
-                (it.layoutParams as ConstraintLayout.LayoutParams).topMargin
-            } ?: vMargin
-            val bottomInset = remainingSpaceBottomLabels.maxOfOrNull {
-                (it.layoutParams as ConstraintLayout.LayoutParams).bottomMargin
-            } ?: vMargin
-            val hasSingleEdge = remainingSpaceTopLabels.isNotEmpty() xor
-                remainingSpaceBottomLabels.isNotEmpty()
-            if (keyHeight > 0 && hasSingleEdge) {
-                val maxLabelHeight = ((keyHeight - topInset - bottomInset - dp(4)) / 3)
-                    .coerceAtLeast(1)
-                // Same-edge corner labels need a bounded band; mixed-edge labels
-                // already have independent edge constraints and their own sizing.
-                visibleLabels.forEach {
-                    if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
-                }
-            }
+        val maxLabelHeight = subLabelHeightLimit(keyHeight)
+        visibleLabels.forEach {
+            if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
         }
         mainText.useGlyphBounds = true
         // Use the same full-height drawing region even when hints are hidden.
@@ -1771,8 +1651,8 @@ class AltTextKeyView(
 
     override fun onAppearanceLayoutChanged(width: Int, height: Int) {
         applyLayout(height)
-        // Keyboard rows must decide compact fallback together, after all siblings
-        // have laid out. A single long label must not hide only its own hints.
+        // Keyboard rows align together after all siblings have laid out.
+        // Standalone theme previews can align their single key immediately.
         if ((parent as? View)?.parent !is BaseKeyboard) {
             alignRemainingSpaceMainLabels(listOf(this))
         }
@@ -1784,93 +1664,50 @@ class AltTextKeyView(
                 key.visibility == View.VISIBLE &&
                     key.mainText.width > 0 && key.mainText.height > 0
             }
-            // Keys with the same top/bottom occupancy share a baseline. Different
-            // remaining-space bands are centered independently.
-            eligible.groupBy { key ->
-                key.remainingSpaceTopLabels.isNotEmpty() to key.remainingSpaceBottomLabels.isNotEmpty()
-            }.values.forEach { band ->
-                val glyphs = band.mapNotNull { key ->
-                    val text = key.mainText.text.toString()
-                    val bounds = Rect()
-                    key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
-                    if (bounds.isEmpty) return@mapNotNull null
-                    val reference = key.mainText.referenceGlyphBounds()
-                    bounds.top = reference.top
-                    bounds.bottom = reference.bottom
-                    // Ordinary letters share a width budget, including across Shift/Caps.
-                    // Long custom labels still fit their own actual width.
-                    val wideLetter = Rect()
-                    key.mainText.paint.getTextBounds("W", 0, 1, wideLetter)
-                    val widthBasis = max(bounds.width(), wideLetter.width())
-                    val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
-                        .coerceAtLeast(0)
-                    Triple(key, bounds, min(1f, availableWidth.toFloat() / widthBasis))
-                }
-                if (glyphs.isEmpty()) return@forEach
+            // The main region is reserved even when hints are absent or small.
+            // Its size depends only on key geometry and its own font, not on hints.
+            val glyphs = eligible.mapNotNull { key ->
+                val text = key.mainText.text.toString()
+                val bounds = Rect()
+                key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
+                if (bounds.isEmpty) return@mapNotNull null
+                val reference = key.mainText.referenceGlyphBounds()
+                bounds.top = reference.top
+                bounds.bottom = reference.bottom
+                // Ordinary letters share a width budget, including across Shift/Caps.
+                // Long custom labels still fit their own actual width.
+                val wideLetter = Rect()
+                key.mainText.paint.getTextBounds("W", 0, 1, wideLetter)
+                val widthBasis = max(bounds.width(), wideLetter.width())
+                val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
+                    .coerceAtLeast(0)
+                Triple(key, bounds, min(1f, availableWidth.toFloat() / widthBasis))
+            }
+            if (glyphs.isEmpty()) return
 
-                val bandTop = if (glyphs.first().first.remainingSpaceTopLabels.isNotEmpty()) {
-                    glyphs.maxOf { (key) ->
-                        key.remainingSpaceTopLabels.maxOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedReferenceBounds().bottom
-                        }
-                    }
-                } else {
-                    glyphs.maxOf { (key) ->
-                        (key.top + key.appearanceView.top + key.vMargin).toFloat()
-                    }
-                }
-                val bandBottom = if (glyphs.first().first.remainingSpaceBottomLabels.isNotEmpty()) {
-                    glyphs.minOf { (key) ->
-                        key.remainingSpaceBottomLabels.minOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedReferenceBounds().top
-                        }
-                    }
-                } else {
-                    glyphs.minOf { (key) ->
-                        (key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin).toFloat()
-                    }
-                }
-                val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
-                val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
-                // Reserve the full 2dp geometrically. Rasterized fallback/accent glyphs
-                // can extend past paint bounds, so subtracting a pixel here loses the
-                // minimum visible gap on high-density, large-font rows.
-                val minGap = glyphs.maxOf { (key) -> key.dp(2) }
-                // Prefer keeping the two-pixel breathing room, but on very short rows
-                // the band can be thinner than the reserved gaps; shrink the glyph to
-                // the raw band instead of scaling it out of sight. One pixel per edge
-                // is dropped to absorb rasterization rounding of the scaled ink.
-                val center = glyphs.map { (key) ->
-                    key.top + key.appearanceView.top + key.appearanceView.height / 2f
-                }.average().toFloat()
-                val availableHeight = 2f * min(center - bandTop, bandBottom - center).coerceAtLeast(0f)
-                var heightScale = remainingSpaceMainGlyphScale(availableHeight, minGap.toFloat(), glyphBottom - glyphTop)
-                val unreadableMain = (glyphBottom - glyphTop) * heightScale < glyphs.maxOf { (key) -> key.dp(8) }
-                val unreadableSublabel = glyphs.any { (key) ->
-                    (key.remainingSpaceTopLabels + key.remainingSpaceBottomLabels).any {
-                        it.renderedReferenceBounds().height() < key.dp(4)
-                    }
-                }
-                if (unreadableMain || unreadableSublabel) {
-                    // On compact rows, keep the main label readable instead of
-                    // compressing three labels into nearly invisible strokes.
-                    glyphs.forEach { (key) ->
-                        (key.remainingSpaceTopLabels + key.remainingSpaceBottomLabels).forEach { it.visibility = View.GONE }
-                        key.remainingSpaceTopLabels = emptyList()
-                        key.remainingSpaceBottomLabels = emptyList()
-                    }
-                    val top = glyphs.maxOf { (key) -> key.top + key.appearanceView.top + key.vMargin }
-                    val bottom = glyphs.minOf { (key) -> key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin }
-                    val fullHeight = 2f * min(center - top, bottom - center).coerceAtLeast(0f)
-                    heightScale = remainingSpaceMainGlyphScale(fullHeight, minGap.toFloat(), glyphBottom - glyphTop)
-                }
-                val baseline = center - (glyphTop + glyphBottom) * heightScale / 2f
-                glyphs.forEach { (key, _, widthScale) ->
-                    key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
-                        baseline - key.top - key.appearanceView.top - key.mainText.top,
-                        widthScale * heightScale
-                    )
-                }
+            val bandTop = glyphs.maxOf { (key) ->
+                (key.top + key.appearanceView.top + key.vMargin + key.cornerLabelTopSafeInset +
+                        key.subLabelHeightLimit(key.appearanceView.height)).toFloat()
+            }
+            val bandBottom = glyphs.minOf { (key) ->
+                (key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin -
+                        key.cornerLabelTopSafeInset - key.subLabelHeightLimit(key.appearanceView.height)).toFloat()
+            }
+            val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
+            val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
+            // Preserve 2dp between the fixed main region and either hint region.
+            val minGap = glyphs.maxOf { (key) -> key.dp(2) }
+            val center = glyphs.map { (key) ->
+                key.top + key.appearanceView.top + key.appearanceView.height / 2f
+            }.average().toFloat()
+            val availableHeight = 2f * min(center - bandTop, bandBottom - center).coerceAtLeast(0f)
+            val heightScale = remainingSpaceMainGlyphScale(availableHeight, minGap.toFloat(), glyphBottom - glyphTop)
+            val baseline = center - (glyphTop + glyphBottom) * heightScale / 2f
+            glyphs.forEach { (key, _, widthScale) ->
+                key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
+                    baseline - key.top - key.appearanceView.top - key.mainText.top,
+                    widthScale * heightScale
+                )
             }
         }
     }

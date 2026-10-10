@@ -108,7 +108,8 @@ class VerticalSubLabelLayoutTest {
     private fun assertNormalMainLabelLayout(key: AltTextKeyView) {
         assertFalse(key.altText.useGlyphBounds)
         assertFalse(key.upperText.useGlyphBounds)
-        assertEquals(Int.MAX_VALUE, key.altText.maxHeight)
+        assertTrue("The hint keeps its own bounded edge region",
+            key.altText.maxHeight in 1 until key.getChildAt(0).height)
         val params = key.mainText.layoutParams as ConstraintLayout.LayoutParams
         assertEquals(0, params.height)
         assertEquals(ConstraintLayout.LayoutParams.UNSET, params.topToBottom)
