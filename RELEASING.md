@@ -47,4 +47,17 @@ git tag v0.1.0-personal.1 origin/main
 git push origin v0.1.0-personal.1
 ```
 
-本次代码修改不创建正式标签，也不替用户生成或上传生产密钥。首次公开发布须先设置以上三个 Secrets；现有生产签名是否配置需要仓库管理员在上述页面确认。
+首次公开发布须先设置以上三个 Secrets。签名配置是否有效，以 Nightly 的实际签名和验签结果为准；不会为了测试自动创建正式版本标签。
+
+## 工作流用途
+
+| Actions 名称 / 文件 | 触发方式 | 用途 |
+| --- | --- | --- |
+| Nightly / `ci.yml` | `main` 代码推送或手动运行 | 构建并发布带个人签名的应用和插件，更新预发布 `latest`。名称沿用 nightly，实际上每次代码推送都会运行。 |
+| Release / `release.yml` | 推送 `v` 开头的数字版本标签 | 构建并发布带个人签名的正式版本，供正式更新渠道使用。 |
+| Build signed APKs / `build-apks.yml` | 仅由上面两个工作流调用 | 共用的构建、单元测试、签名验证和产物上传步骤，没有独立的自动触发。 |
+| Pull Request / `pull_request.yml` | PR 新建、重新打开或更新 | 在 Linux、两个 macOS 架构和 Windows 构建应用及插件，上传供审查的构建产物，不发布版本。 |
+| Nix / `nix.yml` | `main` 推送或 PR | 使用 Nix 管理开发环境，验证另一种构建方式；不负责个人版发布。当前仍需适配本地第三方依赖，2026-10-10 的运行因远程 Maven 依赖下载失败。 |
+| F-Droid / `fdroid.yml` | 指定元数据路径的 PR、手动或仓库事件 | 验证官方 F-Droid 构建流程，包含四种 ABI。它仍依赖官方 Jenkins、官方包名和元数据路径，尚未适配个人版，也不会把个人版自动上架 F-Droid。 |
+
+原来的 **Publish**（`publish.yml`）已经移除。它把 Gradle 构建约定、公共库和插件开发库发布到 GitHub Packages，面向其他项目的开发者，不生成 APK 或 GitHub Release。个人版的构建约定通过 `includeBuild` 使用本仓库源码，公共库和插件开发库通过 `project(...)` 引用，Nightly / Release / PR 所需的第三方 AAR 则在构建时发布到本地目录，因此无需独立的远程 Maven 发布工作流。Gradle 本地发布任务仍然保留。

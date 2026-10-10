@@ -39,4 +39,6 @@
 
 维护必须保留 `org.ulinoyaped.fcitx5.android` 的应用和插件身份、个人仓库的更新来源、nightly/release 渠道和递增版本号。不能合入上游改动后把安装包名、签名或更新源切回上游。签名 Secrets 名称和发布步骤见 [RELEASING.md](RELEASING.md)。新字符串目前提供英语和简体／繁体中文，其他语言回退到英语。
 
+按用户要求移除无个人 APK 消费者的远程 Maven `Publish` 工作流；后续上游同步不得自动恢复。Nightly / Release 共用的 `Build signed APKs` 和 PR 构建仍保留本地第三方依赖发布任务。其余工作流的用途及尚未适配个人版的 Nix / F-Droid 限制见 [工作流说明](RELEASING.md#工作流用途)。
+
 本轮最终验证见 [2026-10-10 记录](maintenance/2026-10-10.json)：598 项单元测试及 64 项 Android 10／API 29 软件模拟器回归通过，完整 lint 0 错误、377 条既有警告；x86_64 调试版及测试 APK 构建通过。arm64-v8a 正式应用及全部 10 个插件构建成功，11 个 APK 均使用临时本地测试密钥验签通过且证书一致；生产发布仍须由仓库 Secrets 提供用户自己的密钥。三个应用构建／发布 workflow 通过 actionlint，签名配置缺失和配置齐全的验证分支均已检查。
