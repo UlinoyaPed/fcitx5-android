@@ -604,7 +604,6 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.registerOnChangeListener(altTextPositionListener)
         uppercasePosition.registerOnChangeListener(altTextPositionListener)
-        AppPrefs.getInstance().keyboard.centerMainLabels.registerOnChangeListener(altTextPositionListener)
         refreshDynamicState()
     }
 
@@ -614,7 +613,6 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.unregisterOnChangeListener(altTextPositionListener)
         uppercasePosition.unregisterOnChangeListener(altTextPositionListener)
-        AppPrefs.getInstance().keyboard.centerMainLabels.unregisterOnChangeListener(altTextPositionListener)
         super.onDetachedFromWindow()
     }
 

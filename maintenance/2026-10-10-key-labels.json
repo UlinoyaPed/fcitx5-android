@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-10",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "e6139f1a1a1be5627a76869e455bd02ecb2fe9e4",
+  "reported_build": "20261010-e6139f1a",
+  "reported_density_dpi": 520,
+  "changes": [
+    "Fixed font reference frames stabilize ordinary letter sizing and baselines across rows and language punctuation changes.",
+    "Ordinary letters use a stable width budget; long custom labels still fit their actual width.",
+    "Preserve computed placement until the next layout; hidden hints use the same full-height main region.",
+    "Compact fallback is applied to the whole occupied row band, preserving readable primary labels.",
+    "Removed redundant main-label centering control and its settings/search strings.",
+    "Maintenance policy now requests controls only for meaningful preferences and optional/input-intercepting features.",
+    "Declared generated asset descriptor dependencies for regular lint analysis and models, including joint assemble/lint invocations."
+  ],
+  "validation": {
+    "baseline_regression_tests": 6,
+    "baseline_regression_failures": 5,
+    "unit_tests": 598,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "android_instrumentation_tests": 71,
+    "android_instrumentation_failures": 0,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "instrumentation_time_seconds": 128.666,
+    "debug_build": "passed",
+    "test_apk_build": "passed",
+    "release_abi": "arm64-v8a",
+    "release_build": "passed",
+    "lint": "passed",
+    "gitnexus": {
+      "changed_count": 129,
+      "affected_count": 5,
+      "changed_files": 17,
+      "risk_level": "medium",
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "e6139f1a1a1be5627a76869e455bd02ecb2fe9e4",
+      "result_arrays_complete": true,
+      "includes_uncommitted_native_submodule_worktree_in_changed_files": true
+    },
+    "initial_joint_release_lint_failure": "Existing generated-asset implicit dependency; corrected in AndroidAppConventionPlugin.",
+    "release_apks_verified": 1,
+    "release_signing_key": "temporary local verification certificate",
+    "lint_errors": 0,
+    "lint_warnings": 375
+  },
+  "limits": [
+    "No physical-device validation; emulator includes matching display density, several fonts, large text and compact rows.",
+    "Graph results are lower bounds; unresolved dispatch, cross-language references and process-discovery limits remain.",
+    "Local release signing uses only a temporary verification certificate; production APKs are signed by GitHub Secrets."
+  ]
+}

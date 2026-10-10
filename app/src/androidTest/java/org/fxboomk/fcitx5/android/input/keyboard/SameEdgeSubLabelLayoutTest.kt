@@ -24,19 +24,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Before
-import org.junit.After
-import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import kotlin.math.roundToInt
 
 class SameEdgeSubLabelLayoutTest {
-    private var oldCenter = true
-    @Before fun useRemainingSpaceMode() {
-        oldCenter = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
-        AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
-    }
-    @After fun restoreCenterMode() { AppPrefs.getInstance().keyboard.centerMainLabels.setValue(oldCenter) }
-
 
     @Test
     fun visibleGapsAdaptToDensityFontsTextAndShortRows() {
@@ -93,20 +83,11 @@ class SameEdgeSubLabelLayoutTest {
                                         val above = main.top - subBottom
                                         val below = key.getChildAt(0).height - key.vMargin - main.bottom
                                         // Check the placement geometry tightly, separately from rasterized ink.
-                                        val mainGeometry = key.mainText.renderedGlyphBounds().apply {
+                                        val mainGeometry = key.mainText.renderedReferenceBounds().apply {
                                             offset(key.mainText.left.toFloat(), key.mainText.top.toFloat())
                                         }
-                                        val subGeometryBottom = listOf(key.altText, key.altText1)
-                                            .filter { it.visibility == View.VISIBLE }
-                                            .maxOfOrNull { it.top + it.renderedGlyphBounds().bottom }
-                                            ?: key.vMargin.toFloat()
-                                        assertEquals("Placement geometry: $case",
-                                            mainGeometry.top - subGeometryBottom,
-                                            key.getChildAt(0).height - key.vMargin - mainGeometry.bottom, 0.01f)
-                                        // Match RemainingSpaceSubLabelLayoutTest: fallback fonts and
-                                        // alpha-threshold rasterization vary with density, unlike geometry.
-                                        val inkTolerance = maxOf(2f, context.resources.displayMetrics.density * 1.5f)
-                                        assertEquals(case, above.toFloat(), below.toFloat(), inkTolerance)
+                                        assertEquals("Stable font frame: $case",
+                                            key.getChildAt(0).height / 2f, mainGeometry.centerY(), 0.01f)
                                         assertTrue("$case gaps=$above/$below minimum=${dp(2) - 1}",
                                             above >= dp(2) - 1 && below >= dp(2) - 1)
                                     }
@@ -157,9 +138,10 @@ class SameEdgeSubLabelLayoutTest {
                     val keyBottom = keys.minOf { it.getChildAt(0).height - it.vMargin }
                     val above = mainBounds.minOf { it.top } - subBottom
                     val below = keyBottom - mainBounds.maxOf { it.bottom }
-                    assertEquals("Shared row glyph band: $text / $font", above.toFloat(), below.toFloat(), 2f)
+                    assertTrue("Shared row ink remains separated: $text / $font",
+                        above >= dp(2) - 1 && below >= dp(2) - 1)
                     val baselines = keys.map { it.mainText.top + it.mainText.baseline }
-                    assertTrue("Letters must share a baseline", baselines.max() - baselines.min() <= 1)
+                    assertTrue("Letters must share a baseline: $text / $font $baselines ${keys.map { it.mainText.glyphPlacement }}", baselines.max() - baselines.min() <= 1)
                 }
             }
         }
@@ -214,8 +196,7 @@ class SameEdgeSubLabelLayoutTest {
                             val main = inkBounds(key.mainText)
                             val gapAbove = main.top - subBottom
                             val gapBelow = key.getChildAt(0).height - key.vMargin - main.bottom
-                            assertEquals(case, gapAbove.toFloat(), gapBelow.toFloat(), 2f)
-                            assertTrue(case, gapAbove >= dp(2) - 1)
+                            assertTrue(case, gapAbove >= dp(2) - 1 && gapBelow >= dp(2) - 1)
 
                             appearance.altTextPositionOverride = null
                             appearance.altText1PositionOverride = null

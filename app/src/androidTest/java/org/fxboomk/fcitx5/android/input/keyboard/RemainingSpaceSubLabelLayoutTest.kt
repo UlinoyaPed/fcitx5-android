@@ -25,24 +25,13 @@ import org.fxboomk.fcitx5.android.input.AutoScaleTextView
 import org.fxboomk.fcitx5.android.input.keyboard.KeyDef.Appearance.AltTextPosition
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Before
-import org.junit.After
-import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import kotlin.math.roundToInt
 
 /** Main-label bounds in these tests come from Canvas pixels, not TextView boxes. */
 class RemainingSpaceSubLabelLayoutTest {
-    private var oldCenter = true
-    @Before fun useRemainingSpaceMode() {
-        oldCenter = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
-        AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
-    }
-    @After fun restoreCenterMode() { AppPrefs.getInstance().keyboard.centerMainLabels.setValue(oldCenter) }
-
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext.createConfigurationContext(
         Configuration(instrumentation.targetContext.resources.configuration).apply { fontScale = 1f }
@@ -55,15 +44,12 @@ class RemainingSpaceSubLabelLayoutTest {
         for (position in positions) for (secondary in listOf(null, "Q")) {
             val key = createKey(appearance(main = "g", secondary = secondary, primaryPosition = position,
                 secondaryPosition = AltTextPosition.Bottom.takeIf { secondary != null }))
-            AppPrefs.getInstance().keyboard.centerMainLabels.setValue(true)
             layoutKey(key)
-            val main = key.mainText.renderedGlyphBounds()
+            val main = key.mainText.renderedReferenceBounds()
             assertEquals("center $position", key.getChildAt(0).height / 2f,
                 key.mainText.top + main.centerY(), 0.01f)
             assertTrue("visible main $position", main.height() > 0f)
-            AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
-            layoutKey(key)
-            assertBalanced("retained mode $position", key, Edges(primary = position.edge(), secondary = Edge.Bottom.takeIf { secondary != null }))
+            assertBalanced("centered frame $position", key, Edges(primary = position.edge(), secondary = Edge.Bottom.takeIf { secondary != null }))
         }
     }
 
@@ -89,10 +75,10 @@ class RemainingSpaceSubLabelLayoutTest {
         layoutKey(key)
         assertBalanced("legacy TopBottom", key, Edges(Edge.Top, Edge.Bottom))
         val appearanceHeight = key.getChildAt(0).height
-        assertEquals("Top sublabel must touch the top key inset", key.vMargin.toDouble(),
-            inkBounds(key.altText).top.toDouble(), 1.0)
-        assertEquals("Bottom sublabel must touch the bottom key inset", (appearanceHeight - key.vMargin).toDouble(),
-            inkBounds(key.altText1).bottom.toDouble(), 1.0)
+        assertEquals("Top font frame stays at the top key inset", key.vMargin.toFloat(),
+            key.altText.top + key.altText.renderedReferenceBounds().top, 0.01f)
+        assertEquals("Bottom font frame stays at the bottom key inset", (appearanceHeight - key.vMargin).toFloat(),
+            key.altText1.top + key.altText1.renderedReferenceBounds().bottom, 0.01f)
     }
 
     @Test
@@ -223,7 +209,7 @@ class RemainingSpaceSubLabelLayoutTest {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         layoutKey(key)
         val hidden = readInk("hidden after independent", key, Edges())
-        assertNull("Hidden labels must clear custom glyph placement", key.mainText.glyphPlacement)
+        assertNotNull("Hidden labels retain the same stable main font frame", key.mainText.glyphPlacement)
         // Hidden keys retain the normal no-sublabel typography. Compare actual ink
         // to a fresh hidden key rather than requiring a different font-metric policy.
         val freshDefinition = appearance(primary = "?", secondary = null)
@@ -248,7 +234,7 @@ class RemainingSpaceSubLabelLayoutTest {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         layoutKey(upperKey)
         assertEquals("Hidden uppercase clears its old offset", hidden.main, readInk("uppercase hidden", upperKey, Edges()).main)
-        assertNull(upperKey.mainText.glyphPlacement)
+        assertNotNull(upperKey.mainText.glyphPlacement)
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Bottom)
         layoutKey(upperKey)
         assertBalanced("uppercase restored at bottom", upperKey, Edges(uppercase = Edge.Bottom))
@@ -327,7 +313,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 keyboard.requestLayout()
                 measureAndLayout(keyboard, 288, 64)
             }
-            val groupBaselines = keys.chunked(2).mapIndexed { index, group ->
+            keys.chunked(2).forEachIndexed { index, group ->
                 val (primary, secondary) = pairs[index]
                 val label = "row $primary/$secondary changed=$changed"
                 group.forEachIndexed { keyIndex, key ->
@@ -342,10 +328,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 // readInk above draws first, updating AutoScaleTextView's real baseline.
                 val baselines = group.map { it.top + it.getChildAt(0).top + it.mainText.top + it.mainText.baseline }
                 assertTrue("$label must share a baseline: $baselines", baselines.max() - baselines.min() <= 1)
-                baselines.first()
             }
-            assertTrue("Different occupancy bands need independent baselines: $groupBaselines",
-                groupBaselines.max() - groupBaselines.min() > 2)
         }
     }
 
@@ -463,10 +446,11 @@ class RemainingSpaceSubLabelLayoutTest {
     }
 
     private fun assertBalanced(label: String, key: AltTextKeyView, edges: Edges, normalRow: Boolean = true) {
-        // 主字按 paint 字形界居中，实际绘制墨迹受字体回退与栅格化影响，
-        // 高密度大字号下垂直漂移可达 ~1.5dp；平衡容差随密度缩放
-        val tolerance = maxOf(2f, key.context.resources.displayMetrics.density * 1.5f)
-        assertGaps(label, readInk(label, key, edges), if (normalRow) dp(key.context, 2) - 1 else 0, tolerance)
+        // 固定字体框居中；实际墨迹另行验证间距和裁切。
+        val reference = key.mainText.renderedReferenceBounds()
+        assertEquals("$label: stable font frame is centered on the whole key",
+            key.getChildAt(0).height / 2f, key.mainText.top + reference.centerY(), 0.01f)
+        assertGaps(label, readInk(label, key, edges), if (normalRow) dp(key.context, 2) - 1 else 0)
     }
 
     private fun readInk(label: String, key: AltTextKeyView, edges: Edges): Ink {
@@ -499,11 +483,10 @@ class RemainingSpaceSubLabelLayoutTest {
         return Ink(main, top, bottom)
     }
 
-    private fun assertGaps(label: String, ink: Ink, minimum: Int, tolerance: Float = 2f) {
+    private fun assertGaps(label: String, ink: Ink, minimum: Int) {
         val above = ink.main.top - ink.top
         val below = ink.bottom - ink.main.bottom
         val message = "$label: main=${ink.main}, band=[${ink.top}, ${ink.bottom}], gaps=$above/$below"
-        assertEquals(message, above.toFloat(), below.toFloat(), tolerance)
         assertTrue("$message, minimum=$minimum", above >= minimum && below >= minimum)
     }
 

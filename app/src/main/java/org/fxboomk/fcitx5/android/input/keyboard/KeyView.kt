@@ -699,6 +699,7 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
+        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -721,6 +722,7 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
+        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -742,6 +744,7 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
+        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -761,6 +764,7 @@ class AltTextKeyView(
     }
 
     init {
+        mainText.glyphReference = "Ágj主"
         appearanceView.apply {
             add(altText, lParams(0, wrapContent))
             add(altText1, lParams(0, wrapContent))
@@ -1533,7 +1537,8 @@ class AltTextKeyView(
         lastDirectionalLabelMask = directionalLabelMask
         remainingSpaceTopLabels = emptyList()
         remainingSpaceBottomLabels = emptyList()
-        mainText.glyphPlacement = null
+        // Keep the last measured placement until the next layout supplies its
+        // replacement, instead of drawing an unaligned intermediate frame.
         mainText.useGlyphBounds = false
         val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
                 mode == AltTextLayoutMode.PunctTopUpperBottom || def.directionalSwipeLabels
@@ -1637,27 +1642,24 @@ class AltTextKeyView(
                     if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
                 }
             }
-            mainText.useGlyphBounds = true
-            // A full-height drawing region avoids clipping ink positioned relative
-            // to other glyphs rather than their (larger) TextView boxes.
-            val params = mainText.layoutParams as ConstraintLayout.LayoutParams
-            if (params.height != 0 || params.topToTop != params.parentId ||
-                params.bottomToBottom != params.parentId || params.topToBottom != params.unset ||
-                params.bottomToTop != params.unset || params.topMargin != 0 || params.bottomMargin != 0
-            ) {
-                mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    height = 0
-                    topToTop = parentId
-                    bottomToBottom = parentId
-                    topToBottom = unset
-                    bottomToTop = unset
-                    topMargin = 0
-                    bottomMargin = 0
-                }
+        }
+        mainText.useGlyphBounds = true
+        // Use the same full-height drawing region even when hints are hidden.
+        // Wrapping an odd-height font frame introduces a half-pixel offset.
+        val params = mainText.layoutParams as ConstraintLayout.LayoutParams
+        if (params.height != 0 || params.topToTop != params.parentId ||
+            params.bottomToBottom != params.parentId || params.topToBottom != params.unset ||
+            params.bottomToTop != params.unset || params.topMargin != 0 || params.bottomMargin != 0
+        ) {
+            mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                height = 0
+                topToTop = parentId
+                bottomToBottom = parentId
+                topToBottom = unset
+                bottomToTop = unset
+                topMargin = 0
+                bottomMargin = 0
             }
-        } else {
-            mainText.glyphPlacement = null
-            applyMainTextCenterPosition()
         }
     }
 
@@ -1769,17 +1771,17 @@ class AltTextKeyView(
 
     override fun onAppearanceLayoutChanged(width: Int, height: Int) {
         applyLayout(height)
-        // Standalone previews can contain one key. BaseKeyboard repeats this once
-        // for the complete row after every sibling has finished laying out.
-        alignRemainingSpaceMainLabels(listOf(this))
+        // Keyboard rows must decide compact fallback together, after all siblings
+        // have laid out. A single long label must not hide only its own hints.
+        if ((parent as? View)?.parent !is BaseKeyboard) {
+            alignRemainingSpaceMainLabels(listOf(this))
+        }
     }
 
     companion object {
         internal fun alignRemainingSpaceMainLabels(keys: List<AltTextKeyView>) {
-            val centerOnKey = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
             val eligible = keys.filter { key ->
                 key.visibility == View.VISIBLE &&
-                    (key.remainingSpaceTopLabels.isNotEmpty() || key.remainingSpaceBottomLabels.isNotEmpty()) &&
                     key.mainText.width > 0 && key.mainText.height > 0
             }
             // Keys with the same top/bottom occupancy share a baseline. Different
@@ -1792,16 +1794,24 @@ class AltTextKeyView(
                     val bounds = Rect()
                     key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
                     if (bounds.isEmpty) return@mapNotNull null
+                    val reference = key.mainText.referenceGlyphBounds()
+                    bounds.top = reference.top
+                    bounds.bottom = reference.bottom
+                    // Ordinary letters share a width budget, including across Shift/Caps.
+                    // Long custom labels still fit their own actual width.
+                    val wideLetter = Rect()
+                    key.mainText.paint.getTextBounds("W", 0, 1, wideLetter)
+                    val widthBasis = max(bounds.width(), wideLetter.width())
                     val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
                         .coerceAtLeast(0)
-                    Triple(key, bounds, min(1f, availableWidth.toFloat() / bounds.width()))
+                    Triple(key, bounds, min(1f, availableWidth.toFloat() / widthBasis))
                 }
                 if (glyphs.isEmpty()) return@forEach
 
                 val bandTop = if (glyphs.first().first.remainingSpaceTopLabels.isNotEmpty()) {
                     glyphs.maxOf { (key) ->
                         key.remainingSpaceTopLabels.maxOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedGlyphBounds().bottom
+                            key.top + key.appearanceView.top + label.top + label.renderedReferenceBounds().bottom
                         }
                     }
                 } else {
@@ -1812,7 +1822,7 @@ class AltTextKeyView(
                 val bandBottom = if (glyphs.first().first.remainingSpaceBottomLabels.isNotEmpty()) {
                     glyphs.minOf { (key) ->
                         key.remainingSpaceBottomLabels.minOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedGlyphBounds().top
+                            key.top + key.appearanceView.top + label.top + label.renderedReferenceBounds().top
                         }
                     }
                 } else {
@@ -1830,13 +1840,30 @@ class AltTextKeyView(
                 // the band can be thinner than the reserved gaps; shrink the glyph to
                 // the raw band instead of scaling it out of sight. One pixel per edge
                 // is dropped to absorb rasterization rounding of the scaled ink.
-                val center = if (centerOnKey) {
-                    glyphs.map { (key) -> key.top + key.appearanceView.top + key.appearanceView.height / 2f }.average().toFloat()
-                } else (bandTop + bandBottom) / 2f
-                val availableHeight = if (centerOnKey) {
-                    2f * min(center - bandTop, bandBottom - center).coerceAtLeast(0f)
-                } else bandBottom - bandTop
-                val heightScale = remainingSpaceMainGlyphScale(availableHeight, minGap.toFloat(), glyphBottom - glyphTop)
+                val center = glyphs.map { (key) ->
+                    key.top + key.appearanceView.top + key.appearanceView.height / 2f
+                }.average().toFloat()
+                val availableHeight = 2f * min(center - bandTop, bandBottom - center).coerceAtLeast(0f)
+                var heightScale = remainingSpaceMainGlyphScale(availableHeight, minGap.toFloat(), glyphBottom - glyphTop)
+                val unreadableMain = (glyphBottom - glyphTop) * heightScale < glyphs.maxOf { (key) -> key.dp(8) }
+                val unreadableSublabel = glyphs.any { (key) ->
+                    (key.remainingSpaceTopLabels + key.remainingSpaceBottomLabels).any {
+                        it.renderedReferenceBounds().height() < key.dp(4)
+                    }
+                }
+                if (unreadableMain || unreadableSublabel) {
+                    // On compact rows, keep the main label readable instead of
+                    // compressing three labels into nearly invisible strokes.
+                    glyphs.forEach { (key) ->
+                        (key.remainingSpaceTopLabels + key.remainingSpaceBottomLabels).forEach { it.visibility = View.GONE }
+                        key.remainingSpaceTopLabels = emptyList()
+                        key.remainingSpaceBottomLabels = emptyList()
+                    }
+                    val top = glyphs.maxOf { (key) -> key.top + key.appearanceView.top + key.vMargin }
+                    val bottom = glyphs.minOf { (key) -> key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin }
+                    val fullHeight = 2f * min(center - top, bottom - center).coerceAtLeast(0f)
+                    heightScale = remainingSpaceMainGlyphScale(fullHeight, minGap.toFloat(), glyphBottom - glyphTop)
+                }
                 val baseline = center - (glyphTop + glyphBottom) * heightScale / 2f
                 glyphs.forEach { (key, _, widthScale) ->
                     key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
@@ -1849,7 +1876,7 @@ class AltTextKeyView(
     }
 
     /**
-     * Force refresh layout with current final height.
+     * Refresh layout with current final height without resetting unchanged placement.
      * Used by BaseKeyboard to ensure correct layout after keyboard size is fully applied.
      */
     internal fun refreshLayout() {

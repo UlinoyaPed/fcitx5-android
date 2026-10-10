@@ -20,20 +20,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Before
-import org.junit.After
-import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import kotlin.math.roundToInt
 
 class VerticalSubLabelLayoutTest {
-    private var oldCenter = true
-    @Before fun useRemainingSpaceMode() {
-        oldCenter = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
-        AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
-    }
-    @After fun restoreCenterMode() { AppPrefs.getInstance().keyboard.centerMainLabels.setValue(oldCenter) }
-
-
     @Test
     fun bothOrdersStayAtEdgesWithSeparateMainLabel() = withPreferences {
         for (punctuationOnTop in listOf(true, false)) {
@@ -85,11 +74,8 @@ class VerticalSubLabelLayoutTest {
         assertEquals(0, (key.mainText.layoutParams as ConstraintLayout.LayoutParams).height)
         assertEquals(View.GONE, key.upperText.visibility)
         val mainInk = inkBounds(key.mainText)
-        assertEquals(
-            (mainInk.top - inkBounds(key.altText).bottom).toFloat(),
-            (key.getChildAt(0).height - key.vMargin - mainInk.bottom).toFloat(),
-            2f
-        )
+        assertTrue(mainInk.top - inkBounds(key.altText).bottom >= 1)
+        assertTrue(key.getChildAt(0).height - key.vMargin - mainInk.bottom >= 1)
 
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         layoutKey(key, heightDp = 52)
@@ -107,18 +93,16 @@ class VerticalSubLabelLayoutTest {
         val appearanceHeight = key.getChildAt(0).height
         val edgeInset = key.vMargin
 
-        assertEquals(edgeInset.toFloat(), topInk.top.toFloat(), 1f)
-        assertEquals((appearanceHeight - edgeInset).toFloat(), bottomInk.bottom.toFloat(), 1f)
+        assertEquals(edgeInset.toFloat(), topLabel.top + topLabel.renderedReferenceBounds().top, 0.01f)
+        assertEquals((appearanceHeight - edgeInset).toFloat(), bottomLabel.top + bottomLabel.renderedReferenceBounds().bottom, 0.01f)
+        assertTrue(topInk.top >= edgeInset - 1)
+        assertTrue(bottomInk.bottom <= appearanceHeight - edgeInset + 1)
         // 本测试的行高在 2.4x 字号下全部等效短行（60/32/48dp → ~25/13/20dp），
-        // 只要求三个标签互不贴住（≥1px 墨迹间隙）；间距平衡由下方断言约束
+        // 要求三个标签互不贴住（≥1px 墨迹间隙），主字使用固定字体框居中。
         assertTrue("Top label must leave room for main text: $mainInk/$topInk", mainInk.top - topInk.bottom >= 1)
         assertTrue("Bottom label must leave room for main text: $mainInk/$bottomInk", bottomInk.top - mainInk.bottom >= 1)
-        assertEquals(
-            "Visible main glyph must balance the gaps between the sublabels",
-            (mainInk.top - topInk.bottom).toFloat(),
-            (bottomInk.top - mainInk.bottom).toFloat(),
-            2f
-        )
+        assertEquals("Main font frame stays centered on the key", appearanceHeight / 2f,
+            key.mainText.top + key.mainText.renderedReferenceBounds().centerY(), 0.01f)
     }
 
     private fun assertNormalMainLabelLayout(key: AltTextKeyView) {
@@ -126,7 +110,7 @@ class VerticalSubLabelLayoutTest {
         assertFalse(key.upperText.useGlyphBounds)
         assertEquals(Int.MAX_VALUE, key.altText.maxHeight)
         val params = key.mainText.layoutParams as ConstraintLayout.LayoutParams
-        assertEquals(ConstraintLayout.LayoutParams.WRAP_CONTENT, params.height)
+        assertEquals(0, params.height)
         assertEquals(ConstraintLayout.LayoutParams.UNSET, params.topToBottom)
         assertEquals(0, params.bottomMargin)
     }

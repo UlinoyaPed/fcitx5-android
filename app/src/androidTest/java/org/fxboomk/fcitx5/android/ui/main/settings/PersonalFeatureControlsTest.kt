@@ -48,6 +48,14 @@ class PersonalFeatureControlsTest {
     }
 
     @Test
+    fun correctedTypographyDoesNotAddASettingsSwitch() {
+        instrumentation.runOnMainSync {
+            val keys = SettingsSearchIndex.androidItems(context).mapNotNull { it.preferenceKey }.toSet()
+            assertFalse("Typography is a normal display correction", "personal_center_main_labels" in keys)
+        }
+    }
+
+    @Test
     fun everyControlIsDiscoverableInSettingsSearch() {
         instrumentation.runOnMainSync {
             val pref = AppPrefs.getInstance().candidates.mode

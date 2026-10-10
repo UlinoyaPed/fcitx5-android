@@ -40,7 +40,6 @@ internal object KeyboardSettingsSupport {
         "reset_keyboard_on_focus_change",
         "inline_suggestions",
         "keep_keyboard_letters_uppercase",
-        "personal_center_main_labels",
         "show_lang_switch_key"
     )
 

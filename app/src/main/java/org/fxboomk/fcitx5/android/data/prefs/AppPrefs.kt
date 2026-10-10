@@ -212,7 +212,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val hardwarePredictionDismiss = switch(R.string.personal_hardware_prediction_dismiss, "personal_hardware_prediction_dismiss", false)
         val digitSwipeSelection = switch(R.string.personal_digit_swipe_selection, "personal_digit_swipe_selection", false)
         val dockToolbarWithFloatingCandidates = switch(R.string.personal_dock_toolbar, "personal_dock_toolbar", false)
-        val centerMainLabels = switch(R.string.personal_center_main_labels, "personal_center_main_labels", true)
         val swipeLettersFollowShift = switch(R.string.personal_swipe_letters_follow_shift, "personal_swipe_letters_follow_shift", true)
         val swipeCaseMappings = ManagedPreference.PString(sharedPreferences, "personal_swipe_case_mappings", "ß=ẞ").apply { register() }
         init {
