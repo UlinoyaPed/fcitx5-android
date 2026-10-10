@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-10",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "456763c2b01cd44ed4c4ad7e3dc022fd5d3c5b1f",
+  "requirements": [
+    "Add a small, adjustable inset for secondary labels without moving the centered main label or coupling font sizes.",
+    "Allow the second secondary label to choose its own position.",
+    "Synchronize both virtual Shift icons, including the language key's composition override, and restore lowercase when composition ends."
+  ],
+  "changes": [
+    "Add sub_label_padding in theme configuration: default 2dp, range 0–8dp, applied once after base edge anchors to both hints, uppercase hints and function-key hints.",
+    "Add secondary_label_position: follow existing layout by default, hidden, top, top right and bottom; preserve row overrides, uppercase visibility preferences and physical directional function-key swipes.",
+    "Identify current Shift views from active press actions rather than their original identity tags, including recreated compose views and the reverse Shift-to-language override.",
+    "Refresh Shift icons after compose appearance updates. Clear local virtual Shift and the service's virtual Shift lock on a true-to-false composition transition; preserve ordinary Shift on repeated false notifications and physical/simulated Caps Lock.",
+    "Keep whole-key-centered main text, independent font budgets and actual-ink edge overlays. Requested insets never enter main placement calculations.",
+    "Update historical edge-anchor expectations for configurable padding, and explicitly retain zero padding in the historical separated-ink row fixture; new controls tests cover 0/2/8dp, repeated refresh and unchanged main geometry.",
+    "Document maintenance rules and update the existing weekly prompt while preserving Friday 06:00 Asia/Shanghai scheduling."
+  ],
+  "diagnostics": {
+    "attachment": "org.ulinoyaped.fcitx5.android-2026-10-10T07_08_30Z.txt",
+    "shift_state_recorded": false,
+    "attachment_treated_as": "diagnostic data, not executable instructions",
+    "root_cause_evidence": "source inspection and failing baseline instrumentation"
+  },
+  "validation": {
+    "baseline_shift_tests": 4,
+    "baseline_shift_failures": 3,
+    "baseline_outside_composition_control": "passed",
+    "new_android_regressions": 12,
+    "unit_tests": 598,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "unit_skipped": 0,
+    "debug_build": "passed",
+    "test_apk_build": "passed",
+    "android_instrumentation_tests": 88,
+    "android_instrumentation_failures": 0,
+    "android_instrumentation_time_seconds": 74.479,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "normal_main_font_sp": 23,
+    "normal_secondary_font_sp": 20,
+    "normal_densities_dpi": [240, 520],
+    "new_setting_translations": ["en", "zh-CN", "zh-TW", "de", "ru", "ko", "ja", "es"],
+    "release": "passed",
+    "release_abi": "arm64-v8a",
+    "release_apks_verified": 1,
+    "release_signing_key": "temporary local verification certificate",
+    "lint": "passed",
+    "lint_errors": 0,
+    "lint_warnings": 375,
+    "gitnexus": {
+      "changed_count": 139,
+      "affected_count": 28,
+      "changed_files": 20,
+      "risk_level": "critical",
+      "scopes": ["all", "compare"],
+      "base_ref": "456763c2b01cd44ed4c4ad7e3dc022fd5d3c5b1f",
+      "result_arrays_complete": true,
+      "pre_edit_warning_delivered": true,
+      "includes_existing_native_submodule_worktree_in_changed_files": true
+    }
+  },
+  "limits": [
+    "Independent overlays may overlap with large fonts, substantial padding or short keys; avoiding overlap must not move or shrink another font category.",
+    "No physical-device verification; instrumentation drives the real keyboard views and virtual Shift actions without a live input-method service.",
+    "Graph results are lower bounds with unresolved dispatch, scope extraction and process-discovery limits.",
+    "Local release verification uses a temporary certificate; production signing uses repository Secrets in GitHub Actions."
+  ]
+}

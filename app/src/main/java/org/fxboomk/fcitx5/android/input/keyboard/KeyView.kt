@@ -31,6 +31,7 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.SecondaryLabelPosition
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.UppercasePosition
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
 import org.fxboomk.fcitx5.android.input.AutoScaleTextView
@@ -145,6 +146,21 @@ abstract class KeyView(
         private set
     protected val cornerLabelHorizontalSafeInset: Int
     protected val cornerLabelTopSafeInset: Int
+
+    protected val subLabelPadding: Int
+        get() = dp(ThemeManager.prefs.subLabelPadding.getValue().coerceIn(0, 8))
+
+    /** Apply once after setting the mode's base anchors, without reserving main-label space. */
+    protected fun insetSubLabel(label: AutoScaleTextView) {
+        if (label.visibility != View.VISIBLE) return
+        val inset = subLabelPadding
+        label.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            if (leftToLeft == parentId) leftMargin += inset
+            if (rightToRight == parentId) rightMargin += inset
+            if (topToTop == parentId) topMargin += inset
+            if (bottomToBottom == parentId) bottomMargin += inset
+        }
+    }
 
     init {
         val prefs = ThemeManager.prefs
@@ -1322,7 +1338,8 @@ class AltTextKeyView(
         // for either label then takes precedence over the global theme positions.
         val hasSecondLabel = hasSecondAltText() || resolveUppercaseMode() != UppercasePosition.None
         return hasSecondLabel &&
-                (def.altText1PositionOverride != null ||
+                (ThemeManager.prefs.secondaryLabelPosition.getValue() != SecondaryLabelPosition.FollowLayout ||
+                    def.altText1PositionOverride != null ||
                     (def.altTextPositionOverride != null &&
                         def.altTextPositionOverride != KeyDef.Appearance.AltTextPosition.TopBottom))
     }
@@ -1340,6 +1357,13 @@ class AltTextKeyView(
     private fun independentAltText1Position(): PunctuationPosition {
         val override = def.altText1PositionOverride
         if (override != null) return independentPosition(override)
+        when (ThemeManager.prefs.secondaryLabelPosition.getValue()) {
+            SecondaryLabelPosition.None -> return PunctuationPosition.None
+            SecondaryLabelPosition.Top -> return PunctuationPosition.Top
+            SecondaryLabelPosition.TopRight -> return PunctuationPosition.TopRight
+            SecondaryLabelPosition.Bottom -> return PunctuationPosition.Bottom
+            SecondaryLabelPosition.FollowLayout -> Unit
+        }
         // No explicit 副字符一位置: the uppercase hint keeps following the global
         // uppercase position; other labels use the punctuation position for this key.
         if (resolveUppercaseMode() != UppercasePosition.None) {
@@ -1362,7 +1386,7 @@ class AltTextKeyView(
     /** Hints overlay their key edge; their height never reserves space from the main label. */
     private fun subLabelHeightLimit(keyHeight: Int): Int {
         if (keyHeight <= 0) return Int.MAX_VALUE
-        return ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset)) / 2)
+        return ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset + subLabelPadding)) / 2)
             .coerceAtLeast(1)
     }
 
@@ -1512,6 +1536,7 @@ class AltTextKeyView(
             AltTextLayoutMode.DirectionalTopRightBottom -> applyDirectionalSwipeLabelPositions(topRight = true)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
+        listOf(altText, altText1, upperText).forEach(::insetSubLabel)
         updateRemainingSpaceLabels(keyHeight)
     }
     private fun updateRemainingSpaceLabels(keyHeight: Int) {
@@ -2066,6 +2091,7 @@ class ImageAltTextKeyView(
                 applyDirectionalSwipeLabelPositions(topRight = true, keyHeight = keyHeight)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
+        listOf(altText, altText1).forEach(::insetSubLabel)
     }
 
     override fun selectAltTextSwipeTarget(totalY: Int): AltTextSwipeTarget? {

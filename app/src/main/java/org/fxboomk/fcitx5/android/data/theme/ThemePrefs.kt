@@ -154,6 +154,22 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         PunctuationPosition.Bottom
     )
 
+    val subLabelPadding = int(R.string.sub_label_padding, "sub_label_padding", 2, 0, 8, "dp")
+
+    enum class SecondaryLabelPosition(override val stringRes: Int) : ManagedPreferenceEnum {
+        FollowLayout(R.string.sub_label_follow_layout),
+        None(R.string.punctuation_pos_none),
+        Top(R.string.punctuation_pos_top),
+        TopRight(R.string.punctuation_pos_top_right),
+        Bottom(R.string.punctuation_pos_bottom);
+    }
+
+    val secondaryLabelPosition = enumList(
+        R.string.secondary_label_position,
+        "secondary_label_position",
+        SecondaryLabelPosition.FollowLayout
+    )
+
     enum class UppercasePosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.uppercase_pos_none),
         Top(R.string.uppercase_pos_top),

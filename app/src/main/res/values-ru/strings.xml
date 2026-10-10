@@ -138,6 +138,9 @@
     <string name="dark_keys">Темные клавиши</string>
     <string name="recrop_image">Повторное кадрирование изображения</string>
     <string name="punctuation_position">Позиция пунктуации</string>
+    <string name="sub_label_padding">Отступ дополнительных символов</string>
+    <string name="secondary_label_position">Положение второго дополнительного символа</string>
+    <string name="sub_label_follow_layout">Следовать текущей раскладке</string>
     <string name="punctuation_pos_bottom">Внизу</string>
     <string name="punctuation_pos_top">Вверху</string>
     <string name="uppercase_position">Положение заглавных букв</string>

@@ -731,6 +731,9 @@
     <string name="uppercase_pos_bottom">Unten</string>
     <string name="punctuation_pos_none">Keine</string>
     <string name="punctuation_position">Position der Satzzeichen</string>
+    <string name="sub_label_padding">Innenabstand der Zusatzzeichen</string>
+    <string name="secondary_label_position">Position des zweiten Zusatzzeichens</string>
+    <string name="sub_label_follow_layout">Bestehendem Layout folgen</string>
     <string name="quickphrase_already_exists">Schnellphrase existiert bereits</string>
     <string name="quickphrase_editor">Schnellphrasen-Editor</string>
     <string name="reset_keyboard_on_focus_change">Bei Fokuswechsel zur Tastatur zurückschalten</string>

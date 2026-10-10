@@ -135,6 +135,9 @@
     <string name="dark_keys">黒字のキー</string>
     <string name="recrop_image">画像を切り取り直す</string>
     <string name="punctuation_position">句読点の位置</string>
+    <string name="sub_label_padding">副文字の内側余白</string>
+    <string name="secondary_label_position">2番目の副文字の位置</string>
+    <string name="sub_label_follow_layout">既存の配列に従う</string>
     <string name="punctuation_pos_bottom">下部</string>
     <string name="punctuation_pos_top">上部</string>
     <string name="uppercase_position">大文字の位置</string>

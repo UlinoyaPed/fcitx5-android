@@ -99,41 +99,49 @@ class SameEdgeSubLabelLayoutTest {
         val context = instrumentation.targetContext
         fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
         instrumentation.runOnMainSync {
-            val definitions = listOf("Q", "W", "g", "É").map { text ->
-                AlphabetKey("q", "1", "!", displayText = text).apply {
-                    appearance.altTextPositionOverride = KeyDef.Appearance.AltTextPosition.Top
-                    appearance.altText1PositionOverride = KeyDef.Appearance.AltTextPosition.TopRight
-                }
-            }
-            val keyboard = object : BaseKeyboard(context, ThemePreset.MaterialLight, { listOf(definitions) }) {}
-            keyboard.setTextScale(1f)
-            val keys = (keyboard.getChildAt(0) as ViewGroup).children.filterIsInstance<AltTextKeyView>().toList()
-            assertEquals(4, keys.size)
-            for (font in listOf(Typeface.SANS_SERIF, Typeface.SERIF)) {
-                keys.forEach {
-                    it.mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
-                    it.mainText.typeface = font
-                }
-                for (text in listOf("Q", "g", "Shift")) {
-                    keys.first().mainText.text = text
-                    repeat(3) {
-                        keyboard.requestLayout()
-                        keyboard.measure(
-                            View.MeasureSpec.makeMeasureSpec(dp(192), View.MeasureSpec.EXACTLY),
-                            View.MeasureSpec.makeMeasureSpec(dp(52), View.MeasureSpec.EXACTLY)
-                        )
-                        keyboard.layout(0, 0, dp(192), dp(52))
+            val padding = ThemeManager.prefs.subLabelPadding
+            val originalPadding = padding.getValue()
+            try {
+                // Keep this historical gap fixture at zero; configurable insets have separate coverage.
+                padding.setValue(0)
+                val definitions = listOf("Q", "W", "g", "É").map { text ->
+                    AlphabetKey("q", "1", "!", displayText = text).apply {
+                        appearance.altTextPositionOverride = KeyDef.Appearance.AltTextPosition.Top
+                        appearance.altText1PositionOverride = KeyDef.Appearance.AltTextPosition.TopRight
                     }
-                    val mainBounds = keys.map { inkBounds(it.mainText) }
-                    val subBottom = keys.maxOf { maxOf(inkBounds(it.altText).bottom, inkBounds(it.altText1).bottom) }
-                    val keyBottom = keys.minOf { it.getChildAt(0).height - it.vMargin }
-                    val above = mainBounds.minOf { it.top } - subBottom
-                    val below = keyBottom - mainBounds.maxOf { it.bottom }
-                    assertTrue("Shared row ink remains separated: $text / $font",
-                        above >= dp(2) - 1 && below >= dp(2) - 1)
-                    val baselines = keys.map { it.mainText.top + it.mainText.baseline }
-                    assertTrue("Letters must share a baseline: $text / $font $baselines ${keys.map { it.mainText.glyphPlacement }}", baselines.max() - baselines.min() <= 1)
                 }
+                val keyboard = object : BaseKeyboard(context, ThemePreset.MaterialLight, { listOf(definitions) }) {}
+                keyboard.setTextScale(1f)
+                val keys = (keyboard.getChildAt(0) as ViewGroup).children.filterIsInstance<AltTextKeyView>().toList()
+                assertEquals(4, keys.size)
+                for (font in listOf(Typeface.SANS_SERIF, Typeface.SERIF)) {
+                    keys.forEach {
+                        it.mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+                        it.mainText.typeface = font
+                    }
+                    for (text in listOf("Q", "g", "Shift")) {
+                        keys.first().mainText.text = text
+                        repeat(3) {
+                            keyboard.requestLayout()
+                            keyboard.measure(
+                                View.MeasureSpec.makeMeasureSpec(dp(192), View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(dp(52), View.MeasureSpec.EXACTLY)
+                            )
+                            keyboard.layout(0, 0, dp(192), dp(52))
+                        }
+                        val mainBounds = keys.map { inkBounds(it.mainText) }
+                        val subBottom = keys.maxOf { maxOf(inkBounds(it.altText).bottom, inkBounds(it.altText1).bottom) }
+                        val keyBottom = keys.minOf { it.getChildAt(0).height - it.vMargin }
+                        val above = mainBounds.minOf { it.top } - subBottom
+                        val below = keyBottom - mainBounds.maxOf { it.bottom }
+                        assertTrue("Shared row ink remains separated: $text / $font",
+                            above >= dp(2) - 1 && below >= dp(2) - 1)
+                        val baselines = keys.map { it.mainText.top + it.mainText.baseline }
+                        assertTrue("Letters must share a baseline: $text / $font $baselines ${keys.map { it.mainText.glyphPlacement }}", baselines.max() - baselines.min() <= 1)
+                    }
+                }
+            } finally {
+                padding.setValue(originalPadding)
             }
         }
     }

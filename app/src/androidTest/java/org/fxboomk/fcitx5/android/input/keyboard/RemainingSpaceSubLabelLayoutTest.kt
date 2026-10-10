@@ -75,9 +75,10 @@ class RemainingSpaceSubLabelLayoutTest {
         layoutKey(key)
         assertBalanced("legacy TopBottom", key, Edges(Edge.Top, Edge.Bottom))
         val appearanceHeight = key.getChildAt(0).height
-        assertEquals("Top font frame stays at the top key inset", key.vMargin.toFloat(),
+        val labelInset = key.vMargin + dp(key.context, ThemeManager.prefs.subLabelPadding.getValue())
+        assertEquals("Top font frame stays at the top key inset", labelInset.toFloat(),
             key.altText.top + key.altText.renderedReferenceBounds().top, 0.01f)
-        assertEquals("Bottom font frame stays at the bottom key inset", (appearanceHeight - key.vMargin).toFloat(),
+        assertEquals("Bottom font frame stays at the bottom key inset", (appearanceHeight - labelInset).toFloat(),
             key.altText1.top + key.altText1.renderedReferenceBounds().bottom, 0.01f)
     }
 

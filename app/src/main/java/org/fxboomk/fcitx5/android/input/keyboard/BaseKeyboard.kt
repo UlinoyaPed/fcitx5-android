@@ -130,6 +130,13 @@ abstract class BaseKeyboard(
     )
 
     private val composeAwareKeys = mutableListOf<ComposeAwareKey>()
+    private val keyDefsByView = mutableMapOf<KeyView, KeyDef>()
+
+    /** Identity tags stay stable across overrides; actions describe the current role. */
+    protected fun activePressAction(view: KeyView): KeyAction? = keyDefsByView[view]?.let {
+        resolveComposeActiveDef(it).first.behaviors
+            .filterIsInstance<KeyDef.Behavior.Press>().firstOrNull()?.action
+    }
 
     private var lastSplitLandscapeState = false
 
@@ -189,6 +196,7 @@ abstract class BaseKeyboard(
         spaceKeys.clear()
         releaseAllTouchTargets()
         composeAwareKeys.clear()
+        keyDefsByView.clear()
 
         val splitKeyboard = splitKeyboardManager.shouldUseSplitKeyboard(width)
         lastSplitLandscapeState = splitKeyboard
@@ -672,6 +680,7 @@ abstract class BaseKeyboard(
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.Image -> ImageKeyView(context, theme, activeAppearance, horizontalGapScale)
         }.apply {
+            keyDefsByView[this] = def
             useFloatingGboardSideKeyStyle = this@BaseKeyboard.useFloatingGboardSideKeyStyle
             setTextScale(currentTextScale)
             soundEffect = when (def) {
@@ -916,6 +925,8 @@ abstract class BaseKeyboard(
             else -> oldLayoutParams
         }
         val newView = createKeyView(def, registerComposeAware = false, appearanceOverride = appearance)
+        keyDefsByView.remove(oldView)
+        keyDefsByView[newView] = item.baseDef
         when (newView) {
             is AltTextKeyView -> {
                 newView.mainText.setFontTypeFace("key_main_font")

@@ -173,6 +173,9 @@
     <string name="dark_keys">Dark Keys</string>
     <string name="recrop_image">Re-Crop Image</string>
     <string name="punctuation_position">Punctuation position</string>
+    <string name="sub_label_padding">Secondary label padding</string>
+    <string name="secondary_label_position">Second secondary label position</string>
+    <string name="sub_label_follow_layout">Follow existing layout</string>
     <string name="punctuation_pos_bottom">Bottom</string>
     <string name="punctuation_pos_top">Top</string>
     <string name="punctuation_pos_top_right">Top Right</string>

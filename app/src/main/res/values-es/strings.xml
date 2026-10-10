@@ -80,6 +80,9 @@
     <string name="clear_background_image">Quitar imagen de fondo</string>
     <string name="dark_keys">Teclas oscuras</string>
     <string name="punctuation_position">Posición de puntuación</string>
+    <string name="sub_label_padding">Margen interior de los caracteres secundarios</string>
+    <string name="secondary_label_position">Posición del segundo carácter secundario</string>
+    <string name="sub_label_follow_layout">Seguir la disposición actual</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo…</string>
     <string name="light_mode_theme">Tema en modo claro</string>

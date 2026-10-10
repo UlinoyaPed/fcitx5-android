@@ -300,12 +300,14 @@ class TextKeyboard private constructor(
         val returnKeys = mutableListOf<KeyViewWithImage>()
 
         allViews.forEach { view ->
+            if (view is KeyView && activePressAction(view) is KeyAction.CapsAction) {
+                (view as? KeyViewWithImage)?.let(caps::add)
+            }
             when (view.tag) {
                 // Match by KeyViewWithImage, not a concrete class: a key with a
                 // swipe label ("划动标签") renders as ImageAltTextKeyView instead of
                 // ImageKeyView, and casting to the concrete type would drop it so
                 // its icon (e.g. the caps/shift state) would never update.
-                R.id.button_caps -> (view as? KeyViewWithImage)?.let(caps::add)
                 R.id.button_backspace -> (view as? KeyViewWithImage)?.let(backspace::add)
                 R.id.button_quickphrase -> (view as? KeyViewWithImage)?.let(quickphrase::add)
                 R.id.button_space -> (view as? TextKeyView)?.let(space::add)
@@ -330,6 +332,8 @@ class TextKeyboard private constructor(
     private val spaceKeyLabelMode = AppPrefs.getInstance().keyboard.spaceKeyLabelMode
     private val punctuationPosition = ThemeManager.prefs.punctuationPosition
     private val uppercasePosition = ThemeManager.prefs.uppercasePosition
+    private val secondaryLabelPosition = ThemeManager.prefs.secondaryLabelPosition
+    private val subLabelPadding = ThemeManager.prefs.subLabelPadding
     private var currentIme: InputMethodEntry? = layoutState.ime
 
     @Keep
@@ -370,6 +374,7 @@ class TextKeyboard private constructor(
         get() = allViews.filterIsInstance(TextKeyView::class.java).toList()
 
     private var capsState: CapsState = CapsState.None
+    private var compositionActive = false
 
     private fun isDisplayCapsOn(): Boolean {
         return capsState != CapsState.None || isSimulatedCapsLockOn()
@@ -604,6 +609,8 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.registerOnChangeListener(altTextPositionListener)
         uppercasePosition.registerOnChangeListener(altTextPositionListener)
+        secondaryLabelPosition.registerOnChangeListener(altTextPositionListener)
+        subLabelPadding.registerOnChangeListener(altTextPositionListener)
         refreshDynamicState()
     }
 
@@ -613,6 +620,8 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.unregisterOnChangeListener(altTextPositionListener)
         uppercasePosition.unregisterOnChangeListener(altTextPositionListener)
+        secondaryLabelPosition.unregisterOnChangeListener(altTextPositionListener)
+        subLabelPadding.unregisterOnChangeListener(altTextPositionListener)
         super.onDetachedFromWindow()
     }
 
@@ -679,10 +688,16 @@ class TextKeyboard private constructor(
     }
 
     override fun onCompositionStateChanged(composing: Boolean) {
+        if (compositionActive && !composing) {
+            // Virtual compose Shift belongs to this composition, including a locked state.
+            capsState = CapsState.None
+            getService()?.setVirtualShiftLockState(false)
+        }
+        compositionActive = composing
         super.onCompositionStateChanged(composing)
         ensureSpecialKeyViewsInitialized()
         // Compose-state switches may recreate key views; re-apply caps presentation immediately.
-        updateAlphabetKeys()
+        refreshCapsPresentation()
     }
 
     private fun transformPopupPreview(c: String): String {

@@ -686,6 +686,9 @@
     <string name="punctuation_pos_none">없음</string>
     <string name="punctuation_pos_top_right">오른쪽 위</string>
     <string name="punctuation_position">구두점 위치</string>
+    <string name="sub_label_padding">보조 문자 안쪽 여백</string>
+    <string name="secondary_label_position">두 번째 보조 문자 위치</string>
+    <string name="sub_label_follow_layout">기존 배열 따르기</string>
     <string name="recrop_image">이미지 다시 자르기</string>
     <string name="removed_n_items">%1$d개 항목 제거됨</string>
     <string name="reset_keyboard_on_focus_change">포커스가 변경되면 키보드로 돌아가기</string>

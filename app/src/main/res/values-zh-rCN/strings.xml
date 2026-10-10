@@ -171,6 +171,9 @@
     <string name="dark_keys">暗色按键</string>
     <string name="recrop_image">重新裁剪图片</string>
     <string name="punctuation_position">标点符号位置</string>
+    <string name="sub_label_padding">副字符内边距</string>
+    <string name="secondary_label_position">第二副字符位置</string>
+    <string name="sub_label_follow_layout">跟随现有布局</string>
     <string name="punctuation_pos_bottom">底部</string>
     <string name="punctuation_pos_top">顶部</string>
     <string name="punctuation_pos_top_right">右上</string>

@@ -92,9 +92,10 @@ class VerticalSubLabelLayoutTest {
         val bottomInk = inkBounds(bottomLabel)
         val appearanceHeight = key.getChildAt(0).height
         val edgeInset = key.vMargin
+        val labelInset = edgeInset + dp(ThemeManager.prefs.subLabelPadding.getValue())
 
-        assertEquals(edgeInset.toFloat(), topLabel.top + topLabel.renderedReferenceBounds().top, 0.01f)
-        assertEquals((appearanceHeight - edgeInset).toFloat(), bottomLabel.top + bottomLabel.renderedReferenceBounds().bottom, 0.01f)
+        assertEquals(labelInset.toFloat(), topLabel.top + topLabel.renderedReferenceBounds().top, 0.01f)
+        assertEquals((appearanceHeight - labelInset).toFloat(), bottomLabel.top + bottomLabel.renderedReferenceBounds().bottom, 0.01f)
         assertTrue(topInk.top >= edgeInset - 1)
         assertTrue(bottomInk.bottom <= appearanceHeight - edgeInset + 1)
         // Absolute overlays do not shrink other labels to avoid oversized-font overlap.
