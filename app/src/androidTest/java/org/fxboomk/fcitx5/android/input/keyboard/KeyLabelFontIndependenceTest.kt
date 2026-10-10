@@ -16,12 +16,44 @@ import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.fxboomk.fcitx5.android.input.AutoScaleTextView
 import org.fxboomk.fcitx5.android.input.keyboard.KeyDef.Appearance.AltTextPosition
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.roundToInt
 
 /** Compare rendered sizes and positions after changing only the other font setting. */
 class KeyLabelFontIndependenceTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    @Test
+    fun normalKeysRenderConfiguredMain23AndSecondary20WithoutShrinking() = withPreferences {
+        for (density in listOf(240, 520)) {
+            for (position in listOf(AltTextPosition.TopRight)) {
+                for (mainLabel in listOf("g", "Q", "W"))
+                for (hint in listOf("!", "@", "#", "β", "ü", "（", "！")) {
+                    val key = key(density, position, secondary = false).apply {
+                        mainText.text = mainLabel
+                        mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 23f)
+                        altText.text = hint
+                        altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+                    }
+                    layout(key, 62, widthDp = 39)
+                    val main = bounds(key.mainText)
+                    val secondary = bounds(key.altText)
+                    val case = "$density/$position/$hint main=$main secondary=$secondary"
+                    assertEquals("$case main font", 1f, key.mainText.textScaleX, 0.01f)
+                    assertEquals("$case secondary font", 1f, key.altText.textScaleX, 0.01f)
+                    assertEquals("$case main stays centered", key.getChildAt(0).height / 2f,
+                        key.mainText.top + key.mainText.renderedReferenceBounds().centerY(), 0.01f)
+                    // These are independent overlays, so no vertical gap is reserved from the main label.
+                    assertTrue("$case visible ink", main.width() > 0 && secondary.width() > 0)
+                    assertTrue("$case horizontal clipping", secondary.left >= 0 &&
+                        secondary.right <= key.getChildAt(0).width)
+                    assertTrue(case, secondary.top >= key.vMargin - 1 &&
+                        secondary.bottom <= key.getChildAt(0).height - key.vMargin + 1)
+                }
+            }
+        }
+    }
 
     @Test
     fun secondaryFontChangesKeepTheMainSizeAndPosition() = withPreferences {
@@ -75,7 +107,8 @@ class KeyLabelFontIndependenceTest {
         assertBounds("Uppercase-only hint after main font growth", before, bounds(key.upperText))
     }
 
-    private fun key(density: Int, position: AltTextPosition?, uppercase: Boolean = false): AltTextKeyView {
+    private fun key(density: Int, position: AltTextPosition?, uppercase: Boolean = false,
+                    secondary: Boolean = true): AltTextKeyView {
         val context = instrumentation.targetContext.createConfigurationContext(
             Configuration(instrumentation.targetContext.resources.configuration).apply {
                 densityDpi = density
@@ -83,20 +116,20 @@ class KeyLabelFontIndependenceTest {
             }
         )
         val definition = KeyDef.Appearance.AltText("g", "β", "g",
-            altText1 = if (uppercase) null else "ü", supportsUppercaseHint = uppercase, textSize = 24f).apply {
+            altText1 = if (uppercase || !secondary) null else "ü", supportsUppercaseHint = uppercase, textSize = 24f).apply {
             altTextPositionOverride = position
             altText1PositionOverride = when (position) {
                 AltTextPosition.TopBottom -> AltTextPosition.Bottom
                 AltTextPosition.Bottom -> AltTextPosition.Bottom
                 else -> AltTextPosition.TopRight
-            }.takeUnless { uppercase }
+            }.takeUnless { uppercase || !secondary }
         }
         return AltTextKeyView(context, ThemePreset.MaterialLight, definition)
     }
 
-    private fun layout(key: AltTextKeyView, heightDp: Int) {
+    private fun layout(key: AltTextKeyView, heightDp: Int, widthDp: Int = 48) {
         val density = key.resources.displayMetrics.density
-        val width = (48 * density).roundToInt()
+        val width = (widthDp * density).roundToInt()
         val height = (heightDp * density).roundToInt()
         repeat(3) {
             key.refreshLayout()

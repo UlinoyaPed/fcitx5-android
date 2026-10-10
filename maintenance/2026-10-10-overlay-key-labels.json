@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-10",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "c4e329eeb3ca32d18192975aadf4ea8805f4f616",
+  "requirement": "Main text stays centered; secondary labels are independently positioned overlays, without shrinking or moving other labels. Configured 20sp hints must be readable on normal keys.",
+  "changes": [
+    "Remove the tiny one-fifth-height hint cap; use independent edge overlays with a half-key geometric height limit.",
+    "Pin hints by actual ink, avoiding accent-envelope and leading space that made punctuation unnecessarily small.",
+    "Retain the whole-key-centered main font envelope, stable row baseline, and existing independent main scaling. Hint measurements never enter main placement.",
+    "Keep both directions of font-size independence, language/case stability, refresh stability, existing positions and display preferences; no added switch.",
+    "Update maintenance policy and weekly task while preserving Friday 06:00 Asia/Shanghai scheduling."
+  ],
+  "validation": {
+    "baseline_new_instrumentation_tests": 3,
+    "baseline_new_instrumentation_failures": 1,
+    "normal_readability_densities_dpi": [
+      240,
+      520
+    ],
+    "normal_readability_row_height_dp": 62,
+    "normal_readability_width_dp": 39,
+    "normal_main_font_sp": 23,
+    "normal_secondary_font_sp": 20,
+    "normal_main_glyphs": [
+      "g",
+      "Q",
+      "W"
+    ],
+    "normal_secondary_glyphs": [
+      "!",
+      "@",
+      "#",
+      "β",
+      "ü",
+      "（",
+      "！"
+    ],
+    "normal_render_scale_expectation": 1.0,
+    "unit_tests": 598,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "debug_build": "passed",
+    "test_apk_build": "passed",
+    "instrumentation": "passed",
+    "release": "passed",
+    "lint": "passed",
+    "android_instrumentation_tests": 74,
+    "android_instrumentation_failures": 0,
+    "instrumentation_time_seconds": 66.776,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "gitnexus": {
+      "changed_count": 38,
+      "affected_count": 5,
+      "changed_files": 8,
+      "risk_level": "medium",
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "c4e329eeb3ca32d18192975aadf4ea8805f4f616",
+      "result_arrays_complete": true,
+      "includes_existing_native_submodule_worktree_in_changed_files": true
+    },
+    "release_abi": "arm64-v8a",
+    "release_apks_verified": 1,
+    "release_signing_key": "temporary local verification certificate",
+    "lint_errors": 0,
+    "lint_warnings": 375
+  },
+  "limits": [
+    "Independent overlays can overlap when text is large relative to key space, including some 23sp/20sp custom uppercase/punctuation combinations. Avoidance must not move or shrink another category.",
+    "No physical-device verification.",
+    "Graph results are lower bounds with unresolved dispatch and scope/process-discovery limits.",
+    "Local release signing uses a temporary verification certificate; production signing runs in GitHub Actions with repository Secrets."
+  ]
+}

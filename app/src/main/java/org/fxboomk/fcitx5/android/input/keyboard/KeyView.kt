@@ -697,7 +697,6 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
-        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -720,7 +719,6 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
-        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -742,7 +740,6 @@ class AltTextKeyView(
         isClickable = false
         isFocusable = false
         scaleMode = AutoScaleTextView.Mode.Proportional
-        glyphReference = "Égj"
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
@@ -1362,12 +1359,16 @@ class AltTextKeyView(
     private fun hasSubLabelSpace(keyHeight: Int): Boolean = keyHeight <= 0 ||
             keyHeight - vMargin * 2 >= cornerLabelTopSafeInset * 2 + dp(4) + 3
 
-    /** Each edge gets one fifth of the usable height, independently of every font size. */
+    /** Hints overlay their key edge; their height never reserves space from the main label. */
     private fun subLabelHeightLimit(keyHeight: Int): Int {
         if (keyHeight <= 0) return Int.MAX_VALUE
-        return ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset) - dp(4)) / 5)
+        return ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset)) / 2)
             .coerceAtLeast(1)
     }
+
+    /** The main label's own central envelope is independent of every hint's bounds. */
+    private fun mainLabelEdgeInset(keyHeight: Int): Int =
+        ((keyHeight - 2 * (vMargin + cornerLabelTopSafeInset) - dp(4)) / 5).coerceAtLeast(1)
 
     private fun resolveUppercaseLayoutMode(keyHeight: Int, uppercase: UppercasePosition): AltTextLayoutMode {
         val hasPunct = !altText.text.isNullOrBlank()
@@ -1449,12 +1450,10 @@ class AltTextKeyView(
         // Keep the last measured placement until the next layout supplies its
         // replacement, instead of drawing an unaligned intermediate frame.
         mainText.useGlyphBounds = false
-        val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
-                mode == AltTextLayoutMode.PunctTopUpperBottom || def.directionalSwipeLabels
         val labelMaxHeight = subLabelHeightLimit(keyHeight)
-        altText.useGlyphBounds = separateMainText
-        altText1.useGlyphBounds = def.directionalSwipeLabels
-        upperText.useGlyphBounds = separateMainText
+        altText.useGlyphBounds = mode != AltTextLayoutMode.Hidden
+        altText1.useGlyphBounds = mode != AltTextLayoutMode.Hidden
+        upperText.useGlyphBounds = mode != AltTextLayoutMode.Hidden
         altText.maxHeight = labelMaxHeight
         altText1.maxHeight = labelMaxHeight
         upperText.maxHeight = labelMaxHeight
@@ -1522,6 +1521,8 @@ class AltTextKeyView(
         val maxLabelHeight = subLabelHeightLimit(keyHeight)
         visibleLabels.forEach {
             if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
+            // Pin actual ink to its chosen edge, without invisible accent/leading space.
+            it.useGlyphBounds = true
         }
         mainText.useGlyphBounds = true
         // Use the same full-height drawing region even when hints are hidden.
@@ -1664,8 +1665,8 @@ class AltTextKeyView(
                 key.visibility == View.VISIBLE &&
                     key.mainText.width > 0 && key.mainText.height > 0
             }
-            // The main region is reserved even when hints are absent or small.
-            // Its size depends only on key geometry and its own font, not on hints.
+            // The main font frame stays centered, with its own geometry limit.
+            // Edge hints are independent overlays and cannot move or shrink it.
             val glyphs = eligible.mapNotNull { key ->
                 val text = key.mainText.text.toString()
                 val bounds = Rect()
@@ -1687,15 +1688,15 @@ class AltTextKeyView(
 
             val bandTop = glyphs.maxOf { (key) ->
                 (key.top + key.appearanceView.top + key.vMargin + key.cornerLabelTopSafeInset +
-                        key.subLabelHeightLimit(key.appearanceView.height)).toFloat()
+                        key.mainLabelEdgeInset(key.appearanceView.height)).toFloat()
             }
             val bandBottom = glyphs.minOf { (key) ->
                 (key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin -
-                        key.cornerLabelTopSafeInset - key.subLabelHeightLimit(key.appearanceView.height)).toFloat()
+                        key.cornerLabelTopSafeInset - key.mainLabelEdgeInset(key.appearanceView.height)).toFloat()
             }
             val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
             val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
-            // Preserve 2dp between the fixed main region and either hint region.
+            // Leave breathing room around the main label's own central frame.
             val minGap = glyphs.maxOf { (key) -> key.dp(2) }
             val center = glyphs.map { (key) ->
                 key.top + key.appearanceView.top + key.appearanceView.height / 2f

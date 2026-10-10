@@ -241,7 +241,7 @@ class RemainingSpaceSubLabelLayoutTest {
     }
 
     @Test
-    fun representativeShortRowsFontsGlyphsAndScalesRemainBalancedAfterResize() = withPreferences {
+    fun representativeRowsKeepNormalGapsAndCompactOverlaysInsideKey() = withPreferences {
         // Deliberately sampled rather than a density x font x glyph x size product.
         val samples = listOf(
             Sample("g", Typeface.SANS_SERIF, 1.6f, 240, 1.3f, AltTextPosition.Top, AltTextPosition.TopRight),
@@ -265,16 +265,22 @@ class RemainingSpaceSubLabelLayoutTest {
             } else Edges(sample.primary.edge(), sample.secondary.edge())
             for (height in listOf(72, 32, 64)) {
                 layoutKey(key, height)
-                // 塞不下就隐藏：过短行上生产退回无副标签布局，此时只要求主字居中。
-                // "常规行"阈值按字号缩放折算：2.4x 字号下 64dp 行的内容密度
-                // 等效于 1x 字号的 ~27dp 行，属于短行。
+                // 独立叠放不会为了避让超大副字缩小主字；短行上分别检查居中与裁切。
                 val normalRow = height / sample.scale >= 52
                 val effective = if (
                     key.altText.visibility == View.GONE &&
                     key.altText1.visibility == View.GONE &&
                     key.upperText.visibility == View.GONE
                 ) Edges() else edges
-                assertBalanced("$sample height=$height", key, effective, normalRow = normalRow)
+                if (normalRow) {
+                    assertBalanced("$sample height=$height", key, effective)
+                } else {
+                    val ink = readInk("$sample height=$height", key, effective, allowOverlay = true)
+                    assertTrue("Main ink remains inside the compact key", ink.main.top >= key.vMargin - 1 &&
+                        ink.main.bottom <= key.getChildAt(0).height - key.vMargin + 1)
+                    assertEquals("Compact main frame stays centered", key.getChildAt(0).height / 2f,
+                        key.mainText.top + key.mainText.renderedReferenceBounds().centerY(), 0.01f)
+                }
             }
         }
     }
@@ -453,7 +459,7 @@ class RemainingSpaceSubLabelLayoutTest {
         assertGaps(label, readInk(label, key, edges), if (normalRow) dp(key.context, 2) - 1 else 0)
     }
 
-    private fun readInk(label: String, key: AltTextKeyView, edges: Edges): Ink {
+    private fun readInk(label: String, key: AltTextKeyView, edges: Edges, allowOverlay: Boolean = false): Ink {
         val appearance = key.getChildAt(0)
         val tops = mutableListOf<Rect>()
         val bottoms = mutableListOf<Rect>()
@@ -475,7 +481,7 @@ class RemainingSpaceSubLabelLayoutTest {
         // Use fixture-declared edges, not proximity to the midpoint or main View box.
         val top = tops.maxOfOrNull { it.bottom } ?: key.vMargin
         val bottom = bottoms.minOfOrNull { it.top } ?: appearance.height - key.vMargin
-        assertTrue("$label: no remaining band [$top, $bottom]", bottom > top)
+        if (!allowOverlay) assertTrue("$label: no remaining band [$top, $bottom]", bottom > top)
         assertEquals("$label: main parent", appearance, key.mainText.parent)
         val main = inkBounds(key.mainText)
         assertTrue("$label: invalid main scale ${key.mainText.textScaleX}",

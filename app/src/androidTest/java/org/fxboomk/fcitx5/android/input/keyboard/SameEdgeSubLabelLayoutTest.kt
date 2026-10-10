@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 class SameEdgeSubLabelLayoutTest {
 
     @Test
-    fun visibleGapsAdaptToDensityFontsTextAndShortRows() {
+    fun centeredMainAndEdgeHintsAdaptIndependentlyToDensityAndFonts() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             val prefs = ThemeManager.prefs
@@ -67,29 +67,20 @@ class SameEdgeSubLabelLayoutTest {
                                     val case = "$text density=$density height=$height scale=$scale font=$font"
                                     val main = inkBounds(key.mainText)
                                     assertTrue(case, key.mainText.textScaleX.isFinite() && key.mainText.textScaleX > 0f)
-                                    if (height / scale <= 32) {
-                                        // 塞不下就隐藏：极短行上副标签按策略退场（隐藏或
-                                        // 压缩到不可辨识），只要求主标签保持可读且在边距内
-                                        assertTrue(case, main.top >= key.vMargin - 1)
-                                        assertTrue(
-                                            case,
-                                            main.bottom <= key.getChildAt(0).height - key.vMargin + 1
-                                        )
-                                    } else {
-                                        val subBottom = listOfNotNull(
-                                            inkBoundsOrNull(key.altText)?.bottom,
-                                            inkBoundsOrNull(key.altText1)?.bottom
-                                        ).maxOrNull() ?: key.vMargin
-                                        val above = main.top - subBottom
-                                        val below = key.getChildAt(0).height - key.vMargin - main.bottom
-                                        // Check the placement geometry tightly, separately from rasterized ink.
-                                        val mainGeometry = key.mainText.renderedReferenceBounds().apply {
-                                            offset(key.mainText.left.toFloat(), key.mainText.top.toFloat())
-                                        }
-                                        assertEquals("Stable font frame: $case",
-                                            key.getChildAt(0).height / 2f, mainGeometry.centerY(), 0.01f)
-                                        assertTrue("$case gaps=$above/$below minimum=${dp(2) - 1}",
-                                            above >= dp(2) - 1 && below >= dp(2) - 1)
+                                    val mainGeometry = key.mainText.renderedReferenceBounds().apply {
+                                        offset(key.mainText.left.toFloat(), key.mainText.top.toFloat())
+                                    }
+                                    assertEquals("Stable centered font frame: $case",
+                                        key.getChildAt(0).height / 2f, mainGeometry.centerY(), 0.01f)
+                                    // Absolute overlays do not reserve a mandatory vertical gap.
+                                    // Each category stays visible inside its own key, with the main centered.
+                                    assertTrue(case, main.top >= key.vMargin - 1 &&
+                                        main.bottom <= key.getChildAt(0).height - key.vMargin + 1)
+                                    for (label in listOf(key.altText, key.altText1)) {
+                                        val ink = inkBoundsOrNull(label) ?: continue
+                                        assertTrue("Hint stays inside its key: $case/$ink",
+                                            ink.top >= key.vMargin - 1 &&
+                                                ink.bottom <= key.getChildAt(0).height - key.vMargin + 1)
                                     }
                                 }
                             }
