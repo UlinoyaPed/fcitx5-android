@@ -20,9 +20,19 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import kotlin.math.roundToInt
 
 class VerticalSubLabelLayoutTest {
+    private var oldCenter = true
+    @Before fun useRemainingSpaceMode() {
+        oldCenter = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
+        AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
+    }
+    @After fun restoreCenterMode() { AppPrefs.getInstance().keyboard.centerMainLabels.setValue(oldCenter) }
+
 
     @Test
     fun bothOrdersStayAtEdgesWithSeparateMainLabel() = withPreferences {

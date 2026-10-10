@@ -102,7 +102,8 @@ sealed class KeyAction {
 
     data class CommitAction(
         val text: String,
-        val followPunctuationMode: Boolean = false
+        val followPunctuationMode: Boolean = false,
+        val followShift: Boolean = false
     ) : KeyAction()
 
     data class SelectCandidateAction(val index: Int, val fallbackDigit: Char) : KeyAction()

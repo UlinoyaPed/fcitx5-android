@@ -74,7 +74,7 @@
     <string name="about_server_clipcascade_summary">タップして ClipCascade の GitHub プロジェクトを開く</string>
     <string name="about_server_oneclip_summary">タップして OneClip のホームページを開く</string>
     <string name="about_server_syncclipboard_summary">タップして SyncClipboard の GitHub プロジェクトを開く</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="app_display_name">ClipboardSync</string>
     <string name="clipboard_permission_dialog_message">Android にはクリップボード用の統一された実行時権限ダイアログがありません。通常は、このプラグインによるシステムクリップボードへのアクセスを手動で許可する必要があります。端末に「クリップボードの読み取り」「クリップボードへのアクセス」「バックグラウンドでクリップボードを読み取る」などの設定がある場合は、ClipboardSync に対して有効にしてください。バックグラウンド実行の許可も維持することをおすすめします。</string>
     <string name="clipboard_permission_dialog_title">システムクリップボードへのアクセスを許可</string>

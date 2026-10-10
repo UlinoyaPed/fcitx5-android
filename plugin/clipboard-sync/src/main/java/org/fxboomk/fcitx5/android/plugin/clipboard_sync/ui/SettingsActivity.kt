@@ -1494,7 +1494,7 @@ class SettingsActivity : AppCompatActivity() {
             private const val SERVER_ONECLIP_KEY = "about_server_oneclip"
             private const val SERVER_CLIPCASCADE_KEY = "about_server_clipcascade"
             private const val SERVER_SYNCCLIPBOARD_KEY = "about_server_syncclipboard"
-            private const val SOURCE_REPOSITORY_URL = "https://github.com/boomker/fcitx5-android"
+            private const val SOURCE_REPOSITORY_URL = "https://github.com/UlinoyaPed/fcitx5-android"
             private const val ONECLIP_URL = "https://oneclip.cloud/"
             private const val CLIPCASCADE_URL = "https://github.com/NOBB2333/ClipCascade_go"
             private const val SYNCCLIPBOARD_URL = "https://github.com/Jeric-X/SyncClipboard"

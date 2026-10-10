@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.thai"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.thai"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.thai"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

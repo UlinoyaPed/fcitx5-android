@@ -438,6 +438,16 @@ class TextKeyboard private constructor(
                     }
                 }
             }
+            is KeyAction.CommitAction -> {
+                if (action.followShift && AppPrefs.getInstance().keyboard.swipeLettersFollowShift.getValue()) {
+                    val text = transformSwipeLetters(
+                        action.text, isDisplayCapsOn(),
+                        AppPrefs.getInstance().keyboard.swipeCaseMappings.getValue()
+                    )
+                    transformed = action.copy(text = text)
+                    if (isSwipeLetterText(action.text) && capsState == CapsState.Once) switchCapsState()
+                }
+            }
             is KeyAction.CapsAction -> {
                 if (!action.lock && source == KeyActionListener.Source.Keyboard && tryConsumeMacroCapsLock()) {
                     // MacroKey tap Caps_Lock opened lock state: single tap on CapsKey should send Caps_Lock again.
@@ -594,6 +604,7 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.registerOnChangeListener(altTextPositionListener)
         uppercasePosition.registerOnChangeListener(altTextPositionListener)
+        AppPrefs.getInstance().keyboard.centerMainLabels.registerOnChangeListener(altTextPositionListener)
         refreshDynamicState()
     }
 
@@ -603,6 +614,7 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
         punctuationPosition.unregisterOnChangeListener(altTextPositionListener)
         uppercasePosition.unregisterOnChangeListener(altTextPositionListener)
+        AppPrefs.getInstance().keyboard.centerMainLabels.unregisterOnChangeListener(altTextPositionListener)
         super.onDetachedFromWindow()
     }
 

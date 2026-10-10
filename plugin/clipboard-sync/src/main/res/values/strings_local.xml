@@ -123,7 +123,7 @@
     <string name="connection_failed">连接失败</string>
     <string name="unknown_error">未知错误</string>
     <string name="about_source_repo_title">源码仓库</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="about_build_version_title">当前构建版本号</string>
     <string name="about_build_version_unknown">未知</string>
     <string name="about_supported_servers_title">支持的服务端</string>

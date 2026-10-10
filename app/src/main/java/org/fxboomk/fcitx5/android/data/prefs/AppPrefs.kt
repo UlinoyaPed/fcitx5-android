@@ -10,6 +10,10 @@ import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import androidx.preference.EditTextPreference
+import android.text.InputType
+import org.fxboomk.fcitx5.android.BuildConfig
+import org.fxboomk.fcitx5.android.input.keyboard.isValidSwipeCaseMappings
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.InputFeedbacks.InputFeedbackMode
 import org.fxboomk.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
@@ -73,6 +77,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
     }
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {
+        val nightlyUpdates = switch(R.string.personal_nightly_updates, "personal_nightly_updates", BuildConfig.NIGHTLY_BUILD)
         val ignoreSystemWindowInsets = switch(
             R.string.ignore_system_window_insets, "ignore_system_window_insets", false
         )
@@ -207,6 +212,28 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val hardwarePredictionDismiss = switch(R.string.personal_hardware_prediction_dismiss, "personal_hardware_prediction_dismiss", false)
         val digitSwipeSelection = switch(R.string.personal_digit_swipe_selection, "personal_digit_swipe_selection", false)
         val dockToolbarWithFloatingCandidates = switch(R.string.personal_dock_toolbar, "personal_dock_toolbar", false)
+        val centerMainLabels = switch(R.string.personal_center_main_labels, "personal_center_main_labels", true)
+        val swipeLettersFollowShift = switch(R.string.personal_swipe_letters_follow_shift, "personal_swipe_letters_follow_shift", true)
+        val swipeCaseMappings = ManagedPreference.PString(sharedPreferences, "personal_swipe_case_mappings", "ß=ẞ").apply { register() }
+        init {
+            object : ManagedPreferenceUi<EditTextPreference>(swipeCaseMappings.key) {
+                override fun createUi(context: android.content.Context) = EditTextPreference(context).apply {
+                    key = swipeCaseMappings.key
+                    setTitle(R.string.personal_swipe_case_mappings)
+                    setDialogTitle(R.string.personal_swipe_case_mappings)
+                    setDialogMessage(R.string.personal_swipe_case_mappings_help)
+                    setSummary(R.string.personal_swipe_case_mappings_help)
+                    setDefaultValue("ß=ẞ")
+                    isIconSpaceReserved = false
+                    setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS }
+                    setOnPreferenceChangeListener { _, value ->
+                        val valid = isValidSwipeCaseMappings(value as String)
+                        if (!valid) android.widget.Toast.makeText(context, R.string.personal_swipe_case_mappings_invalid, android.widget.Toast.LENGTH_LONG).show()
+                        valid
+                    }
+                }
+            }.registerUi()
+        }
         val punctuationPositionLettersOnly = switch(R.string.personal_punctuation_letters_only, "personal_punctuation_letters_only", false)
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(

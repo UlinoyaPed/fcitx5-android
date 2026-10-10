@@ -3,7 +3,8 @@ package org.fxboomk.fcitx5.android.common.clearurls
 import android.content.Context
 
 object ClearUrlsPluginRuntime {
-    const val CURRENT_PACKAGE = "org.fxboomk.fcitx5.android.plugin.clipboard_filter"
+    const val CURRENT_PACKAGE = "org.ulinoyaped.fcitx5.android.plugin.clipboard_filter"
+    const val UPSTREAM_PACKAGE = "org.fxboomk.fcitx5.android.plugin.clipboard_filter"
     const val ORIGINAL_PACKAGE = "org.fcitx.fcitx5.android.plugin.clipboard_filter"
     private const val RULES_ASSET = "data.min.json"
 
@@ -13,6 +14,7 @@ object ClearUrlsPluginRuntime {
     fun resolvePackageName(loadedPackages: Set<String>): String? =
         when {
             CURRENT_PACKAGE in loadedPackages -> CURRENT_PACKAGE
+            UPSTREAM_PACKAGE in loadedPackages -> UPSTREAM_PACKAGE
             ORIGINAL_PACKAGE in loadedPackages -> ORIGINAL_PACKAGE
             else -> null
         }

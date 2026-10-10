@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="personal_center_main_labels">主字符在整个按键中居中</string>
+    <string name="personal_swipe_letters_follow_shift">副字符字母跟随 Shift / Caps Lock</string>
+    <string name="personal_swipe_case_mappings">副字符大小写映射</string>
+    <string name="personal_swipe_case_mappings_help">每行 小写=大写，例如 ß=ẞ。留空使用 Unicode 转换；关闭跟随 Shift 后原样输出。</string>
+    <string name="personal_swipe_case_mappings_invalid">映射格式无效：每行需要两个不同的字母内容，用 = 分隔，且不能重复。</string>
+    <string name="personal_nightly_updates">接收 nightly 更新（关闭后只检查正式 release）</string>
+</resources>

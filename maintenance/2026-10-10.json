@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-10",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "4c7f74330d1f7bf9297cc0b77b7c5994824a0152",
+  "upstream_issues": [
+    "https://github.com/boomker/fcitx5-android/issues/11",
+    "https://github.com/boomker/fcitx5-android/issues/12"
+  ],
+  "application_id": "org.ulinoyaped.fcitx5.android",
+  "changes": [
+    "Whole-key glyph centering with opt-out; retained remaining-space alignment.",
+    "Unicode swipe letter casing, reversible custom mappings and default sharp-S mapping; opt-out; explicit uppercase hints and macros remain literal.",
+    "Existing engine/follow-mode/raw punctuation policies retained.",
+    "Own app/plugin IDs, plugin recognition and old-backup compatibility.",
+    "Own stable/nightly update feeds and channel switch.",
+    "Shared signed-APK workflow, nightly latest prerelease and v* stable releases.",
+    "Monotonic app/plugin version codes; production key upload instructions."
+  ],
+  "validation": {
+    "unit_tests": 598,
+    "unit_failures": 0,
+    "release_abi": "arm64-v8a",
+    "signed_apks": 11,
+    "same_signing_certificate": true,
+    "signing_key": "temporary local verification key; no production key generated or uploaded",
+    "debug_abi": "x86_64",
+    "workflow_actionlint": "passed",
+    "signing_secret_validation": "all three missing-secret cases and configured case passed",
+    "lint_errors": 0,
+    "lint_warnings": 377,
+    "gitnexus": {
+      "changed_count": 110,
+      "affected_count": 18,
+      "changed_files": 56,
+      "risk_level": "critical"
+    },
+    "android_instrumentation_tests": 64,
+    "android_instrumentation_failures": 0,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "instrumentation_time_seconds": 96.045
+  },
+  "limits": [
+    "No physical-device, hardware keyboard or real input-engine end-to-end verification.",
+    "GitNexus results are lower bounds; index has unresolved dispatch, scope extraction and duplicate-symbol limitations.",
+    "GitHub production signing secrets could not be inspected through the current integration; administrator must confirm configuration."
+  ]
+}

@@ -1776,6 +1776,7 @@ class AltTextKeyView(
 
     companion object {
         internal fun alignRemainingSpaceMainLabels(keys: List<AltTextKeyView>) {
+            val centerOnKey = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
             val eligible = keys.filter { key ->
                 key.visibility == View.VISIBLE &&
                     (key.remainingSpaceTopLabels.isNotEmpty() || key.remainingSpaceBottomLabels.isNotEmpty()) &&
@@ -1829,9 +1830,14 @@ class AltTextKeyView(
                 // the band can be thinner than the reserved gaps; shrink the glyph to
                 // the raw band instead of scaling it out of sight. One pixel per edge
                 // is dropped to absorb rasterization rounding of the scaled ink.
-                val heightScale = remainingSpaceMainGlyphScale(bandBottom - bandTop, minGap.toFloat(), glyphBottom - glyphTop)
-                // Align actual ink, not font metrics, halfway through the free band.
-                val baseline = (bandTop + bandBottom - (glyphTop + glyphBottom) * heightScale) / 2f
+                val center = if (centerOnKey) {
+                    glyphs.map { (key) -> key.top + key.appearanceView.top + key.appearanceView.height / 2f }.average().toFloat()
+                } else (bandTop + bandBottom) / 2f
+                val availableHeight = if (centerOnKey) {
+                    2f * min(center - bandTop, bandBottom - center).coerceAtLeast(0f)
+                } else bandBottom - bandTop
+                val heightScale = remainingSpaceMainGlyphScale(availableHeight, minGap.toFloat(), glyphBottom - glyphTop)
+                val baseline = center - (glyphTop + glyphBottom) * heightScale / 2f
                 glyphs.forEach { (key, _, widthScale) ->
                     key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
                         baseline - key.top - key.appearanceView.top - key.mainText.top,

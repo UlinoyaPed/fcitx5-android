@@ -74,7 +74,7 @@
     <string name="about_server_clipcascade_summary">Tippen, um die ClipCascade-GitHub-Seite zu öffnen</string>
     <string name="about_server_oneclip_summary">Tippen, um die OneClip-Startseite zu öffnen</string>
     <string name="about_server_syncclipboard_summary">Tippen, um die SyncClipboard-GitHub-Seite zu öffnen</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="app_display_name">ClipboardSync</string>
     <string name="clipboard_permission_dialog_message">Android bietet keinen einheitlichen Laufzeitdialog für den Zugriff auf die Zwischenablage. In der Regel müssen Sie diesem Plugin den Zugriff auf die Systemzwischenablage manuell erlauben. Wenn Ihr System Optionen wie „Zwischenablage lesen“, „Zwischenablagezugriff“ oder „Zwischenablage im Hintergrund lesen“ bietet, aktivieren Sie sie für ClipboardSync. Es wird außerdem empfohlen, die Berechtigung für die Ausführung im Hintergrund beizubehalten.</string>
     <string name="clipboard_permission_dialog_title">Zugriff auf die Systemzwischenablage erlauben</string>

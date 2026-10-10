@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.jyutping"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.jyutping"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.jyutping"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

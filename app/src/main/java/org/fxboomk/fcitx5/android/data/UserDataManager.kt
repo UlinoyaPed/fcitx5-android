@@ -23,6 +23,13 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
+internal fun isCompatibleUserDataPackage(packageName: String): Boolean {
+    val personalBase = BuildConfig.APPLICATION_ID.removeSuffix(".debug").removeSuffix(".fx")
+    return listOf(personalBase, "org.fxboomk.fcitx5.android", "org.fcitx.fcitx5.android").any {
+        packageName == it || packageName.startsWith("$it.")
+    }
+}
+
 object UserDataManager {
 
     private val json = Json { prettyPrint = true }
@@ -35,12 +42,8 @@ object UserDataManager {
         val exportTime: Long
     )
 
-    // Allow importing user data from any build variant of Fcitx5 Android
-    private const val allowedPackageNamePrefix = "org.fxboomk.fcitx5.android"
-
-    private fun isAllowedPackageName(packageName: String): Boolean {
-        return packageName == allowedPackageNamePrefix || packageName.startsWith("$allowedPackageNamePrefix.")
-    }
+    // Keep package validation independent of Android context initialization.
+    private fun isAllowedPackageName(packageName: String): Boolean = isCompatibleUserDataPackage(packageName)
 
     private fun writeFileTree(srcDir: File, destPrefix: String, dest: ZipOutputStream) {
         dest.putNextEntry(ZipEntry("$destPrefix/"))

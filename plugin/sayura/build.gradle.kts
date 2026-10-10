@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.sayura"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.sayura"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.sayura"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

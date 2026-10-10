@@ -223,3 +223,5 @@ git submodule update --init --recursive
 - 分支与功能增强参考：
   [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android)
 - Fcitx5 / libime / fcitx5-chinese-addons / RIME 等上游项目贡献者
+
+[个人版签名、nightly 与 release 发布说明](RELEASING.md)。

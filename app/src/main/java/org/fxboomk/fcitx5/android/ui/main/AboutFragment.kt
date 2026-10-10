@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fxboomk.fcitx5.android.BuildConfig
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.common.DeterminateProgressBarDialog
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
@@ -62,6 +63,14 @@ class AboutFragment : PaddingPreferenceFragment() {
                 }
                 applyNoUpdateActionState()
                 addPreference(updatePreference)
+                val prefs = AppPrefs.getInstance().advanced
+                addPreference(prefs.managedPreferencesUi.first { it.key == prefs.nightlyUpdates.key }.createUi(context).apply {
+                    setOnPreferenceChangeListener { _, value ->
+                        prefs.nightlyUpdates.setValue(value as Boolean)
+                        checkForUpdatesAutomatically()
+                        true
+                    }
+                })
                 addPreference(R.string.build_git_hash, BuildConfig.BUILD_GIT_HASH) {
                     val commit = BuildConfig.BUILD_GIT_HASH.substringBefore('-')
                     val uri = Uri.parse("${Const.githubRepo}/commit/${commit}")

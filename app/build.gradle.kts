@@ -10,7 +10,7 @@ plugins {
 }
 
 val packageBase = "org.fxboomk.fcitx5.android"
-val appIdBase = "org.fxboomk.fcitx5.android"
+val appIdBase = providers.gradleProperty("mainApplicationId").get()
 val originalPackageBase = "org.fcitx.fcitx5.android"
 val appIdFxSuffix = ".fx"
 val flavorFx = "fx"
@@ -33,6 +33,7 @@ android {
 
     defaultConfig {
         applicationId = appIdBase
+        buildConfigField("boolean", "NIGHTLY_BUILD", providers.gradleProperty("nightlyBuild").orElse("true").get())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["appLabel"] = appLabelDefault
         manifestPlaceholders["originalPluginManifestAction"] = originalPluginManifestAction

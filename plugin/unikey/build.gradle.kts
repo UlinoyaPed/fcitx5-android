@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.unikey"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.unikey"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.unikey"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

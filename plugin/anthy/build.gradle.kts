@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.anthy"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.anthy"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.anthy"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

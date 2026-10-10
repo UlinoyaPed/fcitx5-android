@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.hangul"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.hangul"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.hangul"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

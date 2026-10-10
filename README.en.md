@@ -222,3 +222,5 @@ To build only the clipboard sync plugin:
 - Fork and feature enhancement reference:
   [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android)
 - Contributors of Fcitx5, libime, fcitx5-chinese-addons, RIME, and related upstream projects
+
+[Personal build signing and nightly/release instructions](RELEASING.md).

@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.rime"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.rime"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.rime"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

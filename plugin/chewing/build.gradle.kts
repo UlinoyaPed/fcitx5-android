@@ -11,7 +11,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.chewing"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.chewing"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.chewing"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {

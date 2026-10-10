@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="personal_center_main_labels">Center main characters on the whole key</string>
+    <string name="personal_swipe_letters_follow_shift">Sublabel letters follow Shift / Caps Lock</string>
+    <string name="personal_swipe_case_mappings">Sublabel case mappings</string>
+    <string name="personal_swipe_case_mappings_help">One lowercase=uppercase pair per line, e.g. ß=ẞ. Leave empty for Unicode conversion; disable following Shift for literal output.</string>
+    <string name="personal_swipe_case_mappings_invalid">Invalid mapping: each line needs two different letter strings separated by =, without duplicate entries.</string>
+    <string name="personal_nightly_updates">Receive nightly updates (off: stable releases only)</string>
+</resources>

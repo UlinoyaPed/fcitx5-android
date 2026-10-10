@@ -125,3 +125,11 @@ fun NamedDomainObjectContainer<out ApkSigningConfig>.fromProjectEnv(project: Pro
         keyPassword = project.signKeyPwd
     }
 }
+
+// A shared UTC minute plus an ABI digit: Android accepts upgrades across channels.
+fun Project.personalVersionCode(abi: String = Versions.fallbackABI): Int {
+    val base = ep("BUILD_VERSION_CODE", "buildVersionCode") {
+        (buildTimestamp.toLong() / 60000L * 10L).toString()
+    }.toInt()
+    return base + Versions.calculateVersionCode(abi) % 10
+}

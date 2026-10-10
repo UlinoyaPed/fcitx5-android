@@ -40,6 +40,7 @@ internal object KeyboardSettingsSupport {
         "reset_keyboard_on_focus_change",
         "inline_suggestions",
         "keep_keyboard_letters_uppercase",
+        "personal_center_main_labels",
         "show_lang_switch_key"
     )
 
@@ -58,6 +59,8 @@ internal object KeyboardSettingsSupport {
         "expand_keypress_area",
         "punctuation_swipe_strategy",
         "swipe_symbol_behavior",
+        "personal_swipe_letters_follow_shift",
+        "personal_swipe_case_mappings",
         "caps_key_behavior",
         "lang_switch_key_behavior",
         "lang_switch_key_long_press_behavior",

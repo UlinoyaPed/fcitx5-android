@@ -1,0 +1,33 @@
+name: Release
+on:
+  push:
+    tags: ['v[0-9]*']
+permissions:
+  contents: write
+  packages: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    uses: ./.github/workflows/build-apks.yml
+    with:
+      ref: ${{ github.ref }}
+      nightly: false
+    secrets: inherit
+  publish:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: signed-apks-*
+          merge-multiple: true
+          path: apks
+      - name: Publish stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" apks/*.apk --verify-tag --latest --generate-notes --title "$RELEASE_TAG"

@@ -15,6 +15,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.fxboomk.fcitx5.android.BuildConfig
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.core.data.PluginDescriptor
 import org.fxboomk.fcitx5.android.utils.Const
 import timber.log.Timber
@@ -254,7 +255,7 @@ object AppUpdateManager {
 
     @Throws(IOException::class)
     private fun fetchLatestRelease(cancellationSignal: CancellationSignal? = null): RemoteRelease {
-        val connection = openConnection(Const.githubLatestReleaseApi, cancellationSignal)
+        val connection = openConnection(releaseApi(AppPrefs.getInstance().advanced.nightlyUpdates.getValue()), cancellationSignal)
         try {
             cancellationSignal?.throwIfCanceled()
             val body = connection.inputStream.bufferedReader().use { it.readText() }
@@ -269,6 +270,9 @@ object AppUpdateManager {
             connection.disconnect()
         }
     }
+
+    internal fun releaseApi(nightly: Boolean): String =
+        if (nightly) Const.githubLatestReleaseApi else Const.githubStableReleaseApi
 
     private fun selectMatchingAsset(
         packageName: String,

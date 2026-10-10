@@ -1,0 +1,167 @@
+name: Build signed APKs
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      nightly:
+        required: true
+        type: boolean
+permissions:
+  contents: read
+  packages: read
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        abi: [arm64-v8a]
+    env:
+      BUILD_ABI: ${{ matrix.abi }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Fetch source code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ref: ${{ inputs.ref }}
+
+      - name: Validate signing secrets
+        shell: bash
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          for entry in SIGN_KEY_BASE64:SIGNING_KEY SIGN_KEY_ALIAS:KEY_ALIAS SIGN_KEY_PWD:KEY_PASSWORD
+          do
+            variable="${entry%%:*}"
+            secret_name="${entry#*:}"
+            if [ -z "${!variable}" ]
+            then
+              echo "::error::Missing required signing secret: $secret_name"
+              exit 1
+            fi
+          done
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android environment
+        # 2026-09-15 起 Google 不再提供 `tools` 包，setup-android 默认安装
+        # `tools platform-tools` 会以 exit 1 失败（android-actions/setup-android#537）；
+        # 本仓库的 SDK 包均由 prepare_personal_build.sh / Gradle 自行安装，只装 platform-tools 即可
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+
+      - name: Install Android build tools
+        run: |
+          sdkmanager --install "cmake;3.31.6" "ndk;28.0.13004108" "platforms;android-36" "build-tools;36.1.0"
+
+      - name: Install system dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          sudo apt update
+          sudo apt install extra-cmake-modules gettext
+
+      - name: Prepare personal build sources
+        env:
+          # FCITX5_RIME_REPO: https://github.com/fxliang/fcitx5-rime.git
+          FCITX5_RIME_REPO: https://github.com/boomker/fcitx5-rime.git
+          PREBUILT_REPO: https://github.com/boomker/f5a-prebuilt.git
+          PREBUILDER_REPO: https://github.com/boomker/f5a-prebuilder.git
+        run: |
+          ./prepare_personal_build.sh
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Fix build metadata across app and plugins
+        shell: bash
+        run: echo "BUILD_TIMESTAMP=$(date -u +%s)000" >> "$GITHUB_ENV"
+
+      - name: Build Release APK
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          local_third_party_repository="file://${PWD}/.local-thirdparty-artifacts"
+          ./gradlew \
+            -PgithubPackagesRepository="$local_third_party_repository" \
+            :third_party:onnxruntime-genai-android:publish
+          ./gradlew clean \
+            -PnightlyBuild=${{ inputs.nightly }} \
+            -PincludeMainlineFlavor=true \
+            -PincludeFxFlavor=false \
+            -PgithubPackagesRepository="$local_third_party_repository" \
+            :app:assembleMainlineRelease :assembleReleasePlugins :app:testMainlineDebugUnitTest
+          mkdir -p app/build/outputs/apk/release/
+          mv app/build/outputs/apk/mainline/release/*.apk app/build/outputs/apk/release/
+
+      # move plugin apks to app/build/outputs/apk/release
+      - name: Move plugin APKs
+        shell: bash
+        run: |
+          for plugin_dir in plugin/*
+          do
+            if [ -d "$plugin_dir" ]
+            then
+              mv "$plugin_dir/build/outputs/apk/release"/*.apk "app/build/outputs/apk/release/"
+            fi
+          done
+
+      - name: Verify signed APKs
+        shell: bash
+        run: |
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/release/*.apk)
+          if [ ${#apks[@]} -eq 0 ]
+          then
+            echo "::error::No APKs produced in app/build/outputs/apk/release"
+            exit 1
+          fi
+
+          for apk in "${apks[@]}"
+          do
+            if [[ "$apk" == *-unsigned.apk ]]
+            then
+              echo "::error::Unsigned APK detected: $apk"
+              exit 1
+            fi
+          done
+
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          if [ -z "$sdk_root" ]
+          then
+            echo "::error::ANDROID_SDK_ROOT or ANDROID_HOME is not set"
+            exit 1
+          fi
+
+          apksigner=$(find "$sdk_root/build-tools" -type f -name apksigner | sort -V | tail -n1)
+          if [ -z "$apksigner" ]
+          then
+            echo "::error::Failed to locate apksigner under $sdk_root/build-tools"
+            exit 1
+          fi
+
+          for apk in "${apks[@]}"
+          do
+            "$apksigner" verify --print-certs "$apk"
+          done
+
+      - name: Upload app with plugins
+        uses: actions/upload-artifact@v7
+        with:
+          name: signed-apks-${{ matrix.abi }}
+          path: app/build/outputs/apk/release/*.apk

@@ -29,16 +29,43 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import kotlin.math.roundToInt
 
 /** Main-label bounds in these tests come from Canvas pixels, not TextView boxes. */
 class RemainingSpaceSubLabelLayoutTest {
+    private var oldCenter = true
+    @Before fun useRemainingSpaceMode() {
+        oldCenter = AppPrefs.getInstance().keyboard.centerMainLabels.getValue()
+        AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
+    }
+    @After fun restoreCenterMode() { AppPrefs.getInstance().keyboard.centerMainLabels.setValue(oldCenter) }
+
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext.createConfigurationContext(
         Configuration(instrumentation.targetContext.resources.configuration).apply { fontScale = 1f }
     )
     private val positions = listOf(AltTextPosition.Top, AltTextPosition.Bottom, AltTextPosition.TopRight)
     private val glyphs = listOf("g", "É", "主", "Shift")
+
+    @Test
+    fun wholeKeyCenterDoesNotMoveWithTopOrBottomSublabels() = withPreferences {
+        for (position in positions) for (secondary in listOf(null, "Q")) {
+            val key = createKey(appearance(main = "g", secondary = secondary, primaryPosition = position,
+                secondaryPosition = AltTextPosition.Bottom.takeIf { secondary != null }))
+            AppPrefs.getInstance().keyboard.centerMainLabels.setValue(true)
+            layoutKey(key)
+            val main = key.mainText.renderedGlyphBounds()
+            assertEquals("center $position", key.getChildAt(0).height / 2f,
+                key.mainText.top + main.centerY(), 0.01f)
+            assertTrue("visible main $position", main.height() > 0f)
+            AppPrefs.getInstance().keyboard.centerMainLabels.setValue(false)
+            layoutKey(key)
+            assertBalanced("retained mode $position", key, Edges(primary = position.edge(), secondary = Edge.Bottom.takeIf { secondary != null }))
+        }
+    }
 
     @Test
     fun defaultThemePairsAndMixedEdgesBalanceVisibleInk() = withPreferences {

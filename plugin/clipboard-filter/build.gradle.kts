@@ -20,7 +20,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.clipboard_filter"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.clipboard_filter"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.clipboard_filter"
     }
 
     buildFeatures {

@@ -39,7 +39,8 @@ data class PluginDescriptor(
     companion object {
         const val pluginPackagePrefix = "org.fxboomk.fcitx5.android.plugin."
         const val officialPluginPackagePrefix = "org.fcitx.fcitx5.android.plugin."
-        val pluginPackagePrefixes = listOf(pluginPackagePrefix, officialPluginPackagePrefix)
+        val personalPluginPackagePrefix = BuildConfig.APPLICATION_ID.removeSuffix(".debug").removeSuffix(".fx") + ".plugin."
+        val pluginPackagePrefixes = listOf(personalPluginPackagePrefix, pluginPackagePrefix, officialPluginPackagePrefix)
         const val pluginPackageSuffix = ".${BuildConfig.BUILD_TYPE}"
         const val pluginAPI = "0.1"
 

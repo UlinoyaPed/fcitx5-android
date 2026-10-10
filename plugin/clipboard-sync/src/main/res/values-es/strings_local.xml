@@ -74,7 +74,7 @@
     <string name="about_server_clipcascade_summary">Pulse para abrir el proyecto de ClipCascade en GitHub</string>
     <string name="about_server_oneclip_summary">Pulse para abrir la página principal de OneClip</string>
     <string name="about_server_syncclipboard_summary">Pulse para abrir el proyecto de SyncClipboard en GitHub</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="app_display_name">ClipboardSync</string>
     <string name="clipboard_permission_dialog_message">Android no ofrece un cuadro de diálogo de permisos de ejecución unificado para el portapapeles. Normalmente debe permitir manualmente que este complemento acceda al portapapeles del sistema. Si su sistema ofrece opciones como «Leer portapapeles», «Acceso al portapapeles» o «Leer el portapapeles en segundo plano», actívelas para ClipboardSync. También se recomienda conservar el permiso para ejecutarse en segundo plano.</string>
     <string name="clipboard_permission_dialog_title">Permitir acceso al portapapeles del sistema</string>

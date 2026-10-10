@@ -74,7 +74,7 @@
     <string name="about_server_clipcascade_summary">點擊開啟 ClipCascade GitHub 專案</string>
     <string name="about_server_oneclip_summary">點擊開啟 OneClip 首頁</string>
     <string name="about_server_syncclipboard_summary">點擊開啟 SyncClipboard GitHub 專案</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="app_display_name">ClipboardSync</string>
     <string name="clipboard_permission_dialog_message">Android 沒有統一的剪貼簿執行階段授權視窗，通常需要手動允許本外掛存取系統剪貼簿。若你的系統提供「讀取剪貼簿」、「存取剪貼簿」、「背景讀取剪貼簿」或類似選項，請為 ClipboardSync 開啟；同時建議保留背景執行權限。</string>
     <string name="clipboard_permission_dialog_title">允許存取系統剪貼簿</string>

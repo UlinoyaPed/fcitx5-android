@@ -1561,7 +1561,8 @@ abstract class BaseKeyboard(
         // 按物理方向绑定的自定义划动宏（”划动事件(上划)/(下划)”）优先级最高，
         // 高于副标签提交动作；它按实际手势方向判定，不依赖副标签的显示布局。
         selectPhysicalSwipeMacro(totalY, behavior)?.let { return it }
-        val action = when (selectSwipeAltTarget(view, totalY)) {
+        val target = selectSwipeAltTarget(view, totalY)
+        val action = when (target) {
             AltTextSwipeTarget.Primary -> behavior.action ?: behavior.legacyMacro
             AltTextSwipeTarget.Secondary ->
                 behavior.downAction ?: behavior.action ?: behavior.legacyMacro
@@ -1573,7 +1574,12 @@ abstract class BaseKeyboard(
             null -> null
         }
         return action?.let {
-            handleDigitSwipeAction(it)
+            val shifted = if (target != AltTextSwipeTarget.Uppercase && view is AltTextKeyView &&
+                (view.def as? KeyDef.Appearance.AltText)?.supportsUppercaseHint == true &&
+                it is KeyAction.CommitAction && isSwipeLetterText(it.text)) {
+                it.copy(followShift = true)
+            } else it
+            handleDigitSwipeAction(shifted)
         }
     }
 

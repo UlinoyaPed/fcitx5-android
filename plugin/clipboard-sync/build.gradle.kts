@@ -10,7 +10,7 @@ android {
     namespace = "org.fxboomk.fcitx5.android.plugin.clipboard_sync"
 
     defaultConfig {
-        applicationId = "org.fxboomk.fcitx5.android.plugin.clipboard_sync"
+        applicationId = "${providers.gradleProperty("mainApplicationId").get()}.plugin.clipboard_sync"
     }
 
     buildTypes {

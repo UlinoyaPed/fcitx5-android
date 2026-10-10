@@ -74,7 +74,7 @@
     <string name="about_server_clipcascade_summary">Нажмите, чтобы открыть проект ClipCascade на GitHub</string>
     <string name="about_server_oneclip_summary">Нажмите, чтобы открыть главную страницу OneClip</string>
     <string name="about_server_syncclipboard_summary">Нажмите, чтобы открыть проект SyncClipboard на GitHub</string>
-    <string name="about_source_repo_summary">https://github.com/boomker/fcitx5-android</string>
+    <string name="about_source_repo_summary">https://github.com/UlinoyaPed/fcitx5-android</string>
     <string name="app_display_name">ClipboardSync</string>
     <string name="clipboard_permission_dialog_message">В Android нет единого диалога разрешений времени выполнения для буфера обмена. Обычно необходимо вручную разрешить этому плагину доступ к системному буферу обмена. Если на вашем устройстве есть параметры «Чтение буфера обмена», «Доступ к буферу обмена», «Чтение буфера обмена в фоновом режиме» или аналогичные, включите их для ClipboardSync. Также рекомендуется сохранить разрешение на работу в фоновом режиме.</string>
     <string name="clipboard_permission_dialog_title">Разрешить доступ к системному буферу обмена</string>
