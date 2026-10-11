@@ -654,7 +654,7 @@
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Mantener barra de herramientas/candidatos con teclado fisico</string>
     <string name="lang_switch_behavior_next_ime_app">Cambiar a la siguiente app de metodo de entrada</string>
-    <string name="lang_switch_key_long_press_behavior">Acción al mantener pulsada la tecla de idioma</string>
+    <string name="lang_switch_key_long_press_behavior">Menú emergente al mantener pulsada la tecla de idioma</string>
     <string name="lang_switch_long_press_default">Predeterminado (incluye métodos de entrada externos)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Métodos de entrada integrados y esquemas de Rime</string>
     <string name="lang_switch_long_press_builtin_only">Solo métodos de entrada integrados activados</string>
@@ -755,7 +755,7 @@
     <string name="commit_first_candidate_character">Insertar primer carácter</string>
     <string name="commit_last_candidate_character">Insertar último carácter</string>
     <string name="swipe_down">Deslizar hacia abajo</string>
-    <string name="punctuation_swipe_strategy">Estrategia de introducción de puntuación al deslizar</string>
+    <string name="punctuation_swipe_strategy">Comportamiento al deslizar puntuación</string>
     <string name="punctuation_swipe_follow_input_mode">Seguir el modo chino/inglés</string>
     <string name="punctuation_swipe_raw">Introducir caracteres originales</string>
     <string name="swipe_symbol_behavior">Dirección de deslizamiento para signos de puntuación</string>

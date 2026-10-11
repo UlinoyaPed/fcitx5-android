@@ -212,7 +212,7 @@
     <string name="disable_addon_warn_dep">停用%1$s</string>
     <string name="disable_addon_warn_optdep">停用%1$s中的某些功能</string>
     <string name="disable_addon_warn_confirm">確實要停用它嗎？</string>
-    <string name="punctuation_swipe_strategy">標點符號滑動提交策略</string>
+    <string name="punctuation_swipe_strategy">標點符號滑動行為</string>
     <string name="punctuation_swipe_follow_input_mode">跟隨中英文狀態</string>
     <string name="punctuation_swipe_raw">提交原始字元</string>
     <string name="swipe_symbol_behavior">標點符號滑動方向</string>
@@ -402,7 +402,7 @@
     <string name="plugin_updates_download_ready">已下載 %1$d 個外掛程式更新包，準備安裝</string>
     <string name="no_plugin_updates_available">所選外掛程式沒有可用的新版本</string>
     <string name="table_dict_replace_message">碼表字典 \"%1$s\" 已存在。您可以匯入新字典並覆蓋原字典。</string>
-    <string name="lang_switch_key_long_press_behavior">語言鍵長按行為</string>
+    <string name="lang_switch_key_long_press_behavior">語言鍵長按彈出</string>
     <string name="lang_switch_long_press_default">預設（含外部輸入法）</string>
     <string name="lang_switch_long_press_builtin_and_rime">內建輸入法及中州韻方案</string>
     <string name="lang_switch_long_press_builtin_only">僅已啟用的內建輸入法</string>

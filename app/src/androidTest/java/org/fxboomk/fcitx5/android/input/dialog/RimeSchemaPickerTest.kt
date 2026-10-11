@@ -23,7 +23,7 @@ import org.junit.Test
 import java.io.File
 import kotlin.math.roundToInt
 
-class RimeSchemaTreeTest {
+class RimeSchemaPickerTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context get() = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_FcitxAppTheme)
     private val rime = engine("rime", "中州韵", "rime")
@@ -31,7 +31,7 @@ class RimeSchemaTreeTest {
     private val schemas = arrayOf(schema(10, "朙月拼音"), schema(20, "小鹤双拼"))
 
     @Test
-    fun schemasAreIndentedBelowTheirParentWithTreeBranches() = instrumentation.runOnMainSync {
+    fun schemasRenderAsIndentedRadioRows() = instrumentation.runOnMainSync {
         val entries = InputMethodData.internalEntries(enabled, schemas, LangSwitchLongPressBehavior.BuiltInAndRime)
         val container = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -39,7 +39,8 @@ class RimeSchemaTreeTest {
             setBackgroundColor(Color.WHITE)
         }
         var clicked: InputMethodData? = null
-        val adapter = InputMethodListAdapter(entries, 0) { clicked = it }
+        val activeSchemaIndex = entries.indexOfFirst { it.rimeSchemaActionId == 20 }
+        val adapter = InputMethodListAdapter(entries, 0, activeSchemaIndex) { clicked = it }
         val holders = entries.indices.map { index ->
             adapter.onCreateViewHolder(container, 0).also {
                 adapter.onBindViewHolder(it, index)
@@ -53,19 +54,22 @@ class RimeSchemaTreeTest {
         val firstChild = holders[2].ui
         val lastChild = holders[3].ui
         assertTrue(parent.title.typeface.isBold)
-        assertEquals(View.GONE, parent.treeBranch.visibility)
-        assertEquals(View.VISIBLE, firstChild.treeBranch.visibility)
-        assertFalse(firstChild.treeBranch.isLastChild)
-        assertTrue(lastChild.treeBranch.isLastChild)
+        assertEquals(View.GONE, parent.schemaRadio.visibility)
+        assertEquals(View.VISIBLE, firstChild.schemaRadio.visibility)
+        assertEquals(View.VISIBLE, lastChild.schemaRadio.visibility)
+        // Only the schema currently in use shows a selected radio button.
+        assertFalse(firstChild.schemaRadio.isChecked)
+        assertTrue(lastChild.schemaRadio.isChecked)
         assertEquals(View.GONE, firstChild.subtitle.visibility)
-        assertTrue(titleLeft(firstChild) - titleLeft(parent) >= dp(28))
+        // The whole schema row is indented, not just its title.
+        assertTrue(firstChild.root.paddingStart - parent.root.paddingStart >= dp(16))
         assertTrue(firstChild.root.top >= parent.root.bottom)
         lastChild.root.performClick()
         assertEquals(20, clicked?.rimeSchemaActionId)
 
         val bitmap = Bitmap.createBitmap(container.width, container.height, Bitmap.Config.ARGB_8888)
         container.draw(Canvas(bitmap))
-        File(instrumentation.targetContext.cacheDir, "rime-schema-tree.png").outputStream().use {
+        File(instrumentation.targetContext.cacheDir, "rime-schema-radio.png").outputStream().use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
         bitmap.recycle()
@@ -79,30 +83,31 @@ class RimeSchemaTreeTest {
         var clicked: InputMethodData? = null
         val adapter = InputMethodListAdapter(rows, -1) { clicked = it }
         val holder = adapter.onCreateViewHolder(parent, 0)
-        val normalPaddingTop = holder.ui.root.paddingTop
+        val normalPaddingStart = holder.ui.root.paddingStart
 
         adapter.onBindViewHolder(holder, 0)
         assertTrue(holder.ui.title.typeface.isBold)
+        assertEquals(View.GONE, holder.ui.schemaRadio.visibility)
         assertFalse(holder.ui.root.isClickable)
         assertFalse(holder.ui.root.performClick())
         assertEquals(null, clicked)
 
         adapter.onBindViewHolder(holder, 1)
         assertFalse(holder.ui.title.typeface.isBold)
-        assertEquals(View.VISIBLE, holder.ui.treeBranch.visibility)
+        assertEquals(View.VISIBLE, holder.ui.schemaRadio.visibility)
+        assertTrue(holder.ui.root.paddingStart > normalPaddingStart)
         assertTrue(holder.ui.root.performClick())
         assertEquals(10, clicked?.rimeSchemaActionId)
 
         adapter.onBindViewHolder(holder, rows.lastIndex)
-        assertEquals(View.GONE, holder.ui.treeBranch.visibility)
+        assertEquals(View.GONE, holder.ui.schemaRadio.visibility)
         assertEquals(View.VISIBLE, holder.ui.subtitle.visibility)
-        assertEquals(normalPaddingTop, holder.ui.root.paddingTop)
+        assertEquals(normalPaddingStart, holder.ui.root.paddingStart)
         assertFalse(holder.ui.title.typeface.isBold)
         assertTrue(holder.ui.root.performClick())
         assertEquals("keyboard-us", clicked?.uniqueName)
     }
 
-    private fun titleLeft(ui: InputMethodEntryUi) = (ui.title.parent as View).left + ui.title.left
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
     private fun engine(id: String, name: String, addon: String) =
         InputMethodEntry(id, name, "", "", "", "zh", addon, false)

@@ -193,7 +193,7 @@
     <string name="disable_addon_warn_dep">%1$s を無効にする</string>
     <string name="disable_addon_warn_optdep">%1$s のいくつかの機能が無効になります</string>
     <string name="disable_addon_warn_confirm">本当に無効にしますか？</string>
-    <string name="punctuation_swipe_strategy">記号スワイプ入力の確定方法</string>
+    <string name="punctuation_swipe_strategy">記号スワイプ入力の動作</string>
     <string name="punctuation_swipe_follow_input_mode">中国語・英語モードに従う</string>
     <string name="punctuation_swipe_raw">元の文字を入力</string>
     <string name="swipe_symbol_behavior">句読点のスワイプ方向</string>
@@ -312,7 +312,7 @@
     <string name="expand_keypress_area">キー範囲を端まで拡張</string>
     <string name="update_table">Tableの更新</string>
     <string name="table_dict_replace_message">Tableの辞書\"%1$s\"は存在します。新しい辞書をインポートして置き換えることができます。</string>
-    <string name="lang_switch_key_long_press_behavior">言語キーの長押し動作</string>
+    <string name="lang_switch_key_long_press_behavior">言語キーの長押しポップアップ</string>
     <string name="lang_switch_long_press_default">デフォルト（外部入力メソッドを含む）</string>
     <string name="lang_switch_long_press_builtin_and_rime">内蔵入力メソッドとRimeスキーマ</string>
     <string name="lang_switch_long_press_builtin_only">有効な内蔵入力メソッドのみ</string>

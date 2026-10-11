@@ -691,7 +691,7 @@
     <string name="keyboard_side_padding">Seitlicher Tastaturabstand</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Werkzeug-/Kandidatenleiste bei Hardwaretastatur beibehalten</string>
     <string name="lang_switch_behavior_next_ime_app">Zur nächsten Eingabemethoden-App wechseln</string>
-    <string name="lang_switch_key_long_press_behavior">Verhalten bei langem Drücken der Sprachtaste</string>
+    <string name="lang_switch_key_long_press_behavior">Popup bei langem Drücken der Sprachtaste</string>
     <string name="lang_switch_long_press_default">Standard (einschließlich externer Eingabemethoden)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Integrierte Eingabemethoden und Rime-Schemata</string>
     <string name="lang_switch_long_press_builtin_only">Nur aktivierte integrierte Eingabemethoden</string>
@@ -756,7 +756,7 @@
     <string name="status_area_main_tab">Fcitx5-Standardschaltflächen</string>
     <string name="commit_first_candidate_character">Erstes Zeichen eingeben</string>
     <string name="commit_last_candidate_character">Letztes Zeichen eingeben</string>
-    <string name="punctuation_swipe_strategy">Strategie zum Einfügen von Satzzeichen per Wischgeste</string>
+    <string name="punctuation_swipe_strategy">Verhalten beim Wischen mit Satzzeichen</string>
     <string name="punctuation_swipe_follow_input_mode">Chinesischem/englischem Modus folgen</string>
     <string name="punctuation_swipe_raw">Originalzeichen einfügen</string>
     <string name="swipe_symbol_behavior">Wischrichtung für Satzzeichen</string>

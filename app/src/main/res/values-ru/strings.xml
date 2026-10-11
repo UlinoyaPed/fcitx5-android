@@ -198,7 +198,7 @@
     <string name="disable_addon_warn_dep">Отключить %1$s</string>
     <string name="disable_addon_warn_optdep">Отключить некоторые функции в %1$s</string>
     <string name="disable_addon_warn_confirm">Вы уверены, что хотите отключить?</string>
-    <string name="punctuation_swipe_strategy">Стратегия ввода знаков препинания свайпом</string>
+    <string name="punctuation_swipe_strategy">Поведение при свайпе знаков препинания</string>
     <string name="punctuation_swipe_follow_input_mode">Следовать китайскому/английскому режиму</string>
     <string name="punctuation_swipe_raw">Вводить исходные символы</string>
     <string name="swipe_symbol_behavior">Направление свайпа для знаков препинания</string>
@@ -319,7 +319,7 @@
     <string name="expand_keypress_area">Расширить область клавиш до края</string>
     <string name="update_table">Обновить таблицу</string>
     <string name="table_dict_replace_message">Словарь кодовой таблицы \"%1$s\" существует. Вы можете импортировать новый словарь и заменить его.</string>
-    <string name="lang_switch_key_long_press_behavior">Действие при долгом нажатии клавиши языка</string>
+    <string name="lang_switch_key_long_press_behavior">Всплывающее окно при долгом нажатии клавиши языка</string>
     <string name="lang_switch_long_press_default">По умолчанию (включая внешние методы ввода)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Встроенные методы ввода и схемы Rime</string>
     <string name="lang_switch_long_press_builtin_only">Только включённые встроенные методы ввода</string>

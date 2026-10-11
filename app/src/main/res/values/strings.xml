@@ -313,7 +313,7 @@
     <string name="disable_addon_warn_dep">Disable %1$s</string>
     <string name="disable_addon_warn_optdep">Disable some features in %1$s</string>
     <string name="disable_addon_warn_confirm">Are you sure you want to disable it?</string>
-    <string name="punctuation_swipe_strategy">Punctuation swipe commit strategy</string>
+    <string name="punctuation_swipe_strategy">Punctuation swipe behavior</string>
     <string name="punctuation_swipe_follow_input_mode">Follow Chinese/English mode</string>
     <string name="punctuation_swipe_raw">Commit original characters</string>
     <string name="swipe_symbol_behavior">Punctuation swipe direction</string>
@@ -670,7 +670,7 @@
     <string name="expand_keypress_area">Expand key area to the edge</string>
     <string name="update_table">Update table</string>
     <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
-    <string name="lang_switch_key_long_press_behavior">Language key long-press behavior</string>
+    <string name="lang_switch_key_long_press_behavior">Language key long-press popup</string>
     <string name="lang_switch_long_press_default">Default (including external input methods)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Built-in input methods and Rime schemas</string>
     <string name="lang_switch_long_press_builtin_only">Enabled built-in input methods only</string>
