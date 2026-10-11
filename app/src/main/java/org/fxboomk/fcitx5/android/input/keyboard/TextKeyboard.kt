@@ -446,6 +446,16 @@ class TextKeyboard private constructor(
                     switchCapsState(shouldLockCapsAction(action.lock, behavior))
                 }
             }
+            is KeyAction.CommitAction -> {
+                // 需求 5：大写（Caps）状态开启时，标点划动映射提交输出其大写列
+                // （未定义则回退为原始小写），优先于中英 / 全角解析。
+                // 仅 swipeSymbol 提交参与，普通提交（选词、符号面板、字面键）不受影响。
+                if (action.swipeSymbol && isDisplayCapsOn()) {
+                    transformed = KeyAction.CommitAction(
+                        resolveSwipeUppercase(action.text, SwipeSymbolMappingStore.current())
+                    )
+                }
+            }
             else -> {}
         }
         super.onAction(transformed, source)

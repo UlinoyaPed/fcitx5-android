@@ -11,8 +11,10 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ListPopupWindow
 import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
@@ -37,6 +39,8 @@ import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
 import org.fxboomk.fcitx5.android.data.theme.THEME_COLOR_REF_PREFIX
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
+import org.fxboomk.fcitx5.android.input.config.ConfigProviders
+import org.fxboomk.fcitx5.android.input.keyboard.DefaultSwipeSymbolMapping
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
@@ -430,6 +434,9 @@ class KeyEditorActivity : AppCompatActivity() {
                 fieldsContainer.addView(mainEdit.first)
                 fieldsContainer.addView(altEdit.first)
                 fieldsContainer.addView(alt1Edit.first)
+                // 需求 1：副字符 / 副字符一 支持从「符号划动映射」第一列下拉选择
+                attachSwipeSymbolPicker(altEdit.first, altEdit.second)
+                attachSwipeSymbolPicker(alt1Edit.first, alt1Edit.second)
                 if (!disableWeightEditing) {
                     val weightEdit = createWeightEditField()
                     fieldsContainer.addView(weightEdit.first)
@@ -537,6 +544,9 @@ class KeyEditorActivity : AppCompatActivity() {
                 fieldsContainer.addView(altLabelEdit.first)
                 fieldsContainer.addView(altLabel1Edit.first)
                 fieldsContainer.addView(longPressLabelEdit.first)
+                // 需求 1：副标签 / 副标签一 支持从「符号划动映射」第一列下拉选择
+                attachSwipeSymbolPicker(altLabelEdit.first, altLabelEdit.second)
+                attachSwipeSymbolPicker(altLabel1Edit.first, altLabel1Edit.second)
                 if (!disableWeightEditing) {
                     val weightEdit = createWeightEditField()
                     fieldsContainer.addView(weightEdit.first)
@@ -1216,6 +1226,56 @@ class KeyEditorActivity : AppCompatActivity() {
         val main = keyData["main"] as? String ?: return ""
         if (main.length != 1 || !main[0].isLetter()) return ""
         return main.uppercase()
+    }
+
+    /** 「符号划动映射」第一列（原始半角符号）的候选，供副字符 / 副标签下拉选择。 */
+    private fun swipeSymbolMappingKeys(): List<String> {
+        val user = runCatching {
+            ConfigProviders.readSwipeSymbolMapping<Map<String, List<String>>>()?.value
+        }.getOrNull()
+        val keys = user?.keys?.takeIf { it.isNotEmpty() } ?: DefaultSwipeSymbolMapping.keys
+        return keys.distinct().sorted()
+    }
+
+    /**
+     * 需求 1：在副字符 / 副标签编辑框右侧挂一个下拉按钮，点按弹出「符号划动映射」第一列，
+     * 选中后写入 [target]。
+     */
+    private fun attachSwipeSymbolPicker(fieldContainer: LinearLayout, target: EditText) {
+        val button = TextView(this).apply {
+            text = "▾"
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setPadding(dp(12), dp(4), dp(8), dp(4))
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            contentDescription = getString(R.string.swipe_symbol_picker_title)
+        }
+        button.setOnClickListener {
+            val symbols = swipeSymbolMappingKeys()
+            if (symbols.isEmpty()) {
+                Toast.makeText(this, R.string.swipe_symbol_picker_empty, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val popup = ListPopupWindow(this).apply {
+                anchorView = button
+                isModal = true
+                width = dp(180)
+                setAdapter(
+                    ArrayAdapter(
+                        this@KeyEditorActivity,
+                        android.R.layout.simple_list_item_1,
+                        symbols
+                    )
+                )
+            }
+            popup.setOnItemClickListener { _, _, which, _ ->
+                target.setText(symbols[which])
+                target.setSelection(target.text?.length ?: 0)
+                popup.dismiss()
+            }
+            popup.show()
+        }
+        fieldContainer.addView(button)
     }
 
     /**

@@ -168,6 +168,9 @@ class KeyboardAdvancedCustomizationFragment : KeyboardSectionFragment() {
             addPreference(R.string.edit_fontset, R.string.edit_fontset_summary) {
                 startActivity(Intent(requireContext(), FontsetEditorActivity::class.java))
             }
+            addPreference(R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary) {
+                startActivity(Intent(requireContext(), SwipeSymbolMappingEditorActivity::class.java))
+            }
             addPreference(R.string.edit_popup_preset, R.string.edit_popup_preset_summary) {
                 startActivity(Intent(requireContext(), PopupEditorActivity::class.java))
             }

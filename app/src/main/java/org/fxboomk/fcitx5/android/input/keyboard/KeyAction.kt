@@ -102,7 +102,13 @@ sealed class KeyAction {
 
     data class CommitAction(
         val text: String,
-        val followPunctuationMode: Boolean = false
+        val followPunctuationMode: Boolean = false,
+        /**
+         * 标记这是一次标点"划动映射"提交（FollowInputMode / Raw 策略）。
+         * 仅此类提交才会参与「符号划动映射」的全角/大写解析，
+         * 普通提交（选词、符号面板、字面键等）不受影响。
+         */
+        val swipeSymbol: Boolean = false
     ) : KeyAction()
 
     data class CapsAction(val lock: Boolean) : KeyAction()

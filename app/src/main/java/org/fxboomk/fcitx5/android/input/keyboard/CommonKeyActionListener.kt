@@ -308,7 +308,12 @@ class CommonKeyActionListener :
                         val isPassword = service.currentInputEditorInfo?.let {
                             CapabilityFlags.fromEditorInfo(it).has(CapabilityFlag.Password)
                         } ?: false
-                        resolveSwipePunctuation(action.text, currentIme(), isPassword)
+                        resolveSwipePunctuation(
+                            action.text,
+                            currentIme(),
+                            isPassword,
+                            SwipeSymbolMappingStore.current()
+                        )
                     } else action.text
                     commitAndReset()
                     service.lifecycleScope.launch { service.commitText(text) }

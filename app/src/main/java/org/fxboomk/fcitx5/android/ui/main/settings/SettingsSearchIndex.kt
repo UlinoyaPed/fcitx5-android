@@ -333,6 +333,7 @@ object SettingsSearchIndex {
             )
         }
         addAdvancedKeyboardItem(context, R.string.edit_fontset, R.string.edit_fontset_summary)
+        addAdvancedKeyboardItem(context, R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary)
         addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_text_keyboard_layout, R.string.edit_text_keyboard_layout_summary)
         addAdvancedKeyboardItem(

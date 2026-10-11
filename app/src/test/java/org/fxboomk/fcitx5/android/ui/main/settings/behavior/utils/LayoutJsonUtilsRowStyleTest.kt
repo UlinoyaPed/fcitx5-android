@@ -355,11 +355,11 @@ class LayoutJsonUtilsRowStyleTest {
                 punctuationSwipeAction(action, PunctuationSwipeStrategy.Default)
             )
             assertEquals(
-                KeyAction.CommitAction(text, followPunctuationMode = true),
+                KeyAction.CommitAction(text, followPunctuationMode = true, swipeSymbol = true),
                 punctuationSwipeAction(action, PunctuationSwipeStrategy.FollowInputMode)
             )
             assertEquals(
-                KeyAction.CommitAction(text),
+                KeyAction.CommitAction(text, swipeSymbol = true),
                 punctuationSwipeAction(action, PunctuationSwipeStrategy.Raw)
             )
         }

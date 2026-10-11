@@ -101,6 +101,8 @@ object UserConfigFiles {
 
     fun popupPresetJson(): File? = configDir()?.let { File(it, "PopupPreset.json") }
 
+    fun swipeSymbolMappingJson(): File? = configDir()?.let { File(it, "SwipeSymbolMapping.json") }
+
     /**
      * Rime 用户数据目录（fcitx 数据目录下的 rime 子目录，
      * 与设置页"打开用户数据目录"指向的 data/rime 一致）。

@@ -18,6 +18,7 @@ interface ConfigProvider {
     fun textKeyboardLayoutFile(): File?
     fun textKeyboardLayoutJson(): JsonObject? = null
     fun popupPresetFile(): File?
+    fun swipeSymbolMappingFile(): File? = null
     fun fontsetFile(): File?
     fun buttonsLayoutConfigFile(): File?
     fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File>
@@ -29,6 +30,7 @@ object DefaultConfigProvider : ConfigProvider {
         return UserConfigFiles.textKeyboardLayoutJson(profile)
     }
     override fun popupPresetFile(): File? = UserConfigFiles.popupPresetJson()
+    override fun swipeSymbolMappingFile(): File? = UserConfigFiles.swipeSymbolMappingJson()
     override fun fontsetFile(): File? = UserConfigFiles.fontsetJson()
     override fun buttonsLayoutConfigFile(): File? = UserConfigFiles.buttonsLayoutConfig()
     override fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File> =
@@ -49,6 +51,7 @@ class MemoryConfigProvider(
     override fun textKeyboardLayoutFile(): File? = null
     override fun textKeyboardLayoutJson(): JsonObject = textKeyboardLayoutJson
     override fun popupPresetFile(): File? = delegate.popupPresetFile()
+    override fun swipeSymbolMappingFile(): File? = delegate.swipeSymbolMappingFile()
     override fun fontsetFile(): File? = delegate.fontsetFile()
     override fun buttonsLayoutConfigFile(): File? = delegate.buttonsLayoutConfigFile()
     override fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File> =
@@ -81,6 +84,9 @@ object ConfigProviders {
     private var watchedPopupPresetFileName: String? = null
 
     @Volatile
+    private var watchedSwipeSymbolMappingFileName: String? = null
+
+    @Volatile
     private var watchedFontDir: String? = null
 
     @Volatile
@@ -91,6 +97,7 @@ object ConfigProviders {
 
     private val textLayoutListeners = linkedSetOf<() -> Unit>()
     private val popupPresetListeners = linkedSetOf<() -> Unit>()
+    private val swipeSymbolMappingListeners = linkedSetOf<() -> Unit>()
     private val fontsetListeners = linkedSetOf<() -> Unit>()
     private val buttonsLayoutListeners = linkedSetOf<() -> Unit>()
 
@@ -114,6 +121,12 @@ object ConfigProviders {
     @Synchronized
     fun addPopupPresetListener(listener: () -> Unit) {
         popupPresetListeners.add(listener)
+        ensureWatching()
+    }
+
+    @Synchronized
+    fun addSwipeSymbolMappingListener(listener: () -> Unit) {
+        swipeSymbolMappingListeners.add(listener)
         ensureWatching()
     }
 
@@ -143,6 +156,7 @@ object ConfigProviders {
         watchedConfigDir = null
         watchedTextLayoutFileName = null
         watchedPopupPresetFileName = null
+        watchedSwipeSymbolMappingFileName = null
         watchedButtonsLayoutFileName = null
         watchedFontDir = null
         watchedFontsetFileName = null
@@ -158,26 +172,30 @@ object ConfigProviders {
         }
 
         val hasConfigListeners = textLayoutListeners.isNotEmpty() || popupPresetListeners.isNotEmpty() ||
-                buttonsLayoutListeners.isNotEmpty()
+                swipeSymbolMappingListeners.isNotEmpty() || buttonsLayoutListeners.isNotEmpty()
         val hasFontsetListeners = fontsetListeners.isNotEmpty()
 
         if (!hasConfigListeners && !hasFontsetListeners) return
 
         val textFile = provider.textKeyboardLayoutFile()
         val popupFile = provider.popupPresetFile()
+        val swipeSymbolMappingFile = provider.swipeSymbolMappingFile()
         val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
-        val configDir = textFile?.parentFile ?: popupFile?.parentFile ?: buttonsLayoutFile?.parentFile
+        val configDir = textFile?.parentFile ?: popupFile?.parentFile
+            ?: swipeSymbolMappingFile?.parentFile ?: buttonsLayoutFile?.parentFile
 
         if (hasConfigListeners && configDir != null) {
             val dirPath = configDir.absolutePath
             val textFileName = textFile?.name
             val popupFileName = popupFile?.name
+            val swipeSymbolMappingFileName = swipeSymbolMappingFile?.name
             val buttonsLayoutFileName = buttonsLayoutFile?.name
 
             if (!(configWatcher != null &&
                         watchedConfigDir == dirPath &&
                         watchedTextLayoutFileName == textFileName &&
                         watchedPopupPresetFileName == popupFileName &&
+                        watchedSwipeSymbolMappingFileName == swipeSymbolMappingFileName &&
                         watchedButtonsLayoutFileName == buttonsLayoutFileName)
             ) {
                 configWatcher?.stopWatching()
@@ -192,12 +210,16 @@ object ConfigProviders {
                         if (path == null) return
                         val textName = watchedTextLayoutFileName
                         val popupName = watchedPopupPresetFileName
+                        val swipeName = watchedSwipeSymbolMappingFileName
                         val buttonsLayoutName = watchedButtonsLayoutFileName
                         if (textName != null && path == textName) {
                             notifyListeners(textLayoutListeners)
                         }
                         if (popupName != null && path == popupName) {
                             notifyListeners(popupPresetListeners)
+                        }
+                        if (swipeName != null && path == swipeName) {
+                            notifyListeners(swipeSymbolMappingListeners)
                         }
                         if (buttonsLayoutName != null && path == buttonsLayoutName) {
                             notifyListeners(buttonsLayoutListeners)
@@ -208,6 +230,7 @@ object ConfigProviders {
                 watchedConfigDir = dirPath
                 watchedTextLayoutFileName = textFileName
                 watchedPopupPresetFileName = popupFileName
+                watchedSwipeSymbolMappingFileName = swipeSymbolMappingFileName
                 watchedButtonsLayoutFileName = buttonsLayoutFileName
             }
         } else if (!hasConfigListeners) {
@@ -216,6 +239,7 @@ object ConfigProviders {
             watchedConfigDir = null
             watchedTextLayoutFileName = null
             watchedPopupPresetFileName = null
+            watchedSwipeSymbolMappingFileName = null
             watchedButtonsLayoutFileName = null
         }
 
@@ -267,6 +291,9 @@ object ConfigProviders {
 
     inline fun <reified T> readPopupPreset(): UserJsonConfigStore.JsonSnapshot<T>? =
         UserJsonConfigStore.readJson<T>(provider.popupPresetFile()).also { ensureWatching() }
+
+    inline fun <reified T> readSwipeSymbolMapping(): UserJsonConfigStore.JsonSnapshot<T>? =
+        UserJsonConfigStore.readJson<T>(provider.swipeSymbolMappingFile()).also { ensureWatching() }
 
     /**
      * Read unified buttons layout configuration.
