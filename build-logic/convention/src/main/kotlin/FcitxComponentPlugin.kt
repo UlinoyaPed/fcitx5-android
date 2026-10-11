@@ -3,6 +3,7 @@
  * SPDX-FileCopyrightText: Copyright 2021-2025 Fcitx5 for Android Contributors
  */
 import com.android.build.gradle.tasks.ExternalNativeBuildJsonTask
+import com.android.build.gradle.tasks.ExternalNativeBuildTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
@@ -92,6 +93,10 @@ class FcitxComponentPlugin : Plugin<Project> {
             sourceProjectPath.set(sourceProject.path)
             this.textReplacements.set(textReplacements)
             mustRunAfter(sourceProject.tasks.withType<ExternalNativeBuildJsonTask>())
+            // CMake/Ninja must never touch the source project's build tree while its
+            // native build is running there.
+            mustRunAfter(sourceProject.tasks.withType<ExternalNativeBuildTask>())
+            serializeWithNativeInstallTasks(sourceProject.path)
         }
         sourceProject.enableNativeBuildMetadataCapture()
         project.tasks.getByName(INSTALL_TASK).dependsOn(task)

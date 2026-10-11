@@ -53,6 +53,32 @@ fun Project.enableNativeBuildMetadataCapture() {
     }
 }
 
+private const val NATIVE_INSTALL_CHAIN = "fcitxNativeInstallChain"
+
+@Suppress("UNCHECKED_CAST")
+private fun nativeInstallChain(root: Project): MutableMap<String, Task> {
+    val extras = root.extensions.extraProperties
+    if (!extras.has(NATIVE_INSTALL_CHAIN)) {
+        extras[NATIVE_INSTALL_CHAIN] = mutableMapOf<String, Task>()
+    }
+    return extras[NATIVE_INSTALL_CHAIN] as MutableMap<String, Task>
+}
+
+/**
+ * Serializes native install tasks that share one CMake build tree.
+ *
+ * Gradle may run independent tasks concurrently — the configuration cache enables this
+ * even inside a single project — and two concurrent CMake/Ninja runs in one build tree
+ * corrupt each other. That shows up during automatic regeneration as
+ * `configure_file(): No such file or directory` and aborts the release build, so tasks
+ * driving the same source project must never overlap.
+ */
+fun Task.serializeWithNativeInstallTasks(sourceProjectPath: String) {
+    val chain = nativeInstallChain(project.rootProject)
+    chain[sourceProjectPath]?.takeIf { it !== this }?.let { mustRunAfter(it) }
+    chain[sourceProjectPath] = this
+}
+
 abstract class CMakeBuildInstallTask : DefaultTask() {
     @get:Inject
     abstract val execOperations: ExecOperations

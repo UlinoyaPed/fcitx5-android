@@ -4,6 +4,7 @@
  */
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.tasks.ExternalNativeBuildJsonTask
+import com.android.build.gradle.tasks.ExternalNativeBuildTask
 import com.android.build.gradle.tasks.PrefabPackageConfigurationTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -63,6 +64,9 @@ class FcitxHeadersPlugin : Plugin<Project> {
             nativeBuildMetadataDir.set(project.layout.buildDirectory.dir("intermediates/native-build-metadata").map { it.asFile })
             sourceProjectPath.set(project.path)
             mustRunAfter(project.tasks.withType<ExternalNativeBuildJsonTask>())
+            // Same build tree as the native build: keep the installs out of its way.
+            mustRunAfter(project.tasks.withType<ExternalNativeBuildTask>())
+            serializeWithNativeInstallTasks(project.path)
         }
         project.enableNativeBuildMetadataCapture()
         // Make sure headers have been installed before configuring prefab package
