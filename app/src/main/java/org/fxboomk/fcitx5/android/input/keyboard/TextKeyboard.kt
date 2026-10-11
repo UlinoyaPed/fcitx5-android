@@ -738,6 +738,8 @@ class TextKeyboard private constructor(
     private fun refreshCapsPresentation() {
         updateCapsButtonIcon()
         updateAlphabetKeys()
+        // 大写切换时同步刷新键面副字符（大写副字符显示）
+        updatePunctuationKeys()
     }
 
     private fun clearLocalCapsState() {
@@ -805,10 +807,23 @@ class TextKeyboard private constructor(
     }
 
     private fun updatePunctuationKeys() {
+        val capsOn = isDisplayCapsOn()
+        val swipeMap: SwipeSymbolMap = if (capsOn) SwipeSymbolMappingStore.current() else emptyMap()
         textKeys.forEach {
             if (it is AltTextKeyView) {
-                it.def as KeyDef.Appearance.AltText
-                it.altText.text = transformPunctuation(it.def.altText)
+                val altDef = it.def as KeyDef.Appearance.AltText
+                it.altText.text = resolveAltFaceText(altDef.altText, capsOn, swipeMap)
+                // 副字符一：仅在未显示大写提示时（该槽位是真正的副字符一）才套用大写副字符；
+                // 其余情况保持其原有显示（def.altText1），不改动非大写时的渲染。
+                val alt1 = altDef.altText1
+                if (!alt1.isNullOrEmpty()) {
+                    val alt1Upper = if (capsOn && !it.isUppercaseHintActive()) {
+                        swipeMap[alt1]?.upper?.takeIf { u -> u.isNotEmpty() }
+                    } else {
+                        null
+                    }
+                    it.altText1.text = alt1Upper ?: alt1
+                }
             } else {
                 it.def as KeyDef.Appearance.Text
                 it.mainText.text = it.def.displayText.let { str ->
@@ -818,6 +833,18 @@ class TextKeyboard private constructor(
                 }
             }
         }
+    }
+
+    /**
+     * 键面副字符（altText）文本：大写状态开启、且该副字符在「符号划动映射」中定义了
+     * 大写列时，直接显示其大写副字符；否则按中英全角规则（[transformPunctuation]）显示。
+     */
+    private fun resolveAltFaceText(rawAlt: String, capsOn: Boolean, swipeMap: SwipeSymbolMap): String {
+        if (capsOn) {
+            val upper = swipeMap[rawAlt]?.upper
+            if (!upper.isNullOrEmpty()) return upper
+        }
+        return transformPunctuation(rawAlt)
     }
 
 }

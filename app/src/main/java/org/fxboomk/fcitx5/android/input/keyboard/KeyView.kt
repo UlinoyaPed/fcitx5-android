@@ -795,6 +795,12 @@ class AltTextKeyView(
     }
 
     /**
+     * 大写提示是否在本键生效。生效时 altText1 槽位展示的是主字母大写提示，
+     * 而非真正的副字符一；此时不应把符号划动映射的大写套用到副字符一上。
+     */
+    internal fun isUppercaseHintActive(): Boolean = resolveUppercaseMode() != UppercasePosition.None
+
+    /**
      * Whether [KeyDef.Appearance.AltText.altText1] is the uppercase letter of this key,
      * i.e. the value auto-filled by the layout editor when uppercase labels are enabled.
      */
