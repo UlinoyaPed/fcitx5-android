@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.KeyboardRowStyleUtils
@@ -37,7 +38,12 @@ import kotlin.math.abs
 class KeyboardLayoutAdapter(
     private val context: Context,
     private var rows: List<MutableList<MutableMap<String, Any?>>>,
-    internal val listener: Listener
+    internal val listener: Listener,
+    /**
+     * 出厂默认预设中「字母键 main -> alt」的映射，用于判定副字符是否被改动。
+     * 为空时跳过该判定（无基准，避免整排误标为已定制）。
+     */
+    private val defaultAltByMain: Map<String, String?> = emptyMap()
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private data class KeyChildInfo(
         val dataIndex: Int,
@@ -160,6 +166,34 @@ class KeyboardLayoutAdapter(
 
         internal fun isSingleCharacterKeyLabel(label: String): Boolean =
             label.codePointCount(0, label.length) == 1
+
+        /**
+         * 字母键的副字符（alt）/ 副字符一（alt1）是否被改动，用于绿框判定。
+         * [hasCustomizedProperties] 把 alt 当识别字段、alt1 直接忽略，故需本函数补足。
+         *
+         * - alt：与出厂默认预设中同一 [main] 的 alt 比较；该 main 不在预设中则跳过（无基准）。
+         * - alt1：大写提示由渲染期动态生成，未定制时存储值通常为空或等于 main 的大写。
+         *   因此仅当 alt1 非空且不等于其"自动大写"默认值时才算定制，避免未改动 / 仅物化
+         *   自动提示的按键被误标。[uppercaseLabelsEnabled] 为大写提示开关。
+         */
+        internal fun isAltCustomized(
+            key: Map<String, Any?>,
+            defaultAltByMain: Map<String, String?>,
+            uppercaseLabelsEnabled: Boolean
+        ): Boolean {
+            if (key["type"] != "AlphabetKey") return false
+            val main = key["main"] as? String ?: return false
+            val altChanged = main in defaultAltByMain &&
+                (key["alt"] as? String).orEmpty() != defaultAltByMain[main].orEmpty()
+            val alt1 = (key["alt1"] as? String).orEmpty()
+            val autoAlt1 = if (uppercaseLabelsEnabled && main.length == 1 && main[0].isLetter()) {
+                main.uppercase()
+            } else {
+                ""
+            }
+            val alt1Changed = alt1.isNotEmpty() && alt1 != autoAlt1
+            return altChanged || alt1Changed
+        }
 
         private fun isDefaultWeight(type: String?, value: Any?): Boolean {
             val weight = (value as? Number)?.toFloat() ?: return false
@@ -502,7 +536,10 @@ class KeyboardLayoutAdapter(
             val actualKeyIndex = resolveActualKeyIndex(position, keyIndex)
             val keyLabel = buildKeyLabel(key)
             val usesFixedWidth = isLetterArea && isSingleCharacterKeyLabel(keyLabel)
-            val isCustomized = hasCustomizedProperties(key)
+            val uppercaseLabelsEnabled =
+                ThemeManager.prefs.uppercasePosition.getValue() != ThemePrefs.UppercasePosition.None
+            val isCustomized = hasCustomizedProperties(key) ||
+                isAltCustomized(key, defaultAltByMain, uppercaseLabelsEnabled)
             val theme = ThemeManager.activeTheme
             val rowBackgroundColor = KeyboardRowStyleUtils.resolveRowBackgroundColor(
                 style = rowStyle,
