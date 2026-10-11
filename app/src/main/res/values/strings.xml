@@ -182,6 +182,7 @@
     <string name="uppercase_pos_top">Top</string>
     <string name="uppercase_pos_bottom">Bottom</string>
     <string name="popup_on_key_press">Popup on key press</string>
+    <string name="auto_close_brackets">Auto-close paired symbols</string>
     <string name="disable_animation">Disable animation</string>
     <string name="import_from_file">Import from file…</string>
     <string name="duplicate_builtin_theme">Duplicate builtin theme…</string>

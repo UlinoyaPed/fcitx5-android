@@ -36,6 +36,7 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsRequest
 import android.view.inputmethod.InlineSuggestionsResponse
+import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodSubtype
 import android.widget.FrameLayout
 import android.widget.inline.InlinePresentationSpec
@@ -87,6 +88,7 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.cursor.CursorRange
 import org.fxboomk.fcitx5.android.input.cursor.CursorTracker
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
+import org.fxboomk.fcitx5.android.input.keyboard.AutoCloseBracket
 import org.fxboomk.fcitx5.android.input.keyboard.resolveHardwarePredictionDigit
 import org.fxboomk.fcitx5.android.input.keyboard.shouldHardwareSpaceCommitPrediction
 import org.fxboomk.fcitx5.android.input.keyboard.HardwarePredictionSession
@@ -1119,6 +1121,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun handleBackspaceDirectly() {
         clearCalculatorSuggestion()
         val ic = currentInputConnection ?: return
+        // 自动补全成对符号：删除「左半边」时，若其右侧紧邻对应的「右半边」，一并删除。
+        if (tryDeleteAutoClosedPair(ic)) {
+            refreshInputViewSelectionAfterEdit()
+            return
+        }
         val editorInfo = currentInputEditorInfo
         val isTypeNull = editorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL
         val lastSelection = selection.latest
@@ -1151,6 +1158,55 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             ic.commitText("", 0)
         }
         refreshInputViewSelectionAfterEdit()
+    }
+
+    /**
+     * 「自动补全成对符号」：若开关开启、无选区且光标紧跟在一个「左半边」符号之后、其右侧
+     * 又紧邻对应的「右半边」，则一次删掉这对符号并返回 true；其余情况返回 false，交回正常删除流程。
+     */
+    private fun tryDeleteAutoClosedPair(ic: InputConnection): Boolean {
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return false
+        if (composing.isNotEmpty()) return false
+        return deleteAdjacentAutoClosedPair(ic)
+    }
+
+    /**
+     * 条件满足（非 TYPE_NULL、无选区、光标前是「左半边」且其后紧邻对应「右半边」）时，
+     * 一次删掉这对符号并返回 true；否则不改动并返回 false。软键盘与实体键盘退格共用。
+     */
+    private fun deleteAdjacentAutoClosedPair(ic: InputConnection): Boolean {
+        val editorInfo = currentInputEditorInfo ?: return false
+        // TYPE_NULL（如终端）不一定支持 deleteSurroundingText，交回按键删除路径处理。
+        if (editorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) return false
+        val sel = selection.latest
+        if (sel.isNotEmpty() || sel.start <= 0) return false
+        val before = ic.getTextBeforeCursor(1, 0) ?: return false
+        val after = ic.getTextAfterCursor(1, 0) ?: return false
+        if (before.isEmpty() || after.isEmpty()) return false
+        if (!AutoCloseBracket.isPair(before[0], after[0])) return false
+        selection.predictOffset(-1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ic.deleteSurroundingTextInCodePoints(1, 1)
+        } else {
+            ic.deleteSurroundingText(1, 1)
+        }
+        return true
+    }
+
+    /**
+     * 实体键盘退格的「自动补全成对符号」删除：实体退格不走 [handleBackspaceDirectly]，而是经
+     * [onKeyDown] -> [forwardKeyEvent] 直达编辑器。此处在转发前拦截：无编码/预编辑、光标夹在一对
+     * 符号中间时，一并删除两半并消费该按键；其余情况返回 false 交回原转发流程。
+     */
+    private fun tryHardwareBackspaceAutoClosePair(event: KeyEvent): Boolean {
+        if (event.keyCode != KeyEvent.KEYCODE_DEL || event.action != KeyEvent.ACTION_DOWN) return false
+        if (event.isCtrlPressed || event.isAltPressed || event.isMetaPressed) return false
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return false
+        if (composing.isNotEmpty() || hasPreeditCached()) return false
+        val ic = currentInputConnection ?: return false
+        if (!deleteAdjacentAutoClosedPair(ic)) return false
+        refreshInputViewSelectionAfterEdit()
+        return true
     }
 
     private fun handleReturnKey() {
@@ -1249,6 +1305,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         candidatesView?.updateCalculatorSuggestion(suggestion)
     }
 
+    /**
+     * 「自动补全成对符号」：当本次提交的 [text] 恰好是一个「左半边」符号、且处于可补全的场景
+     * （开关开启、默认提交 cursor == -1、无待上屏编码、无选区）时，返回应补全的「右半边」，
+     * 否则返回 null（走原有提交流程，行为完全不变）。
+     */
+    private fun autoClosePairCloserFor(text: String, cursor: Int): String? {
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return null
+        if (cursor != -1) return null
+        if (composing.isNotEmpty()) return null
+        if (selection.latest.isNotEmpty()) return null
+        return AutoCloseBracket.closerFor(text)
+    }
+
     fun commitText(text: String, cursor: Int = -1) {
         val ic = currentInputConnection ?: return
         if (keepPendingAiCommitUndoForNextCommit) {
@@ -1275,8 +1344,22 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         // committed text should replace composing (if any), replace selected range (if any),
         // or simply prepend before cursor
+        val autoPairCloser = autoClosePairCloserFor(text, cursor)
         val start = if (composing.isEmpty()) selection.latest.start else composing.start
         resetComposingState()
+        if (autoPairCloser != null) {
+            // 自动补全成对符号：提交「左半边」时补全「右半边」，并把光标停在二者中间。
+            val caret = start + text.length
+            selection.predict(caret)
+            ic.withBatchEdit {
+                commitText(text + autoPairCloser, 1)
+                setSelection(caret, caret)
+            }
+            refreshInputViewSelectionAfterEdit()
+            onPredictionTextCommitted(text)
+            afterCommitUpdateCalculatorSuggestion(text)
+            return
+        }
         if (cursor == -1) {
             selection.predict(start + text.length)
             ic.commitText(text, 1)
@@ -1807,6 +1890,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return true
         }
         if (handleHighlightedCandidateActionKeyEvent(forwardedEvent)) {
+            return true
+        }
+        // 自动补全成对符号：实体键盘退格删除「左半边」时一并删除紧邻的「右半边」。
+        // 置于候选/预测处理之后、转发给引擎之前，避免影响既有按键语义。
+        if (tryHardwareBackspaceAutoClosePair(forwardedEvent)) {
             return true
         }
         cachedKeyEvents.put(timestamp, forwardedEvent)

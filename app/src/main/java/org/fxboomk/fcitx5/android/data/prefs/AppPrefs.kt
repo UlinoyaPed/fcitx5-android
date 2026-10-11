@@ -202,6 +202,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             false
         )
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
+        val autoCloseBrackets = switch(R.string.auto_close_brackets, "auto_close_brackets", false)
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,
             "keep_keyboard_letters_uppercase",

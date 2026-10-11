@@ -42,6 +42,7 @@ internal object KeyboardSettingsSupport {
         "keep_keyboard_letters_uppercase",
         "show_lang_switch_key",
         "popup_on_key_press",
+        "auto_close_brackets",
         "expand_keypress_area"
     )
 
