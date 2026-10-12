@@ -181,13 +181,9 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
             Punctuation,
             QuickPhrase,
             Chttrans,
-            TableGlobal,
             PinyinCustomPhrase,
             RimeUserDataDir,
-            MultiSelect,
-
-            // manually added on Android side for TableManager
-            AndroidTable
+            MultiSelect
         }
 
         override val ty: ConfigType<ConfigType.TyExternal>
@@ -326,11 +322,9 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                                 "Punctuation" -> ConfigExternal.ETy.Punctuation
                                 "QuickPhrase", "Editor" -> ConfigExternal.ETy.QuickPhrase
                                 "Chttrans" -> ConfigExternal.ETy.Chttrans
-                                "TableGlobal" -> ConfigExternal.ETy.TableGlobal
                                 "CustomPhrase" -> ConfigExternal.ETy.PinyinCustomPhrase
                                 "UserDataDir" -> ConfigExternal.ETy.RimeUserDataDir
                                 "MultiSelect" -> ConfigExternal.ETy.MultiSelect
-                                "AndroidTable" -> ConfigExternal.ETy.AndroidTable
                                 else -> null
                                 }
                             }

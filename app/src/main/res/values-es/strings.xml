@@ -118,12 +118,6 @@
     <string name="system_default">Predeterminado del sistema</string>
     <string name="default_">Predeterminado</string>
     <string name="delete_all_pinned_items">¿Quiere eliminar todos los elementos anclados?</string>
-    <string name="table_file_does_not_exist_title">Tabla no disponible</string>
-    <string name="import_table">Importar tabla</string>
-    <string name="table_from_zip">Desde ZIP…</string>
-    <string name="table_select_files">Desde archivos separados…</string>
-    <string name="table_file_placeholder">Seleccionar archivo…</string>
-    <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
     <string name="space_behavior_none">Ninguno</string>
     <string name="space_behavior_enumerate">Enumerar métodos de entrada</string>
     <string name="delete_theme">Eliminar tema</string>
@@ -575,12 +569,6 @@
     <string name="exception_quickphrase_filename">La extension de %1$s no corresponde a una frase rapida</string>
     <string name="exception_quickphrase_parse">No se pudo analizar la linea de frase rapida: %1$s</string>
     <string name="exception_sougou_dict_filename">La extension de %1$s no corresponde a un diccionario sogou</string>
-    <string name="exception_table">No se encontro el diccionario del metodo de entrada de tabla (.dict o .txt)</string>
-    <string name="exception_table_conf_filename">La extension de "%1$s" no corresponde a un archivo de configuracion de metodo de entrada de tabla (.conf o .conf.in)</string>
-    <string name="exception_table_dict_filename">La extension de "%1$s" no corresponde a un archivo de diccionario de metodo de entrada de tabla (.dict o .txt)</string>
-    <string name="exception_table_im">No se encontro el archivo de configuracion del metodo de entrada de tabla (.conf o .conf.in)</string>
-    <string name="exception_table_im_filename">La extension de "%1$s" no corresponde a un paquete de metodo de entrada de tabla (.zip)</string>
-    <string name="exception_table_import_both_files">Seleccione ambos archivos anteriores para importar</string>
     <string name="exception_text_dict_filename">La extension de %1$s no corresponde a un diccionario de texto</string>
     <string name="exception_theme_cropped_image">No se pudo guardar la imagen recortada del fondo del tema</string>
     <string name="exception_theme_filename">La extension de %1$s no corresponde a un tema</string>
@@ -633,11 +621,7 @@
     <string name="instruction_copy">Intente copiar algo</string>
     <string name="instruction_enable_clipboard_listening">Para activar la gestión del portapapeles, habilite «Registrar historial del portapapeles» en los ajustes.</string>
     <string name="invalid_data_descriptor">Descriptor de datos invalido</string>
-    <string name="invalid_im">Archivo de configuracion de metodo de entrada invalido:
-%1$s</string>
     <string name="invalid_plugin_descriptor">Descriptor de complemento invalido</string>
-    <string name="invalid_table_dict">Diccionario invalido:
-%1$s</string>
     <string name="caps_key_behavior">Comportamiento de la tecla de mayúsculas</string>
     <string name="caps_key_behavior_default">Mantener el comportamiento predeterminado</string>
     <string name="caps_key_behavior_single_tap_lock">Un toque bloquea las mayúsculas</string>
@@ -662,7 +646,6 @@
     <string name="rime_schemas_unavailable">No hay esquemas de Rime disponibles. Instala y activa el complemento de Rime y completa la implementación de los esquemas.</string>
     <string name="rime_schema_switch_failed">No se pudo cambiar el esquema de Rime. Activa Rime en Métodos de entrada y vuelve a abrir el menú cuando termine la implementación.</string>
     <string name="lang_switch_key_behavior">Comportamiento de tecla de cambio de idioma</string>
-    <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
     <string name="missing_data_descriptor">Falta descriptor de datos</string>
     <string name="missing_plugin_descriptor">Falta descriptor de complemento</string>
     <string name="move_cursor_down">Mover cursor hacia abajo</string>
@@ -763,11 +746,6 @@
     <string name="switch_to_voice_input">Cambiar a entrada de voz</string>
     <string name="toggle_number_keyboard">Alternar teclado numérico</string>
     <string name="synced">¡Sincronizado!</string>
-    <string name="table_already_exists">El archivo de configuracion del metodo de entrada de tabla "%1$s" ya existe</string>
-    <string name="table_conf_select_title">Archivo de configuracion del metodo de entrada (.conf o .conf.in)</string>
-    <string name="table_dict_replace_message">Ya existe el diccionario del metodo de entrada de tabla "%1$s". Puede importar uno nuevo y reemplazarlo.</string>
-    <string name="table_file_does_not_exist_message">El diccionario del metodo de entrada de tabla "%1$s" no existe. Revise el archivo o importelo de nuevo.</string>
-    <string name="table_im">Metodos de entrada de tabla</string>
     <string name="text_editing">Edicion de texto</string>
     <string name="text_editing_button_radius">Radio de boton de edicion de texto</string>
     <string name="text_keyboard_layout_file_delete">Eliminar diseño</string>
@@ -787,7 +765,6 @@
     <string name="toolbar_dynamic_height">Altura dinamica de la barra</string>
     <string name="toolbar_dynamic_height_summary">Aumenta automaticamente la altura para contener completamente los candidatos cuando la fuente de estos es demasiado grande para la barra de candidatos</string>
     <string name="unimplemented_type">⛔ Tipo no implementado</string>
-    <string name="update_table">Actualizar tabla</string>
     <string name="user_data_imported">Los datos de usuario de %1$s se importaron, reiniciando…</string>
     <string name="vivo_keypress_workaround">Corregir problema de pulsaciones en Vivo</string>
     <string name="text_keyboard_layout_compose_override_title">Anulación durante composición</string>

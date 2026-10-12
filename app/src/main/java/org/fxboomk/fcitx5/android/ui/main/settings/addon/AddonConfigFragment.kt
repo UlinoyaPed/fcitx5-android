@@ -13,10 +13,8 @@ import org.fxboomk.fcitx5.android.utils.lazyRoute
 
 class AddonConfigFragment : FcitxPreferenceFragment() {
     companion object {
-        private const val tableAddon = "table"
         private const val pinyinAddon = "pinyin"
         private const val pinyinHelperAddon = "pinyinhelper"
-        private const val androidTableOption = "AndroidTable"
         private const val androidPinyinHelperOption = "AndroidPinyinHelper"
     }
 
@@ -40,17 +38,7 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
         val addon = args.uniqueName
         val raw = fcitx.getAddonConfig(addon)
-        if (addon == tableAddon) {
-            // append android specific "Manage Table Input Methods" to config of table addon
-            raw.findByName("desc")?.findByName("TableGlobalConfig")?.let {
-                it.subItems = (it.subItems ?: emptyArray()) + RawConfig(
-                    androidTableOption, subItems = arrayOf(
-                        RawConfig("Type", "External"),
-                        RawConfig("Description", getString(R.string.manage_table_im))
-                    )
-                )
-            }
-        } else if (addon == pinyinAddon) {
+        if (addon == pinyinAddon) {
             val enabled = fcitx.addons().firstOrNull { it.uniqueName == pinyinHelperAddon }?.enabled ?: false
             raw.findByName("cfg")?.appendIfMissing(RawConfig(androidPinyinHelperOption, enabled))
             raw.findByName("desc")?.appendToTopLevelDescriptionIfMissing(

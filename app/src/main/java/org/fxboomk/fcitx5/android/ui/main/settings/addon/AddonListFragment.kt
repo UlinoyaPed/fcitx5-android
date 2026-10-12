@@ -30,7 +30,6 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
         private val hiddenAddons = setOf("pinyinhelper")
         private val preferredOrder = listOf(
             "pinyin",
-            "table",
             "spell",
             "punctuation",
             "rime",

@@ -85,7 +85,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 ### 3. Prediction and input-method extensibility
 
 - Keeps the original Fcitx5 multi-language input framework.
-- Chinese input continues to support Pinyin, Shuangpin, Wubi, Cangjie, and table-based input methods.
+- Chinese input keeps only Pinyin and Shuangpin; table-based input methods, their code tables, and the table addon have been removed from this fork.
 - RIME plugin support remains available for custom schemas, dictionaries, and advanced configuration.
 - [`librime` (the Rime plugin)](https://github.com/boomker/librime) prediction capability has been enhanced so it can learn from user input history and supports backup of prediction data.
 - Prediction, suggestion, and language-model related capabilities from libime and the Chinese plugin stack are preserved.
@@ -154,7 +154,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 
 - English
 - Chinese
-  - Pinyin / Shuangpin / Wubi / Cangjie / custom tables
+  - Pinyin / Shuangpin
   - Zhuyin / Bopomofo
   - Jyutping
   - Chewing
@@ -209,7 +209,7 @@ To build only the clipboard sync plugin:
 ## Who this fork is for
 
 - Users who want to use a Fcitx5-based Android IME.
-- Users who rely on RIME, custom tables, or multiple input-engine switching.
+- Users who rely on RIME or multiple input-engine switching.
 - Users who want bidirectional clipboard sync between phone and desktop.
 - Users who want images, files, links, and text to work inside one unified clipboard workflow.
 
