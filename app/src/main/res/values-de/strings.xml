@@ -724,6 +724,7 @@
     <string name="preferred_voice_input">Bevorzugte Spracheingabe</string>
     <string name="private_mode">Privatmodus (tippen, um den Statusbereich zu öffnen)</string>
     <string name="punctuation_pos_bottom">Unten</string>
+    <string name="punctuation_pos_bottom_right">Unten rechts</string>
     <string name="punctuation_pos_top">Oben</string>
     <string name="uppercase_position">Position der Großbuchstaben</string>
     <string name="uppercase_pos_none">Keine</string>

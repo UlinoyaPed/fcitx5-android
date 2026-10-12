@@ -161,7 +161,8 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         None(R.string.punctuation_pos_none),
         Top(R.string.punctuation_pos_top),
         TopRight(R.string.punctuation_pos_top_right),
-        Bottom(R.string.punctuation_pos_bottom);
+        Bottom(R.string.punctuation_pos_bottom),
+        BottomRight(R.string.punctuation_pos_bottom_right);
     }
 
     val secondaryLabelPosition = enumList(

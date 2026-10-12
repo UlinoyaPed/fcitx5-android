@@ -142,6 +142,7 @@
     <string name="secondary_label_position">Положение второго дополнительного символа</string>
     <string name="sub_label_follow_layout">Следовать текущей раскладке</string>
     <string name="punctuation_pos_bottom">Внизу</string>
+    <string name="punctuation_pos_bottom_right">Справа внизу</string>
     <string name="punctuation_pos_top">Вверху</string>
     <string name="uppercase_position">Положение заглавных букв</string>
     <string name="uppercase_pos_none">Нет</string>

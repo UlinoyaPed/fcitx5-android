@@ -424,12 +424,13 @@ internal class LlmClient(
         val assistantPrefill = LlmPrompt.completionAssistantPrefill(
             beforeCursor = request.beforeCursor,
             taskMode = request.taskMode,
+            enableThinking = request.enableThinking,
+            outputMode = request.outputMode,
         )
 
         val stops = JSONArray().apply {
             put("<|im_start|>")
             put("<|im_end|>")
-            put("<")
         }
         val maxTokens = resolveMaxTokens(request)
         val temperature = when {
@@ -479,12 +480,11 @@ internal class LlmClient(
                             .put("role", "user")
                             .put("content", completionUserPrompt)
                     )
-                    .put(
-                        JSONObject()
-                            .put("role", "assistant")
-                            .put("content", assistantPrefill)
-                    )
             )
+        if (assistantPrefill.isNotBlank()) {
+            openAiPayload.getJSONArray("messages").put(JSONObject()
+                .put("role", "assistant").put("content", assistantPrefill))
+        }
         applyMoonshotKimiCompat(openAiPayload, request)
         request.seed?.let { openAiPayload.put("seed", it) }
 
@@ -514,15 +514,15 @@ internal class LlmClient(
                         .put("role", "user")
                         .put("content", completionUserPrompt)
                 )
-                .put(
-                    JSONObject()
-                        .put("role", "assistant")
-                        .put("content", assistantPrefill)
-            ))
+            )
             .put("max_tokens", maxTokens)
             .put("temperature", temperature)
             .put("top_p", topP)
             .put("stop_sequences", JSONArray(stops.toString()))
+        if (assistantPrefill.isNotBlank()) {
+            anthropicPayload.getJSONArray("messages").put(JSONObject()
+                .put("role", "assistant").put("content", assistantPrefill))
+        }
         applyMoonshotKimiCompat(anthropicPayload, request)
 
         return request.config.completionCompatEndpoints.flatMap { endpoint ->

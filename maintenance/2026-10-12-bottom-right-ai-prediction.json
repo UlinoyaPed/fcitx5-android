@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-12",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "base_commit": "5dcf60f62ad0f8371e15f716c86c882e54dfd60b",
+  "requirements": [
+    "Add bottom-right positioning for the second secondary label.",
+    "Improve AI prediction prompts and output parsing robustness while retaining provider settings and other task modes."
+  ],
+  "changes": [
+    "Add BottomRight to the existing second-label control, with physical-right alignment, adjustable padding and unchanged row-override precedence, main centering and directional swipe behavior.",
+    "Translate the new option in all eight existing resource locales.",
+    "Use quoted JSON input and explicit insert_text candidates for remote short predictions; prioritize plausible, distinct results over filling the configured quota.",
+    "Keep long-form, question-answer and translation text contracts; retain lightweight local-model continuation prompts and remove filler/minimum-character pressure.",
+    "Decode JSON strings with the standard serializer. Validate candidate object fields, recover only complete streamed objects, skip invalid values and reject structured API errors as suggestions.",
+    "Preserve insertion whitespace, punctuation, names and emoji joiners; remove broad keyword false positives while retaining protocol filtering and legacy-format compatibility.",
+    "Do not seed short completion output with the user's typed prefix, omit empty assistant messages, honor thinking state and allow literal less-than characters in completion results.",
+    "Update maintenance policy and the existing weekly prompt without changing its Friday 06:00 Asia/Shanghai schedule."
+  ],
+  "validation": {
+    "baseline_ai_cases": 13,
+    "baseline_ai_failures": 11,
+    "new_unit_regressions": 15,
+    "new_android_regressions": 9,
+    "unit_tests": 613,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "unit_skipped": 0,
+    "debug_build": "passed",
+    "test_apk_build": "passed",
+    "android_instrumentation_tests": 97,
+    "android_instrumentation_failures": 0,
+    "android_instrumentation_time_seconds": 96.362,
+    "android_api": 29,
+    "emulator": "software x86_64 emulator",
+    "request_validation": "Android JSON request payloads, no provider calls",
+    "release": "passed",
+    "lint": "passed",
+    "gitnexus": {
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "5dcf60f62ad0f8371e15f716c86c882e54dfd60b",
+      "pre_edit_high_risk_warning_delivered": true,
+      "native_build_preparation_excluded_from_commit": true,
+      "changed_symbols": 175,
+      "affected_processes": 9,
+      "changed_files_including_native_build_preparation": 21,
+      "risk_level": "high",
+      "returned_arrays_match_summary": true,
+      "partial": false,
+      "truncated": false
+    },
+    "release_abi": "arm64-v8a",
+    "release_signing": "temporary local verification certificate; APK Signature Scheme v2 verified",
+    "lint_errors": 0,
+    "lint_warnings": 377,
+    "lint_warning_note": "Previous verification recorded 375 warnings. Two RtlHardcoded findings refer to the intentional physical-right corner alignment, covered by the RTL instrumentation regression."
+  },
+  "limits": [
+    "No physical-device or live-provider model-quality evaluation; response fixtures and real Android view/payload tests do not guarantee model compliance or semantic quality.",
+    "Local on-device models retain lightweight text output; legacy-format fallback still uses legacy continuation normalization.",
+    "Independent label overlays may overlap when text or padding is large relative to the key.",
+    "Graph results are lower bounds with unresolved dispatch, scope extraction and process-discovery limits.",
+    "Local release verification uses a temporary certificate; production signing uses repository Secrets."
+  ]
+}

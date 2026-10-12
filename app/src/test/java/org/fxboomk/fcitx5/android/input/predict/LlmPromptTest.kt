@@ -4,6 +4,10 @@
 
 package org.fxboomk.fcitx5.android.input.predict
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,14 +27,11 @@ class LlmPromptTest {
     fun systemPromptReflectsConfiguredCandidateLimit() {
         val prompt = LlmPrompt.systemPrompt(maxPredictionCandidates = 7)
 
-        assertTrue(prompt.contains("<persona>"))
-        assertTrue(prompt.contains("<output_contract>"))
-        assertTrue(prompt.contains("<rules>"))
-        assertTrue(prompt.contains("给出 1-7 个自然续写候选"))
-        assertTrue(prompt.contains("尽量给满 7 个候选"))
-        assertTrue(prompt.contains("最多只允许 1 条候选超过这个长度"))
+        assertTrue(prompt.contains("insert_text"))
+        assertTrue(prompt.contains("最多 7 个不同的候选"))
+        assertTrue(prompt.contains("最多一条更长的候选"))
         assertTrue(prompt.contains("不要重复已有标点"))
-        assertTrue(prompt.contains("如果无法预测，也输出空数组"))
+        assertTrue(prompt.contains("无法自然续写时输出 {\"suggestions\":[]}"))
     }
 
     @Test
@@ -40,13 +41,12 @@ class LlmPromptTest {
             beforeCursor = "Let's meet at",
         )
 
-        assertTrue(prompt.contains("<persona>"))
-        assertTrue(prompt.contains("<task>\ndialogue continuation/autocomplete\n</task>"))
-        assertTrue(prompt.contains("English continuation assistant"))
-        assertTrue(prompt.contains("Output JSON only"))
-        assertTrue(prompt.contains("within 30 characters"))
-        assertTrue(prompt.contains("leading space only when"))
-        assertTrue(prompt.contains("candidate 1"))
+        assertTrue(prompt.contains("IME continuation engine"))
+        assertTrue(prompt.contains("one JSON object"))
+        assertTrue(prompt.contains("within 30 English characters"))
+        assertTrue(prompt.contains("include a space when starting the next word"))
+        assertTrue(prompt.contains("at most 4 distinct candidates"))
+        assertTrue(prompt.contains("insert_text"))
     }
 
     @Test
@@ -57,7 +57,7 @@ class LlmPromptTest {
             personaPreset = LlmPrefs.PersonaPreset.SocialStar,
         )
 
-        assertTrue(prompt.contains("<style_hint>"))
+        assertTrue(prompt.contains("\"style_guidance\""))
         assertTrue(prompt.contains("情商在线，幽默风趣的社交达人。"))
     }
 
@@ -120,11 +120,10 @@ class LlmPromptTest {
         )
 
         assertTrue(prompt.startsWith("<|im_start|>system"))
-        assertTrue(prompt.contains("<history>\n历史内容\n</history>"))
-        assertTrue(prompt.contains("<last_msg>\n无\n</last_msg>"))
-        assertTrue(prompt.contains("<memory>\n无\n</memory>"))
-        assertTrue(prompt.contains("<instruction>\n请基于上下文，自然地续写我的输入"))
-        assertTrue(prompt.endsWith("</think>\n\n光标前文本内容"))
+        assertTrue(prompt.contains("\"history\":\"历史内容\""))
+        assertTrue(prompt.contains("\"recent_commit\":\"\""))
+        assertTrue(prompt.contains("\"before_cursor\":\"光标前文本内容\""))
+        assertTrue(prompt.endsWith("</think>"))
     }
 
     @Test
@@ -137,9 +136,9 @@ class LlmPromptTest {
             maxPredictionCandidates = 4,
         )
 
-        assertTrue(prompt.contains("<history>\n更早内容\n</history>"))
-        assertTrue(prompt.contains("<memory>\n最近一次上屏：上一句\n</memory>"))
-        assertTrue(prompt.endsWith("</think>\n\n继续写"))
+        assertTrue(prompt.contains("\"history\":\"更早内容\""))
+        assertTrue(prompt.contains("\"recent_commit\":\"上一句\""))
+        assertTrue(prompt.endsWith("</think>"))
     }
 
     @Test
@@ -153,16 +152,15 @@ class LlmPromptTest {
         )
         val assistant = LlmPrompt.completionAssistantPrefill("今晚一起")
 
-        assertTrue(system.contains("<persona>\n自然、得体、贴近上下文的中文续写助手\n</persona>"))
-        assertTrue(system.contains("<task>\n对话续写/补全\n</task>"))
-        assertTrue(system.contains("<input_fields>"))
-        assertTrue(user.contains("<history>\n我们在约饭\n</history>"))
-        assertTrue(user.contains("<memory>\n最近一次上屏：要不要\n</memory>"))
+        assertTrue(system.contains("你是输入法续写器"))
+        assertTrue(system.contains("insert_text"))
+        val data = Json.parseToJsonElement(user).jsonObject
+        assertEquals("我们在约饭", data["history"]!!.jsonPrimitive.content)
+        assertEquals("要不要", data["recent_commit"]!!.jsonPrimitive.content)
         assertTrue(!user.contains("<persona>"))
-        assertTrue(user.endsWith("今晚一起\n</instruction>"))
-        assertEquals("<think>\n\n</think>\n\n今晚一起", assistant)
-        assertTrue(system.contains("只输出 1-4 条续写候选"))
-        assertTrue(system.contains("尽量给满 4 条"))
+        assertEquals("今晚一起", data["before_cursor"]!!.jsonPrimitive.content)
+        assertEquals("<think>\n\n</think>\n\n", assistant)
+        assertTrue(system.contains("最多 4 个不同的候选"))
     }
 
     @Test
@@ -178,17 +176,14 @@ class LlmPromptTest {
             useRecentCommitBias = true,
         )
 
-        assertTrue(system.contains("<task>\ndialogue continuation/autocomplete\n</task>"))
-        assertTrue(system.contains("Provide 1-3 natural continuation candidates"))
-        assertTrue(system.contains("allow at most one candidate to exceed that limit"))
-        assertTrue(system.contains("leading space only when"))
-        assertTrue(system.contains("<persona>\na natural, context-aware English continuation assistant\n</persona>"))
+        assertTrue(system.contains("IME continuation engine"))
+        assertTrue(system.contains("at most 3 distinct candidates"))
+        assertTrue(system.contains("allow at most one longer candidate"))
+        assertTrue(system.contains("include a space when starting the next word"))
         assertTrue(!user.contains("<persona>"))
-        assertTrue(user.contains("<history>\nWe are planning tonight\n</history>"))
-        assertTrue(user.contains("Output only the continuation after the current prefix"))
-        assertTrue(user.endsWith("Let's grab\n</instruction>"))
-        assertTrue(system.contains("Output 1-3 continuation candidates only"))
-        assertTrue(system.contains("Try to provide all 3 candidates"))
+        val data = Json.parseToJsonElement(user).jsonObject
+        assertEquals("We are planning tonight", data["history"]!!.jsonPrimitive.content)
+        assertEquals("Let's grab", data["before_cursor"]!!.jsonPrimitive.content)
     }
 
     @Test
@@ -285,7 +280,9 @@ class LlmPromptTest {
             enableThinking = true,
         )
 
-        assertEquals("今晚一起", assistant)
+        assertEquals("", assistant)
+        assertEquals("今晚一起", LlmPrompt.completionAssistantPrefill(
+            beforeCursor = "今晚一起", enableThinking = true, outputMode = LlmOutputMode.LongForm))
     }
 
     @Test
@@ -460,10 +457,10 @@ class LlmPromptTest {
         )
 
         assertTrue(!prompt.contains("<persona>"))
-        assertTrue(prompt.contains("<history>\n我们在约饭\n</history>"))
-        assertTrue(prompt.contains("<memory>\n最近一次上屏：上条刚发完\n</memory>"))
-        assertTrue(prompt.contains("只输出当前前缀后面的续写部分"))
-        assertTrue(prompt.contains("今晚一起去\n</instruction>"))
+        val data = Json.parseToJsonElement(prompt).jsonObject
+        assertEquals("我们在约饭", data["history"]!!.jsonPrimitive.content)
+        assertEquals("上条刚发完", data["recent_commit"]!!.jsonPrimitive.content)
+        assertEquals("今晚一起去", data["before_cursor"]!!.jsonPrimitive.content)
     }
 
     @Test
@@ -473,13 +470,13 @@ class LlmPromptTest {
             beforeCursor = "翩若惊鸿",
         )
 
-        assertTrue(system.contains("<task>\n对话续写/补全\n</task>"))
+        assertTrue(system.contains("你是输入法续写器"))
         assertTrue(system.contains("不要重复已有标点"))
         assertTrue(system.contains("自然判断是否需要以中文全角标点开头"))
     }
 
     @Test
-    fun userPromptUsesChineseContinuationInstructionForLeadingPunctuationDecision() {
+    fun userPromptPreservesChinesePunctuationAsData() {
         val prompt = LlmPrompt.userPrompt(
             beforeCursor = "翩若惊鸿",
             recentCommittedText = "",
@@ -487,12 +484,13 @@ class LlmPromptTest {
             useRecentCommitBias = false,
         )
 
-        assertTrue(prompt.contains("请基于上下文，自然地续写我的输入"))
-        assertTrue(prompt.endsWith("翩若惊鸿\n</instruction>"))
+        val data = Json.parseToJsonElement(prompt).jsonObject
+        assertEquals("翩若惊鸿", data["before_cursor"]!!.jsonPrimitive.content)
+        assertEquals("洛神赋", data["history"]!!.jsonPrimitive.content)
     }
 
     @Test
-    fun userPromptUsesEnglishContinuationInstructionForEnglishPrefix() {
+    fun userPromptPreservesEnglishPrefixAsData() {
         val prompt = LlmPrompt.userPrompt(
             beforeCursor = "Please send me",
             recentCommittedText = "the draft",
@@ -500,8 +498,9 @@ class LlmPromptTest {
             useRecentCommitBias = true,
         )
 
-        assertTrue(prompt.contains("Continue my input naturally based on the context"))
-        assertTrue(prompt.endsWith("Please send me\n</instruction>"))
+        val data = Json.parseToJsonElement(prompt).jsonObject
+        assertEquals("Please send me", data["before_cursor"]!!.jsonPrimitive.content)
+        assertEquals("the draft", data["recent_commit"]!!.jsonPrimitive.content)
     }
 
     @Test

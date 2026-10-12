@@ -139,6 +139,7 @@
     <string name="secondary_label_position">2番目の副文字の位置</string>
     <string name="sub_label_follow_layout">既存の配列に従う</string>
     <string name="punctuation_pos_bottom">下部</string>
+    <string name="punctuation_pos_bottom_right">右下</string>
     <string name="punctuation_pos_top">上部</string>
     <string name="uppercase_position">大文字の位置</string>
     <string name="uppercase_pos_none">なし</string>

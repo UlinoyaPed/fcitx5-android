@@ -175,6 +175,7 @@
     <string name="secondary_label_position">第二副字符位置</string>
     <string name="sub_label_follow_layout">跟随现有布局</string>
     <string name="punctuation_pos_bottom">底部</string>
+    <string name="punctuation_pos_bottom_right">右下角</string>
     <string name="punctuation_pos_top">顶部</string>
     <string name="punctuation_pos_top_right">右上</string>
     <string name="punctuation_pos_none">无</string>

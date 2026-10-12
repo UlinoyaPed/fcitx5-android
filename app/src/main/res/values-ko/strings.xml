@@ -678,6 +678,7 @@
     <string name="preferred_voice_input">선호 음성 입력</string>
     <string name="private_mode">개인정보 모드 (눌러서 상태 영역 열기)</string>
     <string name="punctuation_pos_bottom">하단</string>
+    <string name="punctuation_pos_bottom_right">오른쪽 하단</string>
     <string name="punctuation_pos_top">상단</string>
     <string name="uppercase_position">대문자 위치</string>
     <string name="uppercase_pos_none">없음</string>

@@ -1022,7 +1022,7 @@ class AltTextKeyView(
         label.gravity = if (edge > 0) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER
     }
 
-    private fun placeIndependentBottomLabel(label: AutoScaleTextView) {
+    private fun placeIndependentBottomLabel(label: AutoScaleTextView, right: Boolean = false) {
         label.visibility = View.VISIBLE
         label.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
@@ -1035,8 +1035,8 @@ class AltTextKeyView(
             bottomToBottom = parentId
             bottomMargin = vMargin + dp(2)
         }
-        label.setPadding(0, 0, 0, 0)
-        label.gravity = Gravity.CENTER
+        label.setPadding(0, 0, if (right) cornerLabelHorizontalSafeInset else 0, 0)
+        label.gravity = if (right) Gravity.RIGHT or Gravity.CENTER_VERTICAL else Gravity.CENTER
     }
 
     private fun applyIndependentAltTextPosition() {
@@ -1047,6 +1047,8 @@ class AltTextKeyView(
         val secondLabel = if (uppercase) upperText else altText1
         val primary = independentPosition(def.altTextPositionOverride)
         var secondary = independentAltText1Position()
+        val secondaryBottomRight = def.altText1PositionOverride == null &&
+            ThemeManager.prefs.secondaryLabelPosition.getValue() == SecondaryLabelPosition.BottomRight
         // There is only one right-top corner. Keep the primary label there and
         // move the second label to the left-top corner for legacy/invalid data.
         if (primary == PunctuationPosition.TopRight && secondary == PunctuationPosition.TopRight) {
@@ -1061,7 +1063,7 @@ class AltTextKeyView(
             when (secondary) {
                 PunctuationPosition.Top -> placeIndependentTopLabel(secondLabel, 0)
                 PunctuationPosition.TopRight -> placeIndependentTopLabel(secondLabel, 1)
-                PunctuationPosition.Bottom -> placeIndependentBottomLabel(secondLabel)
+                PunctuationPosition.Bottom -> placeIndependentBottomLabel(secondLabel, right = secondaryBottomRight)
                 PunctuationPosition.None -> secondLabel.visibility = View.GONE
             }
             if (uppercase) hideAltText1() else hideUpperText()
@@ -1089,7 +1091,7 @@ class AltTextKeyView(
         } else if (primaryTop != secondaryTop) {
             if (primaryTop) {
                 placeIndependentTopLabel(altText, if (primary == PunctuationPosition.TopRight) 1 else 0)
-                placeIndependentBottomLabel(secondLabel)
+                placeIndependentBottomLabel(secondLabel, right = secondaryBottomRight)
             } else {
                 placeIndependentTopLabel(secondLabel, if (secondary == PunctuationPosition.TopRight) 1 else 0)
                 placeIndependentBottomLabel(altText)
@@ -1362,6 +1364,7 @@ class AltTextKeyView(
             SecondaryLabelPosition.Top -> return PunctuationPosition.Top
             SecondaryLabelPosition.TopRight -> return PunctuationPosition.TopRight
             SecondaryLabelPosition.Bottom -> return PunctuationPosition.Bottom
+            SecondaryLabelPosition.BottomRight -> return PunctuationPosition.Bottom
             SecondaryLabelPosition.FollowLayout -> Unit
         }
         // No explicit 副字符一位置: the uppercase hint keeps following the global

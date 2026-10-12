@@ -1,5 +1,10 @@
 package org.fxboomk.fcitx5.android.input.predict
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+
 object LlmSuggestionParser {
     private data class SuggestionLengthPolicy(
         val softLimit: Int,
@@ -10,6 +15,12 @@ object LlmSuggestionParser {
     private const val THINK_END = "</think>"
     private const val TEXT_MODE_LINE_BREAK_TOKEN = "[[BR]]"
     private const val MAX_OVER_LIMIT_SUGGESTIONS = 1
+    private val thinkStartRegex = Regex("<think(?:\\s[^>]*)?>", RegexOption.IGNORE_CASE)
+    private val thinkEndRegex = Regex("</think\\s*>", RegexOption.IGNORE_CASE)
+    private val metadataLineRegex = Regex(
+        """^(?:BeforeCursor|AppPackage|InputMethod|before_cursor|recent_commit|history|光标前文本|当前应用|当前系统状态|suggestions|insert_text)\s*[:=]""",
+        RegexOption.IGNORE_CASE,
+    )
     private val dialogueRoleRegex = Regex("""(?:\[\s*(?:对方|我)\s*])""")
     private val hanRegex = Regex("\\p{IsHan}")
     private val latinLetterRegex = Regex("[A-Za-z]")
@@ -33,6 +44,7 @@ object LlmSuggestionParser {
             val fromQuoted = extractQuotedSuggestions(extracted, typedPrefix)
             if (fromQuoted.isNotEmpty()) return fromQuoted
             if (looksLikeSuggestionsPayload(extracted)) return emptyList()
+            if (looksStructuredPayload(extracted)) return@forEach
 
             val fromPlainText = extractPlainSuggestions(extracted, typedPrefix)
             if (fromPlainText.isNotEmpty()) return fromPlainText
@@ -103,14 +115,22 @@ object LlmSuggestionParser {
         return text.trim()
     }
 
-    private fun normalize(raw: String): String = raw
-        .replace(Regex("￾stats:.*$", RegexOption.DOT_MATCHES_ALL), "")
-        .let { stripInvisibleAndControl(it) }
-        .trim()
+    private fun normalize(raw: String): String {
+        val text = stripInvisibleAndControl(
+            raw.replace(Regex("￾stats:.*$", RegexOption.DOT_MATCHES_ALL), "")
+        ).trim()
+        if (text.isNotEmpty() && ("<think>".startsWith(text, ignoreCase = true) ||
+                    "</think>".startsWith(text, ignoreCase = true))) return ""
+        // Do not remove tags from JSON string values before decoding their containing envelope.
+        return if (looksStructuredPayload(text)) text else stripThinkTagsOrNull(text).orEmpty().trim()
+    }
 
     private fun candidatePayloads(raw: String): List<String> = buildList {
+        val envelope = runCatching { Json.parseToJsonElement(raw) as? JsonObject }.getOrNull()
+        val error = envelope?.get("error")
+        if (error != null && error != JsonNull && error != JsonPrimitive(false)) return@buildList
         fun addCandidate(value: String?) {
-            val candidate = value?.trim().orEmpty()
+            val candidate = normalize(value.orEmpty())
             if (candidate.isNotBlank() && candidate !in this) add(candidate)
         }
 
@@ -134,8 +154,7 @@ object LlmSuggestionParser {
         val fenceStart = raw.indexOf("```")
         if (fenceStart < 0) return null
         val fenceEnd = raw.indexOf("```", fenceStart + 3)
-        if (fenceEnd <= fenceStart) return null
-        return raw.substring(fenceStart + 3, fenceEnd)
+        return raw.substring(fenceStart + 3, if (fenceEnd > fenceStart) fenceEnd else raw.length)
             .removePrefix("json")
             .removePrefix("JSON")
             .trim()
@@ -300,16 +319,20 @@ object LlmSuggestionParser {
             hadLeadingWhitespace = hadLeadingWhitespace,
         )
         text = collapseToImeCandidate(text, typedPrefix)
-        val metadataMarkers = listOf(
-            "BeforeCursor", "AppPackage", "InputMethod",
-            "光标前文本", "当前应用", "输入法",
-            "你好", "我是", "Qwen", "收到", "当前系统状态", "suggestions"
-        )
-        if (metadataMarkers.any { text.startsWith(it) || it in text }) return ""
+        if (metadataLineRegex.containsMatchIn(text.trimStart())) return ""
         if (looksLikeProtocolOrControl(text)) return ""
         if (shouldSuppressMostlyLatin(text, typedPrefix)) return ""
         if (text == typedPrefix.trim()) return ""
         return text.trimEnd()
+    }
+
+    private fun sanitizeInsertion(candidate: String, typedPrefix: String): String {
+        var text = stripInvisibleAndControl(candidate)
+        if (typedPrefix.isNotBlank() && text.startsWith(typedPrefix)) text = text.removePrefix(typedPrefix)
+        if (text.isBlank()) return ""
+        if (text.codePointCount(0, text.length) > lengthPolicy(typedPrefix).hardLimit) return ""
+        // In the explicit protocol, whitespace, punctuation and names are insertion data.
+        return text
     }
 
     private fun shouldSuppressMostlyLatin(text: String, typedPrefix: String): Boolean {
@@ -361,59 +384,11 @@ object LlmSuggestionParser {
         return if (lastBrace > firstBrace) raw.substring(firstBrace, lastBrace + 1) else raw.substring(firstBrace)
     }
 
-    private fun extractQuotedSuggestions(raw: String, typedPrefix: String): List<String> {
-        val anchorStart = raw.indexOf("suggestions")
-        if (anchorStart < 0) return emptyList()
-        val arrayStart = raw.indexOf('[', anchorStart)
-        if (arrayStart < 0) return emptyList()
-        val slice = raw.substring(arrayStart + 1)
-
-        val out = mutableListOf<String>()
-        val current = StringBuilder()
-        var inString = false
-        var escaped = false
-        var closingQuote: Char? = null
-        slice.forEach { ch ->
-            if (out.size >= 8) return@forEach
-            if (!inString) {
-                when (ch) {
-                    '"', '“', '”' -> {
-                        inString = true
-                        closingQuote = matchingClosingQuote(ch)
-                        current.clear()
-                    }
-                    ']' -> return finalizeSuggestions(out, typedPrefix)
-                }
-            } else {
-                when {
-                    escaped -> {
-                        current.append(ch)
-                        escaped = false
-                    }
-                    ch == '\\' -> escaped = true
-                    isMatchingClosingQuote(ch, closingQuote) -> {
-                        val sanitized = sanitizeSuggestion(current.toString(), typedPrefix)
-                        if (sanitized.isNotBlank()) out.add(sanitized)
-                        inString = false
-                        closingQuote = null
-                    }
-                    else -> current.append(ch)
-                }
-            }
-        }
-        return finalizeSuggestions(out, typedPrefix)
-    }
-
-    private fun matchingClosingQuote(openingQuote: Char): Char = when (openingQuote) {
-        '“', '”' -> '”'
-        else -> '"'
-    }
-
-    private fun isMatchingClosingQuote(char: Char, closingQuote: Char?): Boolean = when (closingQuote) {
-        '"' -> char == '"' || char == '”'
-        '”' -> char == '”' || char == '"'
-        else -> false
-    }
+    private fun extractQuotedSuggestions(raw: String, typedPrefix: String): List<String> =
+        LlmSuggestionJson.read(raw).map { candidate ->
+            if (candidate.exactInsertion) sanitizeInsertion(candidate.text, typedPrefix)
+            else sanitizeSuggestion(candidate.text, typedPrefix)
+        }.let { finalizeSuggestions(it, typedPrefix) }
 
     private fun finalizeSuggestions(
         candidates: List<String>,
@@ -423,7 +398,6 @@ object LlmSuggestionParser {
         val policy = lengthPolicy(typedPrefix)
         var overLimitCount = 0
         return candidates.asSequence()
-            .map(String::trimEnd)
             .filter(String::isNotBlank)
             .distinct()
             .filter { candidate ->
@@ -522,9 +496,12 @@ object LlmSuggestionParser {
     }
 
     private fun isSuspiciousSymbol(char: Char): Boolean =
-        !char.isLetterOrDigit() &&
-            !char.isWhitespace() &&
-            !isHanCharacter(char)
+        char in "+-*/=<>%^~" || Character.getType(char) in setOf(
+            Character.CONNECTOR_PUNCTUATION.toInt(), Character.DASH_PUNCTUATION.toInt(),
+            Character.START_PUNCTUATION.toInt(), Character.END_PUNCTUATION.toInt(),
+            Character.INITIAL_QUOTE_PUNCTUATION.toInt(), Character.FINAL_QUOTE_PUNCTUATION.toInt(),
+            Character.OTHER_PUNCTUATION.toInt(),
+        )
 
     private fun isAllowedSymbolRun(
         run: String,
@@ -560,28 +537,19 @@ object LlmSuggestionParser {
         if (s.contains("<MEM_RETRIEVAL>", ignoreCase = true) || s.contains("</MEM_RETRIEVAL>", ignoreCase = true)) return true
         if (s.contains("<NO_MEM>", ignoreCase = true)) return true
         if (s.contains("search query", ignoreCase = true)) return true
-        if (s.contains("no longer", ignoreCase = true)) return true
         if (queryWideRegex.containsMatchIn(s)) return true
         return false
     }
 
     private fun stripThinkTagsOrNull(text: String): String? {
-        if (text.isEmpty()) return text
         var out = text
         while (true) {
-            val startIdx = out.indexOf(THINK_START)
-            if (startIdx == -1) break
-            val endIdx = out.indexOf(THINK_END, startIdx + THINK_START.length)
-            out = if (endIdx == -1) {
-                out.substring(0, startIdx)
-            } else {
-                out.removeRange(startIdx, endIdx + THINK_END.length)
-            }
+            val start = thinkStartRegex.find(out) ?: break
+            val end = thinkEndRegex.find(out, start.range.last + 1)
+            out = if (end == null) out.substring(0, start.range.first)
+            else out.removeRange(start.range.first, end.range.last + 1)
         }
-        if (out.contains(THINK_END)) {
-            out = out.replace(THINK_END, "")
-        }
-        return out
+        return thinkEndRegex.replace(out, "")
     }
 
     private fun replaceTextModeLineBreaks(text: String): String = text
@@ -594,7 +562,7 @@ object LlmSuggestionParser {
         for (ch in input) {
             if (ch.isISOControl() && ch != '\n' && ch != '\r' && ch != '\t') continue
             when (ch) {
-                '\u200B', '\u200C', '\u200D', '\u200E', '\u200F',
+                '\u200B', '\u200E', '\u200F',
                 '\u202A', '\u202B', '\u202C', '\u202D', '\u202E',
                 '\u2060', '\u2061', '\u2062', '\u2063', '\u2064',
                 '\u2066', '\u2067', '\u2068', '\u2069',

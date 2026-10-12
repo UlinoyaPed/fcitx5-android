@@ -692,6 +692,7 @@
     <string name="preferred_voice_input">Entrada de voz preferida</string>
     <string name="private_mode">Modo privado (toque para abrir el área de estado)</string>
     <string name="punctuation_pos_bottom">Abajo</string>
+    <string name="punctuation_pos_bottom_right">Abajo a la derecha</string>
     <string name="punctuation_pos_top">Arriba</string>
     <string name="uppercase_position">Posición de las mayúsculas</string>
     <string name="uppercase_pos_none">Ninguno</string>
