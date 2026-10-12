@@ -17,7 +17,6 @@ PREBUILT_DIR="${PROJECT_ROOT}/lib/fcitx5/src/main/cpp/prebuilt"
 
 # Patch files
 FCITX5_GLOBAL_OPTIONS_UI_PATCH="${FCITX5_GLOBAL_OPTIONS_UI_PATCH:-${PROJECT_ROOT}/lib/fcitx5/fcitx5-global-options-ui.patch}"
-FCITX5_INSERT_SPACE_ZH_EN_PATCH="${FCITX5_INSERT_SPACE_ZH_EN_PATCH:-${PROJECT_ROOT}/lib/fcitx5/fcitx5-insert-space-zh-en.patch}"
 # RIME_PREEDIT_LABEL_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-preedit-cursor-label.patch"
 
 apply_patch() {
@@ -81,7 +80,6 @@ checkout_pinned_submodule "${RIME_DIR}" "${FCITX5_RIME_REPO}" "${RIME_COMMIT}" "
 # apply fcitx5 patches
 echo "applying fcitx5 patches"
 apply_patch "${FCITX5_DIR}" "${FCITX5_GLOBAL_OPTIONS_UI_PATCH}" "global-options-ui"
-apply_patch "${FCITX5_DIR}" "${FCITX5_INSERT_SPACE_ZH_EN_PATCH}" "insert-space-zh-en"
 
 # update prebuilt
 echo "updating prebuilt from ${PREBUILT_REPO}"

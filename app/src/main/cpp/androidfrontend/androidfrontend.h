@@ -101,6 +101,9 @@ private:
     std::vector<std::unique_ptr<HandlerTableEntry<EventHandler>>> eventHandlers_;
     int pagingMode_;
     bool selectingCandidate_;
+    // Set while a Return key (optionally with Ctrl/Shift) is dispatched to the
+    // engine, so a preedit it commits is treated like a candidate commit.
+    bool committingViaReturn_;
 
     CandidateListCallback candidateListCallback = [](const std::vector<CandidateEntity> &, const int) {};
     CommitStringCallback commitStringCallback = [](const std::string &, const int, bool) {};

@@ -43,6 +43,7 @@ internal object KeyboardSettingsSupport {
         "show_lang_switch_key",
         "popup_on_key_press",
         "auto_close_brackets",
+        "insert_space_between_chinese_and_english",
         "expand_keypress_area"
     )
 

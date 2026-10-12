@@ -985,7 +985,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 resetCandidatePagingModeCache()
             }
             is FcitxEvent.CommitStringEvent -> {
-                commitCandidateText(event.data.text, event.data.cursor, event.data.fromCandidate)
+                commitCandidateText(event.data.text, event.data.cursor, event.data.fromComposition)
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -1391,82 +1391,35 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    private fun commitCandidateText(text: String, cursor: Int, fromCandidate: Boolean) {
-        val commit = if (fromCandidate) {
-            maybeInsertSpaceBetweenChineseAndEnglish(text, cursor)
+    private fun commitCandidateText(text: String, cursor: Int, fromComposition: Boolean) {
+        val insertSpace = fromComposition &&
+            prefs.keyboard.insertSpaceBetweenChineseAndEnglish.getValue()
+        val commit = if (insertSpace) {
+            ChineseEnglishSpacing.pad(text, cursor, codePointBeforeCommit())
         } else {
-            CandidateCommitText(text, cursor)
+            ChineseEnglishSpacing.PaddedCommit(text, cursor)
         }
         commitText(commit.text, commit.cursor)
     }
 
-    private fun maybeInsertSpaceBetweenChineseAndEnglish(text: String, cursor: Int): CandidateCommitText {
-        if (text.isEmpty()) {
-            return CandidateCommitText(text, cursor)
-        }
-        val ic = currentInputConnection ?: return CandidateCommitText(text, cursor)
-        val previousCodePoint = ic.getTextBeforeCursor(2, 0)
-            ?.toString()
-            ?.codePointBeforeOrNull()
-        val firstCodePoint = text.codePointAt(0)
-        val prependSpace = previousCodePoint?.let {
-            isChineseCodePoint(it) && isAsciiLetter(firstCodePoint)
-        } ?: false
-        val appendSpace = isAsciiWord(text) && !text.endsWith(' ')
-        if (!prependSpace && !appendSpace) {
-            return CandidateCommitText(text, cursor)
-        }
-        val adjustedText = buildString(text.length + 2) {
-            if (prependSpace) {
-                append(' ')
-            }
-            append(text)
-            if (appendSpace) {
-                append(' ')
-            }
-        }
-        val cursorOffset = (if (prependSpace) 1 else 0) +
-            (if (appendSpace && cursor == text.length) 1 else 0)
-        val adjustedCursor = if (cursor == -1) {
-            -1
+    /**
+     * Code point right before the position the next commit lands at.
+     *
+     * The composing text is already in the editor, so the characters just before
+     * the cursor can be the preedit itself (always so when Return commits it);
+     * those get skipped to reach the text the commit actually follows.
+     */
+    private fun codePointBeforeCommit(): Int? {
+        val ic = currentInputConnection ?: return null
+        val composingBeforeCursor = if (composing.isEmpty()) {
+            0
         } else {
-            cursor + cursorOffset
+            (selection.latest.start - composing.start).coerceAtLeast(0)
         }
-        return CandidateCommitText(adjustedText, adjustedCursor)
+        val before = ic.getTextBeforeCursor(composingBeforeCursor + 2, 0)?.toString() ?: return null
+        if (before.length <= composingBeforeCursor) return null
+        return before.dropLast(composingBeforeCursor).codePointBeforeOrNull()
     }
-
-    private data class CandidateCommitText(val text: String, val cursor: Int)
-
-    private fun isAsciiWord(text: String): Boolean {
-        if (text.isEmpty()) {
-            return false
-        }
-        var offset = 0
-        while (offset < text.length) {
-            val codePoint = text.codePointAt(offset)
-            if (!isAsciiLetter(codePoint)) {
-                return false
-            }
-            offset += Character.charCount(codePoint)
-        }
-        return true
-    }
-
-    private fun isAsciiLetter(codePoint: Int): Boolean =
-        codePoint in 'A'.code..'Z'.code ||
-            codePoint in 'a'.code..'z'.code
-
-    private fun isChineseCodePoint(codePoint: Int): Boolean =
-        codePoint in 0x3400..0x4DBF ||
-            codePoint in 0x4E00..0x9FFF ||
-            codePoint in 0xF900..0xFAFF ||
-            codePoint in 0x20000..0x2A6DF ||
-            codePoint in 0x2A700..0x2B73F ||
-            codePoint in 0x2B740..0x2B81F ||
-            codePoint in 0x2B820..0x2CEAF ||
-            codePoint in 0x2CEB0..0x2EBEF ||
-            codePoint in 0x30000..0x3134F ||
-            codePoint in 0x31350..0x323AF
 
     private fun String.codePointBeforeOrNull(): Int? =
         if (isEmpty()) null else codePointBefore(length)

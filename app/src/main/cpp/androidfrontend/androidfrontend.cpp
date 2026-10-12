@@ -33,12 +33,31 @@ private:
     bool &selectingCandidate_;
 };
 
-template<typename Config>
-bool insertSpaceBetweenChineseAndEnglish(const Config &globalConfig) {
-    if constexpr (requires { globalConfig.insertSpaceBetweenChineseAndEnglish(); }) {
-        return globalConfig.insertSpaceBetweenChineseAndEnglish();
+// Sets a bool flag for the lifetime of the guard, restoring the previous value.
+class ScopedFlag {
+public:
+    ScopedFlag(bool &flag, bool value) : flag_(flag), previous_(flag) {
+        flag_ = value;
     }
-    return false;
+
+    ~ScopedFlag() {
+        flag_ = previous_;
+    }
+
+private:
+    bool &flag_;
+    bool previous_;
+};
+
+bool isReturnKey(const Key &key) {
+    switch (key.sym()) {
+    case FcitxKey_Return:
+    case FcitxKey_KP_Enter:
+    case FcitxKey_ISO_Enter:
+        return true;
+    default:
+        return false;
+    }
 }
 } // namespace
 
@@ -354,7 +373,8 @@ AndroidFrontend::AndroidFrontend(Instance *instance)
           icCache_(),
           eventHandlers_(),
           pagingMode_(0),
-          selectingCandidate_(false) {
+          selectingCandidate_(false),
+          committingViaReturn_(false) {
     eventHandlers_.emplace_back(instance_->watchEvent(
             EventType::InputContextInputMethodActivated,
             EventWatcherPhase::Default,
@@ -403,6 +423,10 @@ AndroidFrontend::AndroidFrontend(Instance *instance)
 void AndroidFrontend::keyEvent(const Key &key, bool isRelease, const int timestamp) {
     if (!activeIC_) return;
     KeyEvent keyEvent(activeIC_, key, isRelease);
+    // A Return key (optionally with Ctrl/Shift) can make the active engine commit
+    // the preedit as-is; flag commits emitted during that key so the Kotlin layer
+    // pads Chinese/English just like it does for a candidate selection.
+    ScopedFlag returnGuard(committingViaReturn_, !isRelease && isReturnKey(key));
     activeIC_->keyEvent(keyEvent);
     if (!keyEvent.accepted()) {
         auto sym = key.sym();
@@ -416,10 +440,12 @@ void AndroidFrontend::forwardKey(const Key &key, bool isRelease) {
 }
 
 void AndroidFrontend::commitString(const std::string &str, const int cursor) {
-    commitStringCallback(
-        str, cursor,
-        selectingCandidate_ &&
-            insertSpaceBetweenChineseAndEnglish(instance_->globalConfig()));
+    // Whether to pad the commit with spaces is decided in the Kotlin layer, which
+    // owns the "insert space between Chinese and English" preference. Here we only
+    // report whether this commit finalizes the composition — a candidate selection
+    // or a Return-committed preedit — i.e. the cases that layer should pad.
+    commitStringCallback(str, cursor,
+                         selectingCandidate_ || committingViaReturn_);
 }
 
 void AndroidFrontend::updateCandidateList(const std::vector<CandidateEntity> &candidates, const int size) {

@@ -162,6 +162,7 @@
     <string name="uppercase_pos_bottom">底部</string>
     <string name="popup_on_key_press">按鍵時彈出顯示字元</string>
     <string name="auto_close_brackets">自動補全成對符號</string>
+    <string name="insert_space_between_chinese_and_english">中英字元間插入空格</string>
     <string name="disable_animation">停用動畫</string>
     <string name="import_from_file">從檔案匯入…</string>
     <string name="duplicate_builtin_theme">複製內建主題…</string>

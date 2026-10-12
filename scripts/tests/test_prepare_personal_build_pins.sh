@@ -70,8 +70,7 @@ FCITX_WORK="${TMP_ROOT}/fcitx5-work"
 git init --bare -q "${FCITX_REMOTE}"
 init_repo "${FCITX_WORK}"
 printf 'base-global\n' > "${FCITX_WORK}/global.txt"
-printf 'base-insert-space\n' > "${FCITX_WORK}/insert-space.txt"
-git -C "${FCITX_WORK}" add global.txt insert-space.txt
+git -C "${FCITX_WORK}" add global.txt
 git -C "${FCITX_WORK}" commit -q -m base
 FCITX_PIN="$(git -C "${FCITX_WORK}" rev-parse HEAD)"
 git -C "${FCITX_WORK}" branch -M master
@@ -82,10 +81,8 @@ PATCH_ROOT="${TMP_ROOT}/patches"
 mkdir -p "${PATCH_ROOT}"
 printf 'global\n' > "${FCITX_WORK}/global.txt"
 git -C "${FCITX_WORK}" diff -- global.txt > "${PATCH_ROOT}/global.patch"
-printf 'insert-space\n' > "${FCITX_WORK}/insert-space.txt"
-git -C "${FCITX_WORK}" diff -- insert-space.txt > "${PATCH_ROOT}/insert-space.patch"
-git -C "${FCITX_WORK}" reset -q -- global.txt insert-space.txt
-git -C "${FCITX_WORK}" checkout -q -- global.txt insert-space.txt
+git -C "${FCITX_WORK}" reset -q -- global.txt
+git -C "${FCITX_WORK}" checkout -q -- global.txt
 
 FIXTURE="${TMP_ROOT}/fixture"
 mkdir -p "${FIXTURE}/plugin/rime/src/main/cpp" "${FIXTURE}/lib/fcitx5/src/main/cpp"
@@ -100,7 +97,7 @@ git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q --detach "$
 git -C "${FIXTURE}" -c protocol.file.allow=always submodule add -q "${PREBUILT_REMOTE}" lib/fcitx5/src/main/cpp/prebuilt
 git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" checkout -q --detach "${PREBUILT_PIN}"
 git -C "${FIXTURE}" add .gitmodules lib/fcitx5/src/main/cpp plugin/rime/src/main/cpp
-# The script reads these patch paths from the environment; no real project patch
+# The script reads the patch path from the environment; no real project patch
 # is touched by this offline fixture.
 git -C "${FIXTURE}" commit -q -m fixture
 
@@ -110,26 +107,23 @@ run_script() {
     PREBUILT_REPO="file://${PREBUILT_REMOTE}" \
     PREBUILDER_REPO="file://${TMP_ROOT}/prebuilder.git" \
     FCITX5_GLOBAL_OPTIONS_UI_PATCH="${PATCH_ROOT}/global.patch" \
-    FCITX5_INSERT_SPACE_ZH_EN_PATCH="${PATCH_ROOT}/insert-space.patch" \
     bash "${SCRIPT_UNDER_TEST}"
 }
 
 run_script >/dev/null 2>&1
 assert_eq "${RIME_PIN}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" rev-parse HEAD)" "Rime gitlink pin"
-assert_eq "${PREBUILT_PIN}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" rev-parse HEAD)" "prebuilt gitlink pin"
+assert_eq "${PREBUILT_DRIFT}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" rev-parse HEAD)" "prebuilt follows remote master"
 assert_eq "${FCITX_PIN}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5" rev-parse HEAD)" "Fcitx5 base pin"
-assert_eq 'global' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/global.txt")" "global patch sequence"
-assert_eq 'insert-space' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/insert-space.txt")" "insert-space patch sequence"
-assert_eq "file://${RIME_REMOTE}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" config remote.gh.url)" "Rime remote config"
-assert_eq "file://${PREBUILT_REMOTE}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" config remote.gh.url)" "prebuilt remote config"
+assert_eq 'global' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/global.txt")" "global patch applied"
+assert_eq "file://${RIME_REMOTE}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" config remote.boomker.url)" "Rime remote config"
+assert_eq "file://${PREBUILT_REMOTE}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" config remote.boomker.url)" "prebuilt remote config"
 
-# A second invocation must recognize both patches as already applied and keep
-# the pinned submodules unchanged.
+# A second invocation must recognize the patch as already applied, keep the
+# pinned submodules unchanged, and leave prebuilt on remote master.
 run_script >/dev/null 2>&1
 assert_eq "${RIME_PIN}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" rev-parse HEAD)" "repeat Rime pin"
-assert_eq "${PREBUILT_PIN}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" rev-parse HEAD)" "repeat prebuilt pin"
+assert_eq "${PREBUILT_DRIFT}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" rev-parse HEAD)" "repeat prebuilt remote master"
 assert_eq 'global' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/global.txt")" "repeat global patch"
-assert_eq 'insert-space' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/insert-space.txt")" "repeat insert-space patch"
 
 # A mismatched submodule with local changes must fail without discarding them.
 git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q --detach "${RIME_DRIFT}"
@@ -141,11 +135,25 @@ assert_eq "${RIME_DRIFT}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-
 grep -q '^local-change$' "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime/state.txt" || fail 'dirty Rime content was lost'
 grep -q 'refusing to move it' "${TMP_ROOT}/dirty.log" || fail 'dirty checkout refusal was not reported'
 
+# A dirty prebuilt mirror must be refused too. Restore the Rime worktree first
+# so the script gets as far as the prebuilt stage.
+git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q -- state.txt
+git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q --detach "${RIME_PIN}"
+printf 'local-change\n' >> "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt/state.txt"
+if run_script >"${TMP_ROOT}/dirty-prebuilt.log" 2>&1; then
+    fail 'dirty prebuilt was silently moved'
+fi
+grep -q '^local-change$' "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt/state.txt" || fail 'dirty prebuilt content was lost'
+grep -q 'refusing to move it to remote master' "${TMP_ROOT}/dirty-prebuilt.log" || fail 'dirty prebuilt refusal was not reported'
+
 # Confirm the production defaults remain the boomker fork/configuration.
 grep -Fq 'https://github.com/boomker/fcitx5-rime.git' "${SCRIPT_UNDER_TEST}" || fail 'boomker Rime default changed'
 grep -Fq 'https://github.com/boomker/f5a-prebuilt.git' "${SCRIPT_UNDER_TEST}" || fail 'boomker prebuilt default changed'
 grep -Fq 'https://github.com/boomker/f5a-prebuilder.git' "${SCRIPT_UNDER_TEST}" || fail 'boomker prebuilder default changed'
-! grep -Fq 'gh/master' "${SCRIPT_UNDER_TEST}" || fail 'moving gh/master checkout remains'
+while IFS= read -r line; do
+    [[ "${line}" == *PREBUILT_DIR* ]] || \
+        fail "only prebuilt may follow a moving remote branch, found: ${line}"
+done < <(grep -F 'boomker/master' "${SCRIPT_UNDER_TEST}")
 ! grep -Eq 'checkout (-f|--force)|checkout -- \.' "${SCRIPT_UNDER_TEST}" || fail 'destructive checkout remains'
 
-echo 'PASS: pinned submodules survive remote master drift, repeat safely, and refuse dirty moves'
+echo 'PASS: pinned submodules survive remote master drift, prebuilt follows remote master, repeat safely, and refuse dirty moves'

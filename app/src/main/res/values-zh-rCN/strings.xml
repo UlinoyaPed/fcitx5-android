@@ -181,6 +181,7 @@
     <string name="uppercase_pos_bottom">底部</string>
     <string name="popup_on_key_press">按键时弹出显示字符</string>
     <string name="auto_close_brackets">自动补全成对符号</string>
+    <string name="insert_space_between_chinese_and_english">中英字符间插入空格</string>
     <string name="disable_animation">禁用动画</string>
     <string name="import_from_file">导入文件…</string>
     <string name="duplicate_builtin_theme">从内置主题复制…</string>
