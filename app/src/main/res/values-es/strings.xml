@@ -657,7 +657,7 @@
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Mantener barra de herramientas/candidatos con teclado fisico</string>
     <string name="lang_switch_behavior_next_ime_app">Cambiar a la siguiente app de metodo de entrada</string>
-    <string name="lang_switch_key_long_press_behavior">Acción al mantener pulsada la tecla de idioma</string>
+    <string name="lang_switch_key_long_press_behavior">Menú emergente al mantener pulsada la tecla de idioma</string>
     <string name="lang_switch_long_press_default">Predeterminado (incluye métodos de entrada externos)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Métodos de entrada integrados y esquemas de Rime</string>
     <string name="lang_switch_long_press_builtin_only">Solo métodos de entrada integrados activados</string>
@@ -759,7 +759,7 @@
     <string name="commit_first_candidate_character">Insertar primer carácter</string>
     <string name="commit_last_candidate_character">Insertar último carácter</string>
     <string name="swipe_down">Deslizar hacia abajo</string>
-    <string name="punctuation_swipe_strategy">Estrategia de introducción de puntuación al deslizar</string>
+    <string name="punctuation_swipe_strategy">Comportamiento al deslizar puntuación</string>
     <string name="punctuation_swipe_follow_input_mode">Seguir el modo chino/inglés</string>
     <string name="punctuation_swipe_raw">Introducir caracteres originales</string>
     <string name="swipe_symbol_behavior">Dirección de deslizamiento para signos de puntuación</string>
@@ -975,4 +975,26 @@
     <string name="personal_dock_toolbar">Mostrar candidatos flotantes junto a la barra del teclado físico</string>
     <string name="personal_reverse_above_cursor">Invertir candidatos verticales sobre el cursor</string>
     <string name="personal_punctuation_letters_only">Aplicar la posición de puntuación solo a las letras</string>
+
+    <!-- Reviewed optional input features -->
+    <string name="auto_close_brackets">Completar automáticamente los pares de símbolos</string>
+    <string name="insert_space_between_chinese_and_english">Insertar espacios entre caracteres chinos e ingleses</string>
+    <string name="edit_swipe_symbol_mapping">Asignación de símbolos al deslizar</string>
+    <string name="edit_swipe_symbol_mapping_summary">Editar los símbolos de ancho completo y de mayúsculas al deslizar teclas de puntuación</string>
+    <string name="swipe_symbol_add_mapping">Añadir asignación</string>
+    <string name="swipe_symbol_editor_hint">La primera columna es el símbolo de la tecla; la segunda, el símbolo en modo chino; y la tercera, el símbolo con mayúsculas activas. Deja la tercera vacía para conservar el comportamiento actual. Las letras mantienen los ajustes existentes de Shift y de conversión entre mayúsculas y minúsculas.</string>
+    <string name="swipe_symbol_col_raw">Original (medio ancho)</string>
+    <string name="swipe_symbol_col_fullwidth">Chino (ancho completo)</string>
+    <string name="swipe_symbol_col_upper">Mayúsculas</string>
+    <string name="swipe_symbol_raw_hint">Un solo símbolo de tecla, p. ej. .</string>
+    <string name="swipe_symbol_fullwidth_hint">Símbolo de ancho completo para el modo chino</string>
+    <string name="swipe_symbol_upper_hint">Símbolo para mayúsculas (opcional)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">El símbolo original debe tener exactamente un carácter</string>
+    <string name="swipe_symbol_raw_exists">La asignación ya existe: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">¿Eliminar la asignación %1$s?</string>
+    <string name="swipe_symbol_reset_all_confirm">¿Restablecer todas las asignaciones predeterminadas? Se perderán los cambios sin guardar.</string>
+    <string name="swipe_symbol_mapping_saved_at">Guardado en %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">No se puede obtener la ruta del archivo de asignaciones</string>
+    <string name="swipe_symbol_picker_title">Elegir de las asignaciones de símbolos</string>
+    <string name="swipe_symbol_picker_empty">No hay asignaciones de símbolos</string>
 </resources>

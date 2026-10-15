@@ -1,0 +1,185 @@
+{
+  "date": "2026-10-15",
+  "repository": "UlinoyaPed/fcitx5-android",
+  "maintained_branch": "main",
+  "base_personal_sha": "a275cb341ae9e0435b57321076e10a2e5cb02287",
+  "previous_upstream_sha": "6f63ee30a381930ec254418733e27fb912b4e72e",
+  "reviewed_upstream_sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
+  "reviewed_commit_count": 15,
+  "commits": [
+    {
+      "sha": "d180e4f65632d27e97be8d7f9e7cf3dfe238f3d0",
+      "decision": "adjusted",
+      "reason": "Configured highlighted phrase-character shortcuts only; no Pinyin fallback while unread/unbound. Keep native two-step ForgetWord behavior. Retained table/Rime/other engines keep native cursor synchronization; Pinyin uses a UI-only highlight only with verified phrase bindings."
+    },
+    {
+      "sha": "6d7f26ba133f49814a09aecf81720e8b09c9b454",
+      "decision": "adjusted",
+      "reason": "Apply the same verified binding handling to virtual keys."
+    },
+    {
+      "sha": "cd14ce36a3e16f8b1c197c5a035fa4a2d4784443",
+      "decision": "adjusted",
+      "reason": "Show calculator results in floating candidates; include pseudo-candidates in visible selection while native digit swipes still require real engine candidates."
+    },
+    {
+      "sha": "40bdbbeab43bddcac82efefdabba2d8b7692c15a",
+      "decision": "accepted",
+      "reason": "Replace deprecated Gradle registering DSL."
+    },
+    {
+      "sha": "d2fdbcd62c9904cf999e940353464c9e255ed92a",
+      "decision": "accepted",
+      "reason": "Group key behavior settings and show selected Rime schema; retain all useful personal controls and their stored values."
+    },
+    {
+      "sha": "1041e34a02ada980603e721b1354252a4f4b6c0c",
+      "decision": "accepted",
+      "reason": "Serialize native installs sharing CMake build trees and order them after native builds."
+    },
+    {
+      "sha": "267ea88909b46d36085fcef32003f9cb556d78f6",
+      "decision": "adjusted",
+      "reason": "Add configurable swipe symbols; preserve letter Follow Shift and case mapping, and legacy punctuation fallback for missing entries."
+    },
+    {
+      "sha": "13c95275f038700239055afeacf49e6b47e1f468",
+      "decision": "accepted",
+      "reason": "Mark custom alternate labels in layout editor."
+    },
+    {
+      "sha": "f5a84b8f2d1655dd89faa1ceb23e9178c4de48fd",
+      "decision": "adjusted",
+      "reason": "Show configured symbol mappings on key faces while letters retain their existing case controls."
+    },
+    {
+      "sha": "40b2c59891e5981e6d3216cc42b1265ccd076313",
+      "decision": "adjusted",
+      "reason": "Opt-in paired symbols; bypass terminal/password insertion, respect rejected editor deletion, consume matching hardware key-up."
+    },
+    {
+      "sha": "4aa38afd541eedb0fa0a5ae33761e4cbebed7ec5",
+      "decision": "adjusted",
+      "reason": "Move spacing into existing keyboard settings, migrate legacy Behavior value once without replacing Android choice, skip password fields."
+    },
+    {
+      "sha": "404a63297cc925cc8ecaa952afc57abcfa157feb",
+      "decision": "adjusted",
+      "reason": "Accept Q8 model tooling; guard CLI argument and file errors. Model rebuild not performed; shipped model gets Android load/candidate check."
+    },
+    {
+      "sha": "f5632ca3e6a17313c10628ccee57f3188e1466bb",
+      "decision": "not_adopted",
+      "reason": "Retain installed table engines, data, management UI, JNI and icons. Removing these would break existing user input methods."
+    },
+    {
+      "sha": "1871ccb43efb8a923b5a110bbb97babc25b3ef2d",
+      "decision": "accepted",
+      "reason": "Use reviewed Q8 language model/prediction assets at ac06fa1; pin build preparation to recorded gitlink instead of moving master."
+    },
+    {
+      "sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
+      "decision": "accepted",
+      "reason": "Adopt native Fcitx commit f4eb74cc; review formatting and client modifier/lock-state changes."
+    }
+  ],
+  "additional_adjustments": [
+    "Native build preparation pins reviewed prebuilt commit and refuses dirty moves; test fixtures verify remote drift cannot change the build.",
+    "Preserve main centering/independent fonts, adjustable 2dp (0–8dp) label padding, row precedence, physical-right BottomRight and directional function hints.",
+    "Preserve composition Shift clearing, duplicate empty notification handling and physical/simulated Caps semantics.",
+    "Keep AI JSON insertion, legacy parser compatibility, plaintext modes and user provider settings unchanged.",
+    "Complete all 20 new setting/editor strings in the five missing locales; all eight existing locales include these controls.",
+    "Add a tested highlight-cursor policy: only Pinyin with verified phrase-character bindings disables native cursor synchronization; unread/unbound Pinyin and retained table/Rime/other engines preserve the former behavior."
+  ],
+  "settings_changes": [
+    {
+      "key": "auto_close_brackets",
+      "default": false,
+      "reason": "Optional automatic insertion/deletion."
+    },
+    {
+      "key": "insert_space_between_chinese_and_english",
+      "default": false,
+      "migration": "Preserve legacy native choice; existing Android-side value takes precedence.",
+      "reason": "Optional text transformation."
+    },
+    {
+      "screen": "Symbol Swipe Mapping",
+      "reason": "Explicit user-configured full-width/Caps symbol output; letters retain existing controls."
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "unit_tests": 646,
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "unit_skipped": 0,
+    "debug_build": "passed: x86_64 app and test APK with final code/resources",
+    "first_instrumentation_run": {
+      "tests": 107,
+      "failures": 1,
+      "time_seconds": 146.547,
+      "reason": "New native test omitted input-context activation; native key dispatch ignores keys without an active context. Test setup corrected to activate a context, apply flags and focus before selecting Pinyin. Final run passed after correcting the test setup."
+    },
+    "first_full_lint": {
+      "errors": 20,
+      "warnings": 380,
+      "reason": "Missing translations in five locales; all 20 new strings translated without suppressions. Final lint passed with the translations."
+    },
+    "pin_fixture": "passed: pinned remote drift, repeat runs, dirty Rime/prebuilt refusal",
+    "script_checks": "bash -n and model utility --help passed; no ARPA rebuild",
+    "model_sha256": "df62f5880141a5435334c82fc66db9fd0a2e0d28a02148ec5fb577c9e30e58cd",
+    "packaging_checks": "Debug and release retain table libraries, Wubi config/dictionary, and byte-identical reviewed Q8 model",
+    "gitnexus": {
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "a275cb341ae9e0435b57321076e10a2e5cb02287",
+      "changed_symbols": 583,
+      "affected_processes": 47,
+      "changed_files": 68,
+      "risk_level": "critical",
+      "returned_arrays_match_summary": true,
+      "partial": false,
+      "truncated": false,
+      "pre_edit_risk_warning_delivered": true,
+      "limitation": "Graph caller/process discovery is a lower bound; complete returned lists do not establish global completeness."
+    },
+    "plugins_release": "passed: all 10 arm64-v8a plugins",
+    "plugins_configuration_cache": "passed; configuration cache entry stored",
+    "apk_identity_signing_abi": "passed: app and all 10 plugins, personal package IDs, identical temporary local certificate, arm64 ELF headers",
+    "android_instrumentation_tests": 107,
+    "android_instrumentation_failures": 0,
+    "android_instrumentation_time_seconds": 290.12,
+    "android_api": 29,
+    "android_device": "software x86_64 emulator; installation optimization disabled for retry",
+    "native_engine_check": "passed: activated input context, Pinyin candidates available with reviewed Q8 assets; wbx engine remains available",
+    "offline_ai_protocol": "existing response fixtures and Android JSON payload cases passed; no provider calls",
+    "release": "passed: arm64-v8a app",
+    "release_signing": "temporary local verification certificate; production signing remains in repository Secrets",
+    "lint": "passed",
+    "lint_errors": 0,
+    "lint_warnings": 380,
+    "candidate_cursor_policy_pre_edit_impact": {
+      "risk": "LOW",
+      "direct_callers": 1,
+      "affected_processes": 1,
+      "affected_modules": 2,
+      "total_impacted": 5
+    },
+    "new_cursor_policy_regressions": 3,
+    "app_configuration_cache": "passed: release build and configuration cache entry stored",
+    "cache_check_scope": "Shared native/Gradle build configuration, app and all plugins; final cursor-policy logic is independently covered by the final 646-case JVM run and rebuilt Android/release checks.",
+    "final_cursor_policy_unit_tests": "passed: 646 tests, 0 failures/errors/skips",
+    "final_release_and_lint": "passed after final cursor policy: 0 errors, 380 warnings",
+    "final_app_apk_signing_abi": "passed after final cursor policy: same local verification certificate and all 29 native libraries are arm64"
+  },
+  "unresolved": [
+    "No physical handset, physical keyboard, terminal, or live AI-provider quality evaluation.",
+    "Host ARPA/model regeneration utility is reviewed and shell-checked, not fully rebuilt or benchmarked.",
+    "Dependency graph contains unresolved dispatch, one scope extraction failure and process discovery limits; graph results are lower bounds."
+  ],
+  "review_timezone": "UTC",
+  "reviewed_at_utc": "2026-10-15T22:58:21.473654+00:00"
+}

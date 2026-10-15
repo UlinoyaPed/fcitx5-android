@@ -43,7 +43,12 @@ sealed class FcitxEvent<T>(open val data: T) {
 
         override val eventType = EventType.Commit
 
-        data class Data(val text: String, val cursor: Int, val fromCandidate: Boolean = false)
+        /**
+         * @param fromComposition true when fcitx finalized its composition —
+         * a candidate selection or a Return-committed preedit — the commits
+         * eligible for Chinese/English spacing.
+         */
+        data class Data(val text: String, val cursor: Int, val fromComposition: Boolean = false)
     }
 
     data class ClientPreeditEvent(override val data: FormattedText) :

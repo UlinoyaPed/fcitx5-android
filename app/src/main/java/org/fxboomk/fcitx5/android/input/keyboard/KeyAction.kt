@@ -103,7 +103,9 @@ sealed class KeyAction {
     data class CommitAction(
         val text: String,
         val followPunctuationMode: Boolean = false,
-        val followShift: Boolean = false
+        val followShift: Boolean = false,
+        /** Only explicit swipe commits participate in the configured symbol mapping. */
+        val swipeSymbol: Boolean = false
     ) : KeyAction()
 
     data class SelectCandidateAction(val index: Int, val fallbackDigit: Char) : KeyAction()

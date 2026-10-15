@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 class InputMethodListAdapter(
     val entries: List<InputMethodData>,
     private var enabledIndex: Int,
+    private val activeSchemaIndex: Int = -1,
     private val onEntryClick: (InputMethodData) -> Unit
 ) : RecyclerView.Adapter<InputMethodListAdapter.Holder>() {
 
@@ -27,9 +28,9 @@ class InputMethodListAdapter(
         val nextIsChild = entries.getOrNull(position + 1)?.rimeSchemaActionId != null
         holder.ui.setHierarchy(
             isChild = isChild,
-            isLastChild = isChild && !nextIsChild,
             isParent = !isChild && nextIsChild
         )
+        holder.ui.setSchemaSelected(isChild && position == activeSchemaIndex)
         holder.ui.root.apply {
             holder.ui.setActivated(position == enabledIndex)
             holder.ui.title.text = ime.name

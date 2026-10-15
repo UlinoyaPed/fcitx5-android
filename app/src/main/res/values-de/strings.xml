@@ -691,7 +691,7 @@
     <string name="keyboard_side_padding">Seitlicher Tastaturabstand</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Werkzeug-/Kandidatenleiste bei Hardwaretastatur beibehalten</string>
     <string name="lang_switch_behavior_next_ime_app">Zur nächsten Eingabemethoden-App wechseln</string>
-    <string name="lang_switch_key_long_press_behavior">Verhalten bei langem Drücken der Sprachtaste</string>
+    <string name="lang_switch_key_long_press_behavior">Popup bei langem Drücken der Sprachtaste</string>
     <string name="lang_switch_long_press_default">Standard (einschließlich externer Eingabemethoden)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Integrierte Eingabemethoden und Rime-Schemata</string>
     <string name="lang_switch_long_press_builtin_only">Nur aktivierte integrierte Eingabemethoden</string>
@@ -760,7 +760,7 @@
     <string name="status_area_main_tab">Fcitx5-Standardschaltflächen</string>
     <string name="commit_first_candidate_character">Erstes Zeichen eingeben</string>
     <string name="commit_last_candidate_character">Letztes Zeichen eingeben</string>
-    <string name="punctuation_swipe_strategy">Strategie zum Einfügen von Satzzeichen per Wischgeste</string>
+    <string name="punctuation_swipe_strategy">Verhalten beim Wischen mit Satzzeichen</string>
     <string name="punctuation_swipe_follow_input_mode">Chinesischem/englischem Modus folgen</string>
     <string name="punctuation_swipe_raw">Originalzeichen einfügen</string>
     <string name="swipe_symbol_behavior">Wischrichtung für Satzzeichen</string>
@@ -971,4 +971,26 @@
     <string name="personal_dock_toolbar">Schwebende Kandidaten neben der physischen Tastaturleiste anzeigen</string>
     <string name="personal_reverse_above_cursor">Vertikale Kandidaten über dem Cursor umkehren</string>
     <string name="personal_punctuation_letters_only">Satzzeichenposition nur auf Buchstabentasten anwenden</string>
+
+    <!-- Reviewed optional input features -->
+    <string name="auto_close_brackets">Gepaarte Zeichen automatisch schließen</string>
+    <string name="insert_space_between_chinese_and_english">Leerzeichen zwischen chinesischen und englischen Zeichen einfügen</string>
+    <string name="edit_swipe_symbol_mapping">Wischsymbol-Zuordnung</string>
+    <string name="edit_swipe_symbol_mapping_summary">Breite und Großschreibungs-Symbole für Wischgesten auf Satzzeichentasten bearbeiten</string>
+    <string name="swipe_symbol_add_mapping">Zuordnung hinzufügen</string>
+    <string name="swipe_symbol_editor_hint">Spalte 1 enthält das Tastensymbol, Spalte 2 das chinesische Symbol im chinesischen Modus und Spalte 3 das Symbol bei aktiver Umschaltung. Eine leere dritte Spalte behält das bisherige Wischverhalten bei. Für Buchstaben gelten weiterhin die vorhandenen Shift- und Groß-/Kleinschreibungs-Einstellungen.</string>
+    <string name="swipe_symbol_col_raw">Original (halbe Breite)</string>
+    <string name="swipe_symbol_col_fullwidth">Chinesisch (volle Breite)</string>
+    <string name="swipe_symbol_col_upper">Umschaltung</string>
+    <string name="swipe_symbol_raw_hint">Ein einzelnes Tastensymbol, z. B. .</string>
+    <string name="swipe_symbol_fullwidth_hint">Symbol voller Breite für den chinesischen Modus</string>
+    <string name="swipe_symbol_upper_hint">Symbol bei Umschaltung (optional)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">Das Originalsymbol muss genau ein Zeichen enthalten</string>
+    <string name="swipe_symbol_raw_exists">Zuordnung bereits vorhanden: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">Zuordnung %1$s löschen?</string>
+    <string name="swipe_symbol_reset_all_confirm">Alle Zuordnungen auf die Standardwerte zurücksetzen? Ungespeicherte Änderungen gehen verloren.</string>
+    <string name="swipe_symbol_mapping_saved_at">Gespeichert unter %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">Dateipfad der Wischsymbol-Zuordnung nicht verfügbar</string>
+    <string name="swipe_symbol_picker_title">Aus Wischsymbol-Zuordnung auswählen</string>
+    <string name="swipe_symbol_picker_empty">Die Wischsymbol-Zuordnung ist leer</string>
 </resources>

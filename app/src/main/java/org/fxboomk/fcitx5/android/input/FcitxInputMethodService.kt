@@ -36,6 +36,7 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsRequest
 import android.view.inputmethod.InlineSuggestionsResponse
+import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodSubtype
 import android.widget.FrameLayout
 import android.widget.inline.InlinePresentationSpec
@@ -56,15 +57,19 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.core.CapabilityFlag
 import org.fxboomk.fcitx5.android.core.CapabilityFlags
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.FcitxEvent
 import org.fxboomk.fcitx5.android.core.FcitxKeyMapping
 import org.fxboomk.fcitx5.android.core.FormattedText
+import org.fxboomk.fcitx5.android.core.Key
 import org.fxboomk.fcitx5.android.core.KeyState
 import org.fxboomk.fcitx5.android.core.KeyStates
 import org.fxboomk.fcitx5.android.core.KeySym
+import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.core.ScancodeMapping
 import org.fxboomk.fcitx5.android.core.SubtypeManager
 import org.fxboomk.fcitx5.android.core.TextFormatFlag
@@ -72,6 +77,10 @@ import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.data.InputFeedbacks
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.input.calculator.CalculatorExpression
+import org.fxboomk.fcitx5.android.input.candidates.shouldSyncCandidateCursorWithHighlight
+import org.fxboomk.fcitx5.android.input.candidates.candidateCharacters
+import org.fxboomk.fcitx5.android.input.candidates.candidateEdgeCharacters
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
@@ -80,6 +89,7 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.cursor.CursorRange
 import org.fxboomk.fcitx5.android.input.cursor.CursorTracker
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
+import org.fxboomk.fcitx5.android.input.keyboard.AutoCloseBracket
 import org.fxboomk.fcitx5.android.input.keyboard.resolveHardwarePredictionDigit
 import org.fxboomk.fcitx5.android.input.keyboard.shouldHardwareSpaceCommitPrediction
 import org.fxboomk.fcitx5.android.input.keyboard.HardwarePredictionSession
@@ -407,7 +417,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         hasFloatingCandidates() || inputView?.hasHorizontalCandidates() == true
 
     fun hasVisibleNativeCandidates(): Boolean =
-        hasFloatingCandidates() || inputView?.hasHorizontalNativeCandidates() == true
+        candidatesView?.hasNativeCandidates() == true || inputView?.hasHorizontalNativeCandidates() == true
 
     fun moveVisibleCandidateHighlight(delta: Int, syncEngine: Boolean = false): Boolean =
         when {
@@ -460,6 +470,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         candidatesView?.highlightedNativeCandidateIndex()
             ?: inputView?.takeIf { it.isShown }?.highlightedNativeCandidateIndex()
 
+    internal fun highlightedCandidateText(): String? =
+        candidatesView?.highlightedCandidateText()
+            ?: inputView?.takeIf { it.isShown }?.highlightedCandidateText()
+
     private fun moveVisibleCandidateHighlightOnMain(delta: Int, syncEngine: Boolean = false) {
         lifecycleScope.launch(Dispatchers.Main.immediate) {
             moveVisibleCandidateHighlight(delta, syncEngine)
@@ -480,6 +494,15 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return true
     }
 
+    /** Only verified Pinyin bindings can act on a UI-only highlight. */
+    private fun arrowHighlightSyncsEngineCursor(): Boolean {
+        val entry = fcitx.runImmediately { inputMethodEntryCached }
+        val bindings = candidateActionKeys?.takeIf { it.addon == entry.addon }
+        val hasVerifiedBindings = bindings != null &&
+            (bindings.selectCharFromPhrase.isNotEmpty() || bindings.selectLastCharFromPhrase != null)
+        return shouldSyncCandidateCursorWithHighlight(entry.addon, hasVerifiedBindings)
+    }
+
     private fun handleVisibleCandidateArrowKeyEvent(event: KeyEvent): Boolean {
         val delta = visibleCandidateArrowDelta(event.keyCode) ?: return false
         if (event.action != KeyEvent.ACTION_DOWN && event.action != KeyEvent.ACTION_UP) return false
@@ -493,12 +516,172 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return false
         }
         if (event.action == KeyEvent.ACTION_DOWN) {
-            // Physical arrow keys own the highlight here, so keep fcitx's candidate cursor
-            // in step with it. Otherwise a forwarded combination key (e.g. Ctrl+T) would act
-            // on the engine's first candidate instead of the one the user highlighted.
-            moveVisibleCandidateHighlightOnMain(delta, syncEngine = true)
+            // Keep existing engines synchronized. Pinyin may use the UI-only cursor
+            // once its configured phrase-character shortcuts have been read.
+            moveVisibleCandidateHighlightOnMain(
+                delta,
+                syncEngine = arrowHighlightSyncsEngineCursor(),
+            )
         }
         return true
+    }
+
+    // Physical keys consumed to drive an engine candidate action against the UI-highlighted
+    // candidate; tracked by (deviceId, keyCode) so the matching key-up and auto-repeat are
+    // swallowed instead of leaking to the engine.
+    private val highlightedCandidateActionKeys = mutableSetOf<Pair<Int, Int>>()
+
+    // A configured fcitx shortcut reduced to the parts we can match against a pressed key.
+    private class ActionKey(
+        val sym: Int,
+        val ctrl: Boolean,
+        val alt: Boolean,
+        val shift: Boolean,
+        val meta: Boolean,
+    ) {
+        fun matches(sym: Int, ctrl: Boolean, alt: Boolean, shift: Boolean, meta: Boolean): Boolean =
+            this.sym == sym && this.ctrl == ctrl && this.alt == alt &&
+                this.shift == shift && this.meta == meta
+
+        companion object {
+            fun of(key: Key): ActionKey? = key.sym.takeIf { it != 0 }?.let {
+                val states = KeyStates.of(key.states)
+                ActionKey(key.sym, states.ctrl, states.alt, states.shift, states.meta)
+            }
+        }
+    }
+
+    // The highlighted-candidate action shortcuts read from one engine's fcitx config.
+    // selectCharFromPhrase is ordered: the N-th key picks the N-th character of the word.
+    private class CandidateActionKeys(
+        val addon: String,
+        val selectCharFromPhrase: List<ActionKey>,
+        val selectLastCharFromPhrase: ActionKey?,
+    )
+
+    @Volatile
+    private var candidateActionKeys: CandidateActionKeys? = null
+    @Volatile
+    private var candidateActionKeysRequestedAddon: String? = null
+
+    /**
+     * Built-in engines (e.g. Pinyin) move only the UI highlight with the arrow keys / space swipe
+     * and leave fcitx's candidate cursor on the first candidate, so a raw shortcut forwarded to the
+     * engine would act on that first candidate rather than the highlighted one. This matches a
+     * pressed [sym] + modifiers against the active engine's configured shortcuts and applies the
+     * action to the highlighted candidate (by absolute index), reusing the long-press candidate
+     * menu's paths; it returns true when the key was consumed:
+     *   - The "Choose character from phrase" keys commit the N-th / last character of the
+     *     highlighted word ("以词定字").
+     *
+     * Shortcuts are read from the active engine's fcitx config (so a remapped key is honored),
+     * leaving unbound or unread shortcuts to the engine. Rime keeps its candidate cursor in step with the
+     * highlight (see [arrowHighlightSyncsEngineCursor]) and is left to flow through untouched.
+     * Shared by the physical keyboard ([handleHighlightedCandidateActionKeyEvent]) and the virtual
+     * keyboard (popup "[" / "]"). Must be called on the main thread (reads the UI highlight).
+     */
+    internal fun applyHighlightedCandidateActionKey(
+        sym: Int,
+        ctrl: Boolean = false,
+        alt: Boolean = false,
+        shift: Boolean = false,
+        meta: Boolean = false,
+    ): Boolean {
+        val entry = fcitx.runImmediately { inputMethodEntryCached }
+        if (entry.addon == "rime" || entry.icon == "fcitx-rime") return false
+        // Prefetch this engine's configured shortcuts so a later action key matches the user's own
+        // key bindings rather than only the defaults.
+        if (candidateActionKeysRequestedAddon != entry.addon) refreshCandidateActionKeys(entry.addon)
+        if (!hasVisibleCandidates()) return false
+        val nativeIndex = highlightedNativeCandidateIndex() ?: return false
+        val keys = candidateActionKeys?.takeIf { it.addon == entry.addon } ?: return false
+
+        // Keep the engine's native two-step forget action and user bindings intact.
+        // 以词定字: commit the N-th / last character of the highlighted word. Match the key first
+        // (cheap) and bail before reading the candidate text, so unrelated keystrokes — this runs on
+        // every virtual-keyboard key — cost nothing.
+        val selectLast = keys.selectLastCharFromPhrase?.matches(sym, ctrl, alt, shift, meta) == true
+        val selectNth = if (selectLast) -1 else keys.selectCharFromPhrase.indexOfFirst {
+            it.matches(sym, ctrl, alt, shift, meta)
+        }
+        if (!selectLast && selectNth < 0) return false
+        // Only genuine multi-character words qualify; single-char / punctuation / symbol candidates
+        // fall through to the engine.
+        val chars = highlightedCandidateText()
+            ?.takeIf { it.candidateEdgeCharacters() != null }
+            ?.candidateCharacters()
+            ?: return false
+        val charIndex = if (selectLast) chars.lastIndex else selectNth
+        if (charIndex !in chars.indices) return false
+        commitHighlightedCandidateCharacter(chars[charIndex])
+        return true
+    }
+
+    /**
+     * Physical-keyboard entry point: a key-down whose key matches an engine action shortcut is
+     * applied to the highlighted candidate, and its key-up / auto-repeat are swallowed so the raw
+     * key never reaches the engine.
+     */
+    private fun handleHighlightedCandidateActionKeyEvent(event: KeyEvent): Boolean {
+        val key = event.deviceId to event.keyCode
+        if (key in highlightedCandidateActionKeys) {
+            if (event.action == KeyEvent.ACTION_UP) highlightedCandidateActionKeys.remove(key)
+            return true
+        }
+        if (inputDeviceManager.isVirtualKeyboard) return false
+        if (event.action != KeyEvent.ACTION_DOWN) return false
+        val sym = KeySym.fromKeyEvent(event)?.sym ?: return false
+        if (!applyHighlightedCandidateActionKey(
+                sym,
+                ctrl = event.isCtrlPressed,
+                alt = event.isAltPressed,
+                shift = event.isShiftPressed,
+                meta = event.isMetaPressed,
+            )
+        ) {
+            return false
+        }
+        highlightedCandidateActionKeys.add(key)
+        return true
+    }
+
+    /** Reset the composition, then commit a single character picked from the highlighted word. */
+    private fun commitHighlightedCandidateCharacter(character: String) {
+        postFcitxJob {
+            reset()
+            withContext(Dispatchers.Main.immediate) {
+                commitText(character)
+            }
+        }
+    }
+
+    /** Read the given engine addon's config and cache the highlighted-candidate action shortcuts. */
+    private fun refreshCandidateActionKeys(addon: String) {
+        candidateActionKeysRequestedAddon = addon
+        postFcitxJob {
+            val config = runCatching { getAddonConfig(addon) }.getOrElse {
+                // Allow a later retry; unread bindings must never intercept a key.
+                if (candidateActionKeysRequestedAddon == addon) candidateActionKeysRequestedAddon = null
+                return@postFcitxJob
+            }
+            val selectCharFromPhrase = config.findActionKeys("ChooseCharFromPhrase")
+            val selectLastCharFromPhrase = config.findActionKeys("ChooseLastCharFromPhrase").firstOrNull()
+            candidateActionKeys = CandidateActionKeys(addon, selectCharFromPhrase, selectLastCharFromPhrase)
+        }
+    }
+
+    // Depth-first search for a named Key / KeyList option anywhere in the config tree, parsing its
+    // value(s) into matchable shortcuts. Returns empty when the option is absent or unbound.
+    private fun RawConfig.findActionKeys(name: String): List<ActionKey> {
+        findByName(name)?.let { node ->
+            val values = node.subItems?.takeIf { it.isNotEmpty() }?.map { it.value }
+                ?: listOf(node.value)
+            return values.filter { it.isNotEmpty() }.mapNotNull { ActionKey.of(Key.parse(it)) }
+        }
+        subItems?.forEach { child ->
+            child.findActionKeys(name).let { if (it.isNotEmpty()) return it }
+        }
+        return emptyList()
     }
 
     private fun hasPreeditCached(): Boolean = fcitx.runImmediately {
@@ -773,7 +956,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 resetCandidatePagingModeCache()
             }
             is FcitxEvent.CommitStringEvent -> {
-                commitCandidateText(event.data.text, event.data.cursor, event.data.fromCandidate)
+                commitCandidateText(event.data.text, event.data.cursor, event.data.fromComposition)
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -889,7 +1072,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private fun handleDeleteSurrounding(before: Int, after: Int) {
-        inputView?.clearCalculatorSuggestion()
+        clearCalculatorSuggestion()
         val ic = currentInputConnection ?: return
         if (before > 0) {
             selection.predictOffset(-before)
@@ -907,8 +1090,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     fun handleBackspaceDirectly() {
-        inputView?.clearCalculatorSuggestion()
+        clearCalculatorSuggestion()
         val ic = currentInputConnection ?: return
+        // 自动补全成对符号：删除「左半边」时，若其右侧紧邻对应的「右半边」，一并删除。
+        if (tryDeleteAutoClosedPair(ic)) {
+            refreshInputViewSelectionAfterEdit()
+            return
+        }
         val editorInfo = currentInputEditorInfo
         val isTypeNull = editorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL
         val lastSelection = selection.latest
@@ -943,8 +1131,63 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         refreshInputViewSelectionAfterEdit()
     }
 
+    /**
+     * 「自动补全成对符号」：若开关开启、无选区且光标紧跟在一个「左半边」符号之后、其右侧
+     * 又紧邻对应的「右半边」，则一次删掉这对符号并返回 true；其余情况返回 false，交回正常删除流程。
+     */
+    private fun tryDeleteAutoClosedPair(ic: InputConnection): Boolean {
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return false
+        if (composing.isNotEmpty()) return false
+        return deleteAdjacentAutoClosedPair(ic)
+    }
+
+    /**
+     * 条件满足（非 TYPE_NULL、无选区、光标前是「左半边」且其后紧邻对应「右半边」）时，
+     * 一次删掉这对符号并返回 true；否则不改动并返回 false。软键盘与实体键盘退格共用。
+     */
+    private fun deleteAdjacentAutoClosedPair(ic: InputConnection): Boolean {
+        val editorInfo = currentInputEditorInfo ?: return false
+        // TYPE_NULL（如终端）不一定支持 deleteSurroundingText，交回按键删除路径处理。
+        if (editorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) return false
+        val sel = selection.latest
+        if (sel.isNotEmpty() || sel.start <= 0) return false
+        val before = ic.getTextBeforeCursor(1, 0) ?: return false
+        val after = ic.getTextAfterCursor(1, 0) ?: return false
+        if (before.isEmpty() || after.isEmpty()) return false
+        if (!AutoCloseBracket.isPair(before[0], after[0])) return false
+        val deleted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ic.deleteSurroundingTextInCodePoints(1, 1)
+        } else {
+            ic.deleteSurroundingText(1, 1)
+        }
+        if (!deleted) return false
+        selection.predictOffset(-1)
+        return true
+    }
+
+    /**
+     * 实体键盘退格的「自动补全成对符号」删除：实体退格不走 [handleBackspaceDirectly]，而是经
+     * [onKeyDown] -> [forwardKeyEvent] 直达编辑器。此处在转发前拦截：无编码/预编辑、光标夹在一对
+     * 符号中间时，一并删除两半并消费该按键；其余情况返回 false 交回原转发流程。
+     */
+    private val pairedDeleteKeys = mutableSetOf<Pair<Int, Int>>()
+
+    private fun tryHardwareBackspaceAutoClosePair(event: KeyEvent): Boolean {
+        val key = event.deviceId to event.keyCode
+        if (event.action == KeyEvent.ACTION_UP && pairedDeleteKeys.remove(key)) return true
+        if (event.keyCode != KeyEvent.KEYCODE_DEL || event.action != KeyEvent.ACTION_DOWN) return false
+        if (event.isCtrlPressed || event.isAltPressed || event.isMetaPressed) return false
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return false
+        if (composing.isNotEmpty() || hasPreeditCached()) return false
+        val ic = currentInputConnection ?: return false
+        if (!deleteAdjacentAutoClosedPair(ic)) return false
+        pairedDeleteKeys.add(key)
+        refreshInputViewSelectionAfterEdit()
+        return true
+    }
+
     private fun handleReturnKey() {
-        inputView?.clearCalculatorSuggestion()
+        clearCalculatorSuggestion()
         val ic = currentInputConnection ?: run {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_ENTER)
             return
@@ -1008,13 +1251,51 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      */
     private fun afterCommitUpdateCalculatorSuggestion(text: String) {
         if (!text.trimEnd().endsWith('=')) {
-            inputView?.clearCalculatorSuggestion()
+            clearCalculatorSuggestion()
             return
         }
         // post to let the editor apply the committed text before fetching context
         contentView.post {
-            inputView?.checkCalculatorSuggestion()
+            refreshCalculatorSuggestion()
         }
+    }
+
+    /**
+     * Compute the calculator suggestion from the text before the cursor and fan it out to
+     * every candidate surface: the horizontal bar (via [InputView]) and the floating
+     * [CandidatesView] used in "Floating window" mode. Only invoked after a commit ending
+     * with '=', keeping the typing hot path free of synchronous getTextBeforeCursor Binder calls.
+     */
+    private fun refreshCalculatorSuggestion() {
+        val textBeforeCursor = currentInputConnection
+            ?.getTextBeforeCursor(CALCULATOR_CONTEXT_CHARS, 0)
+            ?.toString()
+        updateCalculatorSuggestion(textBeforeCursor?.let(CalculatorExpression::extractSuggestion))
+    }
+
+    private fun clearCalculatorSuggestion() {
+        updateCalculatorSuggestion(null)
+    }
+
+    private fun updateCalculatorSuggestion(suggestion: String?) {
+        inputView?.updateCalculatorSuggestion(suggestion)
+        candidatesView?.updateCalculatorSuggestion(suggestion)
+    }
+
+    /**
+     * 「自动补全成对符号」：当本次提交的 [text] 恰好是一个「左半边」符号、且处于可补全的场景
+     * （开关开启、默认提交 cursor == -1、无待上屏编码、无选区）时，返回应补全的「右半边」，
+     * 否则返回 null（走原有提交流程，行为完全不变）。
+     */
+    private fun autoClosePairCloserFor(text: String, cursor: Int): String? {
+        if (!prefs.keyboard.autoCloseBrackets.getValue()) return null
+        if (cursor != -1) return null
+        val editor = currentInputEditorInfo ?: return null
+        if (editor.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL ||
+            CapabilityFlags.fromEditorInfo(editor).has(CapabilityFlag.Password)) return null
+        if (composing.isNotEmpty()) return null
+        if (selection.latest.isNotEmpty()) return null
+        return AutoCloseBracket.closerFor(text)
     }
 
     fun commitText(text: String, cursor: Int = -1) {
@@ -1043,8 +1324,22 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         // committed text should replace composing (if any), replace selected range (if any),
         // or simply prepend before cursor
+        val autoPairCloser = autoClosePairCloserFor(text, cursor)
         val start = if (composing.isEmpty()) selection.latest.start else composing.start
         resetComposingState()
+        if (autoPairCloser != null) {
+            // 自动补全成对符号：提交「左半边」时补全「右半边」，并把光标停在二者中间。
+            val caret = start + text.length
+            selection.predict(caret)
+            ic.withBatchEdit {
+                commitText(text + autoPairCloser, 1)
+                setSelection(caret, caret)
+            }
+            refreshInputViewSelectionAfterEdit()
+            onPredictionTextCommitted(text)
+            afterCommitUpdateCalculatorSuggestion(text)
+            return
+        }
         if (cursor == -1) {
             selection.predict(start + text.length)
             ic.commitText(text, 1)
@@ -1076,82 +1371,35 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    private fun commitCandidateText(text: String, cursor: Int, fromCandidate: Boolean) {
-        val commit = if (fromCandidate) {
-            maybeInsertSpaceBetweenChineseAndEnglish(text, cursor)
+    private fun commitCandidateText(text: String, cursor: Int, fromComposition: Boolean) {
+        val insertSpace = fromComposition && !capabilityFlags.has(CapabilityFlag.Password) &&
+            prefs.keyboard.insertSpaceBetweenChineseAndEnglish.getValue()
+        val commit = if (insertSpace) {
+            ChineseEnglishSpacing.pad(text, cursor, codePointBeforeCommit())
         } else {
-            CandidateCommitText(text, cursor)
+            ChineseEnglishSpacing.PaddedCommit(text, cursor)
         }
         commitText(commit.text, commit.cursor)
     }
 
-    private fun maybeInsertSpaceBetweenChineseAndEnglish(text: String, cursor: Int): CandidateCommitText {
-        if (text.isEmpty()) {
-            return CandidateCommitText(text, cursor)
-        }
-        val ic = currentInputConnection ?: return CandidateCommitText(text, cursor)
-        val previousCodePoint = ic.getTextBeforeCursor(2, 0)
-            ?.toString()
-            ?.codePointBeforeOrNull()
-        val firstCodePoint = text.codePointAt(0)
-        val prependSpace = previousCodePoint?.let {
-            isChineseCodePoint(it) && isAsciiLetter(firstCodePoint)
-        } ?: false
-        val appendSpace = isAsciiWord(text) && !text.endsWith(' ')
-        if (!prependSpace && !appendSpace) {
-            return CandidateCommitText(text, cursor)
-        }
-        val adjustedText = buildString(text.length + 2) {
-            if (prependSpace) {
-                append(' ')
-            }
-            append(text)
-            if (appendSpace) {
-                append(' ')
-            }
-        }
-        val cursorOffset = (if (prependSpace) 1 else 0) +
-            (if (appendSpace && cursor == text.length) 1 else 0)
-        val adjustedCursor = if (cursor == -1) {
-            -1
+    /**
+     * Code point right before the position the next commit lands at.
+     *
+     * The composing text is already in the editor, so the characters just before
+     * the cursor can be the preedit itself (always so when Return commits it);
+     * those get skipped to reach the text the commit actually follows.
+     */
+    private fun codePointBeforeCommit(): Int? {
+        val ic = currentInputConnection ?: return null
+        val composingBeforeCursor = if (composing.isEmpty()) {
+            0
         } else {
-            cursor + cursorOffset
+            (selection.latest.start - composing.start).coerceAtLeast(0)
         }
-        return CandidateCommitText(adjustedText, adjustedCursor)
+        val before = ic.getTextBeforeCursor(composingBeforeCursor + 2, 0)?.toString() ?: return null
+        if (before.length <= composingBeforeCursor) return null
+        return before.dropLast(composingBeforeCursor).codePointBeforeOrNull()
     }
-
-    private data class CandidateCommitText(val text: String, val cursor: Int)
-
-    private fun isAsciiWord(text: String): Boolean {
-        if (text.isEmpty()) {
-            return false
-        }
-        var offset = 0
-        while (offset < text.length) {
-            val codePoint = text.codePointAt(offset)
-            if (!isAsciiLetter(codePoint)) {
-                return false
-            }
-            offset += Character.charCount(codePoint)
-        }
-        return true
-    }
-
-    private fun isAsciiLetter(codePoint: Int): Boolean =
-        codePoint in 'A'.code..'Z'.code ||
-            codePoint in 'a'.code..'z'.code
-
-    private fun isChineseCodePoint(codePoint: Int): Boolean =
-        codePoint in 0x3400..0x4DBF ||
-            codePoint in 0x4E00..0x9FFF ||
-            codePoint in 0xF900..0xFAFF ||
-            codePoint in 0x20000..0x2A6DF ||
-            codePoint in 0x2A700..0x2B73F ||
-            codePoint in 0x2B740..0x2B81F ||
-            codePoint in 0x2B820..0x2CEAF ||
-            codePoint in 0x2CEB0..0x2EBEF ||
-            codePoint in 0x30000..0x3134F ||
-            codePoint in 0x31350..0x323AF
 
     private fun String.codePointBeforeOrNull(): Int? =
         if (isEmpty()) null else codePointBefore(length)
@@ -1338,7 +1586,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun deleteSelection() {
         val lastSelection = selection.latest
         if (lastSelection.isEmpty()) return
-        inputView?.clearCalculatorSuggestion()
+        clearCalculatorSuggestion()
         selection.predict(lastSelection.start)
         currentInputConnection?.commitText("", 1)
         refreshInputViewSelectionAfterEdit()
@@ -1578,6 +1826,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return true
         }
         if (handleHardwarePredictionKeyEvent(forwardedEvent)) {
+            return true
+        }
+        if (handleHighlightedCandidateActionKeyEvent(forwardedEvent)) {
+            return true
+        }
+        // 自动补全成对符号：实体键盘退格删除「左半边」时一并删除紧邻的「右半边」。
+        // 置于候选/预测处理之后、转发给引擎之前，避免影响既有按键语义。
+        if (tryHardwareBackspaceAutoClosePair(forwardedEvent)) {
             return true
         }
         cachedKeyEvents.put(timestamp, forwardedEvent)
@@ -1941,6 +2197,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
+        candidateActionKeys = null
+        candidateActionKeysRequestedAddon = null
+        highlightedCandidateActionKeys.clear()
+        pairedDeleteKeys.clear()
         isInInputLifecycleCriticalPhase = true
         try {
             if (!restarting) hardwarePredictionSession.reset()
@@ -1949,7 +2209,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             val inputSessionGeneration = ++this.inputSessionGeneration
             selection.resetTo(attribute.initialSelStart, attribute.initialSelEnd)
             resetComposingState()
-            inputView?.clearCalculatorSuggestion()
+            clearCalculatorSuggestion()
             val flags = CapabilityFlags.fromEditorInfo(attribute)
             capabilityFlags = flags
             inputDeviceManager.notifyOnStartInput(attribute)
@@ -2030,7 +2290,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (!selfPredicted) {
             // cursor moved by the user or the app: previously shown calculator suggestion
             // (anchored to the old cursor position) is stale, drop it without any IPC
-            inputView?.clearCalculatorSuggestion()
+            clearCalculatorSuggestion()
         }
         inputView?.updateSelection(newSelStart, newSelEnd)
     }
@@ -2415,6 +2675,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     @Suppress("ConstPropertyName")
     companion object {
+        /** Characters of context fed to the calculator expression detector after a commit. */
+        const val CALCULATOR_CONTEXT_CHARS = 512
         const val DefaultHighlightColor = 0x008577 // material_deep_teal_500
         const val DeleteSurroundingFlag = "org.fxboomk.fcitx5.android.DELETE_SURROUNDING"
     }

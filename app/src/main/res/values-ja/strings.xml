@@ -197,7 +197,7 @@
     <string name="disable_addon_warn_dep">%1$s を無効にする</string>
     <string name="disable_addon_warn_optdep">%1$s のいくつかの機能が無効になります</string>
     <string name="disable_addon_warn_confirm">本当に無効にしますか？</string>
-    <string name="punctuation_swipe_strategy">記号スワイプ入力の確定方法</string>
+    <string name="punctuation_swipe_strategy">記号スワイプ入力の動作</string>
     <string name="punctuation_swipe_follow_input_mode">中国語・英語モードに従う</string>
     <string name="punctuation_swipe_raw">元の文字を入力</string>
     <string name="swipe_symbol_behavior">句読点のスワイプ方向</string>
@@ -316,7 +316,7 @@
     <string name="expand_keypress_area">キー範囲を端まで拡張</string>
     <string name="update_table">Tableの更新</string>
     <string name="table_dict_replace_message">Tableの辞書\"%1$s\"は存在します。新しい辞書をインポートして置き換えることができます。</string>
-    <string name="lang_switch_key_long_press_behavior">言語キーの長押し動作</string>
+    <string name="lang_switch_key_long_press_behavior">言語キーの長押しポップアップ</string>
     <string name="lang_switch_long_press_default">デフォルト（外部入力メソッドを含む）</string>
     <string name="lang_switch_long_press_builtin_and_rime">内蔵入力メソッドとRimeスキーマ</string>
     <string name="lang_switch_long_press_builtin_only">有効な内蔵入力メソッドのみ</string>
@@ -973,4 +973,26 @@
     <string name="personal_dock_toolbar">物理キーボードのツールバーと候補ウィンドウを併用</string>
     <string name="personal_reverse_above_cursor">カーソル上の縦候補を逆順に表示</string>
     <string name="personal_punctuation_letters_only">句読点の位置設定を英字キーだけに適用</string>
+
+    <!-- Reviewed optional input features -->
+    <string name="auto_close_brackets">対になる記号を自動補完</string>
+    <string name="insert_space_between_chinese_and_english">中国語と英語の間に空白を挿入</string>
+    <string name="edit_swipe_symbol_mapping">スワイプ記号の割り当て</string>
+    <string name="edit_swipe_symbol_mapping_summary">句読点キーのスワイプで入力する全角記号と大文字時の記号を編集</string>
+    <string name="swipe_symbol_add_mapping">割り当てを追加</string>
+    <string name="swipe_symbol_editor_hint">1列目はキーの元の記号、2列目は中国語モードで入力する記号、3列目は大文字時の記号です。3列目を空欄にすると現在のスワイプ動作を維持します。文字には既存の Shift 連動と大文字・小文字の変換設定が適用されます。</string>
+    <string name="swipe_symbol_col_raw">元の記号（半角）</string>
+    <string name="swipe_symbol_col_fullwidth">中国語（全角）</string>
+    <string name="swipe_symbol_col_upper">大文字時</string>
+    <string name="swipe_symbol_raw_hint">キーに表示する1文字の記号（例：.）</string>
+    <string name="swipe_symbol_fullwidth_hint">中国語モードで使う全角記号</string>
+    <string name="swipe_symbol_upper_hint">大文字時の記号（任意）</string>
+    <string name="swipe_symbol_raw_must_be_single_char">元の記号は1文字で指定してください</string>
+    <string name="swipe_symbol_raw_exists">割り当ては既に存在します：%1$s</string>
+    <string name="swipe_symbol_delete_confirm">割り当て %1$s を削除しますか？</string>
+    <string name="swipe_symbol_reset_all_confirm">すべての割り当てを初期値に戻しますか？未保存の変更は失われます。</string>
+    <string name="swipe_symbol_mapping_saved_at">保存先：%1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">スワイプ記号の設定ファイルのパスを取得できません</string>
+    <string name="swipe_symbol_picker_title">スワイプ記号の割り当てから選択</string>
+    <string name="swipe_symbol_picker_empty">スワイプ記号の割り当ては空です</string>
 </resources>

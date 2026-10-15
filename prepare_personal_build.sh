@@ -17,7 +17,6 @@ PREBUILT_DIR="${PROJECT_ROOT}/lib/fcitx5/src/main/cpp/prebuilt"
 
 # Patch files
 FCITX5_GLOBAL_OPTIONS_UI_PATCH="${FCITX5_GLOBAL_OPTIONS_UI_PATCH:-${PROJECT_ROOT}/lib/fcitx5/fcitx5-global-options-ui.patch}"
-FCITX5_INSERT_SPACE_ZH_EN_PATCH="${FCITX5_INSERT_SPACE_ZH_EN_PATCH:-${PROJECT_ROOT}/lib/fcitx5/fcitx5-insert-space-zh-en.patch}"
 # RIME_PREEDIT_LABEL_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-preedit-cursor-label.patch"
 
 apply_patch() {
@@ -65,7 +64,7 @@ checkout_pinned_submodule() {
 }
 
 # Keep fcitx5-rime reproducible using the gitlink recorded by this superproject.
-# Prebuilt libraries follow the producer's published master branch below.
+# Prebuilt libraries are pinned too; reviewed updates change the recorded gitlink.
 # Prefer the index so the script also follows a freshly staged gitlink update
 # before the containing superproject commit is created.
 gitlink_commit() {
@@ -81,19 +80,7 @@ checkout_pinned_submodule "${RIME_DIR}" "${FCITX5_RIME_REPO}" "${RIME_COMMIT}" "
 # apply fcitx5 patches
 echo "applying fcitx5 patches"
 apply_patch "${FCITX5_DIR}" "${FCITX5_GLOBAL_OPTIONS_UI_PATCH}" "global-options-ui"
-apply_patch "${FCITX5_DIR}" "${FCITX5_INSERT_SPACE_ZH_EN_PATCH}" "insert-space-zh-en"
 
-# update prebuilt
-echo "updating prebuilt from ${PREBUILT_REPO}"
-echo "prebuilt producer repo is ${PREBUILDER_REPO}"
-# Do not overwrite locally rebuilt libraries or other uncommitted changes.
-if [[ -n "$(git -C "${PREBUILT_DIR}" status --porcelain)" ]]; then
-    echo "✗ prebuilt has local changes; refusing to move it to remote master" >&2
-    exit 1
-fi
-
-git -C "${PREBUILT_DIR}" remote add boomker "${PREBUILT_REPO}" 2>/dev/null || \
-    git -C "${PREBUILT_DIR}" remote set-url boomker "${PREBUILT_REPO}"
-git -C "${PREBUILT_DIR}" fetch -v boomker master
-git -C "${PREBUILT_DIR}" checkout --detach boomker/master
-echo "✓ prebuilt updated to remote master: $(git -C "${PREBUILT_DIR}" rev-parse HEAD)"
+# Pin prebuilt libraries so CI cannot silently consume unreviewed native code.
+PREBUILT_COMMIT="$(gitlink_commit lib/fcitx5/src/main/cpp/prebuilt)"
+checkout_pinned_submodule "${PREBUILT_DIR}" "${PREBUILT_REPO}" "${PREBUILT_COMMIT}" "prebuilt"

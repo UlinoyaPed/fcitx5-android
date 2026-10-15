@@ -183,6 +183,20 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     // 数据管理器
     private val dataManager = LayoutDataManager(this)
     private val entries get() = dataManager.entries
+
+    /** 出厂默认预设的「字母键 main -> alt」，用于编辑器中副字符改动的绿框标识。 */
+    private val defaultAlphabetAltByMain: Map<String, String?> by lazy {
+        buildMap {
+            dataManager.defaultPresetSnapshot().forEach { row ->
+                row.forEach { key ->
+                    if (key["type"] == "AlphabetKey") {
+                        val main = key["main"] as? String
+                        if (main != null && main !in this) put(main, key["alt"] as? String)
+                    }
+                }
+            }
+        }
+    }
     private var originalEntries: Map<String, List<List<Map<String, Any?>>>> = emptyMap()
 
     private val previewManager by lazy {
@@ -994,7 +1008,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                         }
                     }
                 }
-            })
+            }, defaultAlphabetAltByMain)
             rowsRecyclerView.adapter = rowsAdapter
 
             // Setup drag helper - uses currentRowsRef which is updated on each buildRows()

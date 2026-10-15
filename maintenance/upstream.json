@@ -2,68 +2,51 @@
   "upstream": "boomker/fcitx5-android",
   "personal_repository": "UlinoyaPed/fcitx5-android",
   "maintained_branch": "main",
-  "review_date": "2026-10-09",
-  "previous_upstream_sha": "f5ee340b822c40828b355d2b14d27211d3a342e8",
-  "reviewed_upstream_sha": "6f63ee30a381930ec254418733e27fb912b4e72e",
-  "reviewed_commit_count": 27,
-  "decision": "Integrate reviewed upstream changes with independent opt-in controls and retained personal behavior",
+  "review_date": "2026-10-15",
+  "previous_upstream_sha": "6f63ee30a381930ec254418733e27fb912b4e72e",
+  "reviewed_upstream_sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
+  "reviewed_commit_count": 15,
+  "decision": "Integrate reviewed updates with retained table engines, personal preferences and verified compatibility adjustments",
   "deferred_commits": [],
+  "rejected_changes": [
+    {
+      "sha": "f5632ca3e6a17313c10628ccee57f3188e1466bb",
+      "reason": "Retain installed table engines, data, management UI, JNI and icons. Removing these would break existing user input methods."
+    }
+  ],
   "policy": {
-    "new_function_requires_independent_control": true,
-    "new_behavior_defaults_to_previous_behavior": true,
+    "new_function_requires_independent_control": false,
+    "controls_for_preference_differences_input_takeover_and_optional_features": true,
+    "ordinary_fixes_directly_enabled": true,
     "retain_existing_preferences": true,
     "no_force_push": true,
     "no_automatic_upstream_comments_or_prs": true
   },
-  "personal_adjustments": [
-    "Eight independent controls defaulting off for index labels, hardware digit and space selection, prediction dismissal, digit swipes, toolbar docking, candidate reversal and letter-only punctuation positioning",
-    "Restore the existing llm_space_commit_prediction preference and preserve its stored value",
-    "Use an explicit digit-swipe candidate action with literal fallback instead of a NUL-prefixed text protocol",
-    "Reject non-ASCII digit swipe selection and preserve input when selection is unavailable",
-    "Clamp main glyph scaling in collapsed remaining-space bands",
-    "Reject all non-finite cursor anchors and floating candidate positions",
-    "Restore the full 2dp geometric glyph gap; verify exact placement separately from density-dependent font rasterization",
-    "Complete existing theme preview translations"
-  ],
+  "review_record": "maintenance/2026-10-15-upstream-review.json",
+  "previous_record": "maintenance/2026-10-09-upstream-review.json",
   "validation": {
+    "status": "passed",
     "unit_tests": {
-      "tests": 589,
+      "tests": 646,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
-    "debug_abis": [
-      "arm64-v8a",
-      "x86_64"
-    ],
-    "android_test_apk": "built",
-    "instrumentation": {
-      "device": "Android 10 / API 29 software emulator",
-      "tests": 52,
+    "android_instrumentation": {
+      "tests": 107,
       "failures": 0,
-      "ignored": 0,
-      "covers": [
-        "candidate height notifications",
-        "immediate main-label drawing and layout convergence",
-        "density/font/short-row label geometry and spacing",
-        "letter-only punctuation on and off",
-        "clipboard category and search refresh",
-        "floating candidate layout and reversal",
-        "independent default-off switches",
-        "stored AI space preference",
-        "settings search discovery"
-      ]
+      "api": 29,
+      "physical_device_testing": "not performed"
     },
+    "release_abi": "arm64-v8a",
+    "release_plugins": 10,
+    "configuration_cache": "app and plugins checks passed",
+    "apk_signing": "11 APKs verified with one temporary local certificate; production signing remains in repository Secrets",
     "lint": {
       "errors": 0,
-      "warnings": 377,
+      "warnings": 380,
       "result": "passed"
     },
-    "graph_analysis": {
-      "result": "impact and complete structured all/compare change analysis performed",
-      "risk": "critical",
-      "limitation": "Graph results are a lower bound; some scope extraction and dynamic dispatch paths are unresolved. Regression validation supplements the graph."
-    },
-    "physical_device_testing": "not performed"
+    "details": "maintenance/2026-10-15-upstream-review.json"
   }
 }

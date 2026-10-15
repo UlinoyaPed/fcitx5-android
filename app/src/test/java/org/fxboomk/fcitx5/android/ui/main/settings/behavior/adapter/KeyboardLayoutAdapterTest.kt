@@ -93,4 +93,51 @@ class KeyboardLayoutAdapterTest {
             )
         )
     }
+
+    @Test
+    fun `changed alt or alt1 character is treated as customized against the default preset`() {
+        val defaults = mapOf("l" to ")", "i" to "8")
+        // 副字符从默认 ")" 改成 "ü" → 已定制（绿框）
+        assertTrue(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to "ü"), defaults, true
+            )
+        )
+        // 副字符一改成非"自动大写"的字符 → 已定制
+        assertTrue(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to ")", "alt1" to "Ü"), defaults, true
+            )
+        )
+        // 大写提示关闭时填入任意 alt1 → 已定制
+        assertTrue(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to ")", "alt1" to "X"), defaults, false
+            )
+        )
+        // 副字符与默认一致、alt1 等于自动大写("L") → 未定制（仅物化自动提示）
+        assertFalse(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to ")", "alt1" to "L"), defaults, true
+            )
+        )
+        // 未打开过的按键：alt 默认、alt1 缺省 → 未定制（避免整排误标绿）
+        assertFalse(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to ")"), defaults, true
+            )
+        )
+        // 无 alt 基准 + alt1 等于自动大写 → 未定制
+        assertFalse(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "AlphabetKey", "main" to "l", "alt" to "ü", "alt1" to "L"), emptyMap(), true
+            )
+        )
+        // 非字母键 → 不适用
+        assertFalse(
+            KeyboardLayoutAdapter.isAltCustomized(
+                mapOf("type" to "SymbolKey", "label" to "."), defaults, true
+            )
+        )
+    }
 }

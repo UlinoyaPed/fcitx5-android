@@ -235,6 +235,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         }
         val punctuationPositionLettersOnly = switch(R.string.personal_punctuation_letters_only, "personal_punctuation_letters_only", false)
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
+        val autoCloseBrackets = switch(R.string.auto_close_brackets, "auto_close_brackets", false)
+        val insertSpaceBetweenChineseAndEnglish = switch(
+            R.string.insert_space_between_chinese_and_english,
+            "insert_space_between_chinese_and_english",
+            false
+        )
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,
             "keep_keyboard_letters_uppercase",
@@ -649,6 +655,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     private fun <T : ManagedPreferenceProvider> T.register() = this.apply {
         registerProvider { this }
+    }
+
+    init {
+        val context = org.fxboomk.fcitx5.android.FcitxApplication.getInstance().directBootAwareContext
+        migrateLegacyChineseEnglishSpacing(sharedPreferences,
+            java.io.File(context.getExternalFilesDir(null) ?: context.filesDir, "config/config"))
     }
 
     val internal = Internal().register()

@@ -48,6 +48,7 @@ object InputMethodPickerDialog {
         }
         val enabledIM = fcitx.inputMethodEntryCached.uniqueName
         val enabledIndex = entries.indexOfFirst { it.uniqueName == enabledIM }
+        val activeSchemaIndex = resolveActiveSchemaIndex(fcitx, entries)
         val dividerIndex = entries.indexOfFirst { it.ime }
         lateinit var dialog: AlertDialog
         dialog = AlertDialog.Builder(context)
@@ -60,7 +61,7 @@ object InputMethodPickerDialog {
                 topPadding = dp(4) // android.R.dimen.dialog_title_divider_material
                 setPadding(dp(30), dp(0), dp(30), dp(4))
                 layoutManager = verticalLayoutManager()
-                adapter = InputMethodListAdapter(entries, enabledIndex) {
+                adapter = InputMethodListAdapter(entries, enabledIndex, activeSchemaIndex) {
                     if (it.rimeSchemaActionId != null) {
                         service.lifecycleScope.launch {
                             if (!fcitx.activateRimeSchemaAction(it.rimeSchemaActionId)) {
@@ -89,5 +90,21 @@ object InputMethodPickerDialog {
             }
             .create()
         return dialog
+    }
+
+    /**
+     * The row of the Rime schema currently in use, so the leading radio button reflects
+     * the active choice. The active schema name comes from the current engine's sub mode;
+     * it is unavailable (or a mode indicator such as "A") outside an active Rime schema.
+     */
+    private fun resolveActiveSchemaIndex(
+        fcitx: FcitxAPI,
+        entries: List<InputMethodData>
+    ): Int {
+        val current = fcitx.inputMethodEntryCached
+        if (current.addon != "rime") return -1
+        val schemaName = current.subMode.name.trim()
+        if (schemaName.isEmpty()) return -1
+        return entries.indexOfFirst { it.rimeSchemaActionId != null && it.name == schemaName }
     }
 }

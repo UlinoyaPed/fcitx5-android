@@ -638,7 +638,7 @@
     <string name="physical_keyboard_horizontal_candidate_bar">물리 키보드 사용 시 도구/후보 바 유지</string>
     <string name="landscape">가로</string>
     <string name="lang_switch_behavior_next_ime_app">다음 입력기 앱으로 전환</string>
-    <string name="lang_switch_key_long_press_behavior">언어 키 길게 누르기 동작</string>
+    <string name="lang_switch_key_long_press_behavior">언어 키 길게 누르기 팝업</string>
     <string name="lang_switch_long_press_default">기본값(외부 입력기 포함)</string>
     <string name="lang_switch_long_press_builtin_and_rime">내장 입력기 및 Rime 스키마</string>
     <string name="lang_switch_long_press_builtin_only">활성화된 내장 입력기만</string>
@@ -748,7 +748,7 @@
     <string name="commit_first_candidate_character">첫 글자 입력</string>
     <string name="commit_last_candidate_character">마지막 글자 입력</string>
     <string name="swipe_down">아래로 스와이프</string>
-    <string name="punctuation_swipe_strategy">구두점 스와이프 입력 전략</string>
+    <string name="punctuation_swipe_strategy">구두점 스와이프 입력 동작</string>
     <string name="punctuation_swipe_follow_input_mode">중국어/영어 상태 따르기</string>
     <string name="punctuation_swipe_raw">원래 문자 입력</string>
     <string name="swipe_symbol_behavior">구두점 스와이프 방향</string>
@@ -975,4 +975,26 @@
     <string name="personal_dock_toolbar">물리 키보드 도구 모음과 후보 창 함께 표시</string>
     <string name="personal_reverse_above_cursor">커서 위의 세로 후보를 역순으로 표시</string>
     <string name="personal_punctuation_letters_only">문장 부호 위치를 문자 키에만 적용</string>
+
+    <!-- Reviewed optional input features -->
+    <string name="auto_close_brackets">짝 기호 자동 완성</string>
+    <string name="insert_space_between_chinese_and_english">중국어와 영어 사이에 공백 삽입</string>
+    <string name="edit_swipe_symbol_mapping">스와이프 기호 매핑</string>
+    <string name="edit_swipe_symbol_mapping_summary">문장 부호 키를 스와이프할 때 입력할 전각 기호와 대문자 상태의 기호 편집</string>
+    <string name="swipe_symbol_add_mapping">매핑 추가</string>
+    <string name="swipe_symbol_editor_hint">첫 번째 열은 키의 원래 기호, 두 번째 열은 중국어 모드의 기호, 세 번째 열은 대문자 상태의 기호입니다. 세 번째 열을 비우면 기존 스와이프 동작을 유지합니다. 문자에는 기존 Shift 연동 및 대소문자 매핑 설정이 적용됩니다.</string>
+    <string name="swipe_symbol_col_raw">원본 (반각)</string>
+    <string name="swipe_symbol_col_fullwidth">중국어 (전각)</string>
+    <string name="swipe_symbol_col_upper">대문자 상태</string>
+    <string name="swipe_symbol_raw_hint">키에 표시할 기호 한 문자 (예: .)</string>
+    <string name="swipe_symbol_fullwidth_hint">중국어 모드의 전각 기호</string>
+    <string name="swipe_symbol_upper_hint">대문자 상태의 기호 (선택 사항)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">원래 기호는 정확히 한 문자여야 합니다</string>
+    <string name="swipe_symbol_raw_exists">이미 있는 매핑: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">매핑 %1$s을(를) 삭제할까요?</string>
+    <string name="swipe_symbol_reset_all_confirm">모든 매핑을 기본값으로 초기화할까요? 저장하지 않은 변경 사항은 사라집니다.</string>
+    <string name="swipe_symbol_mapping_saved_at">저장 위치: %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">스와이프 기호 매핑 파일 경로를 확인할 수 없습니다</string>
+    <string name="swipe_symbol_picker_title">스와이프 기호 매핑에서 선택</string>
+    <string name="swipe_symbol_picker_empty">스와이프 기호 매핑이 비어 있습니다</string>
 </resources>
