@@ -79,9 +79,9 @@
     <string name="change_background_image">Cambiar imagen de fondo…</string>
     <string name="clear_background_image">Quitar imagen de fondo</string>
     <string name="dark_keys">Teclas oscuras</string>
-    <string name="punctuation_position">Posición de puntuación</string>
+    <string name="punctuation_position">Posición del carácter secundario</string>
     <string name="sub_label_padding">Margen interior de los caracteres secundarios</string>
-    <string name="secondary_label_position">Posición del segundo carácter secundario</string>
+    <string name="secondary_label_position">Posición del carácter secundario 2</string>
     <string name="sub_label_follow_layout">Seguir la disposición actual</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo…</string>
@@ -192,8 +192,8 @@
     <string name="text_keyboard_layout_row_key_width_multiplier">Multiplicador de ancho de tecla</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">Vacío mantiene el ancho original; el valor solo se aplica a teclas sin ancho individual. 1 es el ancho de una tecla de letra normal.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">El multiplicador de ancho debe ser finito y mayor que 0</string>
-    <string name="text_keyboard_layout_row_sub_label_position">Posición del subcarácter</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">Posición del subcarácter 1</string>
+    <string name="text_keyboard_layout_row_sub_label_position">Posición del carácter secundario</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">Posición del carácter secundario 2</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">Arriba y abajo</string>
     <string name="text_keyboard_layout_row_sub_label_top">Arriba</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">Arriba a la derecha</string>
@@ -216,15 +216,15 @@
     <string name="text_keyboard_layout_add_key">Añadir tecla</string>
     <string name="text_keyboard_layout_key_type">Tipo de tecla</string>
     <string name="text_keyboard_layout_key_main">Carácter principal</string>
-    <string name="text_keyboard_layout_key_alt">Carácter alternativo</string>
-    <string name="text_keyboard_layout_key_alt_one">Carácter alternativo 1</string>
+    <string name="text_keyboard_layout_key_alt">Carácter secundario</string>
+    <string name="text_keyboard_layout_key_alt_one">Carácter secundario 2</string>
     <string name="text_keyboard_layout_key_display_text">Texto mostrado</string>
     <string name="text_keyboard_layout_key_label">Etiqueta</string>
-    <string name="text_keyboard_layout_key_sub_label">Subetiqueta</string>
+    <string name="text_keyboard_layout_key_sub_label">Carácter secundario</string>
     <string name="text_keyboard_layout_key_weight">Multiplicador de ancho de tecla</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">Vacío hereda el ancho de la fila o predeterminado. 1.0 es una tecla de letra normal; el valor individual tiene prioridad sobre la fila.</string>
     <string name="text_keyboard_layout_key_text_color">Color del texto</string>
-    <string name="text_keyboard_layout_key_alt_text_color">Color del texto secundario</string>
+    <string name="text_keyboard_layout_key_alt_text_color">Color de los caracteres secundarios</string>
     <string name="text_keyboard_layout_key_background_color">Color de fondo</string>
     <string name="text_keyboard_layout_key_shadow_color">Color de sombra</string>
     <string name="text_keyboard_layout_key_color_mode_recent">Colores recientes</string>
@@ -264,9 +264,9 @@
     <string name="prediction_backspace_behavior_delete_text">Eliminar texto antes del cursor</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Descartar candidatos y mostrar la barra de herramientas</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">El carácter principal no debe estar vacío</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_required">El carácter alternativo no debe estar vacío</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_required">El carácter secundario no debe estar vacío</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">El carácter principal debe ser un solo carácter</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">El carácter alternativo debe ser un solo carácter</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">El carácter secundario debe ser un solo carácter</string>
     <string name="text_keyboard_layout_validation_error">Error de validación</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">Complete la fila %1$d antes de agregar un nuevo modo</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">El nombre del modo "%1$s" ya está en uso</string>
@@ -405,8 +405,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">La etiqueta de pulsación larga está vacía; el popup usará la etiqueta.</string>
     <string name="text_keyboard_layout_macro_no_event">No hay evento configurado</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (%2$d pasos en total)</string>
-    <string name="text_keyboard_layout_alt_label">Etiqueta alternativa</string>
-    <string name="text_keyboard_layout_alt_label_one">Etiqueta alternativa 1</string>
+    <string name="text_keyboard_layout_alt_label">Carácter secundario</string>
+    <string name="text_keyboard_layout_alt_label_one">Carácter secundario 2</string>
     <string name="text_keyboard_layout_swipe_label">Etiqueta de deslizamiento</string>
     <string name="text_keyboard_layout_swipe_up_label">Etiqueta de deslizamiento hacia arriba</string>
     <string name="text_keyboard_layout_swipe_down_label">Etiqueta de deslizamiento hacia abajo</string>
@@ -614,7 +614,7 @@
     <string name="fontset_editor_hint">Toque cada elemento para elegir una o mas fuentes del directorio fonts. Varias fuentes se usan como respaldo en orden.</string>
     <string name="fontset_entry_candidate">Fuente de candidatos</string>
     <string name="fontset_entry_font">Fuente base</string>
-    <string name="fontset_entry_key_alt">Fuente secundaria de tecla</string>
+    <string name="fontset_entry_key_alt">Fuente de los caracteres secundarios</string>
     <string name="fontset_entry_key_main">Fuente principal de tecla</string>
     <string name="fontset_entry_popup_key">Fuente de tecla emergente</string>
     <string name="fontset_entry_preedit">Fuente de preedicion</string>
@@ -974,7 +974,7 @@
     <string name="personal_digit_swipe_selection">Seleccionar candidatos nativos deslizando las etiquetas numéricas</string>
     <string name="personal_dock_toolbar">Mostrar candidatos flotantes junto a la barra del teclado físico</string>
     <string name="personal_reverse_above_cursor">Invertir candidatos verticales sobre el cursor</string>
-    <string name="personal_punctuation_letters_only">Aplicar la posición de puntuación solo a las letras</string>
+    <string name="personal_punctuation_letters_only">Aplicar la posición del carácter secundario solo a las letras</string>
 
     <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">Completar automáticamente los pares de símbolos</string>

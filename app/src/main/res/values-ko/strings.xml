@@ -164,7 +164,7 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">비워 두면 각 키의 원래 너비를 유지합니다. 설정값은 개별 너비가 없는 키에만 적용되며 1은 일반 문자 키 너비입니다.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">키 너비 배수는 유한하고 0보다 큰 숫자여야 합니다</string>
     <string name="text_keyboard_layout_row_sub_label_position">보조 문자 위치</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">보조 문자 1 위치</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">보조 문자 2 위치</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">상단 및 하단</string>
     <string name="text_keyboard_layout_row_sub_label_top">상단</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">오른쪽 위</string>
@@ -188,10 +188,10 @@
     <string name="text_keyboard_layout_key_type">키 유형</string>
     <string name="text_keyboard_layout_key_main">기본 문자</string>
     <string name="text_keyboard_layout_key_alt">보조 문자</string>
-    <string name="text_keyboard_layout_key_alt_one">보조 문자 1</string>
+    <string name="text_keyboard_layout_key_alt_one">보조 문자 2</string>
     <string name="text_keyboard_layout_key_display_text">표시 텍스트</string>
     <string name="text_keyboard_layout_key_label">레이블</string>
-    <string name="text_keyboard_layout_key_sub_label">하위 레이블</string>
+    <string name="text_keyboard_layout_key_sub_label">보조 문자</string>
     <string name="text_keyboard_layout_key_weight">키 너비 배율</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">비워 두면 행 또는 기본 너비를 상속합니다. 1.0은 일반 문자 키 너비이며 개별 설정이 행 배율보다 우선합니다.</string>
     <string name="text_keyboard_layout_key_text_color">글자 색상</string>
@@ -375,8 +375,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">길게 누르기 레이블이 비어 있어 팝업에서 레이블을 사용합니다.</string>
     <string name="text_keyboard_layout_macro_no_event">이벤트가 구성되지 않았습니다</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (총 %2$d 단계)</string>
-    <string name="text_keyboard_layout_alt_label">대체 레이블</string>
-    <string name="text_keyboard_layout_alt_label_one">대체 레이블 1</string>
+    <string name="text_keyboard_layout_alt_label">보조 문자</string>
+    <string name="text_keyboard_layout_alt_label_one">보조 문자 2</string>
     <string name="text_keyboard_layout_swipe_label">스와이프 레이블</string>
     <string name="text_keyboard_layout_swipe_up_label">위로 스와이프 레이블</string>
     <string name="text_keyboard_layout_swipe_down_label">아래로 스와이프 레이블</string>
@@ -596,7 +596,7 @@
     <string name="fontset_editor_hint">각 항목을 눌러 fonts 디렉터리에서 하나 이상의 글꼴을 선택하세요. 여러 글꼴은 순서대로 대체 글꼴로 사용됩니다.</string>
     <string name="fontset_entry_candidate">후보 글꼴</string>
     <string name="fontset_entry_font">기본 글꼴</string>
-    <string name="fontset_entry_key_alt">보조 키 글꼴</string>
+    <string name="fontset_entry_key_alt">키 보조 문자 글꼴</string>
     <string name="fontset_entry_key_main">주 키 글꼴</string>
     <string name="fontset_entry_popup_key">팝업 키 글꼴</string>
     <string name="fontset_entry_preedit">조합 글꼴</string>
@@ -686,9 +686,9 @@
     <string name="uppercase_pos_bottom">하단</string>
     <string name="punctuation_pos_none">없음</string>
     <string name="punctuation_pos_top_right">오른쪽 위</string>
-    <string name="punctuation_position">구두점 위치</string>
+    <string name="punctuation_position">보조 문자 위치</string>
     <string name="sub_label_padding">보조 문자 안쪽 여백</string>
-    <string name="secondary_label_position">두 번째 보조 문자 위치</string>
+    <string name="secondary_label_position">보조 문자 2 위치</string>
     <string name="sub_label_follow_layout">기존 배열 따르기</string>
     <string name="recrop_image">이미지 다시 자르기</string>
     <string name="removed_n_items">%1$d개 항목 제거됨</string>
@@ -974,7 +974,7 @@
     <string name="personal_digit_swipe_selection">숫자 보조 라벨을 스와이프하여 기본 후보 선택</string>
     <string name="personal_dock_toolbar">물리 키보드 도구 모음과 후보 창 함께 표시</string>
     <string name="personal_reverse_above_cursor">커서 위의 세로 후보를 역순으로 표시</string>
-    <string name="personal_punctuation_letters_only">문장 부호 위치를 문자 키에만 적용</string>
+    <string name="personal_punctuation_letters_only">보조 문자 위치를 문자 키에만 적용</string>
 
     <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">짝 기호 자동 완성</string>

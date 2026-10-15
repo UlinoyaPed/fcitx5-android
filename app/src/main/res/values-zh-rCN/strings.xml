@@ -170,9 +170,9 @@
     <string name="clear_background_image">清除背景图片</string>
     <string name="dark_keys">暗色按键</string>
     <string name="recrop_image">重新裁剪图片</string>
-    <string name="punctuation_position">标点符号位置</string>
+    <string name="punctuation_position">副字符位置</string>
     <string name="sub_label_padding">副字符内边距</string>
-    <string name="secondary_label_position">第二副字符位置</string>
+    <string name="secondary_label_position">副字符二位置</string>
     <string name="sub_label_follow_layout">跟随现有布局</string>
     <string name="punctuation_pos_bottom">底部</string>
     <string name="punctuation_pos_bottom_right">右下角</string>
@@ -480,7 +480,7 @@
     <string name="fontset_saved_at">fontset.json 已保存到：%1$s</string>
     <string name="fontset_entry_font">基础字体</string>
     <string name="fontset_entry_key_main">按键主字体</string>
-    <string name="fontset_entry_key_alt">按键副字体</string>
+    <string name="fontset_entry_key_alt">按键副字符字体</string>
     <string name="fontset_entry_candidate">候选字体</string>
     <string name="fontset_entry_popup_key">弹出按键字体</string>
     <string name="fontset_entry_preedit">预编辑字体</string>
@@ -687,14 +687,14 @@
     <string name="text_keyboard_layout_key_type">按键类型</string>
     <string name="text_keyboard_layout_key_main">主字符</string>
     <string name="text_keyboard_layout_key_alt">副字符</string>
-    <string name="text_keyboard_layout_key_alt_one">副字符一</string>
+    <string name="text_keyboard_layout_key_alt_one">副字符二</string>
     <string name="text_keyboard_layout_key_display_text">显示文本</string>
     <string name="text_keyboard_layout_key_label">标签</string>
-    <string name="text_keyboard_layout_key_sub_label">子标签</string>
+    <string name="text_keyboard_layout_key_sub_label">副字符</string>
     <string name="text_keyboard_layout_key_weight">宽度倍比</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">留空继承行或默认宽度；1.0 表示普通字母键宽度。单键设置优先于行倍比。</string>
     <string name="text_keyboard_layout_key_text_color">文字颜色</string>
-    <string name="text_keyboard_layout_key_alt_text_color">副文字颜色</string>
+    <string name="text_keyboard_layout_key_alt_text_color">副字符颜色</string>
     <string name="text_keyboard_layout_key_background_color">背景颜色</string>
     <string name="text_keyboard_layout_key_shadow_color">阴影颜色</string>
     <string name="text_keyboard_layout_key_color_mode_recent">最近选色</string>
@@ -753,8 +753,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">未填写长按标签，弹出菜单将使用“标签”显示。</string>
     <string name="text_keyboard_layout_macro_no_event">未配置事件</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
-    <string name="text_keyboard_layout_alt_label">副标签</string>
-    <string name="text_keyboard_layout_alt_label_one">副标签一</string>
+    <string name="text_keyboard_layout_alt_label">副字符</string>
+    <string name="text_keyboard_layout_alt_label_one">副字符二</string>
     <string name="text_keyboard_layout_swipe_label">划动标签</string>
     <string name="text_keyboard_layout_swipe_up_label">上划标签</string>
     <string name="text_keyboard_layout_swipe_down_label">下划标签</string>
@@ -766,7 +766,7 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">留空保留各键原宽度；设置后仅应用于未单独配置宽度的键。1 表示普通字母键宽度。</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">单键宽度倍比必须是有限且大于 0 的数字</string>
     <string name="text_keyboard_layout_row_sub_label_position">副字符位置</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">副字符一位置</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">副字符二位置</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">顶底</string>
     <string name="text_keyboard_layout_row_sub_label_top">顶部</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">右上</string>
@@ -992,7 +992,7 @@
     <string name="personal_digit_swipe_selection">划动数字副字符选择原生候选</string>
     <string name="personal_dock_toolbar">实体键盘工具栏与候选浮窗并行显示</string>
     <string name="personal_reverse_above_cursor">光标上方的竖排候选倒序显示</string>
-    <string name="personal_punctuation_letters_only">仅对字母键应用标点位置设置</string>
+    <string name="personal_punctuation_letters_only">仅对字母键应用副字符位置设置</string>
     <string name="llm_space_commit_prediction">空格提交 AI 预测</string>
     <string name="llm_space_commit_prediction_summary">默认关闭。开启后，非预编辑状态下按空格提交当前显示的首个 AI 预测项；关闭时保留空格输入。</string>
 </resources>

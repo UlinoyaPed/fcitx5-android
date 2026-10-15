@@ -134,9 +134,9 @@
     <string name="clear_background_image">背景画像を削除</string>
     <string name="dark_keys">黒字のキー</string>
     <string name="recrop_image">画像を切り取り直す</string>
-    <string name="punctuation_position">句読点の位置</string>
+    <string name="punctuation_position">副文字の位置</string>
     <string name="sub_label_padding">副文字の内側余白</string>
-    <string name="secondary_label_position">2番目の副文字の位置</string>
+    <string name="secondary_label_position">副文字 2 の位置</string>
     <string name="sub_label_follow_layout">既存の配列に従う</string>
     <string name="punctuation_pos_bottom">下部</string>
     <string name="punctuation_pos_bottom_right">右下</string>
@@ -385,7 +385,7 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">空欄は各キーの元の幅を維持します。設定値は個別幅のないキーにのみ適用され、1 は通常の文字キー幅です。</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">キー幅倍率は有限で 0 より大きい数値である必要があります</string>
     <string name="text_keyboard_layout_row_sub_label_position">副文字の位置</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">副文字 1 の位置</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">副文字 2 の位置</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">上下</string>
     <string name="text_keyboard_layout_row_sub_label_top">上部</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">右上</string>
@@ -408,11 +408,11 @@
     <string name="text_keyboard_layout_add_key">キーを追加</string>
     <string name="text_keyboard_layout_key_type">キータイプ</string>
     <string name="text_keyboard_layout_key_main">メイン文字</string>
-    <string name="text_keyboard_layout_key_alt">代替文字</string>
-    <string name="text_keyboard_layout_key_alt_one">代替文字 1</string>
+    <string name="text_keyboard_layout_key_alt">副文字</string>
+    <string name="text_keyboard_layout_key_alt_one">副文字 2</string>
     <string name="text_keyboard_layout_key_display_text">表示テキスト</string>
     <string name="text_keyboard_layout_key_label">ラベル</string>
-    <string name="text_keyboard_layout_key_sub_label">サブラベル</string>
+    <string name="text_keyboard_layout_key_sub_label">副文字</string>
     <string name="text_keyboard_layout_key_weight">キー幅倍率</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">空欄は行または既定の幅を継承します。1.0 は通常の文字キー幅で、個別設定は行倍率より優先されます。</string>
     <string name="text_keyboard_layout_key_text_color">文字色</string>
@@ -450,8 +450,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">長押しラベルが未入力のため、ポップアップではラベルを使用します。</string>
     <string name="text_keyboard_layout_macro_no_event">イベントが設定されていません</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (全 %2$d ステップ)</string>
-    <string name="text_keyboard_layout_alt_label">代替ラベル</string>
-    <string name="text_keyboard_layout_alt_label_one">代替ラベル 1</string>
+    <string name="text_keyboard_layout_alt_label">副文字</string>
+    <string name="text_keyboard_layout_alt_label_one">副文字 2</string>
     <string name="text_keyboard_layout_swipe_label">スワイプラベル</string>
     <string name="text_keyboard_layout_swipe_up_label">上スワイプラベル</string>
     <string name="text_keyboard_layout_swipe_down_label">下スワイプラベル</string>
@@ -471,9 +471,9 @@
     <string name="prediction_backspace_behavior_delete_text">カーソル前の文字を削除</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">候補を閉じてツールバーを表示</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">メイン文字は空にできません</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_required">代替文字は空にできません</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_required">副文字は空にできません</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">メイン文字は単一の文字である必要があります</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">代替文字は単一の文字である必要があります</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">副文字は単一の文字である必要があります</string>
     <string name="text_keyboard_layout_macro_key_label_required">ラベルは空にできません</string>
     <string name="text_keyboard_layout_validation_error">検証エラー</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">新しいモードを追加する前に、行 %1$d を入力してください</string>
@@ -736,7 +736,7 @@
     <string name="fontset_editor_hint">各項目をタップして fonts ディレクトリから 1 つ以上のフォントを選択できます。複数のフォントは指定された順番でフォールバックとして使用されます。</string>
     <string name="fontset_entry_candidate">候補フォント</string>
     <string name="fontset_entry_font">基本フォント</string>
-    <string name="fontset_entry_key_alt">キーの副フォント</string>
+    <string name="fontset_entry_key_alt">キーの副文字フォント</string>
     <string name="fontset_entry_key_main">キーのメインフォント</string>
     <string name="fontset_entry_popup_key">ポップアップキーのフォント</string>
     <string name="fontset_entry_preedit">プリエディットフォント</string>
@@ -972,7 +972,7 @@
     <string name="personal_digit_swipe_selection">数字の副ラベルをスワイプして通常候補を選択</string>
     <string name="personal_dock_toolbar">物理キーボードのツールバーと候補ウィンドウを併用</string>
     <string name="personal_reverse_above_cursor">カーソル上の縦候補を逆順に表示</string>
-    <string name="personal_punctuation_letters_only">句読点の位置設定を英字キーだけに適用</string>
+    <string name="personal_punctuation_letters_only">副文字の位置設定を英字キーだけに適用</string>
 
     <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">対になる記号を自動補完</string>

@@ -1,0 +1,226 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "base_commit": "d24188d9492bb68b4f37cf4fa3ff90d964707e4e",
+  "upstream_reviewed_sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
+  "scope": "User-requested secondary-character terminology clarification; no upstream synchronization in this change.",
+  "changes": [
+    "Chinese UI consistently names the two slots 副字符 and 副字符二, including macro keys, row/global positions, font, color, validation and search labels.",
+    "All eight UI locales use consistent localized secondary-character names and number the second slot as 2.",
+    "Resource identifiers, preference keys, layout JSON fields, saved choices and rendering behavior remain unchanged."
+  ],
+  "green_border": {
+    "meaning": "Key has non-default customized properties, a first secondary character different from the factory preset, or a custom second secondary character (excluding automatically generated uppercase hints). It does not mean a second character is present or that changes are unsaved.",
+    "factory_ZXC": {
+      "Z": "'",
+      "X": ":",
+      "C": "\""
+    },
+    "example": {
+      "Q_factory_secondary": "1",
+      "Q_screenshot_secondary": "`"
+    },
+    "decision": "Keep the existing marker behavior: the screenshot is consistent with the factory comparison; no marker bug was established."
+  },
+  "validation": {
+    "status": "passed",
+    "resource_check": {
+      "status": "passed",
+      "locales": 8,
+      "changed_values": 103,
+      "keys_added_or_removed": 0,
+      "xml_parse": "passed",
+      "packaged_apk_values": "All changed values match their source XML; obsolete Chinese names absent from compiled APK resources."
+    },
+    "unit_tests": {
+      "tests": 646,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_build": {
+      "status": "passed",
+      "variant": "mainlineDebug",
+      "abi": "x86_64"
+    },
+    "lint": {
+      "Error": 0,
+      "Warning": 382,
+      "comparison": "All warning-ID counts match the previous release report except two additional Aligned16KB entries in the x86_64 debug variant. No MissingTranslation or LintError."
+    },
+    "commands": [
+      ":app:testMainlineDebugUnitTest",
+      ":app:assembleMainlineDebug",
+      ":app:lintMainlineDebug"
+    ],
+    "graph": {
+      "status": "passed",
+      "repository": "/workspace/fcitx5-android",
+      "index_commit": "d24188d9492bb68b4f37cf4fa3ff90d964707e4e",
+      "scopes": [
+        "all",
+        "compare"
+      ],
+      "base_ref": "d24188d9492bb68b4f37cf4fa3ff90d964707e4e",
+      "changed_symbols": 3,
+      "affected_processes": 0,
+      "changed_files_including_preexisting_native_build_dirt": 11,
+      "committed_files": 10,
+      "risk": "low",
+      "list_counts_match_summaries": true,
+      "partial": false,
+      "truncated": false,
+      "note": "Resources are not resolved as callable symbols; literal R.string references and all changed packaged values were checked. Index-wide resolution limitations remain; zero graph processes is not proof of no UI use."
+    },
+    "android_instrumentation": "Not rerun for this string-only change; all changed compiled APK string values were verified. Previous layout/input test results are not counted as rerun in this record."
+  },
+  "limitations": [
+    "No physical-device testing. This change only edits localized string values and maintenance documentation.",
+    "Graph resource impact is UNKNOWN because Android resource references are not resolved by the graph; actual R.string references and packaged resources are checked separately. The graph remains a lower bound, with scope extraction and flow discovery limitations."
+  ],
+  "changed_resources": [
+    {
+      "path": "app/src/main/res/values-de/strings.xml",
+      "keys": [
+        "text_keyboard_layout_row_sub_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "fontset_entry_key_alt",
+        "punctuation_position",
+        "secondary_label_position",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-es/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "secondary_label_position",
+        "text_keyboard_layout_row_sub_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "fontset_entry_key_alt",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-ja/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "secondary_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "fontset_entry_key_alt",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-ko/strings.xml",
+      "keys": [
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "fontset_entry_key_alt",
+        "punctuation_position",
+        "secondary_label_position",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-ru/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "secondary_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "fontset_entry_key_alt",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-zh-rCN/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "secondary_label_position",
+        "fontset_entry_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values-zh-rTW/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "sub_label_padding",
+        "secondary_label_position",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "fontset_entry_key_alt",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "text_keyboard_layout_row_sub_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "personal_digit_swipe_selection",
+        "personal_punctuation_letters_only"
+      ]
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "keys": [
+        "punctuation_position",
+        "sub_label_padding",
+        "secondary_label_position",
+        "fontset_entry_key_alt",
+        "text_keyboard_layout_key_alt",
+        "text_keyboard_layout_key_alt_one",
+        "text_keyboard_layout_key_sub_label",
+        "text_keyboard_layout_key_alt_text_color",
+        "text_keyboard_layout_alt_label",
+        "text_keyboard_layout_alt_label_one",
+        "text_keyboard_layout_row_sub_label_position",
+        "text_keyboard_layout_row_sub_label_one_position",
+        "text_keyboard_layout_alphabet_key_alt_required",
+        "text_keyboard_layout_alphabet_key_alt_length_invalid",
+        "personal_punctuation_letters_only"
+      ]
+    }
+  ]
+}

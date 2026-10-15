@@ -137,9 +137,9 @@
     <string name="clear_background_image">Очистить фоновое изображение</string>
     <string name="dark_keys">Темные клавиши</string>
     <string name="recrop_image">Повторное кадрирование изображения</string>
-    <string name="punctuation_position">Позиция пунктуации</string>
+    <string name="punctuation_position">Положение дополнительного символа</string>
     <string name="sub_label_padding">Отступ дополнительных символов</string>
-    <string name="secondary_label_position">Положение второго дополнительного символа</string>
+    <string name="secondary_label_position">Положение дополнительного символа 2</string>
     <string name="sub_label_follow_layout">Следовать текущей раскладке</string>
     <string name="punctuation_pos_bottom">Внизу</string>
     <string name="punctuation_pos_bottom_right">Справа внизу</string>
@@ -457,7 +457,7 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">Пусто сохраняет исходную ширину; значение применяется только к клавишам без индивидуальной ширины. 1 — ширина обычной буквенной клавиши.</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">Множитель ширины должен быть конечным числом больше 0</string>
     <string name="text_keyboard_layout_row_sub_label_position">Положение дополнительного символа</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">Положение дополнительного символа 1</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">Положение дополнительного символа 2</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">Сверху и снизу</string>
     <string name="text_keyboard_layout_row_sub_label_top">Сверху</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">Сверху справа</string>
@@ -480,15 +480,15 @@
     <string name="text_keyboard_layout_add_key">Добавить клавишу</string>
     <string name="text_keyboard_layout_key_type">Тип клавиши</string>
     <string name="text_keyboard_layout_key_main">Основной символ</string>
-    <string name="text_keyboard_layout_key_alt">Альтернативный символ</string>
-    <string name="text_keyboard_layout_key_alt_one">Альтернативный символ 1</string>
+    <string name="text_keyboard_layout_key_alt">Дополнительный символ</string>
+    <string name="text_keyboard_layout_key_alt_one">Дополнительный символ 2</string>
     <string name="text_keyboard_layout_key_display_text">Отображаемый текст</string>
     <string name="text_keyboard_layout_key_label">Метка</string>
-    <string name="text_keyboard_layout_key_sub_label">Подметка</string>
+    <string name="text_keyboard_layout_key_sub_label">Дополнительный символ</string>
     <string name="text_keyboard_layout_key_weight">Множитель ширины клавиши</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">Пусто наследует ширину строки или значение по умолчанию. 1.0 — ширина обычной буквенной клавиши; индивидуальное значение имеет приоритет.</string>
     <string name="text_keyboard_layout_key_text_color">Цвет текста</string>
-    <string name="text_keyboard_layout_key_alt_text_color">Цвет вторичного текста</string>
+    <string name="text_keyboard_layout_key_alt_text_color">Цвет дополнительных символов</string>
     <string name="text_keyboard_layout_key_background_color">Цвет фона</string>
     <string name="text_keyboard_layout_key_shadow_color">Цвет тени</string>
     <string name="text_keyboard_layout_key_color_mode_recent">Недавние цвета</string>
@@ -528,9 +528,9 @@
     <string name="prediction_backspace_behavior_delete_text">Удалить текст перед курсором</string>
     <string name="prediction_backspace_behavior_dismiss_candidates">Скрыть кандидаты и показать панель инструментов</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">Основной символ не должен быть пустым</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_required">Альтернативный символ не должен быть пустым</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_required">Дополнительный символ не должен быть пустым</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">Основной символ должен быть одиночным</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">Альтернативный символ должен быть одиночным</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">Дополнительный символ должен быть одиночным</string>
     <string name="text_keyboard_layout_validation_error">Ошибка проверки</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">Заполните строку %1$d перед добавлением нового режима</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">Имя режима "%1$s" уже используется</string>
@@ -645,8 +645,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">Метка долгого нажатия пуста, во всплывающем меню будет использована метка.</string>
     <string name="text_keyboard_layout_macro_no_event">Событие не настроено</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (всего шагов: %2$d)</string>
-    <string name="text_keyboard_layout_alt_label">Альтернативная метка</string>
-    <string name="text_keyboard_layout_alt_label_one">Альтернативная метка 1</string>
+    <string name="text_keyboard_layout_alt_label">Дополнительный символ</string>
+    <string name="text_keyboard_layout_alt_label_one">Дополнительный символ 2</string>
     <string name="text_keyboard_layout_swipe_label">Метка свайпа</string>
     <string name="text_keyboard_layout_swipe_up_label">Метка свайпа вверх</string>
     <string name="text_keyboard_layout_swipe_down_label">Метка свайпа вниз</string>
@@ -765,7 +765,7 @@
     <string name="fontset_editor_hint">Нажмите на каждый элемент, чтобы выбрать один или несколько шрифтов из каталога fonts. Несколько шрифтов будут использоваться как резервные в указанном порядке.</string>
     <string name="fontset_entry_candidate">Шрифт кандидатов</string>
     <string name="fontset_entry_font">Базовый шрифт</string>
-    <string name="fontset_entry_key_alt">Вторичный шрифт клавиш</string>
+    <string name="fontset_entry_key_alt">Шрифт дополнительных символов клавиш</string>
     <string name="fontset_entry_key_main">Основной шрифт клавиш</string>
     <string name="fontset_entry_popup_key">Шрифт всплывающей клавиши</string>
     <string name="fontset_entry_preedit">Шрифт предредактирования</string>
@@ -972,7 +972,7 @@
     <string name="personal_digit_swipe_selection">Выбирать обычные кандидаты свайпом по цифровым меткам</string>
     <string name="personal_dock_toolbar">Показывать плавающие кандидаты вместе с панелью физической клавиатуры</string>
     <string name="personal_reverse_above_cursor">Обратный порядок вертикальных кандидатов над курсором</string>
-    <string name="personal_punctuation_letters_only">Применять положение знаков препинания только к буквам</string>
+    <string name="personal_punctuation_letters_only">Применять положение дополнительного символа только к буквам</string>
 
     <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">Автоматически дополнять парные символы</string>

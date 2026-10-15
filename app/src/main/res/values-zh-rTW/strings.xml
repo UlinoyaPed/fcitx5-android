@@ -151,9 +151,9 @@
     <string name="clear_background_image">清除背景圖片</string>
     <string name="dark_keys">深色按鍵</string>
     <string name="recrop_image">重新裁剪圖片</string>
-    <string name="punctuation_position">標點符號位置</string>
-    <string name="sub_label_padding">副字元內邊距</string>
-    <string name="secondary_label_position">第二副字元位置</string>
+    <string name="punctuation_position">副字符位置</string>
+    <string name="sub_label_padding">副字符內邊距</string>
+    <string name="secondary_label_position">副字符二位置</string>
     <string name="sub_label_follow_layout">跟隨現有佈局</string>
     <string name="punctuation_pos_bottom">底部</string>
     <string name="punctuation_pos_bottom_right">右下角</string>
@@ -536,15 +536,15 @@
     <string name="text_keyboard_layout_add_key">新增按鍵</string>
     <string name="text_keyboard_layout_key_type">按鍵類型</string>
     <string name="text_keyboard_layout_key_main">主字元</string>
-    <string name="text_keyboard_layout_key_alt">副字元</string>
-    <string name="text_keyboard_layout_key_alt_one">副字元一</string>
+    <string name="text_keyboard_layout_key_alt">副字符</string>
+    <string name="text_keyboard_layout_key_alt_one">副字符二</string>
     <string name="text_keyboard_layout_key_display_text">顯示文字</string>
     <string name="text_keyboard_layout_key_label">標籤</string>
-    <string name="text_keyboard_layout_key_sub_label">子標籤</string>
+    <string name="text_keyboard_layout_key_sub_label">副字符</string>
     <string name="text_keyboard_layout_key_weight">寬度倍比</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">留空繼承行或預設寬度；1.0 表示一般字母鍵寬度。單鍵設定優先於行倍比。</string>
     <string name="text_keyboard_layout_key_text_color">文字顏色</string>
-    <string name="text_keyboard_layout_key_alt_text_color">副字元顏色</string>
+    <string name="text_keyboard_layout_key_alt_text_color">副字符顏色</string>
     <string name="text_keyboard_layout_key_background_color">背景顏色</string>
     <string name="text_keyboard_layout_key_shadow_color">陰影顏色</string>
     <string name="text_keyboard_layout_key_color_mode_recent">最近選色</string>
@@ -574,9 +574,9 @@
     <string name="text_keyboard_layout_key_label_space">Space</string>
     <string name="text_keyboard_layout_key_label_enter">Enter</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">主字元不能為空</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_required">副字元不能為空</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_required">副字符不能為空</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">主字元必須是單個字元</string>
-    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">副字元必須是單個字元</string>
+    <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">副字符必須是單個字元</string>
     <string name="text_keyboard_layout_validation_error">驗證錯誤</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">請先填寫第 %1$d 行的模式名稱和顯示文字</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">模式名稱 "%1$s" 已被使用</string>
@@ -631,7 +631,7 @@
     <string name="fontset_saved_at">fontset.json 已儲存於：%1$s</string>
     <string name="fontset_entry_font">基礎字體</string>
     <string name="fontset_entry_key_main">按鍵主字體</string>
-    <string name="fontset_entry_key_alt">按鍵備用字體</string>
+    <string name="fontset_entry_key_alt">按鍵副字符字體</string>
     <string name="fontset_entry_candidate">候選詞字體</string>
     <string name="fontset_entry_popup_key">彈出按鍵字體</string>
     <string name="fontset_entry_preedit">預編輯字體</string>
@@ -718,8 +718,8 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">未填寫長按標籤，彈出選單將使用「標籤」顯示。</string>
     <string name="text_keyboard_layout_macro_no_event">未配置事件</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
-    <string name="text_keyboard_layout_alt_label">副標籤</string>
-    <string name="text_keyboard_layout_alt_label_one">副標籤一</string>
+    <string name="text_keyboard_layout_alt_label">副字符</string>
+    <string name="text_keyboard_layout_alt_label_one">副字符二</string>
     <string name="text_keyboard_layout_swipe_label">劃動標籤</string>
     <string name="text_keyboard_layout_swipe_up_label">上劃標籤</string>
     <string name="text_keyboard_layout_swipe_down_label">下劃標籤</string>
@@ -865,8 +865,8 @@
     <string name="text_keyboard_layout_row_key_width_multiplier">單鍵寬度倍比</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_hint">留空保留各鍵原寬度；設定後僅套用至未單獨設定寬度的按鍵。1 表示一般字母鍵寬度。</string>
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">單鍵寬度倍比必須是有限且大於 0 的數字</string>
-    <string name="text_keyboard_layout_row_sub_label_position">副字元位置</string>
-    <string name="text_keyboard_layout_row_sub_label_one_position">副字元一位置</string>
+    <string name="text_keyboard_layout_row_sub_label_position">副字符位置</string>
+    <string name="text_keyboard_layout_row_sub_label_one_position">副字符二位置</string>
     <string name="text_keyboard_layout_row_sub_label_top_bottom">頂底</string>
     <string name="text_keyboard_layout_row_sub_label_top">頂部</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">右上</string>
@@ -984,8 +984,8 @@
     <string name="personal_hardware_digit_selection">實體數字鍵選擇候選</string>
     <string name="personal_hardware_space_selection">實體空白鍵提交反白候選</string>
     <string name="personal_hardware_prediction_dismiss">實體 Esc 或退格取消預測</string>
-    <string name="personal_digit_swipe_selection">滑動數字副字元選擇原生候選</string>
+    <string name="personal_digit_swipe_selection">滑動數字副字符選擇原生候選</string>
     <string name="personal_dock_toolbar">實體鍵盤工具列與候選浮窗並行顯示</string>
     <string name="personal_reverse_above_cursor">游標上方的直排候選倒序顯示</string>
-    <string name="personal_punctuation_letters_only">僅對字母鍵套用標點位置設定</string>
+    <string name="personal_punctuation_letters_only">僅對字母鍵套用副字符位置設定</string>
 </resources>
