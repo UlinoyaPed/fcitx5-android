@@ -108,6 +108,11 @@ class MacroEditorActivity : AppCompatActivity() {
     private var swipeMode = false
     private var currentTiming = SwipeActionTiming.All
     private val timingDrafts = mutableMapOf<SwipeActionTiming, List<MacroStepData>>()
+
+    // A timing whose loaded action list is empty on purpose: it matches but runs
+    // nothing instead of falling back to "All". Hand-written JSON only; the editor
+    // never creates one, but it must not silently strip re-edited configs either.
+    private val explicitlyEmptyTimings = mutableSetOf<SwipeActionTiming>()
     private var originalTimingSnapshot: Map<SwipeActionTiming, List<Map<String, Any>>> = emptyMap()
     private var timingSpinner: Spinner? = null
     private var timingSpinnerAdapter: ArrayAdapter<String>? = null
@@ -604,11 +609,13 @@ class MacroEditorActivity : AppCompatActivity() {
     }
 
     private fun initTimingDrafts(allSteps: List<Map<*, *>>) {
+        explicitlyEmptyTimings.clear()
         timingDrafts[SwipeActionTiming.All] = allSteps.map(::parseStep)
         intent.serializable<HashMap<String, ArrayList<Map<*, *>>>>(EXTRA_TIMING_STEPS)?.forEach { (id, list) ->
             val timing = SwipeActionTiming.fromId(id)?.takeUnless { it == SwipeActionTiming.All }
                 ?: return@forEach
             timingDrafts[timing] = list.map(::parseStep)
+            if (list.isEmpty()) explicitlyEmptyTimings.add(timing)
         }
         // Open on All for legacy configs; a specific-only action opens on its first timing.
         val initial = SwipeActionTiming.All.takeIf { timingDrafts[it].orEmpty().isNotEmpty() }
@@ -689,14 +696,16 @@ class MacroEditorActivity : AppCompatActivity() {
         SwipeActionTiming.entries.associateWith { timing ->
             val list = if (timing == currentTiming) visibleTimingSteps() else timingDrafts[timing].orEmpty()
             list.map(::stepToMap)
-        }.filterValues { it.isNotEmpty() }
+        }.filter { (timing, list) ->
+            list.isNotEmpty() || timing in explicitlyEmptyTimings
+        }
 
     private fun refreshTimingLabels() {
         val adapter = timingSpinnerAdapter ?: return
         val snapshot = snapshotTimingDrafts()
         val labels = SwipeActionTiming.entries.map { timing ->
-            val count = snapshot[timing]?.size ?: 0
-            if (count > 0) {
+            val count = snapshot[timing]?.size
+            if (count != null) {
                 getString(R.string.macro_editor_swipe_timing_item_configured, timingLabel(timing), count)
             } else {
                 timingLabel(timing)
@@ -841,8 +850,13 @@ class MacroEditorActivity : AppCompatActivity() {
 
         val timingResult = HashMap<String, ArrayList<Map<String, Any>>>()
         timingDrafts.forEach { (timing, list) ->
-            if (timing != SwipeActionTiming.All && list.isNotEmpty()) {
-                timingResult[timing.id] = ArrayList(list.map(::stepToMap))
+            when {
+                timing == SwipeActionTiming.All -> return@forEach
+                list.isNotEmpty() -> timingResult[timing.id] = ArrayList(list.map(::stepToMap))
+                timing in explicitlyEmptyTimings -> {
+                    // Loaded as an explicit empty list: keep blocking the fallback to "All".
+                    timingResult[timing.id] = ArrayList()
+                }
             }
         }
         val data = android.content.Intent()

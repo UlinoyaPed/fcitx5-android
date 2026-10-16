@@ -1568,7 +1568,11 @@ class KeyEditorActivity : AppCompatActivity() {
             intent.putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, it)
         }
         val timingSteps = HashMap<String, ArrayList<Map<*, *>>>()
-        action.timingSteps.forEach { (id, timed) -> serializableSteps(timed)?.let { timingSteps[id] = it } }
+        action.timingSteps.forEach { (id, timed) ->
+            // Empty lists are meaningful: they block fallback to "All" and must
+            // survive the round-trip instead of being silently dropped.
+            timingSteps[id] = serializableSteps(timed) ?: ArrayList()
+        }
         if (timingSteps.isNotEmpty()) {
             intent.putExtra(MacroEditorActivity.EXTRA_TIMING_STEPS, timingSteps)
         }

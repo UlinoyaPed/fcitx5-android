@@ -42,6 +42,18 @@ class SwipeActionTimingJsonTest {
     }
 
     @Test
+    fun explicitEmptyTimingSurvivesRoundTrip() {
+        // Hand-written JSON may use an empty list to block the fallback to All.
+        val action = MacroAction(listOf(MacroStep.Text("all")), mapOf(SwipeActionTiming.CodeAndCandidates to emptyList()))
+        val json = LayoutJsonUtils.macroActionToJson(action)
+        assertEquals(
+            setOf("code_and_candidates"),
+            json["timingActions"]!!.jsonObject.keys
+        )
+        assertEquals(action, LayoutJsonUtils.parseMacroAction(json))
+    }
+
+    @Test
     fun allAndUnknownTimingIdsAreIgnored() {
         val step = LayoutJsonUtils.macroActionToJson(MacroAction(listOf(MacroStep.Text("t"))))
         val json = JsonObject(
