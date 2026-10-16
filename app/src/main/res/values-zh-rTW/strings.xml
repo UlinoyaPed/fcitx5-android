@@ -693,6 +693,7 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">未填寫長按標籤，彈出選單將使用「標籤」顯示。</string>
     <string name="text_keyboard_layout_macro_no_event">未配置事件</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s：%2$s</string>
     <string name="text_keyboard_layout_alt_label">副標籤</string>
     <string name="text_keyboard_layout_alt_label_one">副標籤一</string>
     <string name="text_keyboard_layout_swipe_label">劃動標籤</string>
@@ -702,6 +703,13 @@
     <!-- Macro Editor -->
     <string name="macro_editor_title">編輯 %1$s</string>
     <string name="macro_editor_add_step">+ 添加步驟</string>
+    <string name="macro_editor_swipe_timing">動作時機</string>
+    <string name="macro_editor_swipe_timing_hint">每個時機可設定獨立的動作。匹配到的時機會替代「所有」中的動作；未單獨設定動作的情形使用「所有」。</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s（%2$d）</string>
+    <string name="swipe_action_timing_no_code_no_candidates">無編碼無候選</string>
+    <string name="swipe_action_timing_code_and_candidates">有編碼有候選</string>
+    <string name="swipe_action_timing_no_code_candidates">無編碼有候選</string>
+    <string name="swipe_action_timing_all">所有</string>
     <string name="macro_editor_step_type_tap">點擊按鍵</string>
     <string name="macro_editor_step_type_shortcut">快速鍵</string>
     <string name="macro_editor_step_type_edit">編輯操作</string>

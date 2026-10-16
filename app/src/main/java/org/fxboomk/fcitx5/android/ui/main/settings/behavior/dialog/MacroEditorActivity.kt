@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.input.action.ButtonAction
+import org.fxboomk.fcitx5.android.input.keyboard.SwipeActionTiming
 import org.fxboomk.fcitx5.android.utils.serializable
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
@@ -103,10 +104,31 @@ class MacroEditorActivity : AppCompatActivity() {
     private var hasChanges = false
     private var saveMenuItem: MenuItem? = null
 
+    // Swipe mode keeps one step list per timing; [steps] mirrors the selected one.
+    private var swipeMode = false
+    private var currentTiming = SwipeActionTiming.All
+    private val timingDrafts = mutableMapOf<SwipeActionTiming, List<MacroStepData>>()
+    private var originalTimingSnapshot: Map<SwipeActionTiming, List<Map<String, Any>>> = emptyMap()
+    private var timingSpinner: Spinner? = null
+    private var timingSpinnerAdapter: ArrayAdapter<String>? = null
+
     companion object {
         const val EXTRA_MACRO_STEPS = "macro_steps"
         const val EXTRA_EVENT_TYPE = "event_type"
         const val EXTRA_MACRO_RESULT = "macro_result"
+
+        // Swipe editors also pass timing-specific lists keyed by SwipeActionTiming.id;
+        // the All timing stays in EXTRA_MACRO_STEPS / EXTRA_MACRO_RESULT.
+        const val EXTRA_SWIPE_MODE = "swipe_mode"
+        const val EXTRA_TIMING_STEPS = "timing_steps"
+        const val EXTRA_TIMING_RESULT = "timing_result"
+
+        fun timingLabelRes(timing: SwipeActionTiming): Int = when (timing) {
+            SwipeActionTiming.NoCodeNoCandidates -> R.string.swipe_action_timing_no_code_no_candidates
+            SwipeActionTiming.CodeAndCandidates -> R.string.swipe_action_timing_code_and_candidates
+            SwipeActionTiming.NoCodeCandidates -> R.string.swipe_action_timing_no_code_candidates
+            SwipeActionTiming.All -> R.string.swipe_action_timing_all
+        }
 
         val STEP_TYPES = arrayOf("tap", "shortcut", "edit", "app", "down", "up", "text")
         val KEY_TYPES = arrayOf("fcitx", "android")
@@ -529,8 +551,10 @@ class MacroEditorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        
+        swipeMode = intent.getBooleanExtra(EXTRA_SWIPE_MODE, false)
+
         container.addView(toolbar)
+        if (swipeMode) container.addView(createTimingSelector())
         container.addView(stepsRecyclerView)
         container.addView(addStepButton)
         
@@ -546,7 +570,9 @@ class MacroEditorActivity : AppCompatActivity() {
         val initialSteps = intent.serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
         originalSteps = initialSteps
         android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
-        if (originalSteps != null) {
+        if (swipeMode) {
+            initTimingDrafts(initialSteps.orEmpty())
+        } else if (originalSteps != null) {
             steps.clear()
             steps.addAll(originalSteps!!.map {
                 val parsed = parseStep(it)
@@ -575,6 +601,113 @@ class MacroEditorActivity : AppCompatActivity() {
             insets
         }
         ViewCompat.requestApplyInsets(toolbar)
+    }
+
+    private fun initTimingDrafts(allSteps: List<Map<*, *>>) {
+        timingDrafts[SwipeActionTiming.All] = allSteps.map(::parseStep)
+        intent.serializable<HashMap<String, ArrayList<Map<*, *>>>>(EXTRA_TIMING_STEPS)?.forEach { (id, list) ->
+            val timing = SwipeActionTiming.fromId(id)?.takeUnless { it == SwipeActionTiming.All }
+                ?: return@forEach
+            timingDrafts[timing] = list.map(::parseStep)
+        }
+        // Open on All for legacy configs; a specific-only action opens on its first timing.
+        val initial = SwipeActionTiming.All.takeIf { timingDrafts[it].orEmpty().isNotEmpty() }
+            ?: SwipeActionTiming.entries.firstOrNull { timingDrafts[it].orEmpty().isNotEmpty() }
+            ?: SwipeActionTiming.All
+        showTiming(initial)
+        timingSpinner?.setSelection(SwipeActionTiming.entries.indexOf(initial), false)
+        originalTimingSnapshot = snapshotTimingDrafts()
+    }
+
+    private fun createTimingSelector(): View {
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            SwipeActionTiming.entries.map(::timingLabel).toMutableList()
+        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        timingSpinnerAdapter = adapter
+        val spinner = Spinner(this).apply {
+            this.adapter = adapter
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val timing = SwipeActionTiming.entries[position]
+                    if (timing == currentTiming) return
+                    captureCurrentTiming()
+                    showTiming(timing)
+                    updateSaveButtonState()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+        }
+        timingSpinner = spinner
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(8), dp(16), dp(8))
+            addView(LinearLayout(this@MacroEditorActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(TextView(this@MacroEditorActivity).apply {
+                    text = getString(R.string.macro_editor_swipe_timing)
+                    textSize = 16f
+                })
+                addView(spinner, LinearLayout.LayoutParams(0, wrapContent).apply {
+                    weight = 1f
+                    marginStart = dp(12)
+                })
+            })
+            addView(TextView(this@MacroEditorActivity).apply {
+                text = getString(R.string.macro_editor_swipe_timing_hint)
+                textSize = 12f
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(0, dp(4), 0, 0)
+            })
+        }
+    }
+
+    private fun timingLabel(timing: SwipeActionTiming): String = getString(timingLabelRes(timing))
+
+    /** The visible list, treating the untouched default blank step as "no action". */
+    private fun visibleTimingSteps(): List<MacroStepData> {
+        val single = steps.singleOrNull()
+        val isPlaceholder = single != null && single.type == "tap" && single.keys.isEmpty()
+        return if (isPlaceholder) emptyList() else steps.toList()
+    }
+
+    private fun captureCurrentTiming() {
+        timingDrafts[currentTiming] = visibleTimingSteps()
+    }
+
+    private fun showTiming(timing: SwipeActionTiming) {
+        currentTiming = timing
+        steps.clear()
+        steps.addAll(timingDrafts[timing].orEmpty().ifEmpty { listOf(MacroStepData()) })
+        if (::stepsAdapter.isInitialized) stepsAdapter.notifyDataSetChanged()
+    }
+
+    private fun snapshotTimingDrafts(): Map<SwipeActionTiming, List<Map<String, Any>>> =
+        SwipeActionTiming.entries.associateWith { timing ->
+            val list = if (timing == currentTiming) visibleTimingSteps() else timingDrafts[timing].orEmpty()
+            list.map(::stepToMap)
+        }.filterValues { it.isNotEmpty() }
+
+    private fun refreshTimingLabels() {
+        val adapter = timingSpinnerAdapter ?: return
+        val snapshot = snapshotTimingDrafts()
+        val labels = SwipeActionTiming.entries.map { timing ->
+            val count = snapshot[timing]?.size ?: 0
+            if (count > 0) {
+                getString(R.string.macro_editor_swipe_timing_item_configured, timingLabel(timing), count)
+            } else {
+                timingLabel(timing)
+            }
+        }
+        if ((0 until adapter.count).map { adapter.getItem(it) } == labels) return
+        // One change notification only: a transient empty adapter would reset the selection.
+        adapter.setNotifyOnChange(false)
+        adapter.clear()
+        adapter.addAll(labels)
+        adapter.notifyDataSetChanged()
     }
 
     private fun parseStep(stepMap: Map<*, *>): MacroStepData {
@@ -681,31 +814,71 @@ class MacroEditorActivity : AppCompatActivity() {
     }
 
     private fun saveAndFinish() {
-        // Validate data
+        if (swipeMode) {
+            saveSwipeAndFinish()
+            return
+        }
+        if (!validateSteps(steps)) return
+
+        val data = android.content.Intent()
+        data.putExtra(EXTRA_MACRO_RESULT, ArrayList(steps.map(::stepToMap)))
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    private fun saveSwipeAndFinish() {
+        captureCurrentTiming()
+        // Validate each timing on its own so down/up pairs cannot balance across timings.
+        for (timing in SwipeActionTiming.entries) {
+            if (timing != currentTiming) {
+                val list = timingDrafts[timing].orEmpty()
+                if (list.isEmpty() || validateSteps(list, showError = false)) continue
+                showTiming(timing)
+                timingSpinner?.setSelection(SwipeActionTiming.entries.indexOf(timing), false)
+            }
+            if (!validateSteps(timingDrafts[timing].orEmpty())) return
+        }
+
+        val timingResult = HashMap<String, ArrayList<Map<String, Any>>>()
+        timingDrafts.forEach { (timing, list) ->
+            if (timing != SwipeActionTiming.All && list.isNotEmpty()) {
+                timingResult[timing.id] = ArrayList(list.map(::stepToMap))
+            }
+        }
+        val data = android.content.Intent()
+        data.putExtra(
+            EXTRA_MACRO_RESULT,
+            ArrayList(timingDrafts[SwipeActionTiming.All].orEmpty().map(::stepToMap))
+        )
+        data.putExtra(EXTRA_TIMING_RESULT, timingResult)
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    private fun validateSteps(steps: List<MacroStepData>, showError: Boolean = true): Boolean {
+        fun fail(message: String): Boolean {
+            if (showError) Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            return false
+        }
         steps.forEachIndexed { index, step ->
             if (step.type == "text" && step.text.isBlank()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_text_empty), Toast.LENGTH_SHORT).show()
-                return
+                return fail(getString(R.string.macro_editor_step_text_empty))
             }
             if (step.type in listOf("tap", "down", "up") && step.keys.isEmpty()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_keys_empty, index + 1), Toast.LENGTH_SHORT).show()
-                return
+                return fail(getString(R.string.macro_editor_step_keys_empty, index + 1))
             }
             if (step.type == "shortcut") {
                 val modifiers = step.keys.filter { isModifierKey(it.code) }
                 val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
                 if (modifiers.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1), Toast.LENGTH_SHORT).show()
-                    return
+                    return fail(getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1))
                 }
                 if (nonModifiers.size > 1) {
-                    Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1), Toast.LENGTH_SHORT).show()
-                    return
+                    return fail(getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1))
                 }
             }
             if (step.type == "app" && step.keys.isEmpty()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
-                return
+                return fail(getString(R.string.macro_editor_step_app_action_required, index + 1))
             }
         }
 
@@ -757,72 +930,44 @@ class MacroEditorActivity : AppCompatActivity() {
         val unmatchedKeys = keyEventCounts.filter { (_, counts) -> counts.first != counts.second }
         if (unmatchedKeys.isNotEmpty()) {
             val keyNames = unmatchedKeys.keys.joinToString(", ") { (type, code) -> "$type:$code" }
-            Toast.makeText(this, getString(R.string.macro_editor_key_event_unmatched, keyNames), Toast.LENGTH_SHORT).show()
-            return
+            return fail(getString(R.string.macro_editor_key_event_unmatched, keyNames))
         }
+        return true
+    }
 
-        // Convert to Map format
-        val result = steps.map { step ->
-            buildMap {
-                put("type", step.type)
-                if (step.type in listOf("tap", "down", "up", "shortcut")) {
-                    if (step.type == "shortcut") {
-                        // Separate modifiers and key for shortcut type
-                        val modifiers = step.keys.filter { isModifierKey(it.code) }
-                        val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
-                        put("modifiers", modifiers.map { mapOf(it.keyType to it.code) })
-                        nonModifiers.firstOrNull()?.let { put("key", mapOf(it.keyType to it.code)) }
-                    } else {
-                        put("keys", step.keys.map { key -> mapOf(key.keyType to key.code) })
-                    }
-                }
-                if (step.type == "text") {
-                    put("text", step.text)
-                }
-                if (step.type == "edit") {
-                    // Get action from the code of the first key for edit type
-                    put("action", step.keys.firstOrNull()?.code ?: "copy")
-                }
-                if (step.type == "app") {
-                    put("id", step.keys.firstOrNull()?.code ?: "theme")
-                }
+    /** Convert a step to its layout JSON map form. */
+    private fun stepToMap(step: MacroStepData): Map<String, Any> = buildMap {
+        put("type", step.type)
+        if (step.type in listOf("tap", "down", "up", "shortcut")) {
+            if (step.type == "shortcut") {
+                // Separate modifiers and key for shortcut type
+                val modifiers = step.keys.filter { isModifierKey(it.code) }
+                val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
+                put("modifiers", modifiers.map { mapOf(it.keyType to it.code) })
+                nonModifiers.firstOrNull()?.let { put("key", mapOf(it.keyType to it.code)) }
+            } else {
+                put("keys", step.keys.map { key -> mapOf(key.keyType to key.code) })
             }
         }
-
-        val data = android.content.Intent()
-        data.putExtra(EXTRA_MACRO_RESULT, ArrayList(result))
-        setResult(RESULT_OK, data)
-        finish()
+        if (step.type == "text") {
+            put("text", step.text)
+        }
+        if (step.type == "edit") {
+            // Get action from the code of the first key for edit type
+            put("action", step.keys.firstOrNull()?.code ?: "copy")
+        }
+        if (step.type == "app") {
+            put("id", step.keys.firstOrNull()?.code ?: "theme")
+        }
     }
 
     /**
      * Compare whether current steps are the same as original steps
      */
     private fun isStepsChanged(): Boolean {
-        val currentSteps = steps.map { step ->
-            buildMap {
-                put("type", step.type)
-                if (step.type in listOf("tap", "down", "up", "shortcut")) {
-                    if (step.type == "shortcut") {
-                        val modifiers = step.keys.filter { isModifierKey(it.code) }
-                        val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
-                        put("modifiers", modifiers.map { mapOf(it.keyType to it.code) })
-                        nonModifiers.firstOrNull()?.let { put("key", mapOf(it.keyType to it.code)) }
-                    } else {
-                        put("keys", step.keys.map { key -> mapOf(key.keyType to key.code) })
-                    }
-                }
-                if (step.type == "text") {
-                    put("text", step.text)
-                }
-                if (step.type == "edit") {
-                    put("action", step.keys.firstOrNull()?.code ?: "copy")
-                }
-                if (step.type == "app") {
-                    put("id", step.keys.firstOrNull()?.code ?: "theme")
-                }
-            }
-        }
+        // Switching timings alone is not a change; editing any timing is.
+        if (swipeMode) return snapshotTimingDrafts() != originalTimingSnapshot
+        val currentSteps = steps.map(::stepToMap)
         
         if (originalSteps == null) {
             // Original is empty, now has data
@@ -847,6 +992,7 @@ class MacroEditorActivity : AppCompatActivity() {
      */
     private fun updateSaveButtonState() {
         hasChanges = isStepsChanged()
+        refreshTimingLabels()
         // Update menu button enabled state
         saveMenuItem?.let { menuItem ->
             menuItem.isEnabled = hasChanges

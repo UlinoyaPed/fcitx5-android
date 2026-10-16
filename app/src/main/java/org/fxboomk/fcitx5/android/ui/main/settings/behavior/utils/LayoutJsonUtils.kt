@@ -387,7 +387,15 @@ object LayoutJsonUtils {
      */
     fun parseMacroAction(obj: JsonObject): MacroAction {
         val steps = obj["macro"]?.jsonArray?.map { parseMacroStep(it.jsonObject) } ?: emptyList()
-        return MacroAction(steps)
+        val timingActions = (obj["timingActions"] as? JsonObject)?.entries?.mapNotNull { (id, value) ->
+            val timing = SwipeActionTiming.fromId(id)?.takeUnless { it == SwipeActionTiming.All }
+                ?: return@mapNotNull null
+            val action = value as? JsonObject ?: return@mapNotNull null
+            val timedSteps = (action["macro"] as? JsonArray)?.map { parseMacroStep(it.jsonObject) }
+                ?: return@mapNotNull null
+            timing to timedSteps
+        }?.toMap() ?: emptyMap()
+        return MacroAction(steps, timingActions)
     }
 
     /**
@@ -751,8 +759,17 @@ object LayoutJsonUtils {
      * @return JSON 对象，包含 "macro" 字段
      */
     fun macroActionToJson(action: MacroAction): JsonObject {
-        val steps = JsonArray(action.steps.map { macroStepToJson(it) })
-        return JsonObject(mapOf("macro" to steps))
+        val fields = linkedMapOf<String, JsonElement>(
+            "macro" to JsonArray(action.steps.map { macroStepToJson(it) })
+        )
+        val timingActions = action.timingActions.filterKeys { it != SwipeActionTiming.All }
+        if (timingActions.isNotEmpty()) {
+            fields["timingActions"] = JsonObject(timingActions.mapKeys { (timing, _) -> timing.id }
+                .mapValues { (_, steps) ->
+                    JsonObject(mapOf("macro" to JsonArray(steps.map { macroStepToJson(it) })))
+                })
+        }
+        return JsonObject(fields)
     }
 
     /**

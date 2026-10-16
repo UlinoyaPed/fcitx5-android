@@ -885,6 +885,7 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">Long Press Label is empty, popup will use Label.</string>
     <string name="text_keyboard_layout_macro_no_event">No event configured</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (%2$d steps total)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
     <string name="text_keyboard_layout_alt_label">Alt Label</string>
     <string name="text_keyboard_layout_alt_label_one">Alt Label 1</string>
     <string name="text_keyboard_layout_swipe_label">Swipe Label</string>
@@ -926,6 +927,13 @@
     <!-- Macro Editor -->
     <string name="macro_editor_title">Edit %1$s</string>
     <string name="macro_editor_add_step">+ Add Step</string>
+    <string name="macro_editor_swipe_timing">Action timing</string>
+    <string name="macro_editor_swipe_timing_hint">Each timing has its own actions. A matching timing replaces “All”; states without their own actions use “All”.</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="swipe_action_timing_no_code_no_candidates">No code, no candidates</string>
+    <string name="swipe_action_timing_code_and_candidates">Has code and candidates</string>
+    <string name="swipe_action_timing_no_code_candidates">No code, has candidates</string>
+    <string name="swipe_action_timing_all">All</string>
     <string name="macro_editor_step_type_tap">Tap Keys</string>
     <string name="macro_editor_step_type_shortcut">Shortcut</string>
     <string name="macro_editor_step_type_edit">Edit Action</string>

@@ -87,7 +87,11 @@ sealed class KeyRef {
  * Macro 动作，由多个 MacroStep 组成
  * 支持 down/up/tap/text 组合
  */
-data class MacroAction(val steps: List<MacroStep>) : KeyAction()
+data class MacroAction(
+    val steps: List<MacroStep>,
+    // Swipe-only alternatives; normal tap/long-press macro execution still uses steps.
+    val timingActions: Map<SwipeActionTiming, List<MacroStep>> = emptyMap()
+) : KeyAction()
 
 sealed class KeyAction {
 

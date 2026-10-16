@@ -1196,6 +1196,7 @@ abstract class BaseKeyboard(
                 is KeyDef.Behavior.Swipe -> {
                     view.swipeEnabled = true
                     val isBackspace = view.def.viewId == R.id.button_backspace
+                    val isSpace = view.def.viewId == R.id.button_space
                     if (!isBackspace) view.swipeThresholdX = disabledSwipeThreshold
                     view.swipeThresholdY = inputSwipeThreshold
                     val oldOnGestureListener = view.onGestureListener ?: OnGestureListener.Empty
@@ -1229,8 +1230,8 @@ abstract class BaseKeyboard(
                                     dismissBackspaceClearPopup()
                                     if (backspaceClearTriggered) return@OnGestureListener true
                                     if (backspaceSwipeAxis == SwipeAxis.Y) {
-                                        val action = selectSwipeSymbolAction(currentView, event.totalY, it)
-                                        if (!event.consumed && action != null) onAction(action)
+                                        val selection = selectSwipeSymbolAction(currentView, event.totalY, it)
+                                        if (!event.consumed) selection?.action?.let { action -> onAction(action) }
                                         // A vertical swipe must never delete a horizontal
                                         // selection, even when this direction has no macro.
                                         return@OnGestureListener true
@@ -1239,11 +1240,19 @@ abstract class BaseKeyboard(
                                 }
                             }
                         }
+                        // Space navigation normally runs on Move. A configured vertical
+                        // action must instead wait for Up, including a timing mismatch.
+                        if (isSpace && event.type == GestureType.Move &&
+                            (selectPhysicalSwipeMacro(event.totalY, it)
+                                ?: selectSwipeAltAction(currentView, event.totalY, it)) != null
+                        ) {
+                            return@OnGestureListener false
+                        }
                         when (event.type) {
                             GestureType.Up -> {
-                                val action = selectSwipeSymbolAction(currentView, event.totalY, it)
-                                if (!event.consumed && action != null) {
-                                    onAction(action)
+                                val selection = selectSwipeSymbolAction(currentView, event.totalY, it)
+                                if (selection != null) {
+                                    if (!event.consumed) selection.action?.let { action -> onAction(action) }
                                     true
                                 } else {
                                     false
@@ -1341,7 +1350,10 @@ abstract class BaseKeyboard(
                                     PopupAction.PreviewAction(currentView.id, it.content, currentView.bounds)
                                 )
                                 GestureType.Move -> {
-                                    val text = selectAltPreviewText(currentView, event.totalY, it)
+                                    val text = selectAltPreviewText(
+                                        currentView, event.totalY, it,
+                                        behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().firstOrNull()
+                                    )
                                     onPopupAction(
                                         PopupAction.PreviewUpdateAction(currentView.id, text)
                                     )
@@ -1553,15 +1565,40 @@ abstract class BaseKeyboard(
         }
     }
 
+    // null selection means unconfigured; a selection with no action consumes the swipe.
+    private data class SwipeActionSelection(val action: KeyAction?)
+
     private fun selectSwipeSymbolAction(
         view: View,
         totalY: Int,
         behavior: KeyDef.Behavior.Swipe
-    ): KeyAction? {
-        // 按物理方向绑定的自定义划动宏（”划动事件(上划)/(下划)”）优先级最高，
-        // 高于副标签提交动作；它按实际手势方向判定，不依赖副标签的显示布局。
-        selectPhysicalSwipeMacro(totalY, behavior)?.let { return it }
-        val action = when (selectSwipeAltTarget(view, totalY)) {
+    ): SwipeActionSelection? {
+        // Keep a configured physical direction ahead of labels even when its timing
+        // does not match. Only an unconfigured direction may use the alt fallback.
+        selectPhysicalSwipeMacro(totalY, behavior)?.let { return resolveSwipeSelection(it) }
+        return selectSwipeAltAction(view, totalY, behavior)?.let {
+            resolveSwipeSelection(handleDigitSwipeAction(it))
+        }
+    }
+
+    private fun resolveSwipeSelection(action: KeyAction): SwipeActionSelection =
+        SwipeActionSelection(
+            if (action is MacroAction) action.resolveSwipeAction(currentSwipeActionState()) else action
+        )
+
+    protected open fun currentSwipeActionState(): SwipeActionState {
+        val svc = getService() ?: return SwipeActionState(hasCode = false, hasCandidates = false)
+        val hasCode = svc.fcitx.runImmediately {
+            clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty()
+        }
+        return SwipeActionState(hasCode = hasCode, hasCandidates = svc.hasVisibleCandidates())
+    }
+
+    private fun selectSwipeAltAction(
+        view: View,
+        totalY: Int,
+        behavior: KeyDef.Behavior.Swipe
+    ): KeyAction? = when (selectSwipeAltTarget(view, totalY)) {
             AltTextSwipeTarget.Primary -> behavior.action ?: behavior.legacyMacro
             AltTextSwipeTarget.Secondary ->
                 behavior.downAction ?: behavior.action ?: behavior.legacyMacro
@@ -1572,10 +1609,6 @@ abstract class BaseKeyboard(
                     ?: behavior.legacyMacro
             null -> null
         }
-        return action?.let {
-            handleDigitSwipeAction(it)
-        }
-    }
 
     /**
      * 处理数字副字符划动的智能逻辑：
@@ -1630,8 +1663,17 @@ abstract class BaseKeyboard(
     private fun selectAltPreviewText(
         view: View,
         totalY: Int,
-        popup: KeyDef.Popup.AltPreview
+        popup: KeyDef.Popup.AltPreview,
+        behavior: KeyDef.Behavior.Swipe?
     ): String {
+        val action = behavior?.let {
+            selectPhysicalSwipeMacro(totalY, it) ?: selectSwipeAltAction(view, totalY, it)
+        }
+        if (action is MacroAction && action.timingActions.isNotEmpty() &&
+            action.resolveSwipeAction(currentSwipeActionState()) == null
+        ) {
+            return popup.content
+        }
         return when (selectSwipeAltTarget(view, totalY)) {
             AltTextSwipeTarget.Primary -> popup.alternative
             AltTextSwipeTarget.Secondary -> popup.alternative1 ?: popup.alternative
