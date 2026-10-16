@@ -985,6 +985,7 @@
     <string name="text_keyboard_layout_compose_override_not_configured">Use default key behavior while composing</string>
     <string name="text_keyboard_layout_compose_override_configured">Custom key behavior is configured for composing state</string>
     <string name="text_keyboard_layout_compose_override_edit_button">Edit composing key</string>
+    <string name="text_keyboard_layout_compose_override_description">Composing state means the input method is in the process of entering an input code.</string>
     <string name="text_keyboard_layout_compose_override_clear_button">Clear</string>
     <string name="text_keyboard_layout_compose_override_editor_title">Edit composing key</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">Independent key color</string>

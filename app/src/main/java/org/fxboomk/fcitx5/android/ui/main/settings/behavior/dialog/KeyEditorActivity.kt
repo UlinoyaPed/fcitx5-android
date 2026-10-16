@@ -786,7 +786,10 @@ class KeyEditorActivity : AppCompatActivity() {
         )
 
         val statusView = TextView(this).apply {
-            text = buildComposeOverrideStatusPreview()
+            text = listOf(
+                getString(R.string.text_keyboard_layout_compose_override_description),
+                buildComposeOverrideStatusPreview()
+            ).joinToString("\n")
             textSize = 12f
             setTextColor(styledColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(2), dp(8), dp(8))

@@ -937,4 +937,25 @@
     <string name="theme_preview_previous">Предыдущая тема</string>
     <string name="theme_preview_next">Следующая тема</string>
     <string name="theme_preview_in_use">Используется</string>
+
+    <string name="auto_close_brackets">Автодополнение парных символов</string>
+    <string name="insert_space_between_chinese_and_english">Вставлять пробел между китайскими и английскими символами</string>
+    <string name="edit_swipe_symbol_mapping">Сопоставление символов для свайпа</string>
+    <string name="edit_swipe_symbol_mapping_summary">Настроить полноширинные символы и символы верхнего регистра, вводимые свайпом по клавишам знаков препинания</string>
+    <string name="swipe_symbol_add_mapping">Добавить сопоставление</string>
+    <string name="swipe_symbol_editor_hint">Первый столбец содержит исходный полуширинный символ на клавише (ключ поиска). Второй столбец содержит китайский полноширинный символ, вводимый свайпом в китайском режиме. Третий столбец содержит символ, вводимый в режиме заглавных букв (оставьте пустым, чтобы использовать исходный символ в нижнем регистре).</string>
+    <string name="swipe_symbol_col_raw">Исходный (полуширинный)</string>
+    <string name="swipe_symbol_col_fullwidth">Китайский (полноширинный)</string>
+    <string name="swipe_symbol_col_upper">Верхний регистр</string>
+    <string name="swipe_symbol_raw_hint">Один символ на клавише, например «.»</string>
+    <string name="swipe_symbol_fullwidth_hint">Полноширинный символ для китайского режима</string>
+    <string name="swipe_symbol_upper_hint">Символ для режима заглавных букв (необязательно)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">Исходный символ должен состоять ровно из одного знака</string>
+    <string name="swipe_symbol_raw_exists">Сопоставление уже существует: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">Удалить сопоставление «%1$s»?</string>
+    <string name="swipe_symbol_reset_all_confirm">Сбросить все сопоставления до встроенных значений по умолчанию? Несохранённые изменения будут потеряны.</string>
+    <string name="swipe_symbol_mapping_saved_at">Сохранено в %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">Не удалось определить путь к файлу сопоставлений символов для свайпа</string>
+    <string name="swipe_symbol_picker_title">Выбрать из сопоставлений символов для свайпа</string>
+    <string name="swipe_symbol_picker_empty">Список сопоставлений символов для свайпа пуст</string>
 </resources>

@@ -935,4 +935,25 @@
     <string name="theme_preview_previous">Vorheriges Design</string>
     <string name="theme_preview_next">Nächstes Design</string>
     <string name="theme_preview_in_use">Wird verwendet</string>
+
+    <string name="auto_close_brackets">Zeichenpaare automatisch vervollständigen</string>
+    <string name="insert_space_between_chinese_and_english">Leerzeichen zwischen chinesischen und englischen Zeichen einfügen</string>
+    <string name="edit_swipe_symbol_mapping">Symbolzuordnung für Wischgesten</string>
+    <string name="edit_swipe_symbol_mapping_summary">Symbole in Vollbreite und bei Großschreibung bearbeiten, die beim Wischen auf Satzzeichentasten eingegeben werden</string>
+    <string name="swipe_symbol_add_mapping">Zuordnung hinzufügen</string>
+    <string name="swipe_symbol_editor_hint">Die erste Spalte enthält das ursprüngliche Zeichen in Halbbreite auf der Taste (den Suchschlüssel). Die zweite Spalte enthält das chinesische Zeichen in Vollbreite, das beim Wischen im chinesischen Modus eingegeben wird. Die dritte Spalte enthält das Zeichen bei aktivierter Großschreibung (leer lassen, um das ursprüngliche Zeichen in Kleinschreibung zu verwenden).</string>
+    <string name="swipe_symbol_col_raw">Original (Halbbreite)</string>
+    <string name="swipe_symbol_col_fullwidth">Chinesisch (Vollbreite)</string>
+    <string name="swipe_symbol_col_upper">Großschreibung</string>
+    <string name="swipe_symbol_raw_hint">Ein einzelnes Zeichen auf der Taste, z. B. „.“</string>
+    <string name="swipe_symbol_fullwidth_hint">Zeichen in Vollbreite für den chinesischen Modus</string>
+    <string name="swipe_symbol_upper_hint">Zeichen bei Großschreibung (optional)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">Das ursprüngliche Symbol muss genau ein Zeichen sein</string>
+    <string name="swipe_symbol_raw_exists">Zuordnung bereits vorhanden: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">Zuordnung „%1$s“ löschen?</string>
+    <string name="swipe_symbol_reset_all_confirm">Alle Zuordnungen auf die integrierten Standardwerte zurücksetzen? Nicht gespeicherte Änderungen gehen verloren.</string>
+    <string name="swipe_symbol_mapping_saved_at">Gespeichert unter %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">Der Dateipfad der Symbolzuordnung für Wischgesten kann nicht ermittelt werden</string>
+    <string name="swipe_symbol_picker_title">Aus der Symbolzuordnung für Wischgesten auswählen</string>
+    <string name="swipe_symbol_picker_empty">Die Symbolzuordnung für Wischgesten ist leer</string>
 </resources>

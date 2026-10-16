@@ -937,4 +937,25 @@
     <string name="theme_preview_previous">Tema anterior</string>
     <string name="theme_preview_next">Tema siguiente</string>
     <string name="theme_preview_in_use">En uso</string>
+
+    <string name="auto_close_brackets">Cerrar automáticamente los símbolos emparejados</string>
+    <string name="insert_space_between_chinese_and_english">Insertar espacios entre caracteres chinos e ingleses</string>
+    <string name="edit_swipe_symbol_mapping">Asignación de símbolos al deslizar</string>
+    <string name="edit_swipe_symbol_mapping_summary">Editar los símbolos de ancho completo y en mayúsculas que se introducen al deslizar sobre las teclas de puntuación</string>
+    <string name="swipe_symbol_add_mapping">Añadir asignación</string>
+    <string name="swipe_symbol_editor_hint">La primera columna contiene el símbolo original de medio ancho de la tecla (la clave de búsqueda). La segunda contiene el símbolo chino de ancho completo que se introduce al deslizar en modo chino. La tercera contiene el símbolo que se introduce en modo de mayúsculas (déjela vacía para usar el símbolo original en minúsculas).</string>
+    <string name="swipe_symbol_col_raw">Original (medio ancho)</string>
+    <string name="swipe_symbol_col_fullwidth">Chino (ancho completo)</string>
+    <string name="swipe_symbol_col_upper">Mayúsculas</string>
+    <string name="swipe_symbol_raw_hint">Un solo símbolo de la tecla, por ejemplo «.»</string>
+    <string name="swipe_symbol_fullwidth_hint">Símbolo de ancho completo para el modo chino</string>
+    <string name="swipe_symbol_upper_hint">Símbolo para el modo de mayúsculas (opcional)</string>
+    <string name="swipe_symbol_raw_must_be_single_char">El símbolo original debe ser exactamente un carácter</string>
+    <string name="swipe_symbol_raw_exists">Ya existe una asignación: %1$s</string>
+    <string name="swipe_symbol_delete_confirm">¿Eliminar la asignación «%1$s»?</string>
+    <string name="swipe_symbol_reset_all_confirm">¿Restablecer todas las asignaciones a los valores predeterminados integrados? Se perderán los cambios sin guardar.</string>
+    <string name="swipe_symbol_mapping_saved_at">Guardado en %1$s</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">No se puede determinar la ruta del archivo de asignaciones de símbolos al deslizar</string>
+    <string name="swipe_symbol_picker_title">Elegir entre las asignaciones de símbolos al deslizar</string>
+    <string name="swipe_symbol_picker_empty">No hay asignaciones de símbolos al deslizar</string>
 </resources>

@@ -895,12 +895,13 @@
     <string name="edit_monet_theme">编辑 Monet 主题</string>
 
     <string name="text_keyboard_layout_save_failed">保存布局失败。请查看 logcat 获取详细信息。</string>
-    <string name="text_keyboard_layout_compose_override_title">合成中覆盖</string>
-    <string name="text_keyboard_layout_compose_override_not_configured">合成中使用默认按键行为</string>
-    <string name="text_keyboard_layout_compose_override_configured">已配置合成中的按键行为</string>
-    <string name="text_keyboard_layout_compose_override_edit_button">编辑合成中按键</string>
+    <string name="text_keyboard_layout_compose_override_title">组码态覆盖</string>
+    <string name="text_keyboard_layout_compose_override_not_configured">组码态使用默认按键行为</string>
+    <string name="text_keyboard_layout_compose_override_configured">已配置组码态的按键行为</string>
+    <string name="text_keyboard_layout_compose_override_edit_button">编辑组码态按键</string>
+    <string name="text_keyboard_layout_compose_override_description">组码态，即为输入法正处在输入编码的过程。</string>
     <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
-    <string name="text_keyboard_layout_compose_override_editor_title">编辑合成中按键</string>
+    <string name="text_keyboard_layout_compose_override_editor_title">编辑组码态按键</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">独立按键颜色</string>
     <string name="llm_model_status_remote_ready">状态：远端模型可用</string>
     <string name="llm_model_status_remote_unavailable">状态：远端模型不可用</string>

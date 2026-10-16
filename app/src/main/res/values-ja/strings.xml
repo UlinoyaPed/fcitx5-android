@@ -937,4 +937,25 @@
     <string name="theme_preview_previous">前のテーマ</string>
     <string name="theme_preview_next">次のテーマ</string>
     <string name="theme_preview_in_use">使用中</string>
+
+    <string name="auto_close_brackets">対になる記号を自動補完</string>
+    <string name="insert_space_between_chinese_and_english">中国語と英語の間にスペースを挿入</string>
+    <string name="edit_swipe_symbol_mapping">記号スワイプのマッピング</string>
+    <string name="edit_swipe_symbol_mapping_summary">句読点キーのスワイプで入力する全角記号と大文字モードの記号を編集</string>
+    <string name="swipe_symbol_add_mapping">マッピングを追加</string>
+    <string name="swipe_symbol_editor_hint">1列目はキーに表示されている元の半角記号（検索キー）です。2列目はスワイプが中国語モードに従う場合に入力される中国語の全角記号です。3列目は大文字モードで入力される記号です（空欄の場合は元の小文字の記号を入力します）。</string>
+    <string name="swipe_symbol_col_raw">元の記号（半角）</string>
+    <string name="swipe_symbol_col_fullwidth">中国語（全角）</string>
+    <string name="swipe_symbol_col_upper">大文字</string>
+    <string name="swipe_symbol_raw_hint">キーに表示されている1文字の記号（例：.）</string>
+    <string name="swipe_symbol_fullwidth_hint">中国語モードの全角記号</string>
+    <string name="swipe_symbol_upper_hint">大文字モードの記号（省略可）</string>
+    <string name="swipe_symbol_raw_must_be_single_char">元の記号は1文字で指定してください</string>
+    <string name="swipe_symbol_raw_exists">マッピングは既に存在します：%1$s</string>
+    <string name="swipe_symbol_delete_confirm">マッピング「%1$s」を削除しますか？</string>
+    <string name="swipe_symbol_reset_all_confirm">すべてのマッピングを組み込みの既定値に戻しますか？未保存の変更は失われます。</string>
+    <string name="swipe_symbol_mapping_saved_at">%1$s に保存しました</string>
+    <string name="cannot_resolve_swipe_symbol_mapping">記号スワイプのマッピングファイルのパスを特定できません</string>
+    <string name="swipe_symbol_picker_title">記号スワイプのマッピングから選択</string>
+    <string name="swipe_symbol_picker_empty">記号スワイプのマッピングが空です</string>
 </resources>
