@@ -126,14 +126,17 @@
             android:label="@string/text_keyboard_layout_customize_title" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.KeyEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_text_keyboard_layout" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.RowEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_text_keyboard_layout" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.MacroEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="编辑 Macro" />
         <activity
