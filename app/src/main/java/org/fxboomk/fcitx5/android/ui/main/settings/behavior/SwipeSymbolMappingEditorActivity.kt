@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -19,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,16 +29,19 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.keyboard.DefaultSwipeSymbolMapping
 import org.fxboomk.fcitx5.android.input.keyboard.SwipeSymbolMappingStore
 import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
+import splitties.resources.drawable
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
+import splitties.views.imageDrawable
 import java.io.File
 
 private val prettyJson = Json { prettyPrint = true }
@@ -60,14 +65,13 @@ class SwipeSymbolMappingEditorActivity : AppCompatActivity() {
         }
     }
 
-    private val addRowButton by lazy {
-        TextView(this).apply {
-            text = getString(R.string.swipe_symbol_add_mapping)
-            textSize = 16f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorButtonNormal))
+    /** 右下角圆形"加号"按钮，与「输入法」页右下角的添加按钮样式一致。 */
+    private val fab by lazy {
+        FloatingActionButton(this).apply {
+            imageDrawable = drawable(R.drawable.ic_baseline_plus_24)!!.apply {
+                setTint(styledColor(android.R.attr.colorForegroundInverse))
+            }
+            contentDescription = getString(R.string.swipe_symbol_add_mapping)
             setOnClickListener { openEditor(null) }
         }
     }
@@ -87,6 +91,7 @@ class SwipeSymbolMappingEditorActivity : AppCompatActivity() {
         RecyclerView(this).apply {
             layoutManager = LinearLayoutManager(this@SwipeSymbolMappingEditorActivity)
             isNestedScrollingEnabled = false
+            clipToPadding = false
         }
     }
 
@@ -95,7 +100,6 @@ class SwipeSymbolMappingEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             val pad = dp(16)
             setPadding(pad, pad, pad, pad)
-            addView(addRowButton)
             addView(usageHint)
             addView(headerRow)
             addView(recyclerView)
@@ -107,7 +111,17 @@ class SwipeSymbolMappingEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
             addView(
-                mainContainer,
+                FrameLayout(this@SwipeSymbolMappingEditorActivity).apply {
+                    addView(mainContainer, FrameLayout.LayoutParams(matchParent, matchParent))
+                    addView(
+                        fab,
+                        FrameLayout.LayoutParams(wrapContent, wrapContent).apply {
+                            gravity = Gravity.BOTTOM or Gravity.END
+                            val m = dp(16)
+                            setMargins(m, m, m, m)
+                        }
+                    )
+                },
                 LinearLayout.LayoutParams(matchParent, 0).apply { weight = 1f }
             )
         }
@@ -128,6 +142,11 @@ class SwipeSymbolMappingEditorActivity : AppCompatActivity() {
             insets
         }
         ViewCompat.requestApplyInsets(toolbar)
+
+        // 末行可滚动到悬浮按钮上方：列表底部留出 FAB 高度 + 边距的空间。
+        fab.doOnLayout { fab ->
+            recyclerView.updatePadding(bottom = fab.height + dp(16))
+        }
 
         loadState()
         adapter = MappingAdapter()
