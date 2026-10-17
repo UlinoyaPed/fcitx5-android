@@ -9,6 +9,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.core.SubtypeManager
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fxboomk.fcitx5.android.ui.common.DynamicListUi
@@ -45,12 +46,22 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
             enableOrder = true,
             initSettingsButton = { entry ->
                 setOnClickListener {
-                    navigateWithAnim(
-                        SettingsRoute.InputMethodConfig(entry.displayName, entry.uniqueName),
-                    )
+                    if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                        navigateWithAnim(SettingsRoute.CustomShuangpin)
+                    } else {
+                        navigateWithAnim(
+                            SettingsRoute.InputMethodConfig(entry.displayName, entry.uniqueName),
+                        )
+                    }
                 }
             },
-            show = { it.displayName }
+            show = { entry ->
+                if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                    CustomShuangpinSchemeStore.displayName()
+                } else {
+                    entry.displayName
+                }
+            }
         )
         ui.addOnItemChangedListener(this@InputMethodListFragment)
         ui.setViewModel(viewModel)
@@ -75,6 +86,13 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
             ui.exitMultiSelect()
         }
         super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::ui.isInitialized) {
+            ui.notifyDataSetChanged()
+        }
     }
 
     override fun onDestroy() {

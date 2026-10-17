@@ -966,4 +966,18 @@
     <string name="swipe_action_timing_code_all">Code (alle)</string>
     <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
     <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
+    <string name="custom_shuangpin">Benutzerdefiniertes Shuangpin</string>
+    <string name="custom_shuangpin_scheme_name">Schemaname</string>
+    <string name="custom_shuangpin_zero_initial">Null-Initial-Markierung</string>
+    <string name="custom_shuangpin_initials">Initialzuordnungen</string>
+    <string name="custom_shuangpin_finals">Finalzuordnungen</string>
+    <string name="custom_shuangpin_key_none">Nicht gesetzt</string>
+    <string name="custom_shuangpin_mapping_hint">Nicht gesetzte Tasten verwenden die Standardregel. Mehrbuchstabige Initiale und Finale benötigen normalerweise eine explizite Taste.</string>
+    <string name="custom_shuangpin_name_invalid">Verwenden Sie einen nicht leeren Namen, der keinem integrierten Schemanamen entspricht.</string>
+    <string name="custom_shuangpin_zero_initial_invalid">Nur Kleinbuchstaben und * verwenden.</string>
+    <string name="custom_shuangpin_syllables">Silbenüberschreibungen</string>
+    <string name="custom_shuangpin_edit_syllables">Silbenüberschreibungen bearbeiten</string>
+    <string name="custom_shuangpin_syllable_count">%1$d Überschreibung(en)</string>
+    <string name="custom_shuangpin_syllables_hint">Eine Zuordnung pro Zeile: vollständiges Pinyin=zwei Tasten. Mehrere Tasten können durch Kommas getrennt werden.</string>
+    <string name="custom_shuangpin_syllables_invalid">Ungültige Silbenüberschreibung. Verwenden Sie Zeilen wie ju=jv oder shi=ui,is.</string>
 </resources>

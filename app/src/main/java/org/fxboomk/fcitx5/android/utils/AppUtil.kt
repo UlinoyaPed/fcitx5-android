@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import org.fxboomk.fcitx5.android.BuildConfig
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.data.DataManager
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.main.ClipboardEditActivity
 import org.fxboomk.fcitx5.android.ui.main.MainActivity
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
@@ -97,8 +98,14 @@ object AppUtil {
     fun launchMainToThemeList(context: Context) =
         launchMainToDest(context, SettingsRoute.Theme)
 
-    fun launchMainToInputMethodConfig(context: Context, uniqueName: String, displayName: String) =
-        launchMainToDest(context, SettingsRoute.InputMethodConfig(displayName, uniqueName))
+    fun launchMainToInputMethodConfig(context: Context, uniqueName: String, displayName: String) {
+        val route = if (uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+            SettingsRoute.CustomShuangpin
+        } else {
+            SettingsRoute.InputMethodConfig(displayName, uniqueName)
+        }
+        launchMainToDest(context, route)
+    }
 
     fun launchMainToAddonMultiSelect(
         context: Context,

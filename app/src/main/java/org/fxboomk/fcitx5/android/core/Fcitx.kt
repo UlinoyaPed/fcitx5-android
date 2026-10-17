@@ -22,6 +22,7 @@ import org.fxboomk.fcitx5.android.core.data.DataManager
 import org.fxboomk.fcitx5.android.data.clipboard.ClipboardManager
 import org.fxboomk.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.utils.ImmutableGraph
 import org.fxboomk.fcitx5.android.utils.Locales
 import org.fxboomk.fcitx5.android.utils.appContext
@@ -124,11 +125,22 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun isEmpty(): Boolean = withFcitxContext { isInputPanelEmpty() }
     override suspend fun reset() = withFcitxContext { resetInputContext() }
     override suspend fun moveCursor(position: Int) = withFcitxContext { repositionCursor(position) }
-    override suspend fun availableIme() =
-        withFcitxContext { availableInputMethods() ?: emptyArray() }
+    override suspend fun availableIme() = withFcitxContext {
+        (availableInputMethods() ?: emptyArray()).map(::decorateInputMethod)
+            .toTypedArray()
+    }
 
-    override suspend fun enabledIme() =
-        withFcitxContext { listInputMethods() ?: emptyArray() }
+    override suspend fun enabledIme() = withFcitxContext {
+        (listInputMethods() ?: emptyArray()).map(::decorateInputMethod)
+            .toTypedArray()
+    }
+
+    private fun decorateInputMethod(entry: InputMethodEntry): InputMethodEntry =
+        if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+            entry.copy(name = CustomShuangpinSchemeStore.displayName())
+        } else {
+            entry
+        }
 
     override suspend fun setEnabledIme(array: Array<String>) =
         withFcitxContext { setEnabledInputMethods(array) }
@@ -138,8 +150,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun enumerateIme(forward: Boolean) =
         withFcitxContext { nextInputMethod(forward) }
 
-    override suspend fun currentIme() =
-        withFcitxContext { inputMethodStatus() ?: inputMethodEntryCached }
+    override suspend fun currentIme() = withFcitxContext {
+        decorateInputMethod(inputMethodStatus() ?: inputMethodEntryCached)
+    }
 
     override suspend fun getGlobalConfig() = withFcitxContext {
         getFcitxGlobalConfig() ?: RawConfig()
@@ -455,6 +468,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     private val dispatcher = FcitxDispatcher(object : FcitxDispatcher.FcitxController {
         override fun nativeStartup() {
             DataManager.sync()
+            CustomShuangpinSchemeStore.ensureInitialized()
             val locale = Locales.fcitxLocale
             val dataDir = DataManager.dataDir.absolutePath
             val plugins = DataManager.getLoadedPlugins()
@@ -554,15 +568,16 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
         when (event) {
             is FcitxEvent.ReadyEvent -> lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_READY)
-            is FcitxEvent.IMChangeEvent -> inputMethodEntryCached = event.data
+            is FcitxEvent.IMChangeEvent -> inputMethodEntryCached = decorateInputMethod(event.data)
             is FcitxEvent.StatusAreaEvent -> {
                 val (actions, im) = event.data
                 statusAreaActionsCached = actions
                 // Engine subMode update won't trigger IMChangeEvent, but usually updates StatusArea
-                if (im != inputMethodEntryCached) {
-                    inputMethodEntryCached = im
+                val decorated = decorateInputMethod(im)
+                if (decorated != inputMethodEntryCached) {
+                    inputMethodEntryCached = decorated
                     // notify downstream consumers that engine subMode has changed
-                    eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(im))
+                    eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(decorated))
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> clientPreeditCached = event.data
