@@ -982,4 +982,10 @@
     <string name="custom_shuangpin_syllable_count">%1$d sobrescritura(s)</string>
     <string name="custom_shuangpin_syllables_hint">Una asignación por línea: pinyin completo=dos teclas. Puedes separar varias teclas con comas.</string>
     <string name="custom_shuangpin_syllables_invalid">Sobrescritura de sílaba no válida. Usa líneas como ju=jv o shi=ui,is.</string>
+    <string name="macro_editor_swipe_timing">Momento de la acción</string>
+    <string name="swipe_action_timing_no_code_no_candidates">Sin código, sin candidatos</string>
+    <string name="swipe_action_timing_code_and_candidates">Con código y candidatos</string>
+    <string name="swipe_action_timing_no_code_candidates">Sin código, con candidatos</string>
+    <string name="swipe_action_timing_all">Todos</string>
+    <string name="text_keyboard_layout_compose_override_description">El estado de composición significa que el método de entrada está introduciendo un código de entrada.</string>
 </resources>

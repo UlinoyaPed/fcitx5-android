@@ -982,4 +982,10 @@
     <string name="custom_shuangpin_syllable_count">%1$d переопределение(й)</string>
     <string name="custom_shuangpin_syllables_hint">Одна запись на строку: полный пиньинь=две клавиши. Несколько клавиш можно разделить запятыми.</string>
     <string name="custom_shuangpin_syllables_invalid">Неверное переопределение слога. Используйте строки вида ju=jv или shi=ui,is.</string>
+    <string name="macro_editor_swipe_timing">Момент действия</string>
+    <string name="swipe_action_timing_no_code_no_candidates">Нет кода, нет кандидатов</string>
+    <string name="swipe_action_timing_code_and_candidates">Есть код и кандидаты</string>
+    <string name="swipe_action_timing_no_code_candidates">Нет кода, есть кандидаты</string>
+    <string name="swipe_action_timing_all">Все</string>
+    <string name="text_keyboard_layout_compose_override_description">Состояние набора означает, что метод ввода в данный момент вводит код.</string>
 </resources>
