@@ -14,7 +14,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -22,11 +24,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.input.action.ButtonAction
 import org.fxboomk.fcitx5.android.input.keyboard.SwipeActionTiming
@@ -35,10 +39,12 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
 import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
+import splitties.resources.drawable
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
+import splitties.views.imageDrawable
 
 internal fun List<MacroEditorActivity.MacroStepData>.findCurrentStepPosition(
     step: MacroEditorActivity.MacroStepData
@@ -104,18 +110,24 @@ class MacroEditorActivity : AppCompatActivity() {
     private var hasChanges = false
     private var saveMenuItem: MenuItem? = null
 
-    // Swipe mode keeps one step list per timing; [steps] mirrors the selected one.
+    // Swipe mode shows one card per action. A card owns one or more timings and one step
+    // list; a timing may appear in a single card only, so each state resolves one action.
     private var swipeMode = false
-    private var currentTiming = SwipeActionTiming.All
-    private val timingDrafts = mutableMapOf<SwipeActionTiming, List<MacroStepData>>()
+    private val timingCards = mutableListOf<TimingCard>()
+    private val swipeCardsContainer by lazy {
+        LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+    }
+    private var originalCardSnapshot: List<Pair<List<SwipeActionTiming>, List<Map<String, Any>>>> = emptyList()
 
-    // A timing whose loaded action list is empty on purpose: it matches but runs
-    // nothing instead of falling back to "All". Hand-written JSON only; the editor
-    // never creates one, but it must not silently strip re-edited configs either.
-    private val explicitlyEmptyTimings = mutableSetOf<SwipeActionTiming>()
-    private var originalTimingSnapshot: Map<SwipeActionTiming, List<Map<String, Any>>> = emptyMap()
-    private var timingSpinner: Spinner? = null
-    private var timingSpinnerAdapter: ArrayAdapter<String>? = null
+    private class TimingCard(
+        val timings: MutableList<SwipeActionTiming>,
+        val steps: MutableList<MacroStepData> = mutableListOf()
+    ) {
+        val isFallback get() = SwipeActionTiming.All in timings
+        // The card's step rows are rebuilt in place so typing in one step keeps focus.
+        var rowsContainer: LinearLayout? = null
+        var headerText: TextView? = null
+    }
 
     companion object {
         const val EXTRA_MACRO_STEPS = "macro_steps"
@@ -130,8 +142,10 @@ class MacroEditorActivity : AppCompatActivity() {
 
         fun timingLabelRes(timing: SwipeActionTiming): Int = when (timing) {
             SwipeActionTiming.NoCodeNoCandidates -> R.string.swipe_action_timing_no_code_no_candidates
-            SwipeActionTiming.CodeAndCandidates -> R.string.swipe_action_timing_code_and_candidates
             SwipeActionTiming.NoCodeCandidates -> R.string.swipe_action_timing_no_code_candidates
+            SwipeActionTiming.CodeNoCandidates -> R.string.swipe_action_timing_code_no_candidates
+            SwipeActionTiming.CodeAndCandidates -> R.string.swipe_action_timing_code_and_candidates
+            SwipeActionTiming.CodeAll -> R.string.swipe_action_timing_code_all
             SwipeActionTiming.All -> R.string.swipe_action_timing_all
         }
 
@@ -559,12 +573,29 @@ class MacroEditorActivity : AppCompatActivity() {
         swipeMode = intent.getBooleanExtra(EXTRA_SWIPE_MODE, false)
 
         container.addView(toolbar)
-        if (swipeMode) container.addView(createTimingSelector())
-        container.addView(stepsRecyclerView)
-        container.addView(addStepButton)
-        
+        if (swipeMode) {
+            container.addView(createSwipeHint())
+            container.addView(
+                FrameLayout(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(matchParent, 0).apply { weight = 1f }
+                    addView(swipeCardsScroll, FrameLayout.LayoutParams(matchParent, matchParent))
+                    addView(
+                        addTimingFab,
+                        FrameLayout.LayoutParams(wrapContent, wrapContent).apply {
+                            gravity = Gravity.BOTTOM or Gravity.END
+                            val m = dp(16)
+                            setMargins(m, m, m, m)
+                        }
+                    )
+                }
+            )
+        } else {
+            container.addView(stepsRecyclerView)
+            container.addView(addStepButton)
+        }
+
         setContentView(container)
-        
+
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Set title based on event type
@@ -576,7 +607,7 @@ class MacroEditorActivity : AppCompatActivity() {
         originalSteps = initialSteps
         android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
         if (swipeMode) {
-            initTimingDrafts(initialSteps.orEmpty())
+            initTimingCards(initialSteps.orEmpty())
         } else if (originalSteps != null) {
             steps.clear()
             steps.addAll(originalSteps!!.map {
@@ -591,10 +622,10 @@ class MacroEditorActivity : AppCompatActivity() {
         }
 
         updateSaveButtonState()
-        
+
         stepsAdapter = StepsAdapter()
         stepsRecyclerView.adapter = stepsAdapter
-        
+
         // RecyclerView bottom padding should be large enough to keep the last item divider visible
         stepsRecyclerView.setPadding(0, 0, 0, dp(16))
         stepsRecyclerView.clipToPadding = false
@@ -606,117 +637,262 @@ class MacroEditorActivity : AppCompatActivity() {
             insets
         }
         ViewCompat.requestApplyInsets(toolbar)
+
+        if (swipeMode) {
+            // Keep the last card (its add-step row) scrollable above the floating button.
+            addTimingFab.doOnLayout { fab ->
+                swipeCardsScroll.updatePadding(bottom = fab.height + dp(16))
+            }
+        }
     }
 
-    private fun initTimingDrafts(allSteps: List<Map<*, *>>) {
-        explicitlyEmptyTimings.clear()
-        timingDrafts[SwipeActionTiming.All] = allSteps.map(::parseStep)
+    private fun initTimingCards(allSteps: List<Map<*, *>>) {
+        timingCards.clear()
+        // The fallback ("All") card is kept apart from the specific ones: its steps are the
+        // plain macro, and it can never share a card with a timing the user picks.
+        val fallback = allSteps.map(::parseStep).toMutableList()
+        if (fallback.isNotEmpty()) timingCards += TimingCard(mutableListOf(SwipeActionTiming.All), fallback)
+
+        val presets = mutableListOf<Pair<SwipeActionTiming, List<MacroStepData>>>()
         intent.serializable<HashMap<String, ArrayList<Map<*, *>>>>(EXTRA_TIMING_STEPS)?.forEach { (id, list) ->
             val timing = SwipeActionTiming.fromId(id)?.takeUnless { it == SwipeActionTiming.All }
                 ?: return@forEach
-            timingDrafts[timing] = list.map(::parseStep)
-            if (list.isEmpty()) explicitlyEmptyTimings.add(timing)
+            presets += timing to list.map(::parseStep)
         }
-        // Open on All for legacy configs; a specific-only action opens on its first timing.
-        val initial = SwipeActionTiming.All.takeIf { timingDrafts[it].orEmpty().isNotEmpty() }
-            ?: SwipeActionTiming.entries.firstOrNull { timingDrafts[it].orEmpty().isNotEmpty() }
-            ?: SwipeActionTiming.All
-        showTiming(initial)
-        timingSpinner?.setSelection(SwipeActionTiming.entries.indexOf(initial), false)
-        originalTimingSnapshot = snapshotTimingDrafts()
+        // Timings with identical actions load as one card, which is how the editor stores
+        // a multi-timing action; a hand-written file with separate entries still reads fine.
+        val groups = LinkedHashMap<List<Map<String, Any>>, MutableList<SwipeActionTiming>>()
+        for ((timing, steps) in presets) {
+            groups.getOrPut(steps.map(::stepToMap)) { mutableListOf() } += timing
+        }
+        groups.forEach { (_, timings) ->
+            val steps = presets.first { it.first == timings.first() }.second
+            timingCards += TimingCard(timings, steps.toMutableList())
+        }
+
+        if (timingCards.isEmpty()) {
+            timingCards += TimingCard(mutableListOf(SwipeActionTiming.All), mutableListOf(MacroStepData()))
+        }
+        rebuildSwipeCards()
+        originalCardSnapshot = snapshotTimingCards()
     }
 
-    private fun createTimingSelector(): View {
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            SwipeActionTiming.entries.map(::timingLabel).toMutableList()
-        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        timingSpinnerAdapter = adapter
-        val spinner = Spinner(this).apply {
-            this.adapter = adapter
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val timing = SwipeActionTiming.entries[position]
-                    if (timing == currentTiming) return
-                    captureCurrentTiming()
-                    showTiming(timing)
-                    updateSaveButtonState()
-                }
+    private val swipeCardsScroll by lazy {
+        ScrollView(this).apply {
+            clipToPadding = false
+            addView(swipeCardsContainer)
+        }
+    }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+    /** 右下角圆形"加号"按钮，与「输入法」页右下角的添加按钮样式一致。 */
+    private val addTimingFab by lazy {
+        FloatingActionButton(this).apply {
+            imageDrawable = drawable(R.drawable.ic_baseline_plus_24)!!.apply {
+                setTint(styledColor(android.R.attr.colorForegroundInverse))
             }
+            contentDescription = getString(R.string.macro_editor_choose_timings_title)
+            setOnClickListener { addTimingCard() }
         }
-        timingSpinner = spinner
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(8), dp(16), dp(8))
-            addView(LinearLayout(this@MacroEditorActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                addView(TextView(this@MacroEditorActivity).apply {
-                    text = getString(R.string.macro_editor_swipe_timing)
-                    textSize = 16f
-                })
-                addView(spinner, LinearLayout.LayoutParams(0, wrapContent).apply {
-                    weight = 1f
-                    marginStart = dp(12)
-                })
-            })
-            addView(TextView(this@MacroEditorActivity).apply {
-                text = getString(R.string.macro_editor_swipe_timing_hint)
-                textSize = 12f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
-                setPadding(0, dp(4), 0, 0)
-            })
-        }
+    }
+
+    private fun createSwipeHint(): View = TextView(this).apply {
+        text = getString(R.string.macro_editor_swipe_timing_hint)
+        textSize = 12f
+        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        setPadding(dp(16), dp(8), dp(16), dp(8))
+    }
+
+    private fun actionButton(label: String, onClick: () -> Unit): View = TextView(this).apply {
+        text = label
+        textSize = 16f
+        gravity = Gravity.CENTER
+        setPadding(dp(16), dp(12), dp(16), dp(12))
+        backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+        setOnClickListener { onClick() }
     }
 
     private fun timingLabel(timing: SwipeActionTiming): String = getString(timingLabelRes(timing))
 
-    /** The visible list, treating the untouched default blank step as "no action". */
-    private fun visibleTimingSteps(): List<MacroStepData> {
-        val single = steps.singleOrNull()
+    /** The steps a card actually saves, treating the untouched default blank step as empty. */
+    private fun cardSteps(card: TimingCard): List<MacroStepData> {
+        val single = card.steps.singleOrNull()
         val isPlaceholder = single != null && single.type == "tap" && single.keys.isEmpty()
-        return if (isPlaceholder) emptyList() else steps.toList()
+        return if (isPlaceholder) emptyList() else card.steps
     }
 
-    private fun captureCurrentTiming() {
-        timingDrafts[currentTiming] = visibleTimingSteps()
-    }
-
-    private fun showTiming(timing: SwipeActionTiming) {
-        currentTiming = timing
-        steps.clear()
-        steps.addAll(timingDrafts[timing].orEmpty().ifEmpty { listOf(MacroStepData()) })
-        if (::stepsAdapter.isInitialized) stepsAdapter.notifyDataSetChanged()
-    }
-
-    private fun snapshotTimingDrafts(): Map<SwipeActionTiming, List<Map<String, Any>>> =
-        SwipeActionTiming.entries.associateWith { timing ->
-            val list = if (timing == currentTiming) visibleTimingSteps() else timingDrafts[timing].orEmpty()
-            list.map(::stepToMap)
-        }.filter { (timing, list) ->
-            list.isNotEmpty() || timing in explicitlyEmptyTimings
+    private fun snapshotTimingCards(): List<Pair<List<SwipeActionTiming>, List<Map<String, Any>>>> =
+        timingCards.map { card ->
+            card.timings.sortedBy { SwipeActionTiming.entries.indexOf(it) } to
+                cardSteps(card).map(::stepToMap)
         }
 
-    private fun refreshTimingLabels() {
-        val adapter = timingSpinnerAdapter ?: return
-        val snapshot = snapshotTimingDrafts()
-        val labels = SwipeActionTiming.entries.map { timing ->
-            val count = snapshot[timing]?.size
-            if (count != null) {
-                getString(R.string.macro_editor_swipe_timing_item_configured, timingLabel(timing), count)
-            } else {
-                timingLabel(timing)
+    private fun claimedTimings(except: TimingCard? = null): Set<SwipeActionTiming> =
+        timingCards.filter { it !== except }.flatMapTo(mutableSetOf()) { it.timings }
+
+    private fun rebuildSwipeCards() {
+        swipeCardsContainer.removeAllViews()
+        timingCards.forEach { renderTimingCard(it) }
+        // An empty container has no height; keep the add button reachable below it.
+        swipeCardsContainer.setPadding(dp(12), dp(4), dp(12), dp(12))
+    }
+
+    private fun renderTimingCard(card: TimingCard) {
+        val cardView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(styledColor(android.R.attr.colorBackground))
+                setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                cornerRadius = dp(8).toFloat()
+            }
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply {
+                topMargin = dp(8)
             }
         }
-        if ((0 until adapter.count).map { adapter.getItem(it) } == labels) return
-        // One change notification only: a transient empty adapter would reset the selection.
-        adapter.setNotifyOnChange(false)
-        adapter.clear()
-        adapter.addAll(labels)
-        adapter.notifyDataSetChanged()
+
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val headerText = TextView(this).apply {
+            textSize = 15f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f }
+        }
+        card.headerText = headerText
+        header.addView(headerText)
+        header.addView(TextView(this).apply {
+            text = "✎"
+            textSize = 16f
+            setPadding(dp(10), dp(4), dp(10), dp(4))
+            setOnClickListener { editCardTimings(card) }
+        })
+        header.addView(TextView(this).apply {
+            text = "🗑"
+            textSize = 14f
+            setPadding(dp(10), dp(4), dp(10), dp(4))
+            contentDescription = getString(R.string.macro_editor_delete_timing_title)
+            setOnClickListener { confirmDeleteTimingCard(card) }
+        })
+        cardView.addView(header)
+
+        val rows = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        card.rowsContainer = rows
+        cardView.addView(rows)
+        cardView.addView(actionButton(getString(R.string.macro_editor_add_step)) {
+            card.steps.add(MacroStepData())
+            renderCardRows(card)
+            updateSaveButtonState()
+        })
+
+        swipeCardsContainer.addView(cardView)
+        renderCardRows(card)
+        refreshCardHeader(card)
+    }
+
+    /** Rebuild only this card's rows; text edits write into the step objects directly. */
+    private fun renderCardRows(card: TimingCard) {
+        val rows = card.rowsContainer ?: return
+        rows.removeAllViews()
+        if (card.steps.isEmpty()) {
+            rows.addView(TextView(this).apply {
+                text = getString(R.string.macro_editor_timing_card_empty)
+                textSize = 13f
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(0, dp(6), 0, dp(2))
+            })
+            return
+        }
+        card.steps.forEach { step ->
+            StepRow(
+                ownerSteps = card.steps,
+                onStructureChanged = {
+                    renderCardRows(card)
+                    updateSaveButtonState()
+                }
+            ).bindInto(rows, step)
+        }
+    }
+
+    private fun refreshCardHeader(card: TimingCard) {
+        val labels = card.timings.joinToString("、", transform = ::timingLabel)
+        val count = cardSteps(card).size
+        card.headerText?.text = if (count == 0) {
+            "$labels  ·  ${getString(R.string.macro_editor_timing_card_empty)}"
+        } else {
+            "$labels  ·  ${getString(R.string.macro_editor_swipe_timing_item_configured, "", count).trim()}"
+        }
+    }
+
+    private fun refreshAllCardHeaders() = timingCards.forEach(::refreshCardHeader)
+
+    private fun addTimingCard() {
+        val available = SwipeActionTiming.entries.filter { it !in claimedTimings() }
+        if (available.isEmpty()) {
+            Toast.makeText(this, R.string.macro_editor_no_timings_available, Toast.LENGTH_SHORT).show()
+            return
+        }
+        showTimingPicker(available, selected = emptySet()) { picked ->
+            val card = TimingCard(picked.toMutableList(), mutableListOf(MacroStepData()))
+            timingCards += card
+            rebuildSwipeCards()
+            updateSaveButtonState()
+        }
+    }
+
+    /** Change a card's timings. Timings owned by another card cannot be added here. */
+    private fun editCardTimings(card: TimingCard) {
+        val available = SwipeActionTiming.entries.filter {
+            it in card.timings || it !in claimedTimings(card)
+        }
+        showTimingPicker(available, selected = card.timings.toSet()) { picked ->
+            card.timings.clear()
+            card.timings.addAll(picked)
+            rebuildSwipeCards()
+            updateSaveButtonState()
+        }
+    }
+
+    private fun showTimingPicker(
+        available: List<SwipeActionTiming>,
+        selected: Set<SwipeActionTiming>,
+        onConfirm: (Set<SwipeActionTiming>) -> Unit
+    ) {
+        val labels = available.map(::timingLabel).toTypedArray()
+        val checked = available.map { it in selected }.toBooleanArray()
+        val picked = selected.toMutableSet()
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.macro_editor_choose_timings_title)
+            .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
+                if (isChecked) picked += available[which] else picked -= available[which]
+            }
+            .setPositiveButton(R.string.macro_editor_confirm, null)
+            .setNegativeButton(R.string.macro_editor_cancel, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                if (picked.isEmpty()) {
+                    Toast.makeText(this, R.string.macro_editor_choose_at_least_one, Toast.LENGTH_SHORT).show()
+                } else {
+                    dialog.dismiss()
+                    onConfirm(picked.toSet())
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun confirmDeleteTimingCard(card: TimingCard) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.macro_editor_delete_timing_title)
+            .setMessage(R.string.macro_editor_delete_timing_message)
+            .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
+                timingCards.remove(card)
+                rebuildSwipeCards()
+                updateSaveButtonState()
+            }
+            .setNegativeButton(R.string.macro_editor_cancel, null)
+            .show()
     }
 
     private fun parseStep(stepMap: Map<*, *>): MacroStepData {
@@ -836,34 +1012,22 @@ class MacroEditorActivity : AppCompatActivity() {
     }
 
     private fun saveSwipeAndFinish() {
-        captureCurrentTiming()
-        // Validate each timing on its own so down/up pairs cannot balance across timings.
-        for (timing in SwipeActionTiming.entries) {
-            if (timing != currentTiming) {
-                val list = timingDrafts[timing].orEmpty()
-                if (list.isEmpty() || validateSteps(list, showError = false)) continue
-                showTiming(timing)
-                timingSpinner?.setSelection(SwipeActionTiming.entries.indexOf(timing), false)
-            }
-            if (!validateSteps(timingDrafts[timing].orEmpty())) return
+        // Validate each card on its own so down/up pairs cannot balance across cards.
+        for (card in timingCards) {
+            if (!validateSteps(cardSteps(card))) return
         }
 
         val timingResult = HashMap<String, ArrayList<Map<String, Any>>>()
-        timingDrafts.forEach { (timing, list) ->
-            when {
-                timing == SwipeActionTiming.All -> return@forEach
-                list.isNotEmpty() -> timingResult[timing.id] = ArrayList(list.map(::stepToMap))
-                timing in explicitlyEmptyTimings -> {
-                    // Loaded as an explicit empty list: keep blocking the fallback to "All".
-                    timingResult[timing.id] = ArrayList()
-                }
+        for (card in timingCards) {
+            val timed = ArrayList(cardSteps(card).map(::stepToMap))
+            card.timings.forEach { timing ->
+                if (timing != SwipeActionTiming.All) timingResult[timing.id] = timed
             }
         }
         val data = android.content.Intent()
-        data.putExtra(
-            EXTRA_MACRO_RESULT,
-            ArrayList(timingDrafts[SwipeActionTiming.All].orEmpty().map(::stepToMap))
-        )
+        val fallback = timingCards.firstOrNull { it.isFallback }?.let(::cardSteps).orEmpty()
+        data.putExtra(EXTRA_MACRO_RESULT, ArrayList(fallback.map(::stepToMap)))
+        // Always sent, even when empty: removing the last timing card must clear the old ones.
         data.putExtra(EXTRA_TIMING_RESULT, timingResult)
         setResult(RESULT_OK, data)
         finish()
@@ -979,8 +1143,8 @@ class MacroEditorActivity : AppCompatActivity() {
      * Compare whether current steps are the same as original steps
      */
     private fun isStepsChanged(): Boolean {
-        // Switching timings alone is not a change; editing any timing is.
-        if (swipeMode) return snapshotTimingDrafts() != originalTimingSnapshot
+        // Adding, removing or retiming a card counts, as does editing any of its steps.
+        if (swipeMode) return snapshotTimingCards() != originalCardSnapshot
         val currentSteps = steps.map(::stepToMap)
         
         if (originalSteps == null) {
@@ -1006,7 +1170,7 @@ class MacroEditorActivity : AppCompatActivity() {
      */
     private fun updateSaveButtonState() {
         hasChanges = isStepsChanged()
-        refreshTimingLabels()
+        refreshAllCardHeaders()
         // Update menu button enabled state
         saveMenuItem?.let { menuItem ->
             menuItem.isEnabled = hasChanges
@@ -1042,30 +1206,54 @@ class MacroEditorActivity : AppCompatActivity() {
 
     inner class StepsAdapter : RecyclerView.Adapter<StepViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
-            return StepViewHolder(LinearLayout(this@MacroEditorActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(dp(8), dp(8), dp(8), 0)  // Bottom padding is 0
-                layoutParams = RecyclerView.LayoutParams(
-                    RecyclerView.LayoutParams.MATCH_PARENT,
-                    RecyclerView.LayoutParams.WRAP_CONTENT
+            return StepViewHolder(
+                StepRow(
+                    ownerSteps = steps,
+                    onStructureChanged = {
+                        stepsAdapter.notifyDataSetChanged()
+                        updateSaveButtonState()
+                    }
                 )
-            })
+            )
         }
 
         override fun onBindViewHolder(holder: StepViewHolder, position: Int) {
-            holder.bind(steps[position])
+            holder.row.bind(holder.row.container, steps[position])
         }
 
         override fun getItemCount() = steps.size
     }
 
-    inner class StepViewHolder(private val container: LinearLayout) : RecyclerView.ViewHolder(container) {
+    inner class StepViewHolder(val row: StepRow) : RecyclerView.ViewHolder(row.container)
+
+    /** One editable macro step. Lives in the flat steps list or inside a timing card. */
+    inner class StepRow(
+        private val ownerSteps: List<MacroStepData>,
+        private val onStructureChanged: () -> Unit
+    ) {
         private lateinit var keysFlow: FlowLayout
         private lateinit var typeSpinner: Spinner
         private lateinit var textEditContainer: LinearLayout
         private lateinit var deleteBtn: TextView
 
-        fun bind(step: MacroStepData) {
+        val container = LinearLayout(this@MacroEditorActivity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dp(8), dp(8), dp(8), 0)  // Bottom padding is 0
+            layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
+        }
+
+        /** Render this row into [parent] (a card body) with a fresh row container. */
+        fun bindInto(parent: LinearLayout, step: MacroStepData) {
+            val row = LinearLayout(this@MacroEditorActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(dp(8), dp(8), dp(8), 0)
+                layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
+            }
+            parent.addView(row)
+            bind(row, step)
+        }
+
+        fun bind(container: LinearLayout, step: MacroStepData) {
             container.removeAllViews()
 
             // Content row: [type spinner] [key FlowLayout container (weight=1f)] [text input for text type]
@@ -1163,11 +1351,10 @@ class MacroEditorActivity : AppCompatActivity() {
                         .setTitle(R.string.macro_editor_delete_step_title)
                         .setMessage(R.string.macro_editor_delete_step_message)
                         .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
-                            val currentPosition = steps.findCurrentStepPosition(step)
+                            val currentPosition = ownerSteps.findCurrentStepPosition(step)
                             if (currentPosition == -1) return@setPositiveButton
-                            steps.removeAt(currentPosition)
-                            stepsAdapter.notifyItemRemoved(currentPosition)
-                            updateSaveButtonState()
+                            (ownerSteps as MutableList<MacroStepData>).removeAt(currentPosition)
+                            onStructureChanged()
                         }
                         .setNegativeButton(R.string.macro_editor_cancel, null)
                         .show()

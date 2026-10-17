@@ -20,12 +20,39 @@ class SwipeActionTimingTest {
     private val idleSteps = listOf(MacroStep.Text("idle"))
     private val composingSteps = listOf(MacroStep.Text("composing"))
 
+    private val codeOnlySteps = listOf(MacroStep.Text("code"))
+
     @Test
     fun eachTimingMatchesOnlyItsState() {
         assertEquals(listOf(idle), allStates.filter { SwipeActionTiming.NoCodeNoCandidates.matches(it) })
-        assertEquals(listOf(composing), allStates.filter { SwipeActionTiming.CodeAndCandidates.matches(it) })
         assertEquals(listOf(predicting), allStates.filter { SwipeActionTiming.NoCodeCandidates.matches(it) })
+        assertEquals(listOf(codeOnly), allStates.filter { SwipeActionTiming.CodeNoCandidates.matches(it) })
+        assertEquals(listOf(composing), allStates.filter { SwipeActionTiming.CodeAndCandidates.matches(it) })
+        assertEquals(listOf(composing, codeOnly), allStates.filter { SwipeActionTiming.CodeAll.matches(it) })
         assertEquals(allStates, allStates.filter { SwipeActionTiming.All.matches(it) })
+    }
+
+    @Test
+    fun exactTimingBeatsCodeAll() {
+        val action = MacroAction(
+            all,
+            mapOf(
+                SwipeActionTiming.CodeAll to codeOnlySteps,
+                SwipeActionTiming.CodeNoCandidates to listOf(MacroStep.Text("exact"))
+            )
+        )
+        assertEquals(MacroAction(listOf(MacroStep.Text("exact"))), action.resolveSwipeAction(codeOnly))
+        assertEquals(MacroAction(codeOnlySteps), action.resolveSwipeAction(composing))
+        assertEquals(MacroAction(all), action.resolveSwipeAction(idle))
+    }
+
+    @Test
+    fun codeWithoutCandidatesNoLongerFallsStraightToAll() {
+        // A configured code timing covers every code state, so All is never reached.
+        val action = MacroAction(all, mapOf(SwipeActionTiming.CodeAll to codeOnlySteps))
+        assertEquals(MacroAction(codeOnlySteps), action.resolveSwipeAction(codeOnly))
+        assertEquals(MacroAction(codeOnlySteps), action.resolveSwipeAction(composing))
+        assertEquals(MacroAction(all), action.resolveSwipeAction(predicting))
     }
 
     @Test
@@ -50,7 +77,6 @@ class SwipeActionTimingTest {
         assertEquals(MacroAction(idleSteps), action.resolveSwipeAction(idle))
         assertEquals(MacroAction(composingSteps), action.resolveSwipeAction(composing))
         assertEquals(MacroAction(all), action.resolveSwipeAction(predicting))
-        // Code without candidates has no dedicated timing, so only All applies.
         assertEquals(MacroAction(all), action.resolveSwipeAction(codeOnly))
     }
 

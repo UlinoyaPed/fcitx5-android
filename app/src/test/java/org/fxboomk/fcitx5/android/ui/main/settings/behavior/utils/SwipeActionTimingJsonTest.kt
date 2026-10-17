@@ -19,7 +19,9 @@ class SwipeActionTimingJsonTest {
         mapOf(
             SwipeActionTiming.NoCodeNoCandidates to listOf(MacroStep.Text("idle")),
             SwipeActionTiming.CodeAndCandidates to listOf(MacroStep.Text("a"), MacroStep.Text("b")),
-            SwipeActionTiming.NoCodeCandidates to listOf(MacroStep.Text("predict"))
+            SwipeActionTiming.NoCodeCandidates to listOf(MacroStep.Text("predict")),
+            SwipeActionTiming.CodeNoCandidates to listOf(MacroStep.Text("code")),
+            SwipeActionTiming.CodeAll to listOf(MacroStep.Text("any-code"))
         )
     )
 
@@ -27,7 +29,13 @@ class SwipeActionTimingJsonTest {
     fun timingActionsRoundTrip() {
         val json = LayoutJsonUtils.macroActionToJson(timed)
         assertEquals(
-            setOf("no_code_no_candidates", "code_and_candidates", "no_code_candidates"),
+            setOf(
+                "no_code_no_candidates",
+                "no_code_candidates",
+                "code_no_candidates",
+                "code_and_candidates",
+                "code_all"
+            ),
             json["timingActions"]!!.jsonObject.keys
         )
         assertEquals(timed, LayoutJsonUtils.parseMacroAction(json))

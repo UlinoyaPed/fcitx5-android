@@ -958,4 +958,16 @@
     <string name="cannot_resolve_swipe_symbol_mapping">Не удалось определить путь к файлу сопоставлений символов для свайпа</string>
     <string name="swipe_symbol_picker_title">Выбрать из сопоставлений символов для свайпа</string>
     <string name="swipe_symbol_picker_empty">Список сопоставлений символов для свайпа пуст</string>
+    <string name="macro_editor_swipe_timing_hint">Каждая карточка содержит один или несколько моментов действия. Один момент может быть только в одной карточке. Совпавший момент заменяет «Все»; состояния без своего момента используют «Все». Карточка без момента не действует.</string>
+    <string name="macro_editor_add_timing_action">+ Добавить момент / действие</string>
+    <string name="macro_editor_choose_timings_title">Выбор моментов действия</string>
+    <string name="macro_editor_choose_at_least_one">Выберите хотя бы один момент</string>
+    <string name="macro_editor_no_timings_available">Все моменты уже заняты другими карточками</string>
+    <string name="macro_editor_timing_card_empty">Без действия</string>
+    <string name="macro_editor_delete_timing_title">Удалить карточку момента</string>
+    <string name="macro_editor_delete_timing_message">Шаги карточки будут потеряны.</string>
+    <string name="swipe_action_timing_code_no_candidates">Есть код, нет кандидатов</string>
+    <string name="swipe_action_timing_code_all">Есть код (все)</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
 </resources>

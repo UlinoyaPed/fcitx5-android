@@ -1590,18 +1590,23 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun buildSwipeMacroPreview(action: SwipeActionDraft): String {
         if (action.timingSteps.isEmpty()) return buildMacroPreview(action.steps)
-        return SwipeActionTiming.entries.mapNotNull { timing ->
+        // One line per distinct action; timings the editor grouped on one card share a line.
+        val timings = SwipeActionTiming.entries.mapNotNull { timing ->
             val steps = if (timing == SwipeActionTiming.All) {
                 action.steps.takeIf { it.isNotEmpty() }
             } else {
                 action.timingSteps[timing.id]
             } ?: return@mapNotNull null
-            getString(
-                R.string.text_keyboard_layout_macro_timing_preview,
-                getString(MacroEditorActivity.timingLabelRes(timing)),
-                buildMacroPreview(steps)
-            )
-        }.joinToString("\n")
+            steps to timing
+        }
+        return timings.groupBy({ it.first }, { it.second })
+            .map { (steps, grouped) ->
+                getString(
+                    R.string.text_keyboard_layout_macro_timing_preview,
+                    grouped.joinToString("、") { getString(MacroEditorActivity.timingLabelRes(it)) },
+                    buildMacroPreview(steps)
+                )
+            }.joinToString("\n")
     }
 
     private fun buildMacroPreview(macroSteps: List<*>?): String {

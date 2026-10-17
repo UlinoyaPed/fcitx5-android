@@ -956,4 +956,16 @@
     <string name="cannot_resolve_swipe_symbol_mapping">Der Dateipfad der Symbolzuordnung für Wischgesten kann nicht ermittelt werden</string>
     <string name="swipe_symbol_picker_title">Aus der Symbolzuordnung für Wischgesten auswählen</string>
     <string name="swipe_symbol_picker_empty">Die Symbolzuordnung für Wischgesten ist leer</string>
+    <string name="macro_editor_swipe_timing_hint">Jede Karte gehört zu einem oder mehreren Zeitpunkten. Ein Zeitpunkt kann nur in einer Karte vorkommen. Ein passender Zeitpunkt ersetzt „Alle“; Zustände ohne eigenen Zeitpunkt verwenden „Alle“. Karten ohne Zeitpunkt wirken nicht.</string>
+    <string name="macro_editor_add_timing_action">+ Zeitpunkt / Aktion hinzufügen</string>
+    <string name="macro_editor_choose_timings_title">Zeitpunkte wählen</string>
+    <string name="macro_editor_choose_at_least_one">Mindestens einen Zeitpunkt wählen</string>
+    <string name="macro_editor_no_timings_available">Alle Zeitpunkte werden bereits von anderen Karten verwendet</string>
+    <string name="macro_editor_timing_card_empty">Keine Aktion</string>
+    <string name="macro_editor_delete_timing_title">Diese Zeitpunktkarte löschen</string>
+    <string name="macro_editor_delete_timing_message">Die Schritte der Karte gehen verloren.</string>
+    <string name="swipe_action_timing_code_no_candidates">Code, keine Kandidaten</string>
+    <string name="swipe_action_timing_code_all">Code (alle)</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
 </resources>
