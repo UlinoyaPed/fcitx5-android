@@ -3,8 +3,6 @@
     <string name="app_name">Swan Input Method</string>
     <string name="app_name_release">Swan Input Method</string>
     <string name="app_name_debug">Swan Input Method (Debug)</string>
-    <string name="app_name_mainline_release">Swan Input Method</string>
-    <string name="app_name_mainline_debug">Swan Input Method (Debug)</string>
     <string name="save">Save</string>
     <string name="input_methods">Input Methods</string>
     <string name="addons">Addons</string>

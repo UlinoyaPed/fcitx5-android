@@ -39,10 +39,10 @@ object AppUtil {
     fun appLabel(context: Context): String = runCatching {
         context.applicationInfo.loadLabel(context.packageManager).toString()
     }.getOrDefault(
-        when {
-            BuildConfig.IS_FX_BUILD -> context.getString(R.string.app_name)
-            BuildConfig.DEBUG -> context.getString(R.string.app_name_mainline_debug)
-            else -> context.getString(R.string.app_name_mainline_release)
+        if (BuildConfig.DEBUG) {
+            context.getString(R.string.app_name_debug)
+        } else {
+            context.getString(R.string.app_name_release)
         }
     )
 

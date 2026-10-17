@@ -3,8 +3,6 @@
     <string name="app_name">Método de entrada Cisne</string>
     <string name="app_name_release">Método de entrada Cisne</string>
     <string name="app_name_debug">Método de entrada Cisne (depuración)</string>
-    <string name="app_name_mainline_release">Método de entrada Cisne</string>
-    <string name="app_name_mainline_debug">Método de entrada Cisne (depuración)</string>
     <string name="save">Guardar</string>
     <string name="input_methods">Métodos de entrada</string>
     <string name="addons">Complementos</string>

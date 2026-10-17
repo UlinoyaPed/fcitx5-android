@@ -3,8 +3,6 @@
     <string name="app_name">Schwan-Eingabemethode</string>
     <string name="app_name_release">Schwan-Eingabemethode</string>
     <string name="app_name_debug">Schwan-Eingabemethode (Debug)</string>
-    <string name="app_name_mainline_release">Schwan-Eingabemethode</string>
-    <string name="app_name_mainline_debug">Schwan-Eingabemethode (Debug)</string>
     <string name="save">Speichern</string>
     <string name="input_methods">Eingabemethoden</string>
     <string name="addons">Addons</string>

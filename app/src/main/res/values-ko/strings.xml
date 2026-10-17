@@ -3,8 +3,6 @@
     <string name="app_name">백조 입력기</string>
     <string name="app_name_release">백조 입력기</string>
     <string name="app_name_debug">백조 입력기 (디버그)</string>
-    <string name="app_name_mainline_release">백조 입력기</string>
-    <string name="app_name_mainline_debug">백조 입력기 (디버그)</string>
     <string name="save">저장</string>
     <string name="input_methods">입력기</string>
     <string name="addons">애드온</string>

@@ -3,8 +3,6 @@
     <string name="app_name">Лебединый метод ввода</string>
     <string name="app_name_release">Лебединый метод ввода</string>
     <string name="app_name_debug">Лебединый метод ввода (Отладка)</string>
-    <string name="app_name_mainline_release">Лебединый метод ввода</string>
-    <string name="app_name_mainline_debug">Лебединый метод ввода (Отладка)</string>
     <string name="save">Сохранить</string>
     <string name="input_methods">Методы ввода</string>
     <string name="addons">Дополнения</string>

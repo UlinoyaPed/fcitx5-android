@@ -3,8 +3,6 @@
     <string name="app_name">天鵝輸入法</string>
     <string name="app_name_release">天鵝輸入法</string>
     <string name="app_name_debug">天鵝輸入法 (除錯)</string>
-    <string name="app_name_mainline_release">天鵝輸入法</string>
-    <string name="app_name_mainline_debug">天鵝輸入法 (除錯)</string>
     <string name="save">儲存</string>
     <string name="input_methods">輸入法</string>
     <string name="addons">附加元件</string>
