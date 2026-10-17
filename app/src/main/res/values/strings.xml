@@ -1100,6 +1100,8 @@
     <string name="theme_category_expanded">Expanded</string>
     <string name="theme_category_collapsed">Collapsed</string>
     <string name="custom_shuangpin">Custom Shuangpin</string>
+    <string name="custom_shuangpin_tab_mapping">Syllable mapping</string>
+    <string name="custom_shuangpin_tab_preferences">Preferences</string>
     <string name="custom_shuangpin_scheme_name">Scheme name</string>
     <string name="custom_shuangpin_zero_initial">Zero-initial marker</string>
     <string name="custom_shuangpin_initials">Initial mappings</string>

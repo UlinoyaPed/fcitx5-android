@@ -23,6 +23,7 @@ import org.fxboomk.fcitx5.android.data.clipboard.ClipboardManager
 import org.fxboomk.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinSchemeMigration
 import org.fxboomk.fcitx5.android.utils.ImmutableGraph
 import org.fxboomk.fcitx5.android.utils.Locales
 import org.fxboomk.fcitx5.android.utils.appContext
@@ -126,7 +127,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun reset() = withFcitxContext { resetInputContext() }
     override suspend fun moveCursor(position: Int) = withFcitxContext { repositionCursor(position) }
     override suspend fun availableIme() = withFcitxContext {
-        (availableInputMethods() ?: emptyArray()).map(::decorateInputMethod)
+        (availableInputMethods() ?: emptyArray())
+            .filter { it.uniqueName != ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME }
+            .map(::decorateInputMethod)
             .toTypedArray()
     }
 
@@ -502,6 +505,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
                     extDomains.toTypedArray()
                 )
             }
+            migrateLegacyShuangpinInputMethod()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 lifecycle.launchWhenReady {
                     SubtypeManager.syncWith(enabledIme())
@@ -585,6 +589,29 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             is FcitxEvent.PagedCandidateEvent -> predictionCandidateSnapshot.update(event.data)
             else -> {}
         }
+    }
+
+    /**
+     * The old single "双拼" entry selected its scheme through a hidden config
+     * option. Replace it once with the matching per-scheme input method so
+     * existing users keep the same behaviour after the add-dialog refactor.
+     */
+    private fun migrateLegacyShuangpinInputMethod() {
+        val enabled = listInputMethods()?.map { it.uniqueName } ?: return
+        val legacyIndex = enabled.indexOf(ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME)
+        if (legacyIndex < 0) return
+
+        val available = availableInputMethods()?.map { it.uniqueName }?.toSet() ?: return
+        val legacyProfile = getFcitxInputMethodConfig(ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME)
+            ?.findByName("cfg")
+            ?.findByName("ShuangpinProfile")
+            ?.value
+        val target = ShuangpinSchemeMigration.targetForLegacyProfile(legacyProfile)
+        if (target !in available) return
+
+        val migrated = enabled.toMutableList()
+        migrated[legacyIndex] = target
+        setEnabledInputMethods(migrated.distinct().toTypedArray())
     }
 
     fun start() {

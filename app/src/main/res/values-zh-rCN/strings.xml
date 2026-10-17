@@ -976,6 +976,8 @@
     <string name="llm_persona_current_label">当前已选</string>
     <string name="llm_persona_delete_confirm">删除人设“%1$s”？</string>
     <string name="custom_shuangpin">自定义双拼</string>
+    <string name="custom_shuangpin_tab_mapping">音节映射</string>
+    <string name="custom_shuangpin_tab_preferences">偏好</string>
     <string name="custom_shuangpin_scheme_name">方案名称</string>
     <string name="custom_shuangpin_zero_initial">零声母标识</string>
     <string name="custom_shuangpin_initials">声母映射</string>

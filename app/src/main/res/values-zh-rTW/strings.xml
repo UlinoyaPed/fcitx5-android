@@ -968,6 +968,8 @@
     <string name="theme_category_expanded">已展開</string>
     <string name="theme_category_collapsed">已摺疊</string>
     <string name="custom_shuangpin">自訂雙拼</string>
+    <string name="custom_shuangpin_tab_mapping">音節映射</string>
+    <string name="custom_shuangpin_tab_preferences">偏好</string>
     <string name="custom_shuangpin_scheme_name">方案名稱</string>
     <string name="custom_shuangpin_zero_initial">零聲母標識</string>
     <string name="custom_shuangpin_initials">聲母映射</string>

@@ -969,6 +969,8 @@
     <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
     <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
     <string name="custom_shuangpin">Shuangpin personalizado</string>
+    <string name="custom_shuangpin_tab_mapping">Asignación de sílabas</string>
+    <string name="custom_shuangpin_tab_preferences">Preferencias</string>
     <string name="custom_shuangpin_scheme_name">Nombre del esquema</string>
     <string name="custom_shuangpin_zero_initial">Marcador de inicial cero</string>
     <string name="custom_shuangpin_initials">Asignaciones de iniciales</string>

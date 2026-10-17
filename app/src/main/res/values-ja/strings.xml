@@ -969,6 +969,8 @@
     <string name="macro_editor_swipe_timing_item_configured">%1$s（%2$d）</string>
     <string name="text_keyboard_layout_macro_timing_preview">%1$s：%2$s</string>
     <string name="custom_shuangpin">カスタム双拼</string>
+    <string name="custom_shuangpin_tab_mapping">音節マッピング</string>
+    <string name="custom_shuangpin_tab_preferences">環境設定</string>
     <string name="custom_shuangpin_scheme_name">方案名</string>
     <string name="custom_shuangpin_zero_initial">ゼロ声母マーカー</string>
     <string name="custom_shuangpin_initials">声母マッピング</string>

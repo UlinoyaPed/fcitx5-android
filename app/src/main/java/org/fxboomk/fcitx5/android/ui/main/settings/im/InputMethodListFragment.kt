@@ -36,7 +36,14 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
     private lateinit var ui: BaseDynamicListUi<InputMethodEntry>
 
     override suspend fun initialize(): View {
-        val available = fcitx.runOnReady { availableIme().toSet() }
+        val available = fcitx.runOnReady {
+            availableIme().sortedWith(
+                compareBy<InputMethodEntry> {
+                    preferredAddOrder.indexOf(it.uniqueName)
+                        .let { index -> if (index < 0) Int.MAX_VALUE else index }
+                }.thenBy { it.displayName }
+            )
+        }
         val initialEnabled = fcitx.runOnReady { enabledIme().toList() }
         ui = requireContext().DynamicListUi(
             mode = BaseDynamicListUi.Mode.ChooseOne {
@@ -120,5 +127,20 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
 
     override fun onItemUpdated(idx: Int, old: InputMethodEntry, new: InputMethodEntry) {
         updateIMState()
+    }
+
+    private companion object {
+        val preferredAddOrder = listOf(
+            "pinyin",
+            "shuangpin-xiaohe",
+            "shuangpin-ms",
+            "shuangpin-ziguang",
+            "shuangpin-gb",
+            CustomShuangpinSchemeStore.UNIQUE_NAME,
+            "shuangpin-ziranma",
+            "shuangpin-abc",
+            "shuangpin-pinyinjiajia",
+            "shuangpin-zhongwenzhixing"
+        )
     }
 }
