@@ -54,6 +54,16 @@ interface FcitxAPI {
 
     suspend fun reloadConfig()
 
+    /**
+     * Re-decorate the cached current input method entry and re-emit
+     * [FcitxEvent.IMChangeEvent].
+     *
+     * Needed after saving settings that rename the active input method
+     * (e.g. the custom shuangpin scheme name), because the native side keeps
+     * the static entry name until the next event arrives.
+     */
+    suspend fun refreshImEntry()
+
     suspend fun sendKey(key: String, states: UInt = 0u, code: Int = 0, up: Boolean = false, timestamp: Int = -1)
 
     suspend fun sendKey(c: Char, states: UInt = 0u, code: Int = 0, up: Boolean = false, timestamp: Int = -1)

@@ -208,6 +208,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             val inputMethod = fcitx.runImmediately { inputMethodEntryCached }
             updateCurrentInputMethod(inputMethod)
             it.onInputMethodUpdate(inputMethod)
+            // The cached entry may be stale (e.g. after renaming the custom
+            // shuangpin scheme in settings). Refresh asynchronously; the
+            // emitted IMChangeEvent corrects the space label when done.
+            fcitx.runIfReady { refreshImEntry() }
             updateCompositionState()
         }
     }
@@ -245,6 +249,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         preeditEmpty = true
         hasVisibleCandidates = false
         updateCurrentInputMethod(fcitx.runImmediately { inputMethodEntryCached })
+        // Cached entry may be stale after per-IM appearance settings changed
+        // in settings pages; refresh asynchronously and let the emitted
+        // IMChangeEvent correct the keyboard state (e.g. space label).
+        fcitx.runIfReady { refreshImEntry() }
         // Reset composition visuals even when the target layout is unchanged,
         // because switchLayout skips re-attach for the same layout and
         // updateCompositionState would early-return on equal state.
