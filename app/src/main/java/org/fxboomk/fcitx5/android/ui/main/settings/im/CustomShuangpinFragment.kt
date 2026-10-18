@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 
 class CustomShuangpinFragment : Fragment() {
@@ -51,7 +52,7 @@ class CustomShuangpinFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.setToolbarTitle(getString(R.string.custom_shuangpin))
+        viewModel.setToolbarTitle(CustomShuangpinSchemeStore.displayName())
     }
 
     private companion object {

@@ -61,6 +61,7 @@ abstract class BaseDynamicListUi<T>(
     enableOrder: Boolean = false,
     initCheckBox: (CheckBox.(T) -> Unit) = { visibility = View.GONE },
     initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
+    initRenameButton: (ImageButton.(T) -> Unit)? = null,
 ) : Ui,
     DynamicListAdapter<T>(
         initialEntries,
@@ -119,7 +120,8 @@ abstract class BaseDynamicListUi<T>(
     private var suspendUndo = false
 
     init {
-        initEditButton = when (mode) {
+        // an optional per-item rename button overrides the mode-based edit button
+        initEditButton = initRenameButton ?: when (mode) {
             is Mode.ChooseOne -> { _ -> visibility = View.GONE }
             is Mode.FreeAdd -> { entry ->
                 visibility = View.VISIBLE

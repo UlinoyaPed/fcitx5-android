@@ -48,7 +48,7 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.setToolbarTitle(getString(R.string.custom_shuangpin))
+        viewModel.setToolbarTitle(CustomShuangpinSchemeStore.displayName())
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -73,6 +73,7 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
             dirty = false
             viewModel.fcitx.runIfReady {
                 reloadConfig()
+                refreshImEntry()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     SubtypeManager.syncWith(enabledIme())
                 }
@@ -85,26 +86,6 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
             Preference(context).apply {
                 isSelectable = false
                 title = context.getString(R.string.custom_shuangpin_mapping_hint)
-            }
-        )
-
-        screen.addPreference(
-            EditTextPreference(context).apply {
-                key = KEY_NAME
-                title = context.getString(R.string.custom_shuangpin_scheme_name)
-                isPersistent = false
-                text = scheme.name
-                summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
-                setOnPreferenceChangeListener { _, newValue ->
-                    if (buildingPreferences) return@setOnPreferenceChangeListener true
-                    val name = newValue.toString().trim()
-                    if (!CustomShuangpinSchemeCodec.isValidName(name)) {
-                        context.toast(R.string.custom_shuangpin_name_invalid)
-                        return@setOnPreferenceChangeListener false
-                    }
-                    persist(scheme.copy(name = name))
-                    true
-                }
             }
         )
 
@@ -295,7 +276,6 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
     }
 
     private companion object {
-        const val KEY_NAME = "custom_shuangpin_name"
         const val KEY_ZERO_INITIAL = "custom_shuangpin_zero_initial"
         const val KEY_INITIAL_PREFIX = "custom_shuangpin_initial_"
         const val KEY_FINAL_PREFIX = "custom_shuangpin_final_"

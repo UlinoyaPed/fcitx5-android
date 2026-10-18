@@ -4,11 +4,16 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.im
 
+import android.app.AlertDialog
 import android.os.Build
 import android.view.View
+import android.widget.EditText
 import androidx.lifecycle.Lifecycle
+import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.core.SubtypeManager
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinScheme
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.ui.common.BaseDynamicListUi
@@ -18,7 +23,10 @@ import org.fxboomk.fcitx5.android.ui.main.EditDeleteMenuProvider
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel.ButtonMode
 import org.fxboomk.fcitx5.android.ui.main.settings.ProgressFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.utils.onPositiveButtonClick
+import org.fxboomk.fcitx5.android.utils.toast
 import org.fxboomk.fcitx5.android.utils.navigateWithAnim
+import splitties.dimensions.dp
 
 class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputMethodEntry> {
 
@@ -30,6 +38,52 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
                     SubtypeManager.syncWith(f.enabledIme())
                 }
             }
+        }
+    }
+
+    private fun showRenameSchemeDialog() {
+        val context = requireContext()
+        val scheme = CustomShuangpinSchemeStore.load()
+        val editText = EditText(context).apply {
+            setText(scheme.name)
+            setSingleLine()
+            setPadding(context.dp(20), context.dp(8), context.dp(20), context.dp(8))
+        }
+        AlertDialog.Builder(context)
+            .setTitle(R.string.custom_shuangpin_scheme_name)
+            .setView(editText)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+            .onPositiveButtonClick {
+                val name = editText.text.toString().trim()
+                if (!CustomShuangpinSchemeCodec.isValidName(name)) {
+                    context.toast(R.string.custom_shuangpin_name_invalid)
+                    false
+                } else {
+                    if (name != scheme.name) {
+                        saveSchemeName(scheme.copy(name = name))
+                    }
+                    true
+                }
+            }
+        editText.requestFocus()
+    }
+
+    private fun saveSchemeName(updated: CustomShuangpinScheme) {
+        CustomShuangpinSchemeStore.save(updated).onFailure {
+            requireContext().toast(it)
+            return
+        }
+        if (isInitialized) {
+            fcitx.runIfReady {
+                reloadConfig()
+                refreshImEntry()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    SubtypeManager.syncWith(enabledIme())
+                }
+            }
+            ui.notifyDataSetChanged()
         }
     }
 
@@ -67,6 +121,14 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
                     CustomShuangpinSchemeStore.displayName()
                 } else {
                     entry.displayName
+                }
+            },
+            initRenameButton = { entry ->
+                if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                    visibility = View.VISIBLE
+                    setOnClickListener { showRenameSchemeDialog() }
+                } else {
+                    visibility = View.GONE
                 }
             }
         )
