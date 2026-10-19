@@ -16,7 +16,6 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
 import androidx.test.platform.app.InstrumentationRegistry
@@ -407,25 +406,57 @@ class TextKeyboardLayoutCustomizeActivityTest {
     private fun toolbar(activity: TextKeyboardLayoutCustomizeActivity): Toolbar =
         descendants(activity.window.decorView).filterIsInstance<Toolbar>().single()
 
+    /**
+     * 断言工具栏保存图标的着色。
+     *
+     * 旧写法把菜单里的 `save.icon` 与 `AppCompatResources` 现取的另一个 Drawable
+     * 实例各自光栅化后做 `Bitmap.sameAs` 逐像素精确比对。两个实例来源不同，比对
+     * 依赖两者的光栅化结果完全一致，因此该断言跨运行不稳定（与本功能无关）。
+     *
+     * 这里只读取实际图标被着上的颜色：`ic_baseline_save_24` 是实心字形，`setTint`
+     * 以 SRC_IN 滤镜着色，字形内部像素恰好就是该主题色，抗锯齿边缘像素可以忽略。
+     */
     private fun assertSaveState(activity: TextKeyboardLayoutCustomizeActivity, enabled: Boolean) {
         val save = toolbar(activity).menu.getItem(0)
         assertEquals("Save enabled state", enabled, save.isEnabled)
-        val expected = requireNotNull(
-            AppCompatResources.getDrawable(activity, R.drawable.ic_baseline_save_24)
-        ).mutate().apply {
-            setTint(activity.styledColor(
-                if (enabled) android.R.attr.textColorPrimary else android.R.attr.textColorHint
-            ))
-        }
-        val actualBitmap = render(requireNotNull(save.icon))
-        val expectedBitmap = render(expected)
+        // 与产品侧 saveIconTint(...) 相同的表达式：图标必须用当前状态的主题色。
+        val expected = activity.styledColor(
+            if (enabled) android.R.attr.textColorPrimary else android.R.attr.textColorHint
+        )
+        val bitmap = render(requireNotNull(save.icon))
         try {
-            assertTrue("Save icon must use the themed state color", actualBitmap.sameAs(expectedBitmap))
+            val actual = dominantColor(bitmap)
+            assertTrue(
+                "Save icon must use the themed state color: expected ${hex(expected)} but was " +
+                    (actual?.let(::hex) ?: "no opaque pixels"),
+                actual != null && channelsWithin(actual, expected, TINT_CHANNEL_TOLERANCE)
+            )
         } finally {
-            actualBitmap.recycle()
-            expectedBitmap.recycle()
+            bitmap.recycle()
         }
     }
+
+    /**
+     * 位图中出现次数最多的非透明像素颜色。实心字形内部像素占据绝大多数，抗锯齿
+     * 边缘像素颜色各不相同、单个计数都很低，因此众数就是图标被着上的颜色。
+     */
+    private fun dominantColor(bitmap: Bitmap): Int? {
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        return pixels.asSequence()
+            .filter { it ushr 24 != 0 }
+            .groupingBy { it }
+            .eachCount()
+            .maxByOrNull { it.value }
+            ?.key
+    }
+
+    private fun channelsWithin(actual: Int, expected: Int, tolerance: Int): Boolean =
+        CHANNEL_SHIFTS.all { shift ->
+            kotlin.math.abs(((actual ushr shift) and 0xFF) - ((expected ushr shift) and 0xFF)) <= tolerance
+        }
+
+    private fun hex(color: Int) = "#%08X".format(color)
 
     private fun render(drawable: Drawable): Bitmap {
         val originalBounds = android.graphics.Rect(drawable.bounds)
@@ -441,5 +472,13 @@ class TextKeyboardLayoutCustomizeActivityTest {
         if (view is ViewGroup) {
             for (index in 0 until view.childCount) yieldAll(descendants(view.getChildAt(index)))
         }
+    }
+
+    private companion object {
+        /** 主题色可能半透明，预乘/反预乘往返会带来 ±1 的通道舍入。 */
+        const val TINT_CHANNEL_TOLERANCE = 2
+
+        /** ARGB 各通道在 `Int` 中的移位量。 */
+        val CHANNEL_SHIFTS = intArrayOf(24, 16, 8, 0)
     }
 }
