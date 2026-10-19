@@ -99,7 +99,7 @@ object AppUtil {
         launchMainToDest(context, SettingsRoute.Theme)
 
     fun launchMainToInputMethodConfig(context: Context, uniqueName: String, displayName: String) {
-        val route = if (uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+        val route = if (CustomShuangpinSchemeStore.isCustomScheme(uniqueName)) {
             SettingsRoute.CustomShuangpin
         } else {
             SettingsRoute.InputMethodConfig(displayName, uniqueName)

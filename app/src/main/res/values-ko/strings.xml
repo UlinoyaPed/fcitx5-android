@@ -244,6 +244,7 @@
     <string name="text_keyboard_layout_file_select_title">키보드 레이아웃 목록</string>
     <string name="text_keyboard_layout_file_select_summary">현재 파일: %1$s</string>
     <string name="text_keyboard_layout_manage_title">키보드 레이아웃 관리</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">활성 레이아웃</string>
     <string name="text_keyboard_layout_manage_set_default">기본값으로 설정</string>
     <string name="text_keyboard_layout_manage_collapse">접기</string>
@@ -978,6 +979,9 @@
     <string name="custom_shuangpin_key_none">설정 안 됨</string>
     <string name="custom_shuangpin_mapping_hint">설정하지 않은 키는 기본 규칙을 사용합니다. 여러 글자 성모와 운모에는 보통 명시적인 키가 필요합니다.</string>
     <string name="custom_shuangpin_name_invalid">비어 있지 않고 내장 방안 이름과 겹치지 않는 이름을 입력하세요.</string>
+    <string name="custom_shuangpin_scheme_id">입력기 ID (접두사 shuangpin- 고정)</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">소문자, 숫자, 하이픈만 사용하세요 (비어 있지 않고 내장 방안 이름과 겹치지 않아야 합니다).</string>
     <string name="custom_shuangpin_zero_initial_invalid">소문자와 *만 사용할 수 있습니다.</string>
     <string name="custom_shuangpin_syllables">음절 재정의</string>
     <string name="custom_shuangpin_edit_syllables">음절 재정의 편집</string>

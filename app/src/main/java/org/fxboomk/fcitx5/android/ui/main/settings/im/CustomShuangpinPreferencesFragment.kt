@@ -20,9 +20,9 @@ class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
         getString(R.string.custom_shuangpin_tab_preferences)
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
-        fcitx.getImConfig(CustomShuangpinSchemeStore.UNIQUE_NAME)
+        fcitx.getImConfig(CustomShuangpinSchemeStore.currentUniqueName())
 
     override suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig) {
-        fcitx.setImConfig(CustomShuangpinSchemeStore.UNIQUE_NAME, newConfig)
+        fcitx.setImConfig(CustomShuangpinSchemeStore.currentUniqueName(), newConfig)
     }
 }

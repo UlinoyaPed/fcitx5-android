@@ -601,6 +601,7 @@
     <string name="text_keyboard_layout_file_select_title">键盘布局清单</string>
     <string name="text_keyboard_layout_file_select_summary">当前配置：%1$s</string>
     <string name="text_keyboard_layout_manage_title">键盘布局管理</string>
+    <string name="text_keyboard_layout_manage_shuangpin">双拼</string>
     <string name="text_keyboard_layout_manage_active_layout">当前激活布局</string>
     <string name="text_keyboard_layout_manage_set_default">设为默认</string>
     <string name="text_keyboard_layout_manage_collapse">折叠</string>
@@ -985,6 +986,9 @@
     <string name="custom_shuangpin_key_none">未设置</string>
     <string name="custom_shuangpin_mapping_hint">未设置的按键使用默认规则；多字母声母和韵母通常需要显式指定按键。</string>
     <string name="custom_shuangpin_name_invalid">请输入非空且不与内置方案同名的名称。</string>
+    <string name="custom_shuangpin_scheme_id">输入法 ID（前缀固定为 shuangpin-）</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">请输入由小写字母、数字或连字符组成的 ID（不能为空，也不能与内置方案重名）。</string>
     <string name="custom_shuangpin_zero_initial_invalid">只能使用小写字母和 *。</string>
     <string name="custom_shuangpin_syllables">音节覆盖</string>
     <string name="custom_shuangpin_edit_syllables">编辑音节覆盖</string>

@@ -8,13 +8,15 @@ import android.app.AlertDialog
 import android.os.Build
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.core.SubtypeManager
-import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinScheme
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.daemon.launchOnReady
 import org.fxboomk.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fxboomk.fcitx5.android.ui.common.DynamicListUi
@@ -44,47 +46,88 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
     private fun showRenameSchemeDialog() {
         val context = requireContext()
         val scheme = CustomShuangpinSchemeStore.load()
-        val editText = EditText(context).apply {
+        val nameInput = EditText(context).apply {
             setText(scheme.name)
             setSingleLine()
             setPadding(context.dp(20), context.dp(8), context.dp(20), context.dp(8))
         }
+        val idInput = EditText(context).apply {
+            setText(scheme.id)
+            setSingleLine()
+            hint = context.getString(R.string.custom_shuangpin_scheme_id_hint)
+            setPadding(context.dp(20), context.dp(8), context.dp(20), context.dp(8))
+        }
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(nameInput)
+            addView(TextView(context).apply {
+                setText(R.string.custom_shuangpin_scheme_id)
+                setPadding(context.dp(20), context.dp(12), context.dp(20), 0)
+            })
+            addView(idInput)
+        }
         AlertDialog.Builder(context)
             .setTitle(R.string.custom_shuangpin_scheme_name)
-            .setView(editText)
+            .setView(container)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel, null)
             .show()
             .onPositiveButtonClick {
-                val name = editText.text.toString().trim()
-                if (!CustomShuangpinSchemeCodec.isValidName(name)) {
-                    context.toast(R.string.custom_shuangpin_name_invalid)
-                    false
-                } else {
-                    if (name != scheme.name) {
-                        saveSchemeName(scheme.copy(name = name))
+                val name = nameInput.text.toString().trim()
+                val id = idInput.text.toString().trim().lowercase()
+                when {
+                    !CustomShuangpinSchemeCodec.isValidName(name) -> {
+                        context.toast(R.string.custom_shuangpin_name_invalid)
+                        false
                     }
-                    true
+                    !ShuangpinLayoutKeys.isValidCustomSuffix(id) -> {
+                        context.toast(R.string.custom_shuangpin_id_invalid)
+                        false
+                    }
+                    name == scheme.name && id == scheme.id -> true
+                    else -> {
+                        renameScheme(name, id)
+                        true
+                    }
                 }
             }
-        editText.requestFocus()
+        nameInput.requestFocus()
     }
 
-    private fun saveSchemeName(updated: CustomShuangpinScheme) {
-        CustomShuangpinSchemeStore.save(updated).onFailure {
-            requireContext().toast(it)
+    private fun renameScheme(name: String, id: String) {
+        val context = requireContext()
+        val previousUniqueName = CustomShuangpinSchemeStore.currentUniqueName()
+        CustomShuangpinSchemeStore.rename(name, id).onFailure {
+            context.toast(it)
             return
         }
-        if (isInitialized) {
-            fcitx.runIfReady {
-                reloadConfig()
-                refreshImEntry()
+        if (!isInitialized) return
+        val currentUniqueName = CustomShuangpinSchemeStore.currentUniqueName()
+        if (previousUniqueName != currentUniqueName) {
+            fcitx.launchOnReady { f ->
+                // native 侧 reloadConfig() 会一并触发 Instance::refresh()，
+                // 让新写入的 inputmethod/<uniqueName>.conf 立刻被枚举到。
+                f.reloadConfig()
+                f.refreshImEntry()
+                f.setEnabledIme(
+                    ui.entries.map { entry ->
+                        if (entry.uniqueName == previousUniqueName) currentUniqueName
+                        else entry.uniqueName
+                    }.toTypedArray()
+                )
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    SubtypeManager.syncWith(enabledIme())
+                    SubtypeManager.syncWith(f.enabledIme())
                 }
             }
-            ui.notifyDataSetChanged()
+            val previousEntry = ui.entries.firstOrNull { it.uniqueName == previousUniqueName }
+            if (previousEntry != null) {
+                ui.updateItem(
+                    ui.indexItem(previousEntry),
+                    previousEntry.copy(uniqueName = currentUniqueName)
+                )
+            }
         }
+        ui.notifyDataSetChanged()
     }
 
     private lateinit var ui: BaseDynamicListUi<InputMethodEntry>
@@ -92,10 +135,8 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
     override suspend fun initialize(): View {
         val available = fcitx.runOnReady {
             availableIme().sortedWith(
-                compareBy<InputMethodEntry> {
-                    preferredAddOrder.indexOf(it.uniqueName)
-                        .let { index -> if (index < 0) Int.MAX_VALUE else index }
-                }.thenBy { it.displayName }
+                compareBy<InputMethodEntry> { preferredOrderWeight(it.uniqueName) }
+                    .thenBy { it.displayName }
             )
         }
         val initialEnabled = fcitx.runOnReady { enabledIme().toList() }
@@ -107,7 +148,7 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
             enableOrder = true,
             initSettingsButton = { entry ->
                 setOnClickListener {
-                    if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                    if (CustomShuangpinSchemeStore.isCustomScheme(entry.uniqueName)) {
                         navigateWithAnim(SettingsRoute.CustomShuangpin)
                     } else {
                         navigateWithAnim(
@@ -117,14 +158,14 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
                 }
             },
             show = { entry ->
-                if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                if (CustomShuangpinSchemeStore.isCustomScheme(entry.uniqueName)) {
                     CustomShuangpinSchemeStore.displayName()
                 } else {
                     entry.displayName
                 }
             },
             initRenameButton = { entry ->
-                if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                if (CustomShuangpinSchemeStore.isCustomScheme(entry.uniqueName)) {
                     visibility = View.VISIBLE
                     setOnClickListener { showRenameSchemeDialog() }
                 } else {
@@ -192,17 +233,36 @@ class InputMethodListFragment : ProgressFragment(), OnItemChangedListener<InputM
     }
 
     private companion object {
-        val preferredAddOrder = listOf(
+        /**
+         * 「输入法」列表的排序顺序（内置条目）。
+         *
+         * 自定义双拼方案的 uniqueName 可被用户修改，因此不在此列表中，
+         * 而是通过 [preferredOrderWeight] 稳定地排在 shuangpin-gb 与
+         * shuangpin-ziranma 之间。
+         */
+        private val STATIC_ADD_ORDER = listOf(
             "pinyin",
             "shuangpin-xiaohe",
             "shuangpin-ms",
             "shuangpin-ziguang",
             "shuangpin-gb",
-            CustomShuangpinSchemeStore.UNIQUE_NAME,
             "shuangpin-ziranma",
             "shuangpin-abc",
             "shuangpin-pinyinjiajia",
             "shuangpin-zhongwenzhixing"
         )
+
+        /** 自定义双拼方案的排序权重：介于 shuangpin-gb(8) 与 shuangpin-ziranma(10) 之间。 */
+        private const val CUSTOM_SCHEME_WEIGHT = 9
+
+        fun preferredOrderWeight(uniqueName: String): Int {
+            val index = STATIC_ADD_ORDER.indexOf(uniqueName)
+            if (index >= 0) return index * 2
+            return if (CustomShuangpinSchemeStore.isCustomScheme(uniqueName)) {
+                CUSTOM_SCHEME_WEIGHT
+            } else {
+                Int.MAX_VALUE
+            }
+        }
     }
 }

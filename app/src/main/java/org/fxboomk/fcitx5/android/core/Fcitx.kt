@@ -32,7 +32,7 @@ import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
 
 private fun decorateInputMethod(entry: InputMethodEntry): InputMethodEntry =
-    if (entry.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+    if (CustomShuangpinSchemeStore.isCustomScheme(entry.uniqueName)) {
         entry.copy(name = CustomShuangpinSchemeStore.displayName())
     } else {
         entry
@@ -166,7 +166,10 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun moveCursor(position: Int) = withFcitxContext { repositionCursor(position) }
     override suspend fun availableIme() = withFcitxContext {
         (availableInputMethods() ?: emptyArray())
-            .filter { it.uniqueName != ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME }
+            .filter {
+                it.uniqueName != ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME &&
+                    !CustomShuangpinSchemeStore.isStaleCustomEntry(it.uniqueName)
+            }
             .map(::decorateInputMethod)
             .toTypedArray()
     }
@@ -646,7 +649,13 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             ?.findByName("cfg")
             ?.findByName("ShuangpinProfile")
             ?.value
-        val target = ShuangpinSchemeMigration.targetForLegacyProfile(legacyProfile)
+        val target =
+            if (legacyProfile == ShuangpinSchemeMigration.LEGACY_CUSTOM_PROFILE) {
+                // The custom scheme entry may have been renamed by the user.
+                CustomShuangpinSchemeStore.currentUniqueName()
+            } else {
+                ShuangpinSchemeMigration.targetForLegacyProfile(legacyProfile)
+            }
         if (target !in available) return
 
         val migrated = enabled.toMutableList()

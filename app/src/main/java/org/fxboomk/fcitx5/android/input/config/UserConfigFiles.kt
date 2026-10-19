@@ -29,6 +29,16 @@ object UserConfigFiles {
 
     fun fontsDir(): File? = externalFilesRoot()?.let { File(it, "fonts") }
 
+    /** fcitx 数据目录（与 native 侧 `FCITX_DATA_HOME` 一致），用户级 PkgData 根。 */
+    fun fcitxDataDir(): File? = externalFilesRoot()?.let { File(it, "data") }
+
+    /** 用户级输入法条目目录：写入 `<uniqueName>.conf` 即可让引擎枚举到新的输入法条目。 */
+    fun inputMethodConfDir(): File? = fcitxDataDir()?.let { File(it, "inputmethod") }
+
+    /** 单个输入法的专属配置：`conf/pinyin/<uniqueName>.conf`（PkgConfig）。 */
+    fun pinyinImConfig(uniqueName: String): File =
+        File(File(fcitxConfigDir(), "pinyin"), "$uniqueName.conf")
+
     fun textKeyboardLayoutJson(): File? = textKeyboardLayoutJson(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
 
     fun textKeyboardLayoutJson(profile: String): File? {

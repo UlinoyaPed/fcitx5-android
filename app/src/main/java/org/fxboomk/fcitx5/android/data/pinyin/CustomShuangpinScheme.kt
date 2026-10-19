@@ -9,6 +9,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CustomShuangpinScheme(
     val name: String = CustomShuangpinSchemeCodec.DEFAULT_NAME,
+    /**
+     * 方案 id：输入法 uniqueName（`shuangpin-<id>`）中的后缀，用户可编辑。
+     */
+    val id: String = ShuangpinLayoutKeys.DEFAULT_CUSTOM_SUFFIX,
     val zeroInitial: String = CustomShuangpinSchemeCodec.DEFAULT_ZERO_INITIAL,
     val initials: Map<String, String> = emptyMap(),
     val finals: Map<String, String> = emptyMap(),

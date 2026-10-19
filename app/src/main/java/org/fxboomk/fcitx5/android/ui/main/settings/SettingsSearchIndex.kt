@@ -237,7 +237,7 @@ object SettingsSearchIndex {
                 )
             )
             fcitx.enabledIme().forEach { ime ->
-                if (ime.uniqueName == CustomShuangpinSchemeStore.UNIQUE_NAME) {
+                if (CustomShuangpinSchemeStore.isCustomScheme(ime.uniqueName)) {
                     add(
                         SettingsSearchResult(
                             title = CustomShuangpinSchemeStore.displayName(),

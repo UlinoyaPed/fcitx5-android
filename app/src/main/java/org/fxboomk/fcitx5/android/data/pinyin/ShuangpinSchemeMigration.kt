@@ -9,6 +9,9 @@ package org.fxboomk.fcitx5.android.data.pinyin
 object ShuangpinSchemeMigration {
     const val LEGACY_UNIQUE_NAME = "shuangpin"
 
+    /** Hidden `ShuangpinProfile` value the old single "双拼" entry used for a custom scheme. */
+    const val LEGACY_CUSTOM_PROFILE = "Custom"
+
     fun targetForLegacyProfile(profile: String?): String = when (profile) {
         "Xiaohe" -> "shuangpin-xiaohe"
         "MS" -> "shuangpin-ms"
@@ -18,7 +21,9 @@ object ShuangpinSchemeMigration {
         "ABC" -> "shuangpin-abc"
         "Zhongwenzhixing" -> "shuangpin-zhongwenzhixing"
         "PinyinJiajia" -> "shuangpin-pinyinjiajia"
-        "Custom" -> CustomShuangpinSchemeStore.UNIQUE_NAME
+        // The custom scheme may since have been renamed; the caller resolves the
+        // actual entry (CustomShuangpinSchemeStore.currentUniqueName()) for this case.
+        LEGACY_CUSTOM_PROFILE -> CustomShuangpinSchemeStore.UNIQUE_NAME
         else -> "shuangpin-ziranma"
     }
 }

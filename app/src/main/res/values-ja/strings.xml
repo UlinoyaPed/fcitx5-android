@@ -456,6 +456,7 @@
     <string name="text_keyboard_layout_file_select_title">キーボードレイアウト一覧</string>
     <string name="text_keyboard_layout_file_select_summary">現在のファイル：%1$s</string>
     <string name="text_keyboard_layout_manage_title">キーボードレイアウト管理</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">使用中のレイアウト</string>
     <string name="text_keyboard_layout_manage_set_default">デフォルトに設定</string>
     <string name="text_keyboard_layout_manage_collapse">折りたたむ</string>
@@ -978,6 +979,9 @@
     <string name="custom_shuangpin_key_none">未設定</string>
     <string name="custom_shuangpin_mapping_hint">未設定のキーは既定の規則を使用します。複数文字の声母と韻母には通常、明示的なキーが必要です。</string>
     <string name="custom_shuangpin_name_invalid">空でなく、組み込み方案名と重複しない名前を入力してください。</string>
+    <string name="custom_shuangpin_scheme_id">入力メソッド ID（接頭辞 shuangpin- は固定）</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">小文字の英数字とハイフンで入力してください（空でなく、組み込み方案名と重複しないこと）。</string>
     <string name="custom_shuangpin_zero_initial_invalid">小文字と * のみ使用できます。</string>
     <string name="custom_shuangpin_syllables">音節上書き</string>
     <string name="custom_shuangpin_edit_syllables">音節上書きを編集</string>

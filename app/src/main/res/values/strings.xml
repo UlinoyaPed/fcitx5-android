@@ -777,6 +777,7 @@
     <string name="text_keyboard_layout_file_select_title">Keyboard Layout List</string>
     <string name="text_keyboard_layout_file_select_summary">Current profile: %1$s</string>
     <string name="text_keyboard_layout_manage_title">Keyboard Layout Management</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">Active layout</string>
     <string name="text_keyboard_layout_manage_set_default">Set as default</string>
     <string name="text_keyboard_layout_manage_collapse">Collapse</string>
@@ -1109,6 +1110,9 @@
     <string name="custom_shuangpin_key_none">Not set</string>
     <string name="custom_shuangpin_mapping_hint">Unset keys use the default rule. Multi-letter initials and finals normally need an explicit key.</string>
     <string name="custom_shuangpin_name_invalid">Use a non-empty name that is not one of the built-in scheme names.</string>
+    <string name="custom_shuangpin_scheme_id">Input method ID (prefix shuangpin- is fixed)</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">Use lowercase letters, digits or hyphens (not empty, not a built-in scheme).</string>
     <string name="custom_shuangpin_zero_initial_invalid">Use lowercase letters and * only.</string>
     <string name="custom_shuangpin_syllables">Syllable overrides</string>
     <string name="custom_shuangpin_edit_syllables">Edit syllable overrides</string>
