@@ -316,6 +316,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "text_keyboard_layout_profile_filtered",
             ""
         ).apply { register() }
+        // 布局管理页中被折叠的父级输入法布局节点，条目为"配置名 <TAB> 父级输入法布局键"，换行分隔
+        val textKeyboardLayoutBaseCollapsed = ManagedPreference.PString(
+            sharedPreferences,
+            "text_keyboard_layout_base_collapsed",
+            ""
+        ).apply { register() }
         val langSwitchKeyLongPressBehavior = enumList(
             R.string.lang_switch_key_long_press_behavior,
             "lang_switch_key_long_press_behavior",

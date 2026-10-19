@@ -406,6 +406,22 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
             .filter { it.isNotEmpty() }
             .toSet()
 
+    /**
+     * 持久化的父级输入法布局折叠状态：条目为 `配置名 <TAB> 父级输入法布局键`（换行分隔）。
+     *
+     * 配置名由 [UserConfigFiles.normalizeTextKeyboardLayoutProfile] 去掉制表符等控制字符，
+     * 因此制表符可安全用作配置名与布局键之间的分隔符。
+     */
+    private fun collapsedBaseLayouts(): Set<Pair<String, String>> =
+        AppPrefs.getInstance().keyboard.textKeyboardLayoutBaseCollapsed.getValue()
+            .split('\n')
+            .mapNotNull { line ->
+                val separator = line.indexOf('\t')
+                if (separator <= 0) null
+                else line.substring(0, separator) to line.substring(separator + 1)
+            }
+            .toSet()
+
     private fun render() {
         updateProfileSummary()
         // 默认配置不可删除
@@ -414,6 +430,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         listContainer.removeAllViews()
         val profiles = TextKeyboardLayoutProfileOrder.ordered(currentProfile)
         val filteredProfiles = filteredProfileNames()
+        val collapsedBases = collapsedBaseLayouts()
         profiles.forEachIndexed { index, profile ->
             val collapsed = profile in collapsedProfileNames()
             val filtered = profile in filteredProfiles
@@ -434,9 +451,18 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 ) {
                     return@forEach
                 }
-                listContainer.addView(buildBaseLayoutRow(profile, manager, baseLayout))
                 val childKind = childLayoutKind(profile, baseLayout)
-                subLayoutRows(profile, manager, baseLayout, childKind).forEach { row ->
+                val rows = subLayoutRows(profile, manager, baseLayout, childKind)
+                val baseCollapsed = (profile to baseLayout) in collapsedBases
+                // 折叠状态只影响子布局行的展示，父级输入法布局行本身始终可见
+                listContainer.addView(
+                    buildBaseLayoutRow(
+                        profile, manager, baseLayout,
+                        collapsible = rows.isNotEmpty(), collapsed = baseCollapsed
+                    )
+                )
+                if (baseCollapsed) return@forEach
+                rows.forEach { row ->
                     listContainer.addView(buildSubLayoutRow(profile, baseLayout, row))
                 }
             }
@@ -551,7 +577,13 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildBaseLayoutRow(profile: String, manager: LayoutDataManager, baseLayout: String): View {
+    private fun buildBaseLayoutRow(
+        profile: String,
+        manager: LayoutDataManager,
+        baseLayout: String,
+        collapsible: Boolean,
+        collapsed: Boolean
+    ): View {
         val displayName = baseLayoutDisplayName(baseLayout)
         // A customized shared fallback and an explicit English layout are separate saved data.
         val name = if (baseLayout == LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY &&
@@ -589,6 +621,21 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                         getString(R.string.text_keyboard_layout_manage_base_reset_action)
                     ) {
                         confirmDeleteBaseLayout(profile, baseLayout)
+                    }
+                )
+            }
+            // 仅在确有子布局可折叠时给出展开/折叠按钮
+            if (collapsible) {
+                addView(
+                    iconButton(
+                        if (collapsed) R.drawable.ic_baseline_expand_more_24
+                        else R.drawable.ic_baseline_expand_less_24,
+                        getString(
+                            if (collapsed) R.string.text_keyboard_layout_manage_expand
+                            else R.string.text_keyboard_layout_manage_collapse
+                        )
+                    ) {
+                        toggleBaseLayoutCollapsed(profile, baseLayout)
                     }
                 )
             }
@@ -833,6 +880,20 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     // ==================== 配置级操作 ====================
+
+    /** 折叠/展开某个配置下的父级输入法布局节点（「中州韵」「双拼」等）。 */
+    private fun toggleBaseLayoutCollapsed(profile: String, baseLayout: String) {
+        val collapsed = collapsedBaseLayouts().toMutableSet()
+        if (!collapsed.remove(profile to baseLayout)) {
+            collapsed.add(profile to baseLayout)
+        }
+        AppPrefs.getInstance().keyboard.textKeyboardLayoutBaseCollapsed.setValue(
+            collapsed.joinToString("\n") { (collapsedProfile, collapsedBase) ->
+                "$collapsedProfile\t$collapsedBase"
+            }
+        )
+        render()
+    }
 
     private fun toggleProfileCollapsed(profile: String) {
         val collapsed = collapsedProfileNames().toMutableSet()
