@@ -107,6 +107,10 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             val shuangpin = InputMethodEntry("shuangpin", "双拼", "", "", "", "zh", "pinyin", false)
             setPrivateField(activity, "activeIme", shuangpin)
             assertEquals("${profiles.first()}-双拼", invokePrivate(activity, "activeLayoutChain"))
+            // A scheme is a child of the 「双拼」 parent layout, so the parent shows up too.
+            setPrivateField(activity, "activeIme",
+                InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false))
+            assertEquals("${profiles.first()}-双拼-小鹤双拼", invokePrivate(activity, "activeLayoutChain"))
             val rime = InputMethodEntry("rime", "中州韵", "", "", "", "zh", "rime", false,
                 "Latin Mode", "abc", "")
             setPrivateField(activity, "activeStatusActions", arrayOf(

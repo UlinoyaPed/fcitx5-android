@@ -274,8 +274,8 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /**
      * 顶行展示"当前激活布局"：第一行为标题，换行显示当前激活的
-     * 布局文件配置名 - 父级输入法布局名称（即输入法名称）- Rime 当前方案名称（不要求定制布局）。
-     * 输入法状态不可用时省略第二行（配置名已由列表中的配置行展示）。
+     * 布局文件配置名 - 父级输入法布局名称（即输入法名称）- 双拼方案名 / Rime 当前方案名称
+     * （不要求定制布局）。输入法状态不可用时省略第二行（配置名已由列表中的配置行展示）。
      */
     private fun updateProfileSummary() {
         activeLayoutTitleView.text = getString(R.string.text_keyboard_layout_manage_active_layout)
@@ -290,7 +290,12 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /** 展示当前输入法身份，不将实际布局的回退键误当成输入法名称。 */
     private fun activeLayoutChain(): String? =
-        formatActiveLayoutChain(displayProfile(currentProfile), activeIme, activeStatusActions)
+        formatActiveLayoutChain(
+            displayProfile(currentProfile),
+            activeIme,
+            activeStatusActions,
+            baseLayoutDisplayName(ShuangpinLayoutKeys.BASE_LAYOUT_KEY)
+        )
 
     private fun buildScrollArea(): View {
         listContainer = LinearLayout(this).apply {
