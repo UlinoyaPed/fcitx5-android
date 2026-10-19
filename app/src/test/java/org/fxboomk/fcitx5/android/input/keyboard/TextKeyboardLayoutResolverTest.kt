@@ -56,8 +56,8 @@ class TextKeyboardLayoutResolverTest {
     fun metadataBearingDefaultLayoutProvidesRowsAndOrientationSpecificHeights() {
         val resolution = resolveTextKeyboardLayout(
             json = layoutJson(),
-            uniqueName = "pinyin",
-            displayName = "Pinyin",
+            uniqueName = "keyboard-us",
+            displayName = "English",
             subModeLabel = "",
         )
 
@@ -66,6 +66,135 @@ class TextKeyboardLayoutResolverTest {
         assertTrue(resolution.rows is JsonArray)
         assertEquals(34, resolution.keyboardHeightPercentOverride(landscape = false))
         assertEquals(49, resolution.keyboardHeightPercentOverride(landscape = true))
+    }
+
+    @Test
+    fun nonEnglishImeWithoutOwnLayoutDoesNotInheritSharedDefaultLayout() {
+        // 未定制专属布局的输入法不再回退到可被用户定制的 English（default）布局，
+        // 避免布局污染；由运行时改为采用出厂 26 键布局。
+        val resolution = resolveTextKeyboardLayout(
+            json = layoutJson(),
+            uniqueName = "pinyin",
+            displayName = "Pinyin",
+            subModeLabel = "",
+        )
+
+        assertNull(resolution)
+    }
+
+    @Test
+    fun shuangpinSchemeFallsBackToShuangpinBaseLayout() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "shuangpin": {
+                "__meta__": {"keyboard_height_percent": 40},
+                "default": [[{"type": "AlphabetKey", "main": "s"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = "shuangpin-xiaohe",
+            displayName = "小鹤双拼",
+            subModeLabel = "",
+        )
+
+        assertNotNull(resolution)
+        assertEquals("shuangpin", resolution!!.sourceKey)
+        assertEquals("s", resolution.rows!!.firstKeyMain())
+        assertEquals(40, resolution.keyboardHeightPercentOverride(landscape = false))
+    }
+
+    @Test
+    fun shuangpinSchemeUsesItsOwnLayoutWhenPresent() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "shuangpin": {
+                "default": [[{"type": "AlphabetKey", "main": "s"}]]
+              },
+              "shuangpin-xiaohe": [[{"type": "AlphabetKey", "main": "x"}]]
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = "shuangpin-xiaohe",
+            displayName = "小鹤双拼",
+            subModeLabel = "",
+        )
+
+        assertNotNull(resolution)
+        assertEquals("shuangpin-xiaohe", resolution!!.sourceKey)
+        assertEquals("x", resolution.rows!!.firstKeyMain())
+    }
+
+    @Test
+    fun shuangpinSchemeInheritsMissingHeightFromShuangpinBaseNotEnglish() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "default": {
+                "__meta__": {"keyboard_height_percent": 70},
+                "default": [[{"type": "AlphabetKey", "main": "e"}]]
+              },
+              "shuangpin": {
+                "__meta__": {"keyboard_height_percent": 40},
+                "default": [[{"type": "AlphabetKey", "main": "s"}]]
+              },
+              "shuangpin-xiaohe": [[{"type": "AlphabetKey", "main": "x"}]]
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = "shuangpin-xiaohe",
+            displayName = "小鹤双拼",
+            subModeLabel = "",
+        )
+
+        assertNotNull(resolution)
+        assertEquals("shuangpin-xiaohe", resolution!!.sourceKey)
+        assertEquals("x", resolution.rows!!.firstKeyMain())
+        // 缺失的高度以"双拼"基础布局为基准（40），而不是 English（70）
+        assertEquals(40, resolution.keyboardHeightPercentOverride(false))
+    }
+
+    @Test
+    fun shuangpinSchemeWithoutOwnRowsFallsBackToShuangpinBaseRows() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "default": {
+                "__meta__": {"keyboard_height_percent": 70},
+                "default": [[{"type": "AlphabetKey", "main": "e"}]]
+              },
+              "shuangpin": {
+                "__meta__": {"keyboard_height_percent": 40},
+                "default": [[{"type": "AlphabetKey", "main": "s"}]]
+              },
+              "shuangpin-xiaohe": {}
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = "shuangpin-xiaohe",
+            displayName = "小鹤双拼",
+            subModeLabel = "",
+        )
+
+        assertNotNull(resolution)
+        // 专属布局存在但缺行时，回退到"双拼"基础布局的行，而不是 English
+        assertEquals("shuangpin", resolution!!.sourceKey)
+        assertEquals("s", resolution.rows!!.firstKeyMain())
+        assertEquals(40, resolution.keyboardHeightPercentOverride(false))
     }
 
     @Test
@@ -272,8 +401,8 @@ class TextKeyboardLayoutResolverTest {
         )
         val objectResolution = resolveTextKeyboardLayout(
             json = layoutJson(),
-            uniqueName = "pinyin",
-            displayName = "Pinyin",
+            uniqueName = "keyboard-us",
+            displayName = "English",
             subModeLabel = "B",
         )
 

@@ -146,20 +146,31 @@ class TextKeyboardLayoutCustomizeActivityTest {
     fun childOnlyHeightInheritsDefaultWithoutMaterializingParent() =
         verifyChildHeightIsolation(explicitBase = false, existingChild = true)
 
+    /**
+     * 布局校验器（[LayoutDataManager.validateEntries]）要求每个键都带 `type`，
+     * 且 AlphabetKey 的 main/alt 必须是单个字符；这里的极简行也必须满足该约束，
+     * 否则 `saveToFile` 会因校验失败而静默返回 false。
+     */
+    private fun syntheticKey(main: String) = mutableMapOf<String, Any?>(
+        "type" to "AlphabetKey",
+        "main" to main,
+        "alt" to main.uppercase()
+    )
+
     private fun verifyChildHeightIsolation(explicitBase: Boolean, existingChild: Boolean) {
         val profile = "child-height-test-${UUID.randomUUID()}"
         val file = requireNotNull(UserConfigFiles.textKeyboardLayoutJson(profile))
         val manager = LayoutDataManager(instrumentation.targetContext).apply {
             loadFromFile(null)
             entries.clear()
-            entries["default"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "d")))
-            entries["ime:sibling"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "s")))
+            entries["default"] = mutableListOf(mutableListOf(syntheticKey("d")))
+            entries["ime:sibling"] = mutableListOf(mutableListOf(syntheticKey("s")))
             if (explicitBase) {
-                entries["ime"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "b")))
+                entries["ime"] = mutableListOf(mutableListOf(syntheticKey("b")))
                 setLayoutHeightPercentOverride("ime", LayoutHeightPercentOverrides(portrait = 43))
             }
             if (existingChild) {
-                entries["ime:child"] = mutableListOf(mutableListOf(mutableMapOf<String, Any?>("main" to "c")))
+                entries["ime:child"] = mutableListOf(mutableListOf(syntheticKey("c")))
                 setLayoutHeightPercentOverride("ime:child", LayoutHeightPercentOverrides(landscape = 56))
             }
             setLayoutHeightPercentOverride("default", LayoutHeightPercentOverrides(64, 65))
@@ -203,7 +214,25 @@ class TextKeyboardLayoutCustomizeActivityTest {
             }
             assertEquals(manager.profileHeightOverrides, reloaded.profileHeightOverrides)
             val source = if (existingChild) "ime:child" else if (explicitBase) "ime" else "default"
-            assertEquals(manager.entries[source], reloaded.entries["ime:child"])
+            val expectedChildRows = if (source == "default") {
+                // 未定制专属布局时物化的是出厂 26 键预设（而非可被定制的 English
+                // 布局），以落盘 / 重载后的形态作为比较基准，避免受解析规范化影响。
+                val baselineFile = requireNotNull(
+                    UserConfigFiles.textKeyboardLayoutJson("factory-baseline-${UUID.randomUUID()}")
+                )
+                try {
+                    LayoutDataManager(instrumentation.targetContext).apply {
+                        loadFromFile(null)
+                        saveToFile(baselineFile)
+                        loadFromFile(baselineFile)
+                    }.entries.getValue(UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
+                } finally {
+                    baselineFile.delete()
+                }
+            } else {
+                manager.entries[source]
+            }
+            assertEquals(expectedChildRows, reloaded.entries["ime:child"])
             if (!existingChild) {
                 val inherited = reloaded.entries.getValue(source)
                 val child = reloaded.entries.getValue("ime:child")

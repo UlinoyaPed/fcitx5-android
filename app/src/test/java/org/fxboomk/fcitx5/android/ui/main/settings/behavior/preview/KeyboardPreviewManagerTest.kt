@@ -5,9 +5,11 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview
 
 import kotlinx.serialization.json.JsonArray
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Test
 
@@ -16,9 +18,10 @@ class KeyboardPreviewManagerTest {
     private val subModeRows = listOf(listOf(mapOf<String, Any?>("main" to "A")))
 
     @Test
-    fun missingBaseUsesDefaultRowsAsPreviewDefault() {
+    fun missingBaseUsesProvidedFactoryRowsAsPreviewDefault() {
         val entries = mapOf(LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY to defaultRows)
-        val resolvedRows = resolvePreviewRows(entries, "virtual-ime", null)
+        // 未定制专属布局的输入法改为回退到传入的出厂 26 键布局，而非 English（default）条目。
+        val resolvedRows = resolvePreviewRows(entries, "virtual-ime", null, defaultRows)
 
         val result = buildPreviewSubModeMap(
             entries = entries,
@@ -31,6 +34,24 @@ class KeyboardPreviewManagerTest {
         assertSame(defaultRows, resolvedRows)
         assertEquals(setOf("default"), result.keys)
         assertEquals(rowsJson(defaultRows), result.getValue("default"))
+    }
+
+    @Test
+    fun missingBaseWithoutFactoryRowsHasNoPreviewRows() {
+        val entries = mapOf(LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY to defaultRows)
+
+        // 不再回退到可被用户定制的 English（default）条目，避免布局污染。
+        assertNull(resolvePreviewRows(entries, "virtual-ime", null))
+    }
+
+    @Test
+    fun shuangpinSchemeFallsBackToParentBaseRows() {
+        val entries = mapOf(ShuangpinLayoutKeys.BASE_LAYOUT_KEY to subModeRows)
+
+        assertSame(
+            subModeRows,
+            resolvePreviewRows(entries, "shuangpin-xiaohe", null)
+        )
     }
 
     @Test

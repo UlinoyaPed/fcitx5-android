@@ -41,6 +41,14 @@ class TextKeyboardLayoutProfileManagerActivityTest {
                 val original = connection.runImmediately { currentIme() }
                 val originalActions = connection.runImmediately { statusArea() }
                 originalIme = original
+                // currentIme() only resolves while the fcitx5 IME is the OS-active
+                // input method with a live input context. Otherwise the daemon
+                // reports its "not available" placeholder (empty uniqueName) and
+                // activateIme() cannot produce an observable IMChangeEvent.
+                assumeTrue(
+                    "Needs fcitx5 as the active IME with a live input context",
+                    original.uniqueName.isNotEmpty()
+                )
                 val other = connection.runImmediately { enabledIme() }.firstOrNull { it.uniqueName != original.uniqueName }
                 assumeTrue("Needs two enabled IMEs to exercise a real switch", other != null)
                 val target = requireNotNull(other)
@@ -264,13 +272,86 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             }
             rimeSchemaLabelsCache(activity)["$profile:$baseLayout"] = emptyList()
 
-            val rows = invokePrivate(activity, "subLayoutRows", profile, manager, baseLayout, true) as List<*>
+            val rows = invokePrivate(
+                activity, "subLayoutRows", profile, manager, baseLayout, childLayoutKind("RIME")
+            ) as List<*>
             val row = requireNotNull(rows.single())
-            assertEquals(schema, privateField(row, "label"))
-            assertEquals(key, privateField(row, "subKey"))
+            assertEquals(schema, privateField(row, "displayName"))
+            assertEquals(key, privateField(row, "storedKey"))
             assertEquals("UNCUSTOMIZED", privateField(row, "state").toString())
-            assertEquals(true, privateField(row, "isRimeScheme"))
+            assertEquals("RIME", privateField(row, "kind").toString())
         }
+    }
+
+    /** 反射获取私有的 ChildLayoutKind 枚举常量，用于直接调用私有 subLayoutRows。 */
+    private fun childLayoutKind(name: String): Any =
+        Class.forName(
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior" +
+                ".TextKeyboardLayoutProfileManagerActivity\$ChildLayoutKind"
+        ).enumConstants.orEmpty().first { it.toString() == name }
+
+    @Test
+    fun shuangpinChildrenOnlyListSchemesEnabledInInputMethodList() = withManager { activity ->
+        val manager = LayoutDataManager(activity).apply { loadFromFile(null) }
+        val enabled = arrayOf(
+            InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false)
+        )
+        // 未启用（仅可用）的内置双拼不应出现在双拼节点下
+        val available = enabled +
+            InputMethodEntry("shuangpin-ms", "微软双拼", "", "", "", "zh", "pinyin", false)
+        setPrivateField(activity, "allImes", enabled)
+        setPrivateField(activity, "allAvailableImes", available)
+
+        val rows = invokePrivate(activity, "shuangpinSubLayoutRows", manager) as List<*>
+        val schemeKeys = rows.map { privateField(requireNotNull(it), "editLayoutKey") }
+        assertEquals(listOf("shuangpin-xiaohe"), schemeKeys)
+        assertFalse(schemeKeys.contains("shuangpin-ms"))
+    }
+
+    @Test
+    fun resettingBaseLayoutKeepsChildLayoutsAndHeights() = withManager { activity ->
+        val manager = LayoutDataManager(activity).apply {
+            loadFromFile(null)
+            entries["shuangpin"] = copyLayout(entries.getValue("default"))
+            entries["shuangpin-xiaohe"] = mutableListOf(
+                mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "x"))
+            )
+            entries["rime:custom"] = mutableListOf(
+                mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "y"))
+            )
+            setLayoutHeightPercentOverride(
+                "shuangpin-xiaohe", LayoutHeightPercentOverrides(portrait = 55, landscape = 56)
+            )
+            setLayoutHeightPercentOverride("rime:custom", LayoutHeightPercentOverrides(portrait = 61))
+        }
+        val xiaoheRows = manager.entries.getValue("shuangpin-xiaohe").map { it.map { it.toMap() } }
+        val rimeRows = manager.entries.getValue("rime:custom").map { it.map { it.toMap() } }
+
+        manager.deleteBaseLayoutTree("shuangpin")
+        manager.deleteBaseLayoutTree("rime")
+
+        // 子布局内容与高度覆写均不受基础布局重置影响
+        assertEquals(xiaoheRows, manager.entries.getValue("shuangpin-xiaohe").map { it.map { it.toMap() } })
+        assertEquals(rimeRows, manager.entries.getValue("rime:custom").map { it.map { it.toMap() } })
+        assertEquals(
+            LayoutHeightPercentOverrides(portrait = 55, landscape = 56),
+            manager.getLayoutHeightPercentOverride("shuangpin-xiaohe")
+        )
+        assertEquals(
+            LayoutHeightPercentOverrides(portrait = 61),
+            manager.getLayoutHeightPercentOverride("rime:custom")
+        )
+        // 仅基础布局本身被重置为出厂 26 键
+        assertEquals(null, manager.getLayoutHeightPercentOverride("shuangpin"))
+        assertEquals(null, manager.getLayoutHeightPercentOverride("rime"))
+        assertEquals(
+            manager.defaultPresetSnapshot(),
+            manager.entries.getValue("shuangpin").map { it.map { it.toMap() } }
+        )
+        assertEquals(
+            manager.defaultPresetSnapshot(),
+            manager.entries.getValue("rime").map { it.map { it.toMap() } }
+        )
     }
 
     private fun withProfiles(block: (List<String>, List<File>) -> Unit) {
