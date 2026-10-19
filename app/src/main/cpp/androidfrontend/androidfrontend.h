@@ -24,7 +24,7 @@ public:
     Instance *instance() { return instance_; }
 
     void updateCandidateList(const std::vector<CandidateEntity> &candidates, int total);
-    void commitString(const std::string &str, int cursor);
+    void commitString(const std::string &str, int cursor, bool replacesPendingPreedit);
     void updateClientPreedit(const Text &clientPreedit);
     void updateInputPanel(const Text &preedit, const Text &auxUp, const Text &auxDown, const std::vector<CandidateActionEntity> &tabs);
     void releaseInputContext(int uid);

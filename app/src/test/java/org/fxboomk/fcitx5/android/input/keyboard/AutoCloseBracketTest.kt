@@ -90,6 +90,29 @@ class AutoCloseBracketTest {
     }
 
     @Test
+    fun closerForCommitAcceptsEndOfTextCursor() {
+        // Fcitx's CommitStringWithCursor reports cursor == text.length when the caret ends up
+        // after the committed text (the default for punctuation, e.g. Shuangpin symbol popup).
+        assertEquals("」", AutoCloseBracket.closerForCommit("「", 1))
+        assertEquals("]", AutoCloseBracket.closerForCommit("[", 1))
+        assertEquals(")", AutoCloseBracket.closerForCommit("(", -1))
+    }
+
+    @Test
+    fun closerForCommitRejectsCursorsThatAreNotAtEndOfText() {
+        // Mid-text cursor: the engine already committed a paired symbol; do not close again.
+        assertNull(AutoCloseBracket.closerForCommit("「」", 1))
+        // Before the text / beyond its end / otherwise nonsensical positions.
+        assertNull(AutoCloseBracket.closerForCommit("(", 0))
+        assertNull(AutoCloseBracket.closerForCommit("(", 2))
+        assertNull(AutoCloseBracket.closerForCommit("(", -2))
+        // End-of-text cursor does not turn non-openers into pairs.
+        assertNull(AutoCloseBracket.closerForCommit(")", 1))
+        assertNull(AutoCloseBracket.closerForCommit("a", 1))
+        assertNull(AutoCloseBracket.closerForCommit("()", 2))
+    }
+
+    @Test
     fun isPairRecognizesAdjacentOpenerAndCloser() {
         assertTrue(AutoCloseBracket.isPair('(', ')'))
         assertTrue(AutoCloseBracket.isPair('（', '）'))

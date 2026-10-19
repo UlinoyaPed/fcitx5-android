@@ -1307,15 +1307,25 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     /**
      * 「自动补全成对符号」：当本次提交的 [text] 恰好是一个「左半边」符号、且处于可补全的场景
-     * （开关开启、默认提交 cursor == -1、无待上屏编码、无选区）时，返回应补全的「右半边」，
+     * （开关开启、光标在提交文本末尾、无选区）时，返回应补全的「右半边」，
      * 否则返回 null（走原有提交流程，行为完全不变）。
+     *
+     * 光标在末尾既可能是 -1（普通 commitString），也可能是显式 cursor == text.length
+     * （Fcitx 通过 CommitStringWithCursor 上屏标点时的常见情况，如双拼长按符号气泡）。
+     *
+     * 提交时 `composing` 可能仍然非空：Fcitx 内置拼音 / 双拼的标点候选（如 `[` 弹出的
+     * 「【」「「」列表）是先提交、后清空预编辑，本函数看到的预编辑还是旧的，但该提交会替换
+     * 这段预编辑（与下方主提交流程的处理一致），光标最终仍紧跟在 [text] 之后。因此这里不再
+     * 因 `composing` 非空而拒绝补全；否则用数字键选择「非首个」标点候选时不会补全。
      */
     private fun autoClosePairCloserFor(text: String, cursor: Int): String? {
-        if (!prefs.keyboard.autoCloseBrackets.getValue()) return null
-        if (cursor != -1) return null
-        if (composing.isNotEmpty()) return null
-        if (selection.latest.isNotEmpty()) return null
-        return AutoCloseBracket.closerFor(text)
+        val enabled = prefs.keyboard.autoCloseBrackets.getValue()
+        val selectionNow = selection.latest
+        return if (!enabled || selectionNow.isNotEmpty()) {
+            null
+        } else {
+            AutoCloseBracket.closerForCommit(text, cursor)
+        }
     }
 
     fun commitText(text: String, cursor: Int = -1) {
@@ -1329,13 +1339,34 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (composing.isNotEmpty() && composingText.toString() == text) {
             val c = if (cursor == -1) text.length else cursor
             val target = composing.start + c
+            // The preedit is already exactly `text`, so finishing composing leaves the caret
+            // right after it. Treat it like an end-of-text commit for auto-close: this happens
+            // when a punctuation candidate equals the preedit (e.g. the first punc candidate).
+            val autoPairCloser = if (
+                prefs.keyboard.autoCloseBrackets.getValue() && selection.latest.isEmpty()
+            ) {
+                AutoCloseBracket.closerForCommit(text, cursor)
+            } else {
+                null
+            }
             resetComposingState()
-            ic.withBatchEdit {
-                if (selection.current.start != target) {
-                    selection.predict(target)
-                    ic.setSelection(target, target)
+            if (autoPairCloser != null) {
+                // Replace the preedit with text + closer in one commit, like the normal branch.
+                // `target` was computed before resetComposingState(), which zeroes `composing`.
+                val caret = target
+                selection.predict(caret)
+                ic.withBatchEdit {
+                    ic.commitText(text + autoPairCloser, 1)
+                    ic.setSelection(caret, caret)
                 }
-                ic.finishComposingText()
+            } else {
+                ic.withBatchEdit {
+                    if (selection.current.start != target) {
+                        selection.predict(target)
+                        ic.setSelection(target, target)
+                    }
+                    ic.finishComposingText()
+                }
             }
             refreshInputViewSelectionAfterEdit()
             onPredictionTextCommitted(text)
