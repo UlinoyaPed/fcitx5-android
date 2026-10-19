@@ -39,6 +39,8 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.Action
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
@@ -365,12 +367,19 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     /**
-     * 基础布局的展示名：优先引用输入法名称（如 shuangpin→双拼、rime→中州韵），
-     * default→English；无法匹配输入法时原样展示键名。
+     * 布局展示名：优先引用输入法名称（如 shuangpin→双拼、rime→中州韵），
+     * default→English；双拼基础布局使用本地化名称，自定义双拼引用用户改名后的名称；
+     * 无法匹配输入法时原样展示键名。
      */
     private fun baseLayoutDisplayName(baseLayout: String): String {
         if (baseLayout == LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY) {
             return LayoutJsonUtils.DEFAULT_BASE_LAYOUT_DISPLAY_NAME
+        }
+        if (baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+            return getString(R.string.text_keyboard_layout_manage_shuangpin)
+        }
+        if (CustomShuangpinSchemeStore.isCustomScheme(baseLayout)) {
+            return CustomShuangpinSchemeStore.displayName()
         }
         val ime = allAvailableImes.firstOrNull { it.uniqueName == baseLayout || it.displayName == baseLayout }
             ?: allImes.firstOrNull { it.uniqueName == baseLayout || it.displayName == baseLayout }
@@ -416,14 +425,13 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 }
                 // 保留含专属子布局的分组及其基础行，避免过滤后丢失编辑入口或分组上下文。
                 if (filtered && !isLayoutCustomized(manager, baseLayout) &&
-                    manager.subLayoutKeys(baseLayout).isEmpty()
+                    !hasChildLayouts(manager, baseLayout)
                 ) {
                     return@forEach
                 }
                 listContainer.addView(buildBaseLayoutRow(profile, manager, baseLayout))
-                val isRimeScheme = SubModeManager.isRimePluginLoaded() &&
-                    subModeManagerOrNull(profile)?.isCurrentLayoutRime(baseLayout) == true
-                subLayoutRows(profile, manager, baseLayout, isRimeScheme).forEach { row ->
+                val childKind = childLayoutKind(profile, baseLayout)
+                subLayoutRows(profile, manager, baseLayout, childKind).forEach { row ->
                     listContainer.addView(buildSubLayoutRow(profile, baseLayout, row))
                 }
             }
@@ -566,7 +574,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                     R.drawable.ic_baseline_edit_24,
                     getString(R.string.text_keyboard_layout_manage_edit)
                 ) {
-                    openLayoutCustomize(profile, baseLayout, null)
+                    openLayoutCustomize(profile, baseLayout, null, displayName)
                 }
             )
             if (!uncustomized) {
@@ -595,19 +603,48 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     /**
-     * 子布局行数据；[subKey] 为 null 表示该方案没有专属布局（运行时生效基础布局）。
+     * 子布局行的操作语义类型：
+     * - [RIME]：Rime 输入方案不可删除，使用"重置为继承基础布局"；
+     * - [SHUANGPIN]：双拼方案不可删除，同样使用重置按钮；
+     * - [NONE]：普通子模式，可直接删除。
+     */
+    private enum class ChildLayoutKind { NONE, RIME, SHUANGPIN }
+
+    /**
+     * 子布局行数据。
      *
-     * [isRimeScheme] 决定操作按钮语义：Rime 方案不可删除，使用"重置为继承基础布局"。
+     * [displayName] 用于列表展示；[editLayoutKey] / [editSubLabel] 用于打开行级编辑页；
+     * [storedKey] 为专属布局在 entries 中的键（null 表示无专属布局，运行时回退基础布局）；
+     * [kind] 决定操作按钮语义。
      */
     private data class SubLayoutRow(
-        val label: String,
-        val subKey: String?,
+        val displayName: String,
+        val editLayoutKey: String,
+        val editSubLabel: String?,
+        val storedKey: String?,
         val state: SubLayoutState,
-        val isRimeScheme: Boolean
+        val kind: ChildLayoutKind
     )
 
     /** Rime 方案标签缓存，key 为 "profile:baseLayout"，避免每次渲染都唤醒守护进程。 */
     private val rimeSchemaLabelsCache = mutableMapOf<String, List<String>>()
+
+    /** 该基础布局是否有可展示的子布局（Rime 方案 / 双拼方案 / 普通子模式）。 */
+    private fun hasChildLayouts(manager: LayoutDataManager, baseLayout: String): Boolean {
+        if (baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+            // 双拼子行只来自「输入法」列表页已启用的方案
+            return shuangpinSubLayoutRows(manager).isNotEmpty()
+        }
+        return manager.subLayoutKeys(baseLayout).isNotEmpty()
+    }
+
+    /** 推断基础布局的子布局操作语义。 */
+    private fun childLayoutKind(profile: String, baseLayout: String): ChildLayoutKind = when {
+        baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY -> ChildLayoutKind.SHUANGPIN
+        SubModeManager.isRimePluginLoaded() &&
+            subModeManagerOrNull(profile)?.isCurrentLayoutRime(baseLayout) == true -> ChildLayoutKind.RIME
+        else -> ChildLayoutKind.NONE
+    }
 
     /**
      * 汇总某基础布局下要展示的子布局行。
@@ -618,13 +655,18 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
      * - 有专属布局且与默认 26 键预设一致、无高度覆写：未定制（UNCUSTOMIZED）；
      * - 其余（含仅有高度覆写）：已定制（CUSTOMIZED）。
      * 若整个 Rime 输入法都没有定制布局，则只保留基础布局，不列出子布局。
+     * 双拼基础布局 [ChildLayoutKind.SHUANGPIN] 则枚举全部双拼方案作为子节点。
      */
     private fun subLayoutRows(
         profile: String,
         manager: LayoutDataManager,
         baseLayout: String,
-        isRimeScheme: Boolean
+        kind: ChildLayoutKind
     ): List<SubLayoutRow> {
+        if (kind == ChildLayoutKind.SHUANGPIN) {
+            return shuangpinSubLayoutRows(manager)
+        }
+        val isRimeScheme = kind == ChildLayoutKind.RIME
         val customKeys = manager.subLayoutKeys(baseLayout)
         val engineLabels = if (isRimeScheme) {
             fetchRimeSchemaLabels(profile, baseLayout)
@@ -633,11 +675,15 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         }
         if (engineLabels.isEmpty()) {
             return customKeys.map { key ->
+                val label = LayoutJsonUtils.subModeLabelFromEntryKey(key, baseLayout)
                 SubLayoutRow(
-                    LayoutJsonUtils.subModeLabelFromEntryKey(key, baseLayout),
-                    key,
-                    if (isLayoutCustomized(manager, key)) SubLayoutState.CUSTOMIZED else SubLayoutState.UNCUSTOMIZED,
-                    isRimeScheme = isRimeScheme
+                    displayName = label,
+                    editLayoutKey = baseLayout,
+                    editSubLabel = label,
+                    storedKey = key,
+                    state = if (isLayoutCustomized(manager, key)) SubLayoutState.CUSTOMIZED
+                    else SubLayoutState.UNCUSTOMIZED,
+                    kind = kind
                 )
             }
         }
@@ -652,15 +698,48 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         return buildList {
             engineLabels.filter { it.isNotBlank() }.forEach { label ->
                 val key = customByKey[label]
-                add(SubLayoutRow(label, key, stateFor(key), isRimeScheme = true))
+                add(SubLayoutRow(label, baseLayout, label, key, stateFor(key), kind))
             }
             customByKey.forEach { (label, key) ->
                 if (label !in engineLabels) {
                     // 已从 Rime 方案清单移除的历史定制布局，按内容判定状态后照常展示
-                    add(SubLayoutRow(label, key, stateFor(key), isRimeScheme = true))
+                    add(SubLayoutRow(label, baseLayout, label, key, stateFor(key), kind))
                 }
             }
         }
+    }
+
+    /**
+     * 双拼基础布局下的方案行：只枚举「输入法」列表页已启用的双拼输入法
+     * （内置 + 自定义）。未启用的方案不出现在此，与输入法列表保持一致。
+     */
+    private fun shuangpinSubLayoutRows(manager: LayoutDataManager): List<SubLayoutRow> {
+        val seen = mutableSetOf<String>()
+        val rows = mutableListOf<SubLayoutRow>()
+        allImes.forEach { ime ->
+            val uniqueName = ime.uniqueName
+            if (ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName) && seen.add(uniqueName)) {
+                rows += shuangpinSubLayoutRow(manager, uniqueName)
+            }
+        }
+        return rows
+    }
+
+    /** 单个双拼方案行：无专属布局键时为"继承"，否则按内容判定定制状态。 */
+    private fun shuangpinSubLayoutRow(manager: LayoutDataManager, schemeKey: String): SubLayoutRow {
+        val stored = manager.entries.containsKey(schemeKey)
+        return SubLayoutRow(
+            displayName = baseLayoutDisplayName(schemeKey),
+            editLayoutKey = schemeKey,
+            editSubLabel = null,
+            storedKey = schemeKey.takeIf { stored },
+            state = when {
+                !stored -> SubLayoutState.INHERITED
+                isLayoutCustomized(manager, schemeKey) -> SubLayoutState.CUSTOMIZED
+                else -> SubLayoutState.UNCUSTOMIZED
+            },
+            kind = ChildLayoutKind.SHUANGPIN
+        )
     }
 
     /**
@@ -694,10 +773,10 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     private fun buildSubLayoutRow(profile: String, baseLayout: String, row: SubLayoutRow): View {
         val display = when (row.state) {
             SubLayoutState.INHERITED ->
-                getString(R.string.text_keyboard_layout_manage_submode_inherited, row.label)
+                getString(R.string.text_keyboard_layout_manage_submode_inherited, row.displayName)
             SubLayoutState.UNCUSTOMIZED ->
-                getString(R.string.text_keyboard_layout_manage_submode_uncustomized, row.label)
-            SubLayoutState.CUSTOMIZED -> row.label
+                getString(R.string.text_keyboard_layout_manage_submode_uncustomized, row.displayName)
+            SubLayoutState.CUSTOMIZED -> row.displayName
         }
         return LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -713,14 +792,21 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                     R.drawable.ic_baseline_edit_24,
                     getString(R.string.text_keyboard_layout_manage_edit)
                 ) {
-                    openLayoutCustomize(profile, baseLayout, row.label)
+                    // 子模式（如 Rime 方案）已有 subModeLabel 作为更精确的标题，
+                    // 仅双拼等无子模式标签的行才显式传展示名
+                    openLayoutCustomize(
+                        profile,
+                        row.editLayoutKey,
+                        row.editSubLabel,
+                        row.displayName.takeIf { row.editSubLabel == null }
+                    )
                 }
             )
             when {
                 // 继承基础布局中，没有可重置的专属布局
                 row.state == SubLayoutState.INHERITED -> Unit
-                // Rime 方案不可删除：删除按钮变更为重置按钮，弹窗选择重置类型
-                row.isRimeScheme -> addView(
+                // Rime 方案 / 双拼方案不可删除：删除按钮变更为重置按钮，弹窗选择重置类型
+                row.kind != ChildLayoutKind.NONE -> addView(
                     iconButton(
                         R.drawable.ic_baseline_settings_backup_restore_24,
                         getString(R.string.text_keyboard_layout_manage_base_reset_action)
@@ -806,12 +892,12 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     private fun confirmDeleteSubLayout(profile: String, baseLayout: String, row: SubLayoutRow) {
         AlertDialog.Builder(this)
             .setTitle(R.string.text_keyboard_layout_manage_delete)
-            .setMessage(getString(R.string.text_keyboard_layout_manage_reset_base_confirm, row.label))
+            .setMessage(getString(R.string.text_keyboard_layout_manage_reset_base_confirm, row.displayName))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                val key = row.subKey ?: "$baseLayout:${row.label}"
+                val key = row.storedKey ?: "$baseLayout:${row.editSubLabel ?: row.displayName}"
                 managerFor(profile).resetLayoutToDefaultPreset(key)
                 if (persistProfile(profile)) {
-                    toast(getString(R.string.text_keyboard_layout_manage_sub_reset, row.label))
+                    toast(getString(R.string.text_keyboard_layout_manage_sub_reset, row.displayName))
                     render()
                 }
             }
@@ -833,24 +919,37 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             // 注意：本机 DialogInterface 同时设置 message 与单选列表时列表不渲染，
             // 因此将上下文并入标题，仅用 setSingleChoiceItems 呈现选项。
-            .setTitle(getString(R.string.text_keyboard_layout_manage_reset_type_message, row.label))
+            .setTitle(getString(R.string.text_keyboard_layout_manage_reset_type_message, row.displayName))
             .setSingleChoiceItems(options, checkedOption) { _, which -> checkedOption = which }
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 when (checkedOption) {
                     0 -> {
                         // 继承：移除专属布局与高度覆写，恢复随基础布局回退
-                        managerFor(profile).deleteSubModeLayout(baseLayout, row.label)
+                        when (row.kind) {
+                            ChildLayoutKind.SHUANGPIN ->
+                                managerFor(profile).deleteShuangpinSchemeLayout(
+                                    row.storedKey ?: row.editLayoutKey
+                                )
+                            else -> managerFor(profile).deleteSubModeLayout(
+                                baseLayout,
+                                row.editSubLabel ?: row.displayName
+                            )
+                        }
                         if (persistProfile(profile)) {
-                            toast(getString(R.string.text_keyboard_layout_manage_sub_reset_inherit, row.label))
+                            toast(getString(R.string.text_keyboard_layout_manage_sub_reset_inherit, row.displayName))
                             render()
                         }
                     }
                     else -> {
                         // 出厂 26 键：保留专属条目，内容复位为默认 26 键预设
-                        val key = row.subKey ?: "$baseLayout:${row.label}"
+                        val key = row.storedKey ?: if (row.kind == ChildLayoutKind.SHUANGPIN) {
+                            row.editLayoutKey
+                        } else {
+                            "$baseLayout:${row.editSubLabel ?: row.displayName}"
+                        }
                         managerFor(profile).resetLayoutToDefaultPreset(key)
                         if (persistProfile(profile)) {
-                            toast(getString(R.string.text_keyboard_layout_manage_sub_reset, row.label))
+                            toast(getString(R.string.text_keyboard_layout_manage_sub_reset, row.displayName))
                             render()
                         }
                     }
@@ -861,12 +960,20 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     /** 打开行级编辑页：配置该行布局高度（带实时预览）、跳转布局设定界面。 */
-    private fun openLayoutCustomize(profile: String, layoutKey: String, subLabel: String?) {
+    private fun openLayoutCustomize(
+        profile: String,
+        layoutKey: String,
+        subLabel: String?,
+        displayName: String? = null
+    ) {
         startActivity(Intent(this, TextKeyboardLayoutCustomizeActivity::class.java).apply {
             putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_PROFILE, profile)
             putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_LAYOUT, layoutKey)
             if (subLabel != null) {
                 putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_SUBMODE, subLabel)
+            }
+            if (displayName != null) {
+                putExtra(TextKeyboardLayoutCustomizeActivity.EXTRA_DISPLAY_NAME, displayName)
             }
         })
     }

@@ -41,6 +41,7 @@ import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigProvider
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
@@ -164,7 +165,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun currentEditingSubtitle(): String? {
         val layoutName = currentLayout?.takeIf { it.isNotBlank() } ?: return null
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        val baseDisplay = LayoutJsonUtils.displayBaseLayoutName(layoutName)
+        val baseDisplay = targetDisplayName?.takeIf { it.isNotBlank() }
+            ?: editorLayoutDisplayName(layoutName)
         val editing = if (showsSubModeTarget(layoutName, subModeLabel)) {
             "$baseDisplay:$subModeLabel"
         } else {
@@ -172,6 +174,15 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         return "${displayProfile(currentLayoutProfile)}:$editing"
     }
+
+    /** 布局键的展示名：优先输入法名称（如 shuangpin-xiaohe→小鹤双拼），双拼基础布局→“双拼”。 */
+    private fun editorLayoutDisplayName(layoutName: String): String =
+        allImesFromJson.firstOrNull { it.uniqueName == layoutName || it.displayName == layoutName }?.displayName
+            ?: if (layoutName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+                getString(R.string.text_keyboard_layout_manage_shuangpin)
+            } else {
+                LayoutJsonUtils.displayBaseLayoutName(layoutName)
+            }
 
     private val provider: ConfigProvider = ConfigProviders.provider
     private var layoutFile: File? = null
@@ -207,6 +218,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             dataManager::getLayoutHeightPercentOverride
         ).apply {
             profileHeightPercentProvider = { dataManager.profileHeightOverrides }
+            fallbackRowsProvider = { dataManager.defaultPresetSnapshot() }
         }
     }
     
@@ -314,6 +326,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     // 直达参数只在首次加载时生效，菜单内切换配置后不再重复应用
     private var targetExtrasApplied = false
 
+    // 直达时的布局展示名（如自定义双拼改名后的名称），优先用于工具栏副标题
+    private var targetDisplayName: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -341,6 +356,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             currentLayoutProfile = targetProfile
             layoutFile = UserConfigFiles.textKeyboardLayoutJson(targetProfile)
             targetForceBase = !intent.hasExtra(EXTRA_TARGET_SUBMODE)
+            targetDisplayName = intent.getStringExtra(EXTRA_TARGET_DISPLAY_NAME)
         } else {
             currentLayoutProfile = currentActiveProfile()
             layoutFile = provider.textKeyboardLayoutFile()
@@ -361,7 +377,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (showsSubModeTarget(layoutName, subModeLabel)) {
                 showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
             } else {
-                showToast(getString(R.string.text_keyboard_layout_editing_default, LayoutJsonUtils.displayBaseLayoutName(layoutName)))
+                showToast(getString(R.string.text_keyboard_layout_editing_default, editorLayoutDisplayName(layoutName)))
             }
         }
     }
@@ -492,7 +508,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 查找与当前 IME 匹配的布局
         if (currentIme != null) {
             val visibleKeys = visibleBaseLayoutKeys()
-            currentLayout = baseLayoutKeyForIme(visibleKeys, currentIme).takeIf { it in visibleKeys }
+            // 双拼方案以独立顶层键存储：当前输入法是某个方案时优先选中该方案本身，
+            // 而非其所属的“双拼”基础布局。
+            val schemeKey = currentIme.uniqueName
+                .takeIf { ShuangpinLayoutKeys.isSchemeUniqueName(it) && it in visibleKeys }
+            currentLayout = schemeKey
+                ?: baseLayoutKeyForIme(visibleKeys, currentIme).takeIf { it in visibleKeys }
         }
         // 默认选择第一个可见布局（未启用输入法的条目已被过滤）
         if (currentLayout == null) {
@@ -538,8 +559,28 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     /** 启用输入法及仍有定制内容或子布局的历史布局；与管理页共用只读可见性规则。 */
-    private fun visibleBaseLayoutKeys(): List<String> = dataManager.baseLayoutNames(allImesFromJson)
-        .filter { SubModeManager.isRimePluginLoaded() || !it.equals("rime", ignoreCase = true) }
+    private fun visibleBaseLayoutKeys(): List<String> {
+        val baseKeys = dataManager.baseLayoutNames(allImesFromJson)
+            .filter { SubModeManager.isRimePluginLoaded() || !it.equals("rime", ignoreCase = true) }
+        // 双拼各方案以独立顶层键存储，"双拼"基础布局下并列展示，编辑器需能单独选中编辑。
+        val result = mutableListOf<String>()
+        val seen = mutableSetOf<String>()
+        baseKeys.forEach { key ->
+            if (seen.add(key)) result += key
+            if (key == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+                shuangpinSchemeKeys().forEach { scheme ->
+                    if (seen.add(scheme)) result += scheme
+                }
+            }
+        }
+        return result
+    }
+
+    /** 已启用输入法或已存布局中的双拼方案键（含自定义方案）。 */
+    private fun shuangpinSchemeKeys(): List<String> =
+        (allImesFromJson.map { it.uniqueName } + dataManager.baseLayoutNames())
+            .filter { ShuangpinLayoutKeys.isSchemeUniqueName(it) }
+            .distinct()
 
     private fun buildSpinner() {
         spinnerContainer.removeAllViews()
@@ -575,9 +616,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
             // Prefer displayName; fall back to uniqueName / layout key only when needed to
             // keep the display -> key mapping unambiguous
-            val preferred = matchingIme?.displayName?.takeIf { it.isNotBlank() }
-                ?: matchingIme?.uniqueName?.takeIf { it.isNotBlank() }
-                ?: LayoutJsonUtils.displayBaseLayoutName(layoutName)
+            val preferred = if (layoutName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+                getString(R.string.text_keyboard_layout_manage_shuangpin)
+            } else {
+                matchingIme?.displayName?.takeIf { it.isNotBlank() }
+                    ?: matchingIme?.uniqueName?.takeIf { it.isNotBlank() }
+                    ?: LayoutJsonUtils.displayBaseLayoutName(layoutName)
+            }
             var displayItem = preferred
             if (usedDisplayItems[displayItem] != null) {
                 val alternative = matchingIme?.uniqueName?.takeIf { it.isNotBlank() }
@@ -645,7 +690,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     if (showsSubModeTarget(layoutName, subModeLabel)) {
                         showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel ?: "default"))
                     } else {
-                        showToast(getString(R.string.text_keyboard_layout_editing_default, LayoutJsonUtils.displayBaseLayoutName(layoutName)))
+                        showToast(getString(R.string.text_keyboard_layout_editing_default, editorLayoutDisplayName(layoutName)))
                     }
                 }
             }
@@ -817,7 +862,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                         if (showsSubModeTarget(layoutName, selected)) {
                             showToast(getString(R.string.text_keyboard_layout_editing_submode, selected))
                         } else {
-                            showToast(getString(R.string.text_keyboard_layout_editing_default, LayoutJsonUtils.displayBaseLayoutName(layoutName)))
+                            showToast(getString(R.string.text_keyboard_layout_editing_default, editorLayoutDisplayName(layoutName)))
                         }
                     }
                 } catch (e: Exception) {
@@ -840,13 +885,28 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     /** 只有实际编辑才创建专属布局；无改动的 UI 刷新保留缓冲身份。 */
     private fun syncBufferedLayout() {
         val key = bufferedLayoutKey ?: return
-        val baseRows = entries[key.substringBefore(':')]
-            ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY] ?: return
+        val baseRows = inheritedRowSource(key) ?: return
         if (deepEquals(currentRowsRef, baseRows)) return
+        val firstMaterialization = !entries.containsKey(key)
         entries[key] = currentRowsRef
+        if (firstMaterialization) {
+            // 首次实体化：把继承到的（未被覆写的）高度一并固化，此后该布局
+            // 不再随基础布局的高度变化而改变，避免已继承配置被基础布局牵动。
+            dataManager.freezeInheritedHeightOverride(key)
+        }
         bufferedLayoutKey = null
         updateToolbarSubtitle()
     }
+
+    /**
+     * 草稿行的继承来源：子模式取所属基础布局，双拼方案取"双拼"基础布局；
+     * 未定制专属布局时以出厂 26 键布局为基准，而非可被用户定制的 English
+     * 布局，避免把 English 的定制内容带进其他输入法。
+     */
+    private fun inheritedRowSource(layoutName: String): List<List<Map<String, Any?>>>? =
+        entries[layoutName.substringBefore(':')]
+            ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)?.let { entries[it] }
+            ?: dataManager.defaultPresetSnapshot()
 
     /** 所选子模式总是独立编辑，不能因为尚无专属数据而意外修改基础布局。 */
     private fun showsSubModeTarget(layoutName: String, subModeLabel: String?): Boolean =
@@ -869,8 +929,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             // 变更后由 syncBufferedLayout 登记为专属布局
             subModeKey != null || !entries.containsKey(layoutName) -> {
                 bufferedLayoutKey = subModeKey ?: layoutName
-                (entries[layoutName] ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY])
-                    ?.let { dataManager.copyLayout(it) }
+                inheritedRowSource(layoutName)?.let { dataManager.copyLayout(it) }
             }
             else -> entries[layoutName]
         }
@@ -1319,6 +1378,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         const val EXTRA_TARGET_PROFILE = "target_profile"
         const val EXTRA_TARGET_LAYOUT = "target_layout"
         const val EXTRA_TARGET_SUBMODE = "target_submode"
+
+        /** 目标布局的展示名（如自定义双拼改名后的名称），优先用于工具栏副标题 */
+        const val EXTRA_TARGET_DISPLAY_NAME = "target_display_name"
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val MIN_LAYOUT_HEIGHT_PERCENT = 10
         private const val MAX_LAYOUT_HEIGHT_PERCENT = 90

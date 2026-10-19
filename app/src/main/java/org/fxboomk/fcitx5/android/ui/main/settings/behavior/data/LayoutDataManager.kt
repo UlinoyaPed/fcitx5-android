@@ -8,6 +8,7 @@ import android.content.Context
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.config.DirectionalSwipeMigration
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
@@ -437,7 +438,7 @@ class LayoutDataManager(private val context: Context) {
      * @return 复位后的布局键列表
      */
     fun deleteBaseLayoutTree(baseLayout: String): List<String> {
-        if (entries.keys.none { it == baseLayout || it.startsWith("$baseLayout:") }) {
+        if (entries.keys.none { it == baseLayout || isChildLayoutKeyOf(baseLayout, it) }) {
             return entries.keys.toList()
         }
         val rows = defaultPresetRows()
@@ -450,7 +451,7 @@ class LayoutDataManager(private val context: Context) {
         val rebuilt = LinkedHashMap<String, MutableList<MutableList<MutableMap<String, Any?>>>>()
         var inserted = false
         entries.forEach { (key, value) ->
-            if (!inserted && key.startsWith("$baseLayout:")) {
+            if (!inserted && isChildLayoutKeyOf(baseLayout, key)) {
                 rebuilt[baseLayout] = rows
                 inserted = true
             }
@@ -463,6 +464,16 @@ class LayoutDataManager(private val context: Context) {
         entries.putAll(rebuilt)
         return entries.keys.toList()
     }
+
+    /**
+     * 判断布局键是否属于给定基础布局的子布局。
+     *
+     * 常规子模式布局键为 `<base>:<label>`；双拼方案的布局键则是各自输入法的
+     * uniqueName（形如 `shuangpin-xiaohe`），它们统一归属于 `shuangpin` 基础布局。
+     */
+    private fun isChildLayoutKeyOf(baseLayout: String, key: String): Boolean =
+        key.startsWith("$baseLayout:") ||
+            (baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY && ShuangpinLayoutKeys.isSchemeUniqueName(key))
 
     private fun defaultPresetRows(): MutableList<MutableList<MutableMap<String, Any?>>> =
         loadDefaultPreset().getValue(LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY).map { row ->
@@ -550,6 +561,35 @@ class LayoutDataManager(private val context: Context) {
     fun deleteSubModeLayout(layoutName: String, subModeLabel: String) {
         val subModeKey = "$layoutName:$subModeLabel"
         entries.remove(subModeKey)
+    }
+
+    /**
+     * 删除双拼方案专属布局（重置为继承“双拼”基础布局）。
+     *
+     * 方案布局以其输入法 uniqueName 作为独立键存储，删除该键并清除其高度覆写后，
+     * 运行时布局解析会回退到 `shuangpin` 基础布局。
+     */
+    fun deleteShuangpinSchemeLayout(schemeKey: String) {
+        entries.remove(schemeKey)
+        layoutHeightPercentOverrides.remove(schemeKey)
+    }
+
+    /**
+     * 固化某个子布局“继承自基础布局”的高度覆写。
+     *
+     * 首次为子布局（双拼方案 / Rime 方案 / 普通子模式）创建专属布局时调用：
+     * 若该布局尚无自己的高度覆写，则把当前继承到的高度（所属基础布局 →
+     * 双拼基础布局 → 配置文件级覆写）写成它自己的覆写值，使其此后不再随
+     * 基础布局的高度变化而改变——即“首次编辑快照，之后独立”，避免已继承
+     * 但未覆写的配置在首次编辑后仍被基础布局牵动。
+     */
+    fun freezeInheritedHeightOverride(layoutKey: String) {
+        if (layoutHeightPercentOverrides.containsKey(layoutKey)) return
+        val inherited = layoutHeightPercentOverrides[layoutKey.substringBefore(':')]
+            ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutKey)?.let { layoutHeightPercentOverrides[it] }
+            ?: profileHeightOverrides
+            ?: return
+        setLayoutHeightPercentOverride(layoutKey, inherited)
     }
     
     /**
@@ -1097,11 +1137,16 @@ internal fun availableBaseLayoutNames(
     return buildList {
         addAll(storedBases.filter { it in enabledBases || it in customizedBases || it in childBases })
         addAll(enabledBases.filter { it !in this })
-    }
+    }.map { base ->
+        // 双拼方案（shuangpin-*）统一归并到“双拼”基础布局之下，不再作为独立基础布局展示
+        ShuangpinLayoutKeys.parentBaseLayoutKey(base) ?: base
+    }.distinct()
 }
 
 /** Use the same IME key priority for list enumeration and the editor's initial selection. */
 internal fun baseLayoutKeyForIme(baseLayoutKeys: Collection<String>, ime: InputMethodEntry): String = when {
+    // 所有内置 / 自定义双拼方案统一归并到“双拼”基础布局
+    ShuangpinLayoutKeys.isSchemeUniqueName(ime.uniqueName) -> ShuangpinLayoutKeys.BASE_LAYOUT_KEY
     ime.uniqueName in baseLayoutKeys -> ime.uniqueName
     ime.displayName in baseLayoutKeys -> ime.displayName
     // English uses the shared default until it has its own saved layout group.

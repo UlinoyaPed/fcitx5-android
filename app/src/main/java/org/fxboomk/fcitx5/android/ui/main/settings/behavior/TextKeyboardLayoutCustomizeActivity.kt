@@ -49,6 +49,9 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         const val EXTRA_PROFILE = "profile"
         const val EXTRA_LAYOUT = "layout"
         const val EXTRA_SUBMODE = "submode"
+
+        /** 布局的展示名称（如自定义双拼改名后的名称），优先用于标题展示。 */
+        const val EXTRA_DISPLAY_NAME = "display_name"
         private const val FCITX_CONNECTION_NAME = "TextKeyboardLayoutCustomizeActivity"
         private const val MENU_SAVE_ID = 9002
         private const val MIN_LAYOUT_HEIGHT_PERCENT = 10
@@ -69,6 +72,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
     private lateinit var profileName: String
     private lateinit var layoutKey: String
     private var subModeLabel: String? = null
+    private var displayName: String? = null
     private lateinit var dataManager: LayoutDataManager
 
     /** 写入目标：子模式即使尚未定制，也必须写入自己的键，不能修改继承来源。 */
@@ -109,6 +113,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         layoutKey = intent.getStringExtra(EXTRA_LAYOUT)
             ?: LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY
         subModeLabel = intent.getStringExtra(EXTRA_SUBMODE)
+        displayName = intent.getStringExtra(EXTRA_DISPLAY_NAME)
 
         dataManager = LayoutDataManager(this)
         dataManager.loadFromFile(UserConfigFiles.textKeyboardLayoutJson(profileName))
@@ -121,7 +126,8 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
         setContentView(root)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = subModeLabel
+        supportActionBar?.title = displayName?.takeIf { it.isNotBlank() }
+            ?: subModeLabel
             ?: LayoutJsonUtils.displayBaseLayoutName(layoutKey)
 
         val toolbarBaseTopPadding = toolbar.paddingTop
@@ -256,6 +262,7 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
             dataManager::getLayoutHeightPercentOverride
         ).apply {
             profileHeightPercentProvider = { dataManager.profileHeightOverrides }
+            fallbackRowsProvider = { dataManager.defaultPresetSnapshot() }
         }
         previewManager?.updatePreview(layoutKey, subModeLabel, fcitxConnection)
         updatePreviewHeight()
@@ -310,8 +317,9 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
             return true
         }
         if (!dataManager.entries.containsKey(effectiveKey)) {
-            val inheritedRows = resolvePreviewRows(dataManager.entries, layoutKey, effectiveKey)
-                ?: run {
+            val inheritedRows = resolvePreviewRows(
+                dataManager.entries, layoutKey, effectiveKey, dataManager.defaultPresetSnapshot()
+            ) ?: run {
                     toast(getString(R.string.text_keyboard_layout_manage_save_failed))
                     return false
                 }
@@ -343,6 +351,8 @@ class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {
             putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_PROFILE, profileName)
             putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_LAYOUT, layoutKey)
             subModeLabel?.let { putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_SUBMODE, it) }
+            displayName?.takeIf { it.isNotBlank() }
+                ?.let { putExtra(TextKeyboardLayoutEditorActivity.EXTRA_TARGET_DISPLAY_NAME, it) }
         })
     }
 }
