@@ -393,7 +393,7 @@ class TextKeyboard private constructor(
         val layoutSource = when {
             json?.containsKey(ime.uniqueName) == true -> "u:${ime.uniqueName}"
             json?.containsKey(ime.displayName) == true -> "d:${ime.displayName}"
-            // 双拼方案回退到"双拼"基础布局，签名需随父布局变化
+            // 双拼方案回退到"双拼"父级输入法布局，签名需随父布局变化
             parentKey != null && json?.containsKey(parentKey) == true -> "p:$parentKey"
             else -> "default"
         }

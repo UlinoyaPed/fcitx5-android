@@ -9,18 +9,18 @@ package org.fxboomk.fcitx5.android.data.pinyin
  *
  * Fcitx5 引擎为每个双拼方案（小鹤、微软、自然码……以及用户自定义方案）各自暴露一个
  * 输入法条目（uniqueName 形如 `shuangpin-xiaohe`、`shuangpin-custom`）。在键盘布局管理
- * 列表中它们统一归并到一个基础布局条目 [BASE_LAYOUT_KEY]（展示为“双拼”）之下，各方案
+ * 列表中它们统一归并到一个父级输入法布局条目 [BASE_LAYOUT_KEY]（展示为“双拼”）之下，各方案
  * 作为其子布局。
  *
  * 子布局在布局文件中仍以各自的输入法 uniqueName 作为顶层键存储（不迁移既有数据），
- * 运行时解析布局时由 [parentBaseLayoutKey] 提供回退到“双拼”基础布局的键名。
+ * 运行时解析布局时由 [parentBaseLayoutKey] 提供回退到“双拼”父级输入法布局的键名。
  *
  * 自定义方案的 uniqueName 由用户在重命名时填写 id（[isValidCustomSuffix]）后拼成，
  * 默认仍是 `shuangpin-custom`（[DEFAULT_CUSTOM_SUFFIX]）。
  */
 object ShuangpinLayoutKeys {
 
-    /** 所有双拼方案共用的基础布局键（同时也是旧版单一条目双拼输入法的 uniqueName）。 */
+    /** 所有双拼方案共用的父级输入法布局键（同时也是旧版单一条目双拼输入法的 uniqueName）。 */
     const val BASE_LAYOUT_KEY = "shuangpin"
 
     /** 双拼方案输入法 uniqueName 的公共前缀。 */
@@ -69,7 +69,7 @@ object ShuangpinLayoutKeys {
     }
 
     /**
-     * 布局键对应的双拼基础布局键：方案键返回 [BASE_LAYOUT_KEY]，其余返回 null。
+     * 布局键对应的双拼父级输入法布局键：方案键返回 [BASE_LAYOUT_KEY]，其余返回 null。
      */
     fun parentBaseLayoutKey(key: String): String? =
         if (isSchemeUniqueName(key)) BASE_LAYOUT_KEY else null

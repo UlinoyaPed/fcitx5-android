@@ -330,7 +330,7 @@ class TextKeyboardLayoutProfileManagerActivityTest {
         manager.deleteBaseLayoutTree("shuangpin")
         manager.deleteBaseLayoutTree("rime")
 
-        // 子布局内容与高度覆写均不受基础布局重置影响
+        // 子布局内容与高度覆写均不受父级输入法布局重置影响
         assertEquals(xiaoheRows, manager.entries.getValue("shuangpin-xiaohe").map { it.map { it.toMap() } })
         assertEquals(rimeRows, manager.entries.getValue("rime:custom").map { it.map { it.toMap() } })
         assertEquals(
@@ -341,7 +341,7 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             LayoutHeightPercentOverrides(portrait = 61),
             manager.getLayoutHeightPercentOverride("rime:custom")
         )
-        // 仅基础布局本身被重置为出厂 26 键
+        // 仅父级输入法布局本身被重置为出厂 26 键
         assertEquals(null, manager.getLayoutHeightPercentOverride("shuangpin"))
         assertEquals(null, manager.getLayoutHeightPercentOverride("rime"))
         assertEquals(

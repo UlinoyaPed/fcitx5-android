@@ -46,14 +46,14 @@ class LayoutDataManager(private val context: Context) {
     /**
      * 所有布局条目
      * Key 格式：
-     * - "layoutName" - 基础布局
+     * - "layoutName" - 父级输入法布局
      * - "layoutName:subModeLabel" - 子模式布局
      */
     val entries = mutableMapOf<String, MutableList<MutableList<MutableMap<String, Any?>>>>()
     val layoutHeightPercentOverrides = mutableMapOf<String, LayoutHeightPercentOverrides>()
 
     /**
-     * 文件级键盘高度覆写（优先级低于基础布局/子模式覆写），存储在文件顶层 __profile__ 键。
+     * 文件级键盘高度覆写（优先级低于父级输入法布局/子模式覆写），存储在文件顶层 __profile__ 键。
      */
     var profileHeightOverrides: LayoutHeightPercentOverrides? = null
         private set
@@ -378,14 +378,14 @@ class LayoutDataManager(private val context: Context) {
         // 删除指定布局
         entries.remove(layoutKey)
         
-        // 如果删除的是基础布局，需要处理子模式布局
+        // 如果删除的是父级输入法布局，需要处理子模式布局
         if (layoutKey == layoutName) {
             val remainingSubModeKeys = entries.keys.filter {
                 it.startsWith("$layoutName:")
             }.sorted()
             
             if (remainingSubModeKeys.isNotEmpty()) {
-                // 提升第一个子模式为基础布局
+                // 提升第一个子模式为父级输入法布局
                 val firstSubModeKey = remainingSubModeKeys.first()
                 val subModeLayout = entries[firstSubModeKey]
 
@@ -409,7 +409,7 @@ class LayoutDataManager(private val context: Context) {
         return entries.keys.toList()
     }
 
-    /** 所有已保存的基础布局组，供当前布局来源匹配使用，不受界面过滤影响。 */
+    /** 所有已保存的父级输入法布局组，供当前布局来源匹配使用，不受界面过滤影响。 */
     fun baseLayoutNames(): List<String> = entries.keys
         .map { it.substringBefore(':') }.filter { it.isNotBlank() }.distinct()
 
@@ -423,16 +423,16 @@ class LayoutDataManager(private val context: Context) {
     }
 
     /**
-     * 获取基础布局下的专属子布局，按当前文件中的顺序返回。
+     * 获取父级输入法布局下的专属子布局，按当前文件中的顺序返回。
      */
     fun subLayoutKeys(baseLayout: String): List<String> = entries.keys
         .filter { it.startsWith("$baseLayout:") }
         .toList()
 
     /**
-     * 删除基础布局（输入法层级，如 rime、双拼等）：将该层级的布局配置复位为默认 26 键预设。
+     * 删除父级输入法布局（输入法层级，如 rime、双拼等）：将该层级的布局配置复位为默认 26 键预设。
      *
-     * 基础布局是运行时布局解析的回退锚点（见 TextKeyboardLayoutResolver），不会被真正移除；
+     * 父级输入法布局是运行时布局解析的回退锚点（见 TextKeyboardLayoutResolver），不会被真正移除；
      * 其专属子布局与子布局高度覆盖保持不变，可单独删除。
      *
      * @return 复位后的布局键列表
@@ -447,7 +447,7 @@ class LayoutDataManager(private val context: Context) {
             entries[baseLayout] = rows
             return entries.keys.toList()
         }
-        // 仅存在子布局时，把复位后的基础布局插到其子布局之前，保持分组键序
+        // 仅存在子布局时，把复位后的父级输入法布局插到其子布局之前，保持分组键序
         val rebuilt = LinkedHashMap<String, MutableList<MutableList<MutableMap<String, Any?>>>>()
         var inserted = false
         entries.forEach { (key, value) ->
@@ -466,10 +466,10 @@ class LayoutDataManager(private val context: Context) {
     }
 
     /**
-     * 判断布局键是否属于给定基础布局的子布局。
+     * 判断布局键是否属于给定父级输入法布局的子布局。
      *
      * 常规子模式布局键为 `<base>:<label>`；双拼方案的布局键则是各自输入法的
-     * uniqueName（形如 `shuangpin-xiaohe`），它们统一归属于 `shuangpin` 基础布局。
+     * uniqueName（形如 `shuangpin-xiaohe`），它们统一归属于 `shuangpin` 父级输入法布局。
      */
     private fun isChildLayoutKeyOf(baseLayout: String, key: String): Boolean =
         key.startsWith("$baseLayout:") ||
@@ -481,9 +481,9 @@ class LayoutDataManager(private val context: Context) {
         }.toMutableList()
 
     /**
-     * 将指定布局（基础布局或子模式布局）复位为默认 26 键预设，高度覆写保持不变。
+     * 将指定布局（父级输入法布局或子模式布局）复位为默认 26 键预设，高度覆写保持不变。
      *
-     * 若该键尚不存在（如为仅在基础布局层定制的方案创建专属布局），会新增该键。
+     * 若该键尚不存在（如为仅在父级输入法布局层定制的方案创建专属布局），会新增该键。
      */
     fun resetLayoutToDefaultPreset(key: String) {
         entries[key] = defaultPresetRows()
@@ -555,7 +555,7 @@ class LayoutDataManager(private val context: Context) {
     /**
      * 删除子模式布局
      * 
-     * @param layoutName 基础布局名称
+     * @param layoutName 父级输入法布局名称
      * @param subModeLabel 子模式标签
      */
     fun deleteSubModeLayout(layoutName: String, subModeLabel: String) {
@@ -564,10 +564,10 @@ class LayoutDataManager(private val context: Context) {
     }
 
     /**
-     * 删除双拼方案专属布局（重置为继承“双拼”基础布局）。
+     * 删除双拼方案专属布局（重置为继承“双拼”父级输入法布局）。
      *
      * 方案布局以其输入法 uniqueName 作为独立键存储，删除该键并清除其高度覆写后，
-     * 运行时布局解析会回退到 `shuangpin` 基础布局。
+     * 运行时布局解析会回退到 `shuangpin` 父级输入法布局。
      */
     fun deleteShuangpinSchemeLayout(schemeKey: String) {
         entries.remove(schemeKey)
@@ -575,13 +575,13 @@ class LayoutDataManager(private val context: Context) {
     }
 
     /**
-     * 固化某个子布局“继承自基础布局”的高度覆写。
+     * 固化某个子布局“继承自父级输入法布局”的高度覆写。
      *
      * 首次为子布局（双拼方案 / Rime 方案 / 普通子模式）创建专属布局时调用：
-     * 若该布局尚无自己的高度覆写，则把当前继承到的高度（所属基础布局 →
-     * 双拼基础布局 → 配置文件级覆写）写成它自己的覆写值，使其此后不再随
-     * 基础布局的高度变化而改变——即“首次编辑快照，之后独立”，避免已继承
-     * 但未覆写的配置在首次编辑后仍被基础布局牵动。
+     * 若该布局尚无自己的高度覆写，则把当前继承到的高度（所属父级输入法布局 →
+     * 双拼父级输入法布局 → 配置文件级覆写）写成它自己的覆写值，使其此后不再随
+     * 父级输入法布局的高度变化而改变——即“首次编辑快照，之后独立”，避免已继承
+     * 但未覆写的配置在首次编辑后仍被父级输入法布局牵动。
      */
     fun freezeInheritedHeightOverride(layoutKey: String) {
         if (layoutHeightPercentOverrides.containsKey(layoutKey)) return
@@ -1138,14 +1138,14 @@ internal fun availableBaseLayoutNames(
         addAll(storedBases.filter { it in enabledBases || it in customizedBases || it in childBases })
         addAll(enabledBases.filter { it !in this })
     }.map { base ->
-        // 双拼方案（shuangpin-*）统一归并到“双拼”基础布局之下，不再作为独立基础布局展示
+        // 双拼方案（shuangpin-*）统一归并到“双拼”父级输入法布局之下，不再作为独立父级输入法布局展示
         ShuangpinLayoutKeys.parentBaseLayoutKey(base) ?: base
     }.distinct()
 }
 
 /** Use the same IME key priority for list enumeration and the editor's initial selection. */
 internal fun baseLayoutKeyForIme(baseLayoutKeys: Collection<String>, ime: InputMethodEntry): String = when {
-    // 所有内置 / 自定义双拼方案统一归并到“双拼”基础布局
+    // 所有内置 / 自定义双拼方案统一归并到“双拼”父级输入法布局
     ShuangpinLayoutKeys.isSchemeUniqueName(ime.uniqueName) -> ShuangpinLayoutKeys.BASE_LAYOUT_KEY
     ime.uniqueName in baseLayoutKeys -> ime.uniqueName
     ime.displayName in baseLayoutKeys -> ime.displayName

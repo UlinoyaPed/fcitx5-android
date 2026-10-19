@@ -64,17 +64,17 @@ import java.io.File
 /**
  * 键盘布局管理页面。
  *
- * 列出所有布局配置文件，并在每个配置下分组展示其基础布局与派生子布局，支持：
- * - 顶行展示"当前激活布局"：换行显示基础布局名称（输入法名称）- Rime 当前方案名称（如有）；
+ * 列出所有布局配置文件，并在每个配置下分组展示其父级输入法布局与派生子布局，支持：
+ * - 顶行展示"当前激活布局"：换行显示父级输入法布局名称（输入法名称）- Rime 当前方案名称（如有）；
  * - 展示已有布局与启用的输入法，未创建专属布局的条目只读回退，不写入配置；
- * - 与出厂 26 键布局一致的基础布局在名称后标注"(未定制)"（该比较基于存储的布局数据，
+ * - 与出厂 26 键布局一致的父级输入法布局在名称后标注"(未定制)"（该比较基于存储的布局数据，
  *   "Gboard 风格侧边按键""键盘字母保持大写"等渲染期开关不影响存储数据，天然被忽略）；
- * - 未定制的 Rime 方案（无专属布局）在名称后标注"(继承)"，运行时继承 Rime 基础布局；
- * - 每个配置可过滤未定制基础布局；含专属子布局的分组保留，过滤状态持久化；
+ * - 未定制的 Rime 方案（无专属布局）在名称后标注"(继承)"，运行时继承 Rime 父级输入法布局；
+ * - 每个配置可过滤未定制父级输入法布局；含专属子布局的分组保留，过滤状态持久化；
  * - 配置设为默认（激活）、配置上移排序、折叠 / 展开配置下的布局列表（折叠状态持久化）；
  * - 顶部按钮修改（重命名）/ 删除当前激活配置（含确认）；
- * - 基础布局 / 子模式布局行级编辑（高度 + 实时预览 + 更多定制直达布局设定界面）；
- * - 基础布局重置（复位为默认 26 键布局）、Rime 方案重置（弹窗选择类型：继承基础布局
+ * - 父级输入法布局 / 子模式布局行级编辑（高度 + 实时预览 + 更多定制直达布局设定界面）；
+ * - 父级输入法布局重置（复位为默认 26 键布局）、Rime 方案重置（弹窗选择类型：继承父级输入法布局
  *   或复位为出厂 26 键布局，方案本身不可删除）、非 Rime 子模式布局删除（复位为
  *   默认 26 键布局），均含确认；
  * - 新建配置、删除配置文件（含备份）；
@@ -97,13 +97,13 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     private var currentProfile: String = UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
 
-    /** 仅在需要判定基础布局是否为 Rime 时才连接 fcitx 守护进程（只读查询，不激活输入法） */
+    /** 仅在需要判定父级输入法布局是否为 Rime 时才连接 fcitx 守护进程（只读查询，不激活输入法） */
     private val fcitxConnection: FcitxConnection by lazy {
         FcitxDaemon.connect(FCITX_CONNECTION_NAME)
     }
     private var allImes: Array<InputMethodEntry> = emptyArray()
 
-    /** 全部可用输入法（含已停用），仅用于基础布局名称的本地化展示 */
+    /** 全部可用输入法（含已停用），仅用于父级输入法布局名称的本地化展示 */
     private var allAvailableImes: Array<InputMethodEntry> = emptyArray()
 
     /** 当前激活的输入法（只读查询），用于顶行展示当前激活的布局链 */
@@ -274,7 +274,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /**
      * 顶行展示"当前激活布局"：第一行为标题，换行显示当前激活的
-     * 布局文件配置名 - 基础布局名称（即输入法名称）- Rime 当前方案名称（不要求定制布局）。
+     * 布局文件配置名 - 父级输入法布局名称（即输入法名称）- Rime 当前方案名称（不要求定制布局）。
      * 输入法状态不可用时省略第二行（配置名已由列表中的配置行展示）。
      */
     private fun updateProfileSummary() {
@@ -368,7 +368,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /**
      * 布局展示名：优先引用输入法名称（如 shuangpin→双拼、rime→中州韵），
-     * default→English；双拼基础布局使用本地化名称，自定义双拼引用用户改名后的名称；
+     * default→English；双拼父级输入法布局使用本地化名称，自定义双拼引用用户改名后的名称；
      * 无法匹配输入法时原样展示键名。
      */
     private fun baseLayoutDisplayName(baseLayout: String): String {
@@ -457,7 +457,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         render()
     }
 
-    /** 仅在需要判定基础布局是否为 Rime 时才连接 fcitx 守护进程；连接失败时返回 null，退化为只列出已定制的子布局。 */
+    /** 仅在需要判定父级输入法布局是否为 Rime 时才连接 fcitx 守护进程；连接失败时返回 null，退化为只列出已定制的子布局。 */
     private fun subModeManagerOrNull(profile: String): SubModeManager? = runCatching {
         if (allImes.isEmpty()) {
             allImes = fcitxConnection.runImmediately { enabledIme() }
@@ -592,7 +592,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /** 子布局行状态。 */
     private enum class SubLayoutState {
-        /** 无专属布局，运行时继承基础布局（Rime 方案未定制） */
+        /** 无专属布局，运行时继承父级输入法布局（Rime 方案未定制） */
         INHERITED,
 
         /** 专属布局内容与出厂 26 键预设一致且无高度覆写，尚未定制 */
@@ -604,7 +604,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /**
      * 子布局行的操作语义类型：
-     * - [RIME]：Rime 输入方案不可删除，使用"重置为继承基础布局"；
+     * - [RIME]：Rime 输入方案不可删除，使用"重置为继承父级输入法布局"；
      * - [SHUANGPIN]：双拼方案不可删除，同样使用重置按钮；
      * - [NONE]：普通子模式，可直接删除。
      */
@@ -614,7 +614,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
      * 子布局行数据。
      *
      * [displayName] 用于列表展示；[editLayoutKey] / [editSubLabel] 用于打开行级编辑页；
-     * [storedKey] 为专属布局在 entries 中的键（null 表示无专属布局，运行时回退基础布局）；
+     * [storedKey] 为专属布局在 entries 中的键（null 表示无专属布局，运行时回退父级输入法布局）；
      * [kind] 决定操作按钮语义。
      */
     private data class SubLayoutRow(
@@ -629,7 +629,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     /** Rime 方案标签缓存，key 为 "profile:baseLayout"，避免每次渲染都唤醒守护进程。 */
     private val rimeSchemaLabelsCache = mutableMapOf<String, List<String>>()
 
-    /** 该基础布局是否有可展示的子布局（Rime 方案 / 双拼方案 / 普通子模式）。 */
+    /** 该父级输入法布局是否有可展示的子布局（Rime 方案 / 双拼方案 / 普通子模式）。 */
     private fun hasChildLayouts(manager: LayoutDataManager, baseLayout: String): Boolean {
         if (baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
             // 双拼子行只来自「输入法」列表页已启用的方案
@@ -638,7 +638,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         return manager.subLayoutKeys(baseLayout).isNotEmpty()
     }
 
-    /** 推断基础布局的子布局操作语义。 */
+    /** 推断父级输入法布局的子布局操作语义。 */
     private fun childLayoutKind(profile: String, baseLayout: String): ChildLayoutKind = when {
         baseLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY -> ChildLayoutKind.SHUANGPIN
         SubModeManager.isRimePluginLoaded() &&
@@ -647,15 +647,15 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     /**
-     * 汇总某基础布局下要展示的子布局行。
+     * 汇总某父级输入法布局下要展示的子布局行。
      *
      * Rime 输入方案：只要存在定制痕迹，就列出全部方案（方案清单只读自 Rime
      * 用户目录，不激活 Rime）。方案状态——
-     * - 无专属布局：继承（INHERITED），运行时生效 Rime 基础布局；
+     * - 无专属布局：继承（INHERITED），运行时生效 Rime 父级输入法布局；
      * - 有专属布局且与默认 26 键预设一致、无高度覆写：未定制（UNCUSTOMIZED）；
      * - 其余（含仅有高度覆写）：已定制（CUSTOMIZED）。
-     * 若整个 Rime 输入法都没有定制布局，则只保留基础布局，不列出子布局。
-     * 双拼基础布局 [ChildLayoutKind.SHUANGPIN] 则枚举全部双拼方案作为子节点。
+     * 若整个 Rime 输入法都没有定制布局，则只保留父级输入法布局，不列出子布局。
+     * 双拼父级输入法布局 [ChildLayoutKind.SHUANGPIN] 则枚举全部双拼方案作为子节点。
      */
     private fun subLayoutRows(
         profile: String,
@@ -710,7 +710,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     }
 
     /**
-     * 双拼基础布局下的方案行：只枚举「输入法」列表页已启用的双拼输入法
+     * 双拼父级输入法布局下的方案行：只枚举「输入法」列表页已启用的双拼输入法
      * （内置 + 自定义）。未启用的方案不出现在此，与输入法列表保持一致。
      */
     private fun shuangpinSubLayoutRows(manager: LayoutDataManager): List<SubLayoutRow> {
@@ -803,7 +803,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 }
             )
             when {
-                // 继承基础布局中，没有可重置的专属布局
+                // 继承父级输入法布局中，没有可重置的专属布局
                 row.state == SubLayoutState.INHERITED -> Unit
                 // Rime 方案 / 双拼方案不可删除：删除按钮变更为重置按钮，弹窗选择重置类型
                 row.kind != ChildLayoutKind.NONE -> addView(
@@ -862,9 +862,9 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         render()
     }
 
-    // ==================== 基础布局 / 子布局操作 ====================
+    // ==================== 父级输入法布局 / 子布局操作 ====================
 
-    /** 删除基础布局（输入法层级）：该层级的布局配置复位为默认 26 键布局，不会真正移除。 */
+    /** 删除父级输入法布局（输入法层级）：该层级的布局配置复位为默认 26 键布局，不会真正移除。 */
     private fun confirmDeleteBaseLayout(profile: String, baseLayout: String) {
         val displayName = baseLayoutDisplayName(baseLayout)
         AlertDialog.Builder(this)
@@ -884,10 +884,10 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     /**
      * 删除子模式布局：该布局复位为默认 26 键布局，高度覆写保持不变。
      *
-     * 若该方案没有专属布局键（内容来自基础布局层的定制），会为它创建一个
+     * 若该方案没有专属布局键（内容来自父级输入法布局层的定制），会为它创建一个
      * 内容为默认 26 键的专属布局，使复位仅作用于该方案。
      *
-     * 仅用于非 Rime 基础布局下的子模式；Rime 方案走 [confirmResetSubLayout]。
+     * 仅用于非 Rime 父级输入法布局下的子模式；Rime 方案走 [confirmResetSubLayout]。
      */
     private fun confirmDeleteSubLayout(profile: String, baseLayout: String, row: SubLayoutRow) {
         AlertDialog.Builder(this)
@@ -907,7 +907,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     /**
      * Rime 方案重置：弹窗选择重置动作类型——
-     * 继承（移除专属布局数据，恢复继承 Rime 基础布局）或出厂 26 键（专属布局
+     * 继承（移除专属布局数据，恢复继承 Rime 父级输入法布局）或出厂 26 键（专属布局
      * 复位为出厂 26 键预设）。方案本身由 Rime 方案清单决定并始终保留在列表中。
      */
     private fun confirmResetSubLayout(profile: String, baseLayout: String, row: SubLayoutRow) {
@@ -924,7 +924,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 when (checkedOption) {
                     0 -> {
-                        // 继承：移除专属布局与高度覆写，恢复随基础布局回退
+                        // 继承：移除专属布局与高度覆写，恢复随父级输入法布局回退
                         when (row.kind) {
                             ChildLayoutKind.SHUANGPIN ->
                                 managerFor(profile).deleteShuangpinSchemeLayout(
@@ -1174,9 +1174,9 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     /**
      * 将给定高度写入文件级（profile 层）高度覆写，未设定基础/子模式覆写的布局继承该值。
      *
-     * 旧版文件级高度是创建 / 重命名时"盖戳"到各基础布局的：首次迁移时清除这些
-     * 基础布局层覆写，改由文件级承担，避免旧戳压制新的文件级设定
-     * （优先级：子模式 > 基础布局 > 文件级 > 全局默认）。
+     * 旧版文件级高度是创建 / 重命名时"盖戳"到各父级输入法布局的：首次迁移时清除这些
+     * 父级输入法布局层覆写，改由文件级承担，避免旧戳压制新的文件级设定
+     * （优先级：子模式 > 父级输入法布局 > 文件级 > 全局默认）。
      */
     private fun applyProfileHeights(file: File, heights: ProfileHeights) {
         LayoutDataManager(this).apply {

@@ -72,12 +72,12 @@ object LayoutJsonUtils {
     }
 
     /**
-     * 基础布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
+     * 全局默认布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
      * 共用的回退布局（见 TextKeyboardLayoutResolver 的解析顺序）。
      */
     const val DEFAULT_BASE_LAYOUT_KEY = "default"
 
-    /** 基础布局键 [DEFAULT_BASE_LAYOUT_KEY] 的展示名。 */
+    /** 全局默认布局键 [DEFAULT_BASE_LAYOUT_KEY] 的展示名。 */
     const val DEFAULT_BASE_LAYOUT_DISPLAY_NAME = "English"
 
     /**

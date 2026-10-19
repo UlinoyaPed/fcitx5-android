@@ -978,7 +978,7 @@ class InputView(
     private fun resolveCurrentLayoutHeightPercentOverride(): Int? {
         val ime = TextKeyboard.ime ?: return null
         val json = TextKeyboard.textLayoutJson ?: return null
-        // 优先级：子模式覆写 > 基础布局覆写 > 文件级覆写（全局默认由调用方兜底）
+        // 优先级：子模式覆写 > 父级输入法布局覆写 > 文件级覆写（全局默认由调用方兜底）
         return resolveTextKeyboardLayout(
             json = json,
             uniqueName = ime.uniqueName,

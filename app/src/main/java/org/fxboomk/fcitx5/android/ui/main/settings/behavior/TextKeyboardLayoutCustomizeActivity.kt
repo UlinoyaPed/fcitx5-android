@@ -40,7 +40,7 @@ import splitties.resources.styledColor
 import splitties.views.backgroundColor
 
 /**
- * 行级布局编辑页：针对某个基础布局或子模式布局，
+ * 行级布局编辑页：针对某个父级输入法布局或子模式布局，
  * 配置键盘高度（带实时预览），并可经"更多定制"直达布局设定界面编辑该行内容。
  */
 class TextKeyboardLayoutCustomizeActivity : AppCompatActivity() {

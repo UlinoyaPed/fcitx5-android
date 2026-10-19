@@ -310,7 +310,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "text_keyboard_layout_profile_collapsed",
             ""
         ).apply { register() }
-        // 布局管理页中隐藏未定制基础布局的配置名，换行分隔
+        // 布局管理页中隐藏未定制父级输入法布局的配置名，换行分隔
         val textKeyboardLayoutProfileFiltered = ManagedPreference.PString(
             sharedPreferences,
             "text_keyboard_layout_profile_filtered",

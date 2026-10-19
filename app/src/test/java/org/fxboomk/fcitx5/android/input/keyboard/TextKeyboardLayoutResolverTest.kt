@@ -161,7 +161,7 @@ class TextKeyboardLayoutResolverTest {
         assertNotNull(resolution)
         assertEquals("shuangpin-xiaohe", resolution!!.sourceKey)
         assertEquals("x", resolution.rows!!.firstKeyMain())
-        // 缺失的高度以"双拼"基础布局为基准（40），而不是 English（70）
+        // 缺失的高度以"双拼"父级输入法布局为基准（40），而不是 English（70）
         assertEquals(40, resolution.keyboardHeightPercentOverride(false))
     }
 
@@ -191,7 +191,7 @@ class TextKeyboardLayoutResolverTest {
         )
 
         assertNotNull(resolution)
-        // 专属布局存在但缺行时，回退到"双拼"基础布局的行，而不是 English
+        // 专属布局存在但缺行时，回退到"双拼"父级输入法布局的行，而不是 English
         assertEquals("shuangpin", resolution!!.sourceKey)
         assertEquals("s", resolution.rows!!.firstKeyMain())
         assertEquals(40, resolution.keyboardHeightPercentOverride(false))

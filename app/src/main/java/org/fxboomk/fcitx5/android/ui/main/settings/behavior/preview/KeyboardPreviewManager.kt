@@ -40,7 +40,7 @@ internal fun resolvePreviewRows(
     fallbackRows: List<List<Map<String, Any?>>>? = null
 ): List<List<Map<String, Any?>>>? = subModeKey?.let { entries[it] }
     ?: entries[layoutName]
-    // 双拼方案回退到“双拼”基础布局
+    // 双拼方案回退到“双拼”父级输入法布局
     ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)?.let { entries[it] }
     // 未定制专属布局的输入法回退到出厂 26 键布局，
     // 而非可被用户定制的 English（default）布局，避免布局污染
@@ -59,7 +59,7 @@ internal fun resolvePreviewHeightOverrides(
         ?.takeIf { it in entries }
         ?.let(heightProvider)
     val base = layoutName.takeIf { it in entries }?.let(heightProvider)
-    // 双拼方案未存专属布局时，沿父级“双拼”基础布局继承高度
+    // 双拼方案未存专属布局时，沿父级“双拼”父级输入法布局继承高度
     val parent = if (layoutName !in entries) {
         ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)
             ?.takeIf { it in entries }
@@ -241,7 +241,7 @@ class KeyboardPreviewManager(
             val keyboardPrefs = AppPrefs.getInstance().keyboard
             val isLandscape = context.resources.configuration.orientation ==
                 Configuration.ORIENTATION_LANDSCAPE
-            // 编辑专属子模式布局时优先取该子模式的高度覆写，未配置则回退基础布局
+            // 编辑专属子模式布局时优先取该子模式的高度覆写，未配置则回退父级输入法布局
             val layoutHeightOverride = resolvePreviewHeightOverrides(
                 entries, layoutName, previewSubModeLabel,
                 layoutHeightPercentProvider, profileHeightPercentProvider()

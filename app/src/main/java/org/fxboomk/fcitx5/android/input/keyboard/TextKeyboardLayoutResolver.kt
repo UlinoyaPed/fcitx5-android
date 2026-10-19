@@ -36,7 +36,7 @@ internal fun resolveTextKeyboardLayout(
     val (matchedSourceKey, root) = when {
         json[uniqueName] != null -> uniqueName to json.getValue(uniqueName)
         json[displayName] != null -> displayName to json.getValue(displayName)
-        // 双拼方案回退到"双拼"基础布局（所有内置 / 自定义双拼的公共父布局）
+        // 双拼方案回退到"双拼"父级输入法布局（所有内置 / 自定义双拼的公共父布局）
         parentKey != null && json[parentKey] != null -> parentKey to json.getValue(parentKey)
         // 仅英文键盘回退到共享的 default 布局，避免非英文输入法复用可定制的 English 布局
         uniqueName == ENGLISH_IME_UNIQUE_NAME && json["default"] != null ->
@@ -46,7 +46,7 @@ internal fun resolveTextKeyboardLayout(
     val layout = root as? JsonObject
     val subMode = layout?.get(subModeLabel)
     val isChildOnlyLayout = layout != null && layout["default"] == null && layout[""] == null
-    // 兜底基准：双拼方案以"双拼"基础布局为基准；其余输入法沿用全局 English 兜底
+    // 兜底基准：双拼方案以"双拼"父级输入法布局为基准；其余输入法沿用全局 English 兜底
     // （英文键盘本身即 default，没有兜底）。
     val baselineKey = when {
         matchedSourceKey == "default" -> null
@@ -67,9 +67,9 @@ internal fun resolveTextKeyboardLayout(
     val (sourceKey, rows) = rowSources.firstNotNullOfOrNull { (key, source) ->
         source.rowsOrNull()?.let { key to it }
     } ?: (matchedSourceKey to null)
-    // 兜底高度基准：双拼方案即便拥有自己的行，缺失的高度也应以"双拼"基础布局
+    // 兜底高度基准：双拼方案即便拥有自己的行，缺失的高度也应以"双拼"父级输入法布局
     // 为基准；其余输入法仅在子布局（无自己的行）时才继承兜底高度，避免显式
-    // 基础布局意外继承 English 的高度。
+    // 父级输入法布局意外继承 English 的高度。
     val heightBaseline = globalDefault?.takeIf {
         isChildOnlyLayout || (parentKey != null && parentKey != matchedSourceKey)
     }

@@ -80,14 +80,14 @@ class TextKeyboardLayoutEditorActivityTest {
         val data = manager(activity)
         data.entries["healthy"] = data.copyLayout(data.entries.getValue("default"))
         data.entries["default"] = mutableListOf()
-        // 「双拼」基础布局缺失有效行 → 其下属方案（小鹤双拼）继承不到任何行。
+        // 「双拼」父级输入法布局缺失有效行 → 其下属方案（小鹤双拼）继承不到任何行。
         // 注意：未定制布局的输入法会回退出厂 26 键预设，因此要让继承链真正为空，
         // 必须让父级条目存在但内容为空（而不是让条目缺失）。
         data.entries["shuangpin"] = mutableListOf()
         // "healthy" 的行与出厂预设一致，只有作为已启用输入法才可见，才能成为回退目标。
         set(activity, "allImesFromJson", arrayOf(InputMethodEntry("healthy", "Healthy", "", "", "", "en", "test", false)))
         selectDraft(activity, "shuangpin-xiaohe", null)
-        // 继承到无效行时回退到第一个有效基础布局，且不把被放弃的草稿落盘
+        // 继承到无效行时回退到第一个有效父级输入法布局，且不把被放弃的草稿落盘
         assertEquals("healthy", get(activity, "currentLayout"))
         assertNull(get(activity, "bufferedLayoutKey"))
         assertFalse(data.entries.containsKey("shuangpin-xiaohe"))
@@ -124,7 +124,7 @@ class TextKeyboardLayoutEditorActivityTest {
 
     @Test fun firstEditOfShuangpinSchemeCarriesOverInheritedMacroKeyAndFrozenHeight() = withEditor { activity, file ->
         val data = manager(activity)
-        // 定制「双拼」基础布局：把一个字母键换成宏按键，并设置高度覆写
+        // 定制「双拼」父级输入法布局：把一个字母键换成宏按键，并设置高度覆写
         val macroKey = LayoutJsonUtils.parseLayoutRows(
             Json.parseToJsonElement(
                 """[[{"type":"MacroKey","label":"宏","tap":{"macro":[{"type":"text","text":"hi"}]}}]]"""
@@ -137,7 +137,7 @@ class TextKeyboardLayoutEditorActivityTest {
         data.entries["shuangpin"] = base
         data.setLayoutHeightPercentOverride("shuangpin", LayoutHeightPercentOverrides(43, 29))
 
-        // 首次编辑「小鹤双拼」：草稿整份继承基础布局，宏按键一并带过来
+        // 首次编辑「小鹤双拼」：草稿整份继承父级输入法布局，宏按键一并带过来
         selectDraft(activity, "shuangpin-xiaohe", null)
         assertEquals("shuangpin-xiaohe", get(activity, "bufferedLayoutKey"))
         assertEquals("MacroKey", rows(activity)[rowIndex][keyIndex]["type"])
@@ -151,12 +151,12 @@ class TextKeyboardLayoutEditorActivityTest {
             .first { it["type"] == "MacroKey" }
         assertEquals("改", schemeMacro["label"])
         assertNotNull(schemeMacro["tap"])
-        // 继承到的高度被一并固化，不再仅靠「双拼」基础布局兜底
+        // 继承到的高度被一并固化，不再仅靠「双拼」父级输入法布局兜底
         assertEquals(
             LayoutHeightPercentOverrides(43, 29),
             reloaded.getLayoutHeightPercentOverride("shuangpin-xiaohe")
         )
-        // 基础布局本身未被方案的编辑改动
+        // 父级输入法布局本身未被方案的编辑改动
         val baseMacro = reloaded.entries.getValue("shuangpin").flatten()
             .first { it["type"] == "MacroKey" }
         assertEquals("宏", baseMacro["label"])
