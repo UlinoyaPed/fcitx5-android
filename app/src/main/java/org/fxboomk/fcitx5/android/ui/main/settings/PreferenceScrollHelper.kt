@@ -15,7 +15,6 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.lifecycle.Lifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
@@ -50,8 +49,9 @@ object PreferenceScrollHelper {
         // The request targets another tab of the same page, leave it to that tab.
         if (pendingTab != null && pendingTab != tab) return
         // Only handle the request when the page is actually visible, otherwise we would
-        // scroll and highlight a page the user is not looking at.
-        if (!fragment.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+        // scroll and highlight a page the user is not looking at. The lifecycle of the
+        // fragment is still STARTED while onResume runs, so use isResumed instead.
+        if (!fragment.isResumed) return
         val listView = fragment.safeListView() ?: return
         val preference = fragment.findPreference<Preference>(key) ?: return
         // Preferences living in a collapsed group are not part of the visible list,
