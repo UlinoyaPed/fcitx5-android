@@ -6,9 +6,14 @@ package org.fxboomk.fcitx5.android.input.dialog
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.text.TextUtils
@@ -26,8 +31,7 @@ import splitties.dimensions.dp
 import splitties.resources.resolveThemeAttribute
 import splitties.resources.styledColor
 import splitties.views.dsl.core.Ui
-
-private const val SCHEMA_RADIO_SCALE = 0.85f
+import kotlin.math.min
 
 class InputMethodEntryUi(override val ctx: Context) : Ui {
     private val activatedBgColor = ctx.styledColor(android.R.attr.colorControlActivated)
@@ -81,9 +85,14 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         minimumHeight = 0
         minHeight = 0
         setPadding(0, 0, 0, 0)
-        // The platform glyph reads a touch large next to a schema title.
-        scaleX = SCHEMA_RADIO_SCALE
-        scaleY = SCHEMA_RADIO_SCALE
+        // The platform glyph is a 32dp asset with a 20dp ring inside, and scaling it down
+        // blurs the thin outline. Draw a self-contained 20dp indicator instead so the ring
+        // stays crisp and keeps clear of the view bounds.
+        buttonDrawable = SchemaRadioDrawable(
+            ctx,
+            uncheckedColor = ctx.styledColor(android.R.attr.colorControlNormal),
+            checkedColor = activatedBgColor
+        )
     }
 
     private val basePaddingStart = ctx.dp(8)
@@ -93,6 +102,9 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
     override val root = LinearLayout(ctx).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
+        // Align the leading indicator by gravity, not by the baseline of the empty
+        // RadioButton: baseline alignment can shift it above the row and clip its top.
+        isBaselineAligned = false
         minimumHeight = dp(40)
         setPadding(basePaddingStart, dp(5), basePaddingEnd, dp(5))
         background = StateListDrawable().apply {
@@ -112,7 +124,14 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         isClickable = true
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        addView(schemaRadio, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        addView(
+            schemaRadio,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                // Keep a little air between the ring and the schema title without shifting
+                // the title rows that have no indicator.
+                marginEnd = dp(4)
+            }
+        )
         addView(
             LinearLayout(ctx).apply {
                 orientation = LinearLayout.VERTICAL
@@ -153,4 +172,79 @@ class InputMethodEntryUi(override val ctx: Context) : Ui {
         title.isActivated = activated
         subtitle.isActivated = activated
     }
+}
+
+/**
+ * Ring-style indicator for a Rime schema row. It is drawn at 20dp with the 2dp stroke
+ * inset from the bounds, so the outline is never clipped by the RadioButton viewport.
+ * Colors are resolved from the current theme instead of the platform radio asset, whose
+ * 32dp glyph only draws a 20dp ring and blurs when scaled.
+ */
+private class SchemaRadioDrawable(
+    private val ctx: Context,
+    private val uncheckedColor: Int,
+    private val checkedColor: Int
+) : Drawable() {
+    private val strokeWidth = ctx.dp(2).toFloat()
+    private val edgeInset = ctx.dp(1).toFloat()
+
+    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = this@SchemaRadioDrawable.strokeWidth
+    }
+
+    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+
+    private var checked = false
+
+    override fun isStateful() = true
+
+    override fun onStateChange(state: IntArray): Boolean {
+        val newChecked = state.contains(android.R.attr.state_checked)
+        if (newChecked == checked) return false
+        checked = newChecked
+        invalidateSelf()
+        return true
+    }
+
+    override fun getIntrinsicWidth() = ctx.dp(20)
+
+    override fun getIntrinsicHeight() = ctx.dp(20)
+
+    override fun draw(canvas: Canvas) {
+        val radius = min(bounds.width(), bounds.height()) / 2f - edgeInset
+        val color = if (checked) checkedColor else uncheckedColor
+        ringPaint.color = color
+        canvas.drawCircle(
+            bounds.exactCenterX(),
+            bounds.exactCenterY(),
+            radius - strokeWidth / 2f,
+            ringPaint
+        )
+        if (checked) {
+            dotPaint.color = color
+            canvas.drawCircle(
+                bounds.exactCenterX(),
+                bounds.exactCenterY(),
+                radius - strokeWidth * 2f,
+                dotPaint
+            )
+        }
+    }
+
+    override fun setAlpha(alpha: Int) {
+        ringPaint.alpha = alpha
+        dotPaint.alpha = alpha
+        invalidateSelf()
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        ringPaint.colorFilter = colorFilter
+        dotPaint.colorFilter = colorFilter
+        invalidateSelf()
+    }
+
+    override fun getOpacity() = PixelFormat.TRANSLUCENT
 }
