@@ -118,6 +118,22 @@ class SettingsSearchNavigationTest {
                         it.tab == CustomShuangpinFragment.TAB_PREFERENCES
                 }
             )
+
+            // The preferences tab of the custom shuangpin page shows the configuration of
+            // the pinyin addon, it is only indexed when that addon provides a description.
+            val hasDescription = fcitxConnection.runOnReady {
+                getImConfig(CustomShuangpinSchemeStore.currentUniqueName())
+                    .findByName("desc") != null
+            }
+            if (hasDescription) {
+                assertTrue(
+                    "no entry for the custom shuangpin preferences tab",
+                    items.any {
+                        it.route == SettingsRoute.CustomShuangpin &&
+                            it.tab == CustomShuangpinFragment.TAB_PREFERENCES
+                    }
+                )
+            }
         }
     }
 
