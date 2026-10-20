@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
@@ -24,6 +25,7 @@ import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
+import org.fxboomk.fcitx5.android.ui.main.settings.PreferenceScrollHelper
 import org.fxboomk.fcitx5.android.utils.CollapsiblePreferenceCategory
 import org.fxboomk.fcitx5.android.utils.toast
 import splitties.dimensions.dp
@@ -49,6 +51,24 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
     override fun onStart() {
         super.onStart()
         viewModel.setToolbarTitle(CustomShuangpinSchemeStore.displayName())
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        PreferenceScrollHelper.scrollToPendingPreference(
+            this,
+            viewModel,
+            CustomShuangpinFragment.TAB_MAPPING
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PreferenceScrollHelper.scrollToPendingPreference(
+            this,
+            viewModel,
+            CustomShuangpinFragment.TAB_MAPPING
+        )
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -275,7 +295,7 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
         }
     }
 
-    private companion object {
+    internal companion object {
         const val KEY_ZERO_INITIAL = "custom_shuangpin_zero_initial"
         const val KEY_INITIAL_PREFIX = "custom_shuangpin_initial_"
         const val KEY_FINAL_PREFIX = "custom_shuangpin_final_"
@@ -283,8 +303,8 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
         const val KEY_FINALS_GROUP = "custom_shuangpin_finals_group"
         const val KEY_SYLLABLES_GROUP = "custom_shuangpin_syllables_group"
         const val KEY_SYLLABLES = "custom_shuangpin_syllables"
-        const val STATE_INITIALS = "custom_shuangpin_state_initials"
-        const val STATE_FINALS = "custom_shuangpin_state_finals"
-        const val STATE_SYLLABLES = "custom_shuangpin_state_syllables"
+        private const val STATE_INITIALS = "custom_shuangpin_state_initials"
+        private const val STATE_FINALS = "custom_shuangpin_state_finals"
+        private const val STATE_SYLLABLES = "custom_shuangpin_state_syllables"
     }
 }

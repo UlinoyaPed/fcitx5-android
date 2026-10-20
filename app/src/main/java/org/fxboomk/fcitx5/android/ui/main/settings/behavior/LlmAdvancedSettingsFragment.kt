@@ -62,6 +62,7 @@ class LlmAdvancedSettingsFragment : PaddingPreferenceFragment() {
         super.onResume()
         preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(prefsChangeListener)
         syncEditablePreferenceState()
+        PreferenceScrollHelper.scrollToPendingPreference(this, viewModel)
     }
 
     override fun onPause() {

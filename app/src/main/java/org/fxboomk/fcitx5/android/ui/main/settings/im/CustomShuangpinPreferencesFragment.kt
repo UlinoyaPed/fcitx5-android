@@ -13,6 +13,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 
 class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
     override val shouldUpdateToolbarTitle = false
+    override val preferenceTabIndex: Int = CustomShuangpinFragment.TAB_PREFERENCES
     override val preferenceFragmentManager: FragmentManager
         get() = parentFragment?.parentFragmentManager ?: parentFragmentManager
 

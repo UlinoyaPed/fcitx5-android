@@ -28,6 +28,13 @@ import org.fxboomk.fcitx5.android.utils.addPreference
 abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
     abstract fun getPageTitle(): String
     protected open val shouldUpdateToolbarTitle = true
+
+    /**
+     * Index of the tab holding the preferences, for pages that host their preferences
+     * in a ViewPager. Null when the page has a single tab.
+     */
+    protected open val preferenceTabIndex: Int? = null
+
     protected open val preferenceFragmentManager: FragmentManager
         get() = parentFragmentManager
     abstract suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig
@@ -114,9 +121,19 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             }
             PreferenceScrollHelper.scrollToPendingPreference(
                 this@FcitxPreferenceFragment,
-                viewModel
+                viewModel,
+                preferenceTabIndex
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PreferenceScrollHelper.scrollToPendingPreference(
+            this,
+            viewModel,
+            preferenceTabIndex
+        )
     }
 
     override fun onStart() {

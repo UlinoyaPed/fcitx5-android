@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -20,6 +21,8 @@ import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 
 class CustomShuangpinFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
+
+    private var pendingTabApplied = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,19 +38,20 @@ class CustomShuangpinFragment : Fragment() {
             override fun getItemCount(): Int = TAB_COUNT
 
             override fun createFragment(position: Int): Fragment = when (position) {
-                0 -> CustomShuangpinMappingFragment()
+                TAB_MAPPING -> CustomShuangpinMappingFragment()
                 else -> CustomShuangpinPreferencesFragment()
             }
         }
         TabLayoutMediator(tabs, pager) { tab, position ->
             tab.text = getString(
-                if (position == 0) {
+                if (position == TAB_MAPPING) {
                     R.string.custom_shuangpin_tab_mapping
                 } else {
                     R.string.custom_shuangpin_tab_preferences
                 }
             )
         }.attach()
+        applyPendingTab(pager)
     }
 
     override fun onStart() {
@@ -55,7 +59,28 @@ class CustomShuangpinFragment : Fragment() {
         viewModel.setToolbarTitle(CustomShuangpinSchemeStore.displayName())
     }
 
-    private companion object {
-        const val TAB_COUNT = 2
+    /**
+     * Switch to the tab holding the preference the user asked for, if any.
+     */
+    private fun applyPendingTab(pager: ViewPager2) {
+        if (pendingTabApplied) return
+        val tab = viewModel.peekPendingPreferenceTab() ?: return
+        if (tab !in 0 until TAB_COUNT) return
+        pendingTabApplied = true
+        if (pager.currentItem != tab) {
+            pager.setCurrentItem(tab, false)
+            // The pager may not be laid out yet, make sure the tab is applied anyway.
+            pager.doOnLayout {
+                if (pager.currentItem != tab) {
+                    pager.setCurrentItem(tab, false)
+                }
+            }
+        }
+    }
+
+    internal companion object {
+        const val TAB_MAPPING = 0
+        const val TAB_PREFERENCES = 1
+        private const val TAB_COUNT = 2
     }
 }
