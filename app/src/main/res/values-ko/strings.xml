@@ -715,7 +715,7 @@
     <string name="space_behavior_activate">입력기 활성화 상태 전환</string>
     <string name="space_behavior_enumerate">입력기 순환</string>
     <string name="space_behavior_none">없음</string>
-    <string name="space_behavior_picker">입력기 선택 대화상자 표시</string>
+    <string name="space_behavior_repeat_space">공백 문자 반복 출력</string>
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
     <string name="space_behavior_switch_to_english">중국어와 영어 입력 방식 간 전환</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>

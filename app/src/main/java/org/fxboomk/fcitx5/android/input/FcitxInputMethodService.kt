@@ -386,6 +386,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private val recreateInputViewPrefs: Array<ManagedPreference<*>> = arrayOf(
         prefs.candidates.candidateHighlightRadius,
         prefs.keyboard.expandKeypressArea,
+        prefs.keyboard.spaceKeyLongPressBehavior,
         prefs.advanced.disableAnimation,
         prefs.advanced.ignoreSystemWindowInsets,
     )

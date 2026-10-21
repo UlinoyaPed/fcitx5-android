@@ -219,7 +219,7 @@
     <string name="space_behavior_none">Нет</string>
     <string name="space_behavior_enumerate">Перечислить методы ввода</string>
     <string name="space_behavior_activate">Переключить состояние активации метода ввода</string>
-    <string name="space_behavior_picker">Показать диалоговое окно выбора метода ввода</string>
+    <string name="space_behavior_repeat_space">Повторять вывод пробела</string>
     <string name="space_behavior_voice_input">Переключиться на голосовой ввод</string>
     <string name="space_behavior_switch_to_english">Переключаться между китайским и английским методами ввода</string>
     <string name="show_lang_switch_key">Показывать клавишу переключения языка</string>

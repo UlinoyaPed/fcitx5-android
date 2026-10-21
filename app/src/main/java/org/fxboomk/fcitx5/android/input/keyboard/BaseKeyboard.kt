@@ -1171,8 +1171,23 @@ abstract class BaseKeyboard(
         view.swipeThresholdY = baseline.swipeThresholdY
         view.onGestureListener = baseline.onGestureListener
 
+        val effectiveBehaviors =
+            if (view.def.viewId == R.id.button_space &&
+                prefs.keyboard.spaceKeyLongPressBehavior.getValue() ==
+                SpaceLongPressBehavior.RepeatSpace
+            ) {
+                // Holding the space key repeatedly outputs spaces instead of
+                // dispatching the configured long-press action.
+                behaviors.filterNot { it is KeyDef.Behavior.LongPress } +
+                        KeyDef.Behavior.Repeat(
+                            KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_space))
+                        )
+            } else {
+                behaviors
+            }
+
         var hasLongPressBehavior = false
-        behaviors.forEach {
+        effectiveBehaviors.forEach {
             when (it) {
                 is KeyDef.Behavior.Press -> {
                     view.setOnClickListener { _ ->

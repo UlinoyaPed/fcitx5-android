@@ -253,9 +253,9 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             val entryValues = listOf(
                 SpaceLongPressBehavior.None,
                 SpaceLongPressBehavior.Enumerate,
+                SpaceLongPressBehavior.RepeatSpace,
                 SpaceLongPressBehavior.VoiceInput,
-                SpaceLongPressBehavior.SwitchToEnglish,
-                SpaceLongPressBehavior.ShowPicker
+                SpaceLongPressBehavior.SwitchToEnglish
             )
             list(
                 R.string.space_long_press_behavior,
@@ -264,6 +264,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 object : ManagedPreference.StringLikeCodec<SpaceLongPressBehavior> {
                     override fun decode(raw: String): SpaceLongPressBehavior = when (raw) {
                         SpaceLongPressBehavior.ToggleActivate.name -> SpaceLongPressBehavior.Enumerate
+                        "ShowPicker" -> SpaceLongPressBehavior.Enumerate
                         else -> enumValueOf(raw)
                     }
                 },

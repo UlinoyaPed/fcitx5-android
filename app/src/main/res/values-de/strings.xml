@@ -723,7 +723,7 @@
     <string name="copy">Kopieren</string>
     <string name="share">Teilen</string>
     <string name="space_behavior_enumerate">Eingabemethoden zyklisch wechseln</string>
-    <string name="space_behavior_picker">Dialog zur Eingabemethodenauswahl anzeigen</string>
+    <string name="space_behavior_repeat_space">Leerzeichen wiederholt ausgeben</string>
     <string name="space_behavior_voice_input">Zur Spracheingabe wechseln</string>
     <string name="space_behavior_switch_to_english">Zwischen chinesischer und englischer Eingabemethode wechseln</string>
     <string name="space_swipe_move_cursor">Über die Leertaste wischen, um den Cursor zu bewegen</string>

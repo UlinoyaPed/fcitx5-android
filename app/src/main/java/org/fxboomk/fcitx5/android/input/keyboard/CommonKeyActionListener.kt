@@ -454,7 +454,9 @@ class CommonKeyActionListener :
                         SpaceLongPressBehavior.ToggleActivate -> service.postFcitxJob {
                             toggleIme()
                         }
-                        SpaceLongPressBehavior.ShowPicker -> showInputMethodPicker()
+                        SpaceLongPressBehavior.RepeatSpace -> {
+                            // Handled by the repeat binding of the space key.
+                        }
                         SpaceLongPressBehavior.VoiceInput -> {
                             val started = switchToVoiceInput()
                             voiceHoldActive = started && preferredVoiceInputProviderAvailable()
