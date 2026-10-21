@@ -163,8 +163,7 @@ object PreferenceScrollHelper {
 
     private fun highlight(view: View) {
         val density = view.resources.displayMetrics.density
-        val highlight = HighlightDrawable(
-            fillColor = view.context.styledColor(android.R.attr.colorControlHighlight),
+        val highlight = HighlightOutlineDrawable(
             strokeColor = view.context.styledColor(android.R.attr.colorAccent),
             cornerRadius = CORNER_RADIUS_DP * density,
             strokeSize = (STROKE_WIDTH_DP * density).roundToInt().coerceAtLeast(1),
@@ -192,27 +191,31 @@ object PreferenceScrollHelper {
     }
 
     /**
-     * Rounded rectangle drawn relative to the bounds of the drawable, so that it always
+     * Rounded rectangle outline drawn relative to the bounds of the drawable, so that it always
      * matches the size of the view it highlights, no matter when it is added.
+     *
+     * Only the outline is painted on purpose. A filled shape would lay a translucent scrim
+     * over the whole entry, which hides the content the user just jumped to.
      */
-    private class HighlightDrawable(
-        fillColor: Int,
+    private class HighlightOutlineDrawable(
         strokeColor: Int,
         private val cornerRadius: Float,
         strokeSize: Int,
         private val horizontalInset: Float,
         private val verticalInset: Float
     ) : Drawable() {
-        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = fillColor
-        }
-
         private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             color = strokeColor
             strokeWidth = strokeSize.toFloat()
         }
+
+        /**
+         * Alpha of the color of the outline. It has to be scaled by the animation instead of
+         * being overwritten by it, [Paint.setAlpha] replaces the alpha of the color and would
+         * therefore paint a translucent color as if it was opaque.
+         */
+        private val baseAlpha = strokePaint.alpha
 
         private val rect = RectF()
 
@@ -226,19 +229,16 @@ object PreferenceScrollHelper {
                 current.bottom - verticalInset
             )
             if (rect.width() <= 0f || rect.height() <= 0f) return
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, fillPaint)
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, strokePaint)
         }
 
         override fun setAlpha(alpha: Int) {
-            fillPaint.alpha = alpha
-            strokePaint.alpha = alpha
+            strokePaint.alpha = baseAlpha * alpha / 255
             invalidateSelf()
         }
 
         @Suppress("OVERRIDE_DEPRECATION")
         override fun setColorFilter(colorFilter: ColorFilter?) {
-            fillPaint.colorFilter = colorFilter
             strokePaint.colorFilter = colorFilter
         }
 

@@ -248,26 +248,41 @@ class SettingsSearchNavigationTest {
 
                 val accent = onMain { activity.styledColor(android.R.attr.colorAccent) }
 
-                var painted = false
-                var pixels = 0
+                var highlighted: Bitmap? = null
                 val deadline = System.currentTimeMillis() + 15_000
-                while (System.currentTimeMillis() < deadline && !painted) {
-                    pixels = countAccentPixelsInRow(activity, mapping, accent)
-                    if (pixels > 0) {
-                        painted = true
+                while (System.currentTimeMillis() < deadline && highlighted == null) {
+                    val capture = captureRow(activity, mapping)
+                    if (capture != null && countAccentPixels(capture, accent) > 0) {
+                        highlighted = capture
                         break
                     }
+                    capture?.recycle()
                     Thread.sleep(80)
                 }
-                assertTrue(
+                assertNotNull(
                     "the highlight was never painted on the target row",
-                    painted
+                    highlighted
                 )
 
                 val consumed = waitUntil(timeoutMs = 5_000) {
                     onMain { activity.viewModel.peekPendingPreferenceScrollKey() == null }
                 }
                 assertTrue("the scroll request was not consumed", consumed)
+
+                // The highlight must not cover the entry with a translucent scrim, only its
+                // outline is painted. Compare the content of the row while it is highlighted
+                // with the content of the very same row once the highlight is over.
+                Thread.sleep(2_000)
+                val normal = captureRow(activity, mapping)
+                assertNotNull("the target row could not be captured", normal)
+                val darkened = countDarkenedPixels(highlighted!!, normal!!)
+                highlighted.recycle()
+                normal.recycle()
+                assertEquals(
+                    "the highlight covers the entry with a scrim",
+                    0,
+                    darkened
+                )
             }
         }
     }
@@ -386,14 +401,13 @@ class SettingsSearchNavigationTest {
     }
 
     /**
-     * Count the pixels of the target row that use the accent color. The highlight is drawn on
-     * the overlay of the row, so the window itself has to be captured.
+     * Capture the pixels of the target row. The highlight is drawn on the overlay of the row,
+     * so the window itself has to be captured.
      */
-    private fun countAccentPixelsInRow(
+    private fun captureRow(
         activity: MainActivity,
-        mapping: CustomShuangpinMappingFragment,
-        accent: Int
-    ): Int {
+        mapping: CustomShuangpinMappingFragment
+    ): Bitmap? {
         val location = IntArray(2)
         val itemView = onMain {
             val listView = mapping.listView
@@ -408,16 +422,16 @@ class SettingsSearchNavigationTest {
                     it.getLocationInWindow(location)
                 }
             }
-        } ?: return 0
+        } ?: return null
         val width = onMain { itemView.width }
         val height = onMain { itemView.height }
-        if (width <= 0 || height <= 0) return 0
+        if (width <= 0 || height <= 0) return null
         val bounds = onMain {
             val decor = activity.window.decorView
             Rect(0, 0, decor.width, decor.height)
         }
         val rect = Rect(location[0], location[1], location[0] + width, location[1] + height)
-        if (!rect.intersect(bounds) || rect.isEmpty) return 0
+        if (!rect.intersect(bounds) || rect.isEmpty) return null
         val bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888)
         val latch = CountDownLatch(1)
         val status = intArrayOf(PixelCopy.ERROR_UNKNOWN)
@@ -432,7 +446,18 @@ class SettingsSearchNavigationTest {
             mainHandler
         )
         latch.await(3, TimeUnit.SECONDS)
-        if (status[0] != PixelCopy.SUCCESS) return 0
+        if (status[0] != PixelCopy.SUCCESS) {
+            bitmap.recycle()
+            return null
+        }
+        return bitmap
+    }
+
+    /**
+     * Count the pixels of the capture that use the accent color, that is the outline of the
+     * highlight.
+     */
+    private fun countAccentPixels(bitmap: Bitmap, accent: Int): Int {
         val red = Color.red(accent)
         val green = Color.green(accent)
         val blue = Color.blue(accent)
@@ -448,9 +473,33 @@ class SettingsSearchNavigationTest {
                 }
             }
         }
-        bitmap.recycle()
         return count
     }
+
+    /**
+     * Count the pixels of the interior of the row that are darker while the entry is
+     * highlighted than they are once the highlight is over. A translucent scrim painted over
+     * the entry would darken all of them.
+     */
+    private fun countDarkenedPixels(highlighted: Bitmap, normal: Bitmap): Int {
+        if (highlighted.width != normal.width || highlighted.height != normal.height) return 0
+        val density = context.resources.displayMetrics.density
+        // Keep away from the outline, it is painted on purpose.
+        val marginX = (20 * density).toInt()
+        val marginY = (12 * density).toInt()
+        var count = 0
+        for (y in marginY until highlighted.height - marginY) {
+            for (x in marginX until highlighted.width - marginX) {
+                if (luminance(highlighted.getPixel(x, y)) < luminance(normal.getPixel(x, y)) - 2) {
+                    count++
+                }
+            }
+        }
+        return count
+    }
+
+    private fun luminance(color: Int): Int =
+        (Color.red(color) * 299 + Color.green(color) * 587 + Color.blue(color) * 114) / 1000
 
     private fun <T> onMain(block: () -> T): T {
         val holder = arrayOfNulls<Any?>(1)
