@@ -134,13 +134,24 @@ class CandidateOverflowTest {
 
     @Test
     fun changedTextWithSameWidthStillFollowsTail() = onMain {
-        val ui = candidate(text = "i".repeat(160))
+        val original = "i".repeat(160)
+        val ui = candidate(text = original)
         drag(ui, maxOffset(ui) / 2f)
         val oldWidth = ui.text.width
         assertTrue(ui.text.translationX > -maxOffset(ui))
 
-        // Monospace letters guarantee that this update does not resize the child.
-        ui.updateCandidate(word("l".repeat(160)))
+        // Letters do not guarantee a fixed width: the platform "monospace"
+        // font is proportional on some devices, so the replacement text is
+        // picked by its measured width to make sure it does not resize the
+        // child.
+        val paint = ui.text.paint
+        val textWidth = oldWidth - ui.text.paddingLeft - ui.text.paddingRight
+        val sameWidthText = (' '..'~')
+            .map { it.toString().repeat(160) }
+            .filter { it != original }
+            .firstOrNull { ceil(paint.measureText(it)).toInt() == textWidth }
+            ?: throw AssertionError("no text of the same width was found")
+        ui.updateCandidate(word(sameWidthText))
         layout(ui)
 
         assertEquals(oldWidth, ui.text.width)
