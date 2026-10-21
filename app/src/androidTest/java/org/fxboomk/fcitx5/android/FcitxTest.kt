@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.fxboomk.fcitx5.android.core.Fcitx
+import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.FcitxEvent
 import org.fxboomk.fcitx5.android.core.RawConfig
 import org.junit.After
@@ -22,12 +24,33 @@ import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.Before
 import org.junit.BeforeClass
+import org.junit.Ignore
 import org.junit.Test
 import timber.log.Timber
 
+/**
+ * Disabled for now: every case of this class blocks forever and therefore hangs the whole
+ * instrumentation run.
+ *
+ * The engine is driven here without an activated input context, so it never emits preedit,
+ * candidate or commit events, and the `receiveFirst` calls waited for them indefinitely. The
+ * receives are bounded by a timeout now, so the cases fail fast instead of hanging, but they
+ * cannot pass until the test activates an input context (see [FcitxAPI.activate] and
+ * [FcitxAPI.focus]).
+ */
+@Ignore("Blocks the whole instrumentation run: the engine is driven without an activated " +
+    "input context, so no preedit/candidate/commit event is ever emitted and the test waits " +
+    "forever. The receives are bounded by a timeout now, so it fails fast instead of hanging, " +
+    "but it still cannot pass until an input context is activated.")
 class FcitxTest {
 
     private companion object {
+
+        /**
+         * Upper bound for waiting for an engine event. Without it a missing event blocks the
+         * instrumentation run forever.
+         */
+        const val EVENT_TIMEOUT_MS = 10_000L
 
         lateinit var fcitx: Fcitx
         val fcitxEventChannel = Channel<FcitxEvent<*>>(capacity = Channel.CONFLATED)
@@ -77,7 +100,9 @@ class FcitxTest {
         }
 
         private suspend inline fun <reified T : FcitxEvent<*>> receiveFirst(): T? =
-            fcitxEventChannel.receiveAsFlow().mapNotNull { it as? T }.firstOrNull()
+            withTimeoutOrNull(EVENT_TIMEOUT_MS) {
+                fcitxEventChannel.receiveAsFlow().mapNotNull { it as? T }.firstOrNull()
+            }
 
         private suspend fun receiveFirstCandidateList() =
             receiveFirst<FcitxEvent.CandidateListEvent>()
