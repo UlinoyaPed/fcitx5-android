@@ -251,7 +251,8 @@
     <string name="prediction_space_behavior_commit_prediction">Confirmar la predicción resaltada</string>
     <string name="prediction_backspace_behavior">Acción de retroceso durante la predicción</string>
     <string name="prediction_backspace_behavior_delete_text">Eliminar texto antes del cursor</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">Descartar candidatos y mostrar la barra de herramientas</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">Borrar candidatos de predicción</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">Borrar predicción y eliminar texto</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">El carácter principal no debe estar vacío</string>
     <string name="text_keyboard_layout_alphabet_key_alt_required">El carácter alternativo no debe estar vacío</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">El carácter principal debe ser un solo carácter</string>

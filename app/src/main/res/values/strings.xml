@@ -348,7 +348,8 @@
     <string name="prediction_space_behavior_commit_prediction">提交高亮预测项</string>
     <string name="prediction_backspace_behavior">Backspace behavior during prediction</string>
     <string name="prediction_backspace_behavior_delete_text">Delete text before cursor</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">Dismiss candidates and show toolbar</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">Clear prediction candidates</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">Clear prediction and delete text</string>
     <string name="space_swipe_vertical_behavior">Space key vertical swipe behavior</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Move highlight word by word</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Switch candidate rows</string>

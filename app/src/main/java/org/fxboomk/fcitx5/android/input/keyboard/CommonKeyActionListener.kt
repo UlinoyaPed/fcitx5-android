@@ -116,7 +116,14 @@ class CommonKeyActionListener :
     private fun FcitxAPI.isRimeInputMethod(): Boolean =
         inputMethodEntryCached.addon == "rime" || inputMethodEntryCached.icon == "fcitx-rime"
 
-    private suspend fun FcitxAPI.dismissPredictionCandidatesToToolbar(resetNativeCandidates: Boolean) {
+    /**
+     * The built-in Pinyin engine exposes its own "Backspace behavior on prediction" option
+     * in its input-method settings, which outranks the global app preference.
+     */
+    private fun FcitxAPI.hasEngineBackspaceBehaviorSetting(): Boolean =
+        inputMethodEntryCached.addon == "pinyin"
+
+    private suspend fun FcitxAPI.clearPredictionCandidates(resetNativeCandidates: Boolean) {
         if (resetNativeCandidates) {
             reset()
         }
@@ -230,7 +237,7 @@ class CommonKeyActionListener :
                                     hasAiPredictionCandidatesVisible = aiSuggestionStrip.hasVisibleSuggestions(),
                                     hasAiExpandedCandidateWindowVisible =
                                         service.inputView?.isAiSuggestionExpandedWindowVisible() == true,
-                                    isRimeInputMethod = isRimeInputMethod(),
+                                    hasEngineBackspaceBehaviorSetting = hasEngineBackspaceBehaviorSetting(),
                                     predictionBackspaceBehavior = predictionBackspaceBehavior,
                                 )
                             ) {
@@ -246,8 +253,12 @@ class CommonKeyActionListener :
                                 }
                                 PredictionBackspaceAction.DeleteText ->
                                     deleteTextAfterPredictionBackspace()
-                                PredictionBackspaceAction.DismissCandidates ->
-                                    dismissPredictionCandidatesToToolbar(nativePredictionCandidatesVisible)
+                                PredictionBackspaceAction.ClearPredictionCandidates ->
+                                    clearPredictionCandidates(nativePredictionCandidatesVisible)
+                                PredictionBackspaceAction.ClearPredictionCandidatesAndDeleteText -> {
+                                    clearPredictionCandidates(nativePredictionCandidatesVisible)
+                                    deleteTextAfterPredictionBackspace()
+                                }
                             }
                         }
                         action.sym.sym == FcitxKeyMapping.FcitxKey_space -> {

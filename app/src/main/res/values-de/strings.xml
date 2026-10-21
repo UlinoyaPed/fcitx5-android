@@ -171,7 +171,8 @@
     <string name="prediction_space_behavior_commit_prediction">Hervorgehobenen Vorhersageeintrag übernehmen</string>
     <string name="prediction_backspace_behavior">Rücktastenverhalten bei Vorhersagen</string>
     <string name="prediction_backspace_behavior_delete_text">Text vor dem Cursor löschen</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">Kandidaten ausblenden und Symbolleiste anzeigen</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">Vorhersagen löschen</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">Vorhersagen löschen und Text entfernen</string>
     <string name="show_lang_switch_key">Sprachwechseltaste anzeigen</string>
     <string name="keyboard_settings_sections">Bereiche</string>
     <string name="keyboard_settings_basic_section">Grundlegend</string>

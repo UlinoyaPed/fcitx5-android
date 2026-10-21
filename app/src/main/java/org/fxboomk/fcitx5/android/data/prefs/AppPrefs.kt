@@ -281,11 +281,29 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "prediction_space_behavior",
             PredictionSpaceBehavior.CommitSpace
         )
-        val predictionBackspaceBehavior = enumList(
-            R.string.prediction_backspace_behavior,
-            "prediction_backspace_behavior",
-            PredictionBackspaceBehavior.DeleteText
-        )
+        val predictionBackspaceBehavior = run {
+            // Global fallback with the lowest priority; a built-in engine's own
+            // "Backspace behavior on prediction" setting takes precedence.
+            val entryValues = listOf(
+                PredictionBackspaceBehavior.ClearPredictionCandidates,
+                PredictionBackspaceBehavior.ClearPredictionCandidatesAndDeleteText,
+                PredictionBackspaceBehavior.DeleteText,
+            )
+            list(
+                R.string.prediction_backspace_behavior,
+                "prediction_backspace_behavior",
+                PredictionBackspaceBehavior.ClearPredictionCandidates,
+                object : ManagedPreference.StringLikeCodec<PredictionBackspaceBehavior> {
+                    override fun decode(raw: String): PredictionBackspaceBehavior = when (raw) {
+                        // Legacy value, relabelled to "clear prediction candidates".
+                        "DismissCandidates" -> PredictionBackspaceBehavior.ClearPredictionCandidates
+                        else -> enumValueOf(raw)
+                    }
+                },
+                entryValues,
+                entryValues.map { it.stringRes }
+            )
+        }
         val spaceSwipeVerticalBehavior = enumList(
             R.string.space_swipe_vertical_behavior,
             "space_swipe_vertical_behavior",

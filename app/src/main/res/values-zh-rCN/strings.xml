@@ -341,7 +341,8 @@
     <string name="prediction_space_behavior_commit_prediction">提交高亮预测项</string>
     <string name="prediction_backspace_behavior">预测时退格键行为</string>
     <string name="prediction_backspace_behavior_delete_text">删除光标前文本</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">取消候选并显示工具栏</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">清空预测候选项</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">清空预测并删字</string>
     <string name="space_swipe_vertical_behavior">空格键上下划行为</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">逐词移动高亮</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">切换候选词行</string>
