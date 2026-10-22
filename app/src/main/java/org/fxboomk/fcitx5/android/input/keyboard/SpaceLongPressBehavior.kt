@@ -10,8 +10,9 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceEnum
 enum class SpaceLongPressBehavior(override val stringRes: Int) : ManagedPreferenceEnum {
     None(R.string.space_behavior_none),
     Enumerate(R.string.space_behavior_enumerate),
-    ToggleActivate(R.string.space_behavior_activate),
     ShowPicker(R.string.space_behavior_picker),
+    RepeatSpace(R.string.space_behavior_repeat_space),
+    ToggleActivate(R.string.space_behavior_activate),
     VoiceInput(R.string.space_behavior_voice_input),
     SwitchToEnglish(R.string.space_behavior_switch_to_english);
 }

@@ -22,12 +22,21 @@ import org.fxboomk.fcitx5.android.core.data.DataManager
 import org.fxboomk.fcitx5.android.data.clipboard.ClipboardManager
 import org.fxboomk.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinSchemeMigration
 import org.fxboomk.fcitx5.android.utils.ImmutableGraph
 import org.fxboomk.fcitx5.android.utils.Locales
 import org.fxboomk.fcitx5.android.utils.appContext
 import org.fxboomk.fcitx5.android.utils.toast
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
+
+private fun decorateInputMethod(entry: InputMethodEntry): InputMethodEntry =
+    if (CustomShuangpinSchemeStore.isCustomScheme(entry.uniqueName)) {
+        entry.copy(name = CustomShuangpinSchemeStore.displayName())
+    } else {
+        entry
+    }
 
 /**
  * Do not use this class directly, accessing fcitx via daemon instead
@@ -86,6 +95,37 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         withFcitxContext { saveFcitxStateWithoutRime() }
     override suspend fun reloadConfig() = withFcitxContext { reloadFcitxConfig() }
 
+    /**
+     * Pull the latest input method status from the engine (name, subMode, ...)
+     * and re-emit [FcitxEvent.IMChangeEvent] when it changed.
+     *
+     * Needed after saving settings that change the appearance of the current
+     * input method (e.g. renaming the custom shuangpin scheme, toggling the
+     * sub-mode label): the engine emits no event for such changes while no
+     * input context is active, so the cached entry would stay stale.
+     */
+    override suspend fun refreshImEntry() {
+        // inputMethodStatus reads the engine state via JNI, so it must run on
+        // the fcitx dispatcher regardless of the caller's context.
+        // Between state checks FcitxDispatcher.dispatch() throws
+        // IllegalStateException if the native loop is being torn down (e.g.
+        // the settings search box shows/hides the IME in quick succession);
+        // an uncaught exception in runIfReady's coroutine would crash the
+        // app, so fall back to the cached entry instead.
+        val status = try {
+            withFcitxContext { inputMethodStatus() }
+        } catch (e: IllegalStateException) {
+            Timber.w(e, "refreshImEntry: fcitx is not running")
+            null
+        }
+        val entry = status ?: inputMethodEntryCached
+        val decorated = decorateInputMethod(entry)
+        if (decorated != inputMethodEntryCached) {
+            inputMethodEntryCached = decorated
+            eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(decorated))
+        }
+    }
+
     override suspend fun sendKey(
         key: String,
         states: UInt,
@@ -124,11 +164,20 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun isEmpty(): Boolean = withFcitxContext { isInputPanelEmpty() }
     override suspend fun reset() = withFcitxContext { resetInputContext() }
     override suspend fun moveCursor(position: Int) = withFcitxContext { repositionCursor(position) }
-    override suspend fun availableIme() =
-        withFcitxContext { availableInputMethods() ?: emptyArray() }
+    override suspend fun availableIme() = withFcitxContext {
+        (availableInputMethods() ?: emptyArray())
+            .filter {
+                it.uniqueName != ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME &&
+                    !CustomShuangpinSchemeStore.isStaleCustomEntry(it.uniqueName)
+            }
+            .map(::decorateInputMethod)
+            .toTypedArray()
+    }
 
-    override suspend fun enabledIme() =
-        withFcitxContext { listInputMethods() ?: emptyArray() }
+    override suspend fun enabledIme() = withFcitxContext {
+        (listInputMethods() ?: emptyArray()).map(::decorateInputMethod)
+            .toTypedArray()
+    }
 
     override suspend fun setEnabledIme(array: Array<String>) =
         withFcitxContext { setEnabledInputMethods(array) }
@@ -138,8 +187,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun enumerateIme(forward: Boolean) =
         withFcitxContext { nextInputMethod(forward) }
 
-    override suspend fun currentIme() =
-        withFcitxContext { inputMethodStatus() ?: inputMethodEntryCached }
+    override suspend fun currentIme() = withFcitxContext {
+        decorateInputMethod(inputMethodStatus() ?: inputMethodEntryCached)
+    }
 
     override suspend fun getGlobalConfig() = withFcitxContext {
         getFcitxGlobalConfig() ?: RawConfig()
@@ -429,8 +479,17 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         @JvmStatic
         fun handleFcitxEvent(type: Int, params: Array<Any>) {
             val event = FcitxEvent.create(type, params)
-            fcitxEventHandlers.forEach { it.invoke(event) }
-            eventFlow_.tryEmit(event)
+            // Decorate before dispatching: consumers of eventFlow receive the
+            // event object directly, so decorating only the cached entry here
+            // would still let a raw native name overwrite the UI (e.g. the
+            // custom shuangpin space-key label).
+            val dispatched = when (event) {
+                is FcitxEvent.IMChangeEvent ->
+                    FcitxEvent.IMChangeEvent(decorateInputMethod(event.data))
+                else -> event
+            }
+            fcitxEventHandlers.forEach { it.invoke(dispatched) }
+            eventFlow_.tryEmit(dispatched)
         }
 
         // will be called in fcitx main thread
@@ -455,6 +514,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     private val dispatcher = FcitxDispatcher(object : FcitxDispatcher.FcitxController {
         override fun nativeStartup() {
             DataManager.sync()
+            CustomShuangpinSchemeStore.ensureInitialized()
             val locale = Locales.fcitxLocale
             val dataDir = DataManager.dataDir.absolutePath
             val plugins = DataManager.getLoadedPlugins()
@@ -488,6 +548,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
                     extDomains.toTypedArray()
                 )
             }
+            migrateLegacyShuangpinInputMethod()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 lifecycle.launchWhenReady {
                     SubtypeManager.syncWith(enabledIme())
@@ -554,15 +615,16 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
         when (event) {
             is FcitxEvent.ReadyEvent -> lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_READY)
-            is FcitxEvent.IMChangeEvent -> inputMethodEntryCached = event.data
+            is FcitxEvent.IMChangeEvent -> inputMethodEntryCached = decorateInputMethod(event.data)
             is FcitxEvent.StatusAreaEvent -> {
                 val (actions, im) = event.data
                 statusAreaActionsCached = actions
                 // Engine subMode update won't trigger IMChangeEvent, but usually updates StatusArea
-                if (im != inputMethodEntryCached) {
-                    inputMethodEntryCached = im
+                val decorated = decorateInputMethod(im)
+                if (decorated != inputMethodEntryCached) {
+                    inputMethodEntryCached = decorated
                     // notify downstream consumers that engine subMode has changed
-                    eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(im))
+                    eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(decorated))
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> clientPreeditCached = event.data
@@ -570,6 +632,35 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             is FcitxEvent.PagedCandidateEvent -> predictionCandidateSnapshot.update(event.data)
             else -> {}
         }
+    }
+
+    /**
+     * The old single "双拼" entry selected its scheme through a hidden config
+     * option. Replace it once with the matching per-scheme input method so
+     * existing users keep the same behaviour after the add-dialog refactor.
+     */
+    private fun migrateLegacyShuangpinInputMethod() {
+        val enabled = listInputMethods()?.map { it.uniqueName } ?: return
+        val legacyIndex = enabled.indexOf(ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME)
+        if (legacyIndex < 0) return
+
+        val available = availableInputMethods()?.map { it.uniqueName }?.toSet() ?: return
+        val legacyProfile = getFcitxInputMethodConfig(ShuangpinSchemeMigration.LEGACY_UNIQUE_NAME)
+            ?.findByName("cfg")
+            ?.findByName("ShuangpinProfile")
+            ?.value
+        val target =
+            if (legacyProfile == ShuangpinSchemeMigration.LEGACY_CUSTOM_PROFILE) {
+                // The custom scheme entry may have been renamed by the user.
+                CustomShuangpinSchemeStore.currentUniqueName()
+            } else {
+                ShuangpinSchemeMigration.targetForLegacyProfile(legacyProfile)
+            }
+        if (target !in available) return
+
+        val migrated = enabled.toMutableList()
+        migrated[legacyIndex] = target
+        setEnabledInputMethods(migrated.distinct().toTypedArray())
     }
 
     fun start() {

@@ -48,6 +48,10 @@ internal fun normalizeCandidateDisplayMode(
     }
 
 class AppPrefs(private val sharedPreferences: SharedPreferences) {
+    /** An existing explicit app choice must retain its effect after engine updates. */
+    fun hasExplicitPredictionBackspaceBehavior(): Boolean =
+        sharedPreferences.contains("prediction_backspace_behavior")
+
 
     inner class Internal : ManagedPreferenceInternal(sharedPreferences) {
         val firstRun = bool("first_run", true)
@@ -286,9 +290,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             val entryValues = listOf(
                 SpaceLongPressBehavior.None,
                 SpaceLongPressBehavior.Enumerate,
+                SpaceLongPressBehavior.ShowPicker,
+                SpaceLongPressBehavior.RepeatSpace,
                 SpaceLongPressBehavior.VoiceInput,
-                SpaceLongPressBehavior.SwitchToEnglish,
-                SpaceLongPressBehavior.ShowPicker
+                SpaceLongPressBehavior.SwitchToEnglish
             )
             list(
                 R.string.space_long_press_behavior,
@@ -314,11 +319,29 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "prediction_space_behavior",
             PredictionSpaceBehavior.CommitSpace
         )
-        val predictionBackspaceBehavior = enumList(
-            R.string.prediction_backspace_behavior,
-            "prediction_backspace_behavior",
-            PredictionBackspaceBehavior.DeleteText
-        )
+        val predictionBackspaceBehavior = run {
+            // Preserve explicit app choices. Without one, the built-in engine's
+            // own prediction-backspace setting takes precedence.
+            val entryValues = listOf(
+                PredictionBackspaceBehavior.ClearPredictionCandidates,
+                PredictionBackspaceBehavior.ClearPredictionCandidatesAndDeleteText,
+                PredictionBackspaceBehavior.DeleteText,
+            )
+            list(
+                R.string.prediction_backspace_behavior,
+                "prediction_backspace_behavior",
+                PredictionBackspaceBehavior.DeleteText,
+                object : ManagedPreference.StringLikeCodec<PredictionBackspaceBehavior> {
+                    override fun decode(raw: String): PredictionBackspaceBehavior = when (raw) {
+                        // Legacy value, relabelled to "clear prediction candidates".
+                        "DismissCandidates" -> PredictionBackspaceBehavior.ClearPredictionCandidates
+                        else -> enumValueOf(raw)
+                    }
+                },
+                entryValues,
+                entryValues.map { it.stringRes }
+            )
+        }
         val spaceSwipeVerticalBehavior = enumList(
             R.string.space_swipe_vertical_behavior,
             "space_swipe_vertical_behavior",
@@ -343,10 +366,16 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "text_keyboard_layout_profile_collapsed",
             ""
         ).apply { register() }
-        // 布局管理页中隐藏未定制基础布局的配置名，换行分隔
+        // 布局管理页中隐藏未定制父级输入法布局的配置名，换行分隔
         val textKeyboardLayoutProfileFiltered = ManagedPreference.PString(
             sharedPreferences,
             "text_keyboard_layout_profile_filtered",
+            ""
+        ).apply { register() }
+        // 布局管理页中被折叠的父级输入法布局节点，条目为"配置名 <TAB> 父级输入法布局键"，换行分隔
+        val textKeyboardLayoutBaseCollapsed = ManagedPreference.PString(
+            sharedPreferences,
+            "text_keyboard_layout_base_collapsed",
             ""
         ).apply { register() }
         val langSwitchKeyLongPressBehavior = enumList(

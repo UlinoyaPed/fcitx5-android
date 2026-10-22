@@ -20,6 +20,7 @@ import kotlinx.serialization.json.JsonObject
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.config.ConfigProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
@@ -35,10 +36,15 @@ import java.io.File
 internal fun resolvePreviewRows(
     entries: Map<String, List<List<Map<String, Any?>>>>,
     layoutName: String,
-    subModeKey: String?
+    subModeKey: String?,
+    fallbackRows: List<List<Map<String, Any?>>>? = null
 ): List<List<Map<String, Any?>>>? = subModeKey?.let { entries[it] }
     ?: entries[layoutName]
-    ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
+    // 双拼方案回退到“双拼”父级输入法布局
+    ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)?.let { entries[it] }
+    // 未定制专属布局的输入法回退到出厂 26 键布局，
+    // 而非可被用户定制的 English（default）布局，避免布局污染
+    ?: fallbackRows
 
 /** Match runtime inheritance without letting one orientation mask the other. */
 internal fun resolvePreviewHeightOverrides(
@@ -53,14 +59,22 @@ internal fun resolvePreviewHeightOverrides(
         ?.takeIf { it in entries }
         ?.let(heightProvider)
     val base = layoutName.takeIf { it in entries }?.let(heightProvider)
+    // 双拼方案未存专属布局时，沿父级“双拼”父级输入法布局继承高度
+    val parent = if (layoutName !in entries) {
+        ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)
+            ?.takeIf { it in entries }
+            ?.let(heightProvider)
+    } else null
     // An explicit base opts out of global-default layout metadata, even if it
     // does not override height. Only virtual parents / child-only IMEs inherit it.
-    val default = if (layoutName !in entries) {
+    val default = if (layoutName !in entries && parent == null) {
         LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY.takeIf { it in entries }?.let(heightProvider)
     } else null
     return LayoutHeightPercentOverrides(
-        portrait = child?.portrait ?: base?.portrait ?: default?.portrait ?: profileHeight?.portrait,
-        landscape = child?.landscape ?: base?.landscape ?: default?.landscape ?: profileHeight?.landscape
+        portrait = child?.portrait ?: base?.portrait ?: parent?.portrait
+            ?: default?.portrait ?: profileHeight?.portrait,
+        landscape = child?.landscape ?: base?.landscape ?: parent?.landscape
+            ?: default?.landscape ?: profileHeight?.landscape
     )
 }
 
@@ -76,7 +90,9 @@ internal fun buildPreviewSubModeMap(
 
     if (subModeKey != null && entries.containsKey(subModeKey)) {
         subModeMap[previewSubModeLabel ?: "default"] = currentRowsArray
-        val defaultRows = entries[layoutName] ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
+        val defaultRows = entries[layoutName]
+            ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)?.let { entries[it] }
+            ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
         defaultRows?.let {
             subModeMap["default"] = JsonArray(it.map(LayoutJsonUtils::rowToJsonElement))
         }
@@ -116,6 +132,12 @@ class KeyboardPreviewManager(
     // or default heights. Keep the existing constructor/callback contract intact.
     internal var profileHeightPercentProvider: () -> LayoutHeightPercentOverrides? = { null }
 
+    /**
+     * 未定制专属布局时的出厂 26 键回退行（预览用），避免回退到可被用户
+     * 定制的 English（default）布局造成布局污染。
+     */
+    internal var fallbackRowsProvider: () -> List<List<Map<String, Any?>>>? = { null }
+
     private var previewKeyboard: TextKeyboard? = null
     // 单层预览图层：背景、模糊遮罩、键盘都放进这个固定高度的 FrameLayout，
     // 无论外层容器是纵向 LinearLayout 还是 FrameLayout，预览高度都只等于一个键盘高度。
@@ -139,7 +161,7 @@ class KeyboardPreviewManager(
 
         // Try to load submode-specific layout first
         val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-        val rows = resolvePreviewRows(entries, layoutName, subModeKey) ?: return
+        val rows = resolvePreviewRows(entries, layoutName, subModeKey, fallbackRowsProvider()) ?: return
 
         previewBlurMask.bindKeyboard(null)
 
@@ -219,7 +241,7 @@ class KeyboardPreviewManager(
             val keyboardPrefs = AppPrefs.getInstance().keyboard
             val isLandscape = context.resources.configuration.orientation ==
                 Configuration.ORIENTATION_LANDSCAPE
-            // 编辑专属子模式布局时优先取该子模式的高度覆写，未配置则回退基础布局
+            // 编辑专属子模式布局时优先取该子模式的高度覆写，未配置则回退父级输入法布局
             val layoutHeightOverride = resolvePreviewHeightOverrides(
                 entries, layoutName, previewSubModeLabel,
                 layoutHeightPercentProvider, profileHeightPercentProvider()

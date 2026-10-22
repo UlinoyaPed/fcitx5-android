@@ -3,8 +3,6 @@
     <string name="app_name">백조 입력기</string>
     <string name="app_name_release">백조 입력기</string>
     <string name="app_name_debug">백조 입력기 (디버그)</string>
-    <string name="app_name_mainline_release">백조 입력기</string>
-    <string name="app_name_mainline_debug">백조 입력기 (디버그)</string>
     <string name="save">저장</string>
     <string name="input_methods">입력기</string>
     <string name="addons">애드온</string>
@@ -233,7 +231,8 @@
     <string name="prediction_space_behavior_commit_prediction">강조된 예측 항목 확정</string>
     <string name="prediction_backspace_behavior">예측 시 백스페이스 키 동작</string>
     <string name="prediction_backspace_behavior_delete_text">커서 앞 텍스트 삭제</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">후보를 취소하고 도구 모음 표시</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">예측 후보 지우기</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">예측 후보 지우고 문자 삭제</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">주 문자는 비워둘 수 없습니다</string>
     <string name="text_keyboard_layout_alphabet_key_alt_required">보조 문자는 비워둘 수 없습니다</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">주 문자는 단일 문자여야 합니다</string>
@@ -246,21 +245,22 @@
     <string name="text_keyboard_layout_file_select_title">키보드 레이아웃 목록</string>
     <string name="text_keyboard_layout_file_select_summary">현재 파일: %1$s</string>
     <string name="text_keyboard_layout_manage_title">키보드 레이아웃 관리</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">활성 레이아웃</string>
     <string name="text_keyboard_layout_manage_set_default">기본값으로 설정</string>
     <string name="text_keyboard_layout_manage_collapse">접기</string>
     <string name="text_keyboard_layout_manage_expand">펼치기</string>
     <string name="text_keyboard_layout_manage_submode_uncustomized">%1$s (맞춤설정되지 않음)</string>
     <string name="text_keyboard_layout_manage_submode_inherited">%1$s (상속됨)</string>
-    <string name="text_keyboard_layout_manage_base_reset">기본 레이아웃 재설정됨: %1$s</string>
+    <string name="text_keyboard_layout_manage_base_reset">상위 입력기 레이아웃 재설정됨: %1$s</string>
     <string name="text_keyboard_layout_manage_base_reset_action">이 레이아웃 재설정</string>
     <string name="text_keyboard_layout_manage_reset_base_confirm">삭제 후 레이아웃 %1$s이(가) 기본 26키 레이아웃으로 재설정됩니다.</string>
-    <string name="text_keyboard_layout_manage_show_uncustomized">맞춤설정하지 않은 기본 레이아웃 표시</string>
-    <string name="text_keyboard_layout_manage_hide_uncustomized">맞춤설정하지 않은 기본 레이아웃 숨기기</string>
+    <string name="text_keyboard_layout_manage_show_uncustomized">맞춤설정하지 않은 상위 입력기 레이아웃 표시</string>
+    <string name="text_keyboard_layout_manage_hide_uncustomized">맞춤설정하지 않은 상위 입력기 레이아웃 숨기기</string>
     <string name="text_keyboard_layout_manage_reset_type_message">%1$s 레이아웃의 재설정 방법 선택</string>
-    <string name="text_keyboard_layout_manage_reset_option_inherit">기본 레이아웃 상속</string>
+    <string name="text_keyboard_layout_manage_reset_option_inherit">상위 입력기 레이아웃 상속</string>
     <string name="text_keyboard_layout_manage_reset_option_factory">출고 시 26키 레이아웃으로 재설정</string>
-    <string name="text_keyboard_layout_manage_sub_reset_inherit">재설정됨: %1$s 레이아웃이 이제 기본 레이아웃을 상속합니다</string>
+    <string name="text_keyboard_layout_manage_sub_reset_inherit">재설정됨: %1$s 레이아웃이 이제 상위 입력기 레이아웃을 상속합니다</string>
     <string name="text_keyboard_layout_manage_move_up">위로 이동</string>
     <string name="text_keyboard_layout_manage_delete">삭제</string>
     <string name="text_keyboard_layout_manage_import">가져오기</string>
@@ -561,12 +561,6 @@
     <string name="exception_quickphrase_filename">%1$s 파일 확장자는 빠른 구문 파일이 아닙니다</string>
     <string name="exception_quickphrase_parse">빠른 구문 줄을 해석하지 못했습니다: %1$s</string>
     <string name="exception_sougou_dict_filename">%1$s 파일 확장자는 sogou 사전 파일이 아닙니다</string>
-    <string name="exception_table">테이블 입력기 사전(.dict 또는 .txt)을 찾을 수 없습니다</string>
-    <string name="exception_table_conf_filename">"%1$s"의 확장자는 테이블 입력기 설정 파일(.conf 또는 .conf.in)이 아닙니다</string>
-    <string name="exception_table_dict_filename">"%1$s"의 확장자는 테이블 입력기 사전 파일(.dict 또는 .txt)이 아닙니다</string>
-    <string name="exception_table_im">테이블 입력기 설정 파일(.conf 또는 .conf.in)을 찾을 수 없습니다</string>
-    <string name="exception_table_im_filename">"%1$s"의 확장자는 테이블 입력기 패키지(.zip)가 아닙니다</string>
-    <string name="exception_table_import_both_files">가져오려면 위의 두 파일을 모두 선택하세요</string>
     <string name="exception_text_dict_filename">%1$s 파일 확장자는 텍스트 사전 파일이 아닙니다</string>
     <string name="exception_theme_cropped_image">테마 배경의 잘린 이미지를 저장할 수 없습니다</string>
     <string name="exception_theme_filename">%1$s 파일 확장자는 테마 파일이 아닙니다</string>
@@ -612,16 +606,11 @@
     <string name="horizontal_candidate_style">가로 후보 스타일</string>
     <string name="i_do_not_need_it">필요하지 않습니다</string>
     <string name="import_from_file">파일에서 가져오기…</string>
-    <string name="import_table">테이블 가져오기</string>
     <string name="import_user_data">사용자 데이터 가져오기</string>
     <string name="incompatible_api">호환되지 않는 API: %1$s</string>
     <string name="inline_suggestions">인라인 자동완성 제안 표시</string>
     <string name="invalid_data_descriptor">잘못된 데이터 설명자</string>
-    <string name="invalid_im">잘못된 입력기 설정 파일:
-%1$s</string>
     <string name="invalid_plugin_descriptor">잘못된 플러그인 설명자</string>
-    <string name="invalid_table_dict">잘못된 사전:
-%1$s</string>
     <string name="caps_key_behavior">대문자 전환 키 동작</string>
     <string name="caps_key_behavior_default">기본 동작 유지</string>
     <string name="caps_key_behavior_single_tap_lock">한 번 눌러 대문자 고정</string>
@@ -648,7 +637,6 @@
     <string name="lang_switch_key_behavior">언어 전환 키 동작</string>
     <string name="light_mode_theme">라이트 모드 테마</string>
     <string name="main_program">메인 프로그램</string>
-    <string name="manage_table_im">테이블 입력기 관리</string>
     <string name="missing_data_descriptor">데이터 설명자 누락</string>
     <string name="missing_plugin_descriptor">플러그인 설명자 누락</string>
     <string name="move_cursor_down">커서를 아래로 이동</string>
@@ -678,7 +666,6 @@
     <string name="preferred_voice_input">선호 음성 입력</string>
     <string name="private_mode">개인정보 모드 (눌러서 상태 영역 열기)</string>
     <string name="punctuation_pos_bottom">하단</string>
-    <string name="punctuation_pos_bottom_right">오른쪽 하단</string>
     <string name="punctuation_pos_top">상단</string>
     <string name="uppercase_position">대문자 위치</string>
     <string name="uppercase_pos_none">없음</string>
@@ -687,9 +674,6 @@
     <string name="punctuation_pos_none">없음</string>
     <string name="punctuation_pos_top_right">오른쪽 위</string>
     <string name="punctuation_position">보조 문자 위치</string>
-    <string name="sub_label_padding">보조 문자 안쪽 여백</string>
-    <string name="secondary_label_position">보조 문자 2 위치</string>
-    <string name="sub_label_follow_layout">기존 배열 따르기</string>
     <string name="recrop_image">이미지 다시 자르기</string>
     <string name="removed_n_items">%1$d개 항목 제거됨</string>
     <string name="reset_keyboard_on_focus_change">포커스가 변경되면 키보드로 돌아가기</string>
@@ -731,7 +715,7 @@
     <string name="space_behavior_activate">입력기 활성화 상태 전환</string>
     <string name="space_behavior_enumerate">입력기 순환</string>
     <string name="space_behavior_none">없음</string>
-    <string name="space_behavior_picker">입력기 선택 대화상자 표시</string>
+    <string name="space_behavior_repeat_space">공백 문자 반복 출력</string>
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
     <string name="space_behavior_switch_to_english">중국어와 영어 입력 방식 간 전환</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>
@@ -756,16 +740,6 @@
     <string name="switch_to_voice_input">음성 입력으로 전환</string>
     <string name="toggle_number_keyboard">숫자 키보드 전환</string>
     <string name="system_default">시스템 기본값</string>
-    <string name="table_already_exists">테이블 입력기 설정 파일 "%1$s"가 이미 존재합니다</string>
-    <string name="table_conf_select_title">입력기 설정 파일 (.conf 또는 .conf.in)</string>
-    <string name="table_dict_replace_message">테이블 입력기 사전 "%1$s"가 이미 존재합니다. 새 사전을 가져와 교체할 수 있습니다.</string>
-    <string name="table_dict_select_title">사전 파일 (.dict 또는 .txt)</string>
-    <string name="table_file_does_not_exist_message">테이블 입력기 사전 "%1$s"가 존재하지 않습니다. 사전 파일을 확인하거나 다시 가져오세요.</string>
-    <string name="table_file_does_not_exist_title">테이블 사용 불가</string>
-    <string name="table_file_placeholder">파일 선택…</string>
-    <string name="table_from_zip">zip에서…</string>
-    <string name="table_im">테이블 입력기</string>
-    <string name="table_select_files">개별 파일에서…</string>
     <string name="text_editing_button_radius">텍스트 편집 버튼 반경</string>
     <string name="text_keyboard_layout_file_delete">레이아웃 삭제</string>
     <string name="text_keyboard_layout_file_delete_confirm">레이아웃 파일 프로필 "%1$s"와 백업을 삭제할까요?</string>
@@ -788,7 +762,6 @@
     <string name="toolbar_height">도구 모음 높이</string>
     <string name="toolbar_dynamic_height">도구 모음 동적 높이</string>
     <string name="toolbar_dynamic_height_summary">후보 글꼴이 너무 커서 후보 바에 맞지 않을 때 후보를 완전히 표시할 수 있도록 높이를 자동으로 늘립니다</string>
-    <string name="update_table">테이블 업데이트</string>
     <string name="user_data_imported">%1$s의 사용자 데이터를 가져왔습니다. 재시작 중…</string>
     <string name="vivo_keypress_workaround">Vivo 키 입력 문제 수정</string>
     <string name="whether_reset_switch_preference">이 설정을 기본값으로 초기화하시겠습니까?</string>
@@ -885,7 +858,6 @@
     <string name="llm_sample_count">샘플링 횟수</string>
     <string name="llm_prediction_display_mode">예측 항목 표시 방식</string>
     <string name="llm_prediction_display_mode_floating_window">플로팅 창</string>
-    <string name="llm_prediction_display_mode_candidate_bar_overlay">후보 바(대체)</string>
     <string name="llm_prediction_display_mode_candidate_expanded">확장 후보 목록</string>
     <string name="llm_max_output_tokens">최대 출력 토큰 수</string>
     <string name="llm_max_output_tokens_summary">%1$d. 이 값은 LLM 요청과 함께 전송되며, 답변 길이의 대략적인 크기를 정합니다. 클수록 더 길어지기 쉽지만, 최종 표시 글자 수의 상한은 아닙니다.</string>
@@ -965,18 +937,6 @@
     <string name="theme_preview_next">다음 테마</string>
     <string name="theme_preview_in_use">사용 중</string>
 
-    <string name="llm_space_commit_prediction">스페이스로 AI 예측 확정</string>
-    <string name="llm_space_commit_prediction_summary">기본값은 꺼짐입니다. 켜면 조합 중이 아닐 때 스페이스로 표시된 첫 AI 예측을 확정합니다. 끄면 공백을 입력합니다.</string>
-    <string name="personal_candidate_index_labels">물리 키보드 후보 표시줄에 번호 표시</string>
-    <string name="personal_hardware_digit_selection">물리 숫자 키로 후보 선택</string>
-    <string name="personal_hardware_space_selection">물리 스페이스 키로 강조된 후보 확정</string>
-    <string name="personal_hardware_prediction_dismiss">물리 Esc 또는 Backspace로 예측 취소</string>
-    <string name="personal_digit_swipe_selection">숫자 보조 라벨을 스와이프하여 기본 후보 선택</string>
-    <string name="personal_dock_toolbar">물리 키보드 도구 모음과 후보 창 함께 표시</string>
-    <string name="personal_reverse_above_cursor">커서 위의 세로 후보를 역순으로 표시</string>
-    <string name="personal_punctuation_letters_only">보조 문자 위치를 문자 키에만 적용</string>
-
-    <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">짝 기호 자동 완성</string>
     <string name="insert_space_between_chinese_and_english">중국어와 영어 사이에 공백 삽입</string>
     <string name="edit_swipe_symbol_mapping">스와이프 기호 매핑</string>
@@ -997,4 +957,80 @@
     <string name="cannot_resolve_swipe_symbol_mapping">스와이프 기호 매핑 파일 경로를 확인할 수 없습니다</string>
     <string name="swipe_symbol_picker_title">스와이프 기호 매핑에서 선택</string>
     <string name="swipe_symbol_picker_empty">스와이프 기호 매핑이 비어 있습니다</string>
+    <string name="macro_editor_swipe_timing_hint">각 카드는 하나 이상의 타이밍을 가집니다. 같은 타이밍은 한 카드에만 넣을 수 있습니다. 일치하는 타이밍은 「모두」를 대체하며, 타이밍이 없는 상태는 「모두」를 사용합니다. 타이밍이 선택되지 않은 카드는 적용되지 않습니다.</string>
+    <string name="macro_editor_add_timing_action">+ 타이밍/동작 추가</string>
+    <string name="macro_editor_choose_timings_title">동작 타이밍 선택</string>
+    <string name="macro_editor_choose_at_least_one">타이밍을 하나 이상 선택하세요</string>
+    <string name="macro_editor_no_timings_available">모든 타이밍이 다른 카드에서 사용 중입니다</string>
+    <string name="macro_editor_timing_card_empty">동작 없음</string>
+    <string name="macro_editor_delete_timing_title">이 타이밍 카드 삭제</string>
+    <string name="macro_editor_delete_timing_message">카드의 단계가 삭제됩니다.</string>
+    <string name="swipe_action_timing_code_no_candidates">코드 있음, 후보 없음</string>
+    <string name="swipe_action_timing_code_all">코드 있음(모두)</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
+    <string name="custom_shuangpin">사용자 지정 쌍핀</string>
+    <string name="custom_shuangpin_tab_mapping">음절 매핑</string>
+    <string name="custom_shuangpin_tab_preferences">환경 설정</string>
+    <string name="custom_shuangpin_scheme_name">방안 이름</string>
+    <string name="custom_shuangpin_zero_initial">영성모 표식</string>
+    <string name="custom_shuangpin_initials">성모 매핑</string>
+    <string name="custom_shuangpin_finals">운모 매핑</string>
+    <string name="custom_shuangpin_key_none">설정 안 됨</string>
+    <string name="custom_shuangpin_mapping_hint">설정하지 않은 키는 기본 규칙을 사용합니다. 여러 글자 성모와 운모에는 보통 명시적인 키가 필요합니다.</string>
+    <string name="custom_shuangpin_name_invalid">비어 있지 않고 내장 방안 이름과 겹치지 않는 이름을 입력하세요.</string>
+    <string name="custom_shuangpin_scheme_id">입력기 ID (접두사 shuangpin- 고정)</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">소문자, 숫자, 하이픈만 사용하세요 (비어 있지 않고 내장 방안 이름과 겹치지 않아야 합니다).</string>
+    <string name="custom_shuangpin_zero_initial_invalid">소문자와 *만 사용할 수 있습니다.</string>
+    <string name="custom_shuangpin_syllables">음절 재정의</string>
+    <string name="custom_shuangpin_edit_syllables">음절 재정의 편집</string>
+    <string name="custom_shuangpin_syllable_count">%1$d개 재정의</string>
+    <string name="custom_shuangpin_syllables_hint">한 줄에 하나씩: 전체 병음=두 키. 여러 키는 쉼표로 구분할 수 있습니다.</string>
+    <string name="custom_shuangpin_syllables_invalid">음절 재정의 형식이 올바르지 않습니다. 예: ju=jv 또는 shi=ui,is.</string>
+    <string name="macro_editor_swipe_timing">동작 타이밍</string>
+    <string name="swipe_action_timing_no_code_no_candidates">코드 없음, 후보 없음</string>
+    <string name="swipe_action_timing_code_and_candidates">코드 있음, 후보 있음</string>
+    <string name="swipe_action_timing_no_code_candidates">코드 없음, 후보 있음</string>
+    <string name="swipe_action_timing_all">모두</string>
+    <string name="text_keyboard_layout_compose_override_description">조합 상태는 입력기가 입력 코드를 입력하는 중임을 의미합니다.</string>
+    <string name="exception_table_im_filename">"%1$s"의 확장자는 테이블 입력기 패키지(.zip)가 아닙니다</string>
+    <string name="sub_label_follow_layout">기존 배열 따르기</string>
+    <string name="table_dict_replace_message">테이블 입력기 사전 "%1$s"가 이미 존재합니다. 새 사전을 가져와 교체할 수 있습니다.</string>
+    <string name="personal_punctuation_letters_only">보조 문자 위치를 문자 키에만 적용</string>
+    <string name="personal_reverse_above_cursor">커서 위의 세로 후보를 역순으로 표시</string>
+    <string name="table_im">테이블 입력기</string>
+    <string name="personal_dock_toolbar">물리 키보드 도구 모음과 후보 창 함께 표시</string>
+    <string name="personal_digit_swipe_selection">숫자 보조 라벨을 스와이프하여 기본 후보 선택</string>
+    <string name="table_file_does_not_exist_title">테이블 사용 불가</string>
+    <string name="sub_label_padding">보조 문자 안쪽 여백</string>
+    <string name="personal_candidate_index_labels">물리 키보드 후보 표시줄에 번호 표시</string>
+    <string name="llm_space_commit_prediction_summary">기본값은 꺼짐입니다. 켜면 조합 중이 아닐 때 스페이스로 표시된 첫 AI 예측을 확정합니다. 끄면 공백을 입력합니다.</string>
+    <string name="exception_table_dict_filename">"%1$s"의 확장자는 테이블 입력기 사전 파일(.dict 또는 .txt)이 아닙니다</string>
+    <string name="secondary_label_position">보조 문자 2 위치</string>
+    <string name="update_table">테이블 업데이트</string>
+    <string name="import_table">테이블 가져오기</string>
+    <string name="exception_table_im">테이블 입력기 설정 파일(.conf 또는 .conf.in)을 찾을 수 없습니다</string>
+    <string name="personal_hardware_prediction_dismiss">물리 Esc 또는 Backspace로 예측 취소</string>
+    <string name="personal_hardware_digit_selection">물리 숫자 키로 후보 선택</string>
+    <string name="table_file_placeholder">파일 선택…</string>
+    <string name="table_from_zip">zip에서…</string>
+    <string name="exception_table_conf_filename">"%1$s"의 확장자는 테이블 입력기 설정 파일(.conf 또는 .conf.in)이 아닙니다</string>
+    <string name="personal_hardware_space_selection">물리 스페이스 키로 강조된 후보 확정</string>
+    <string name="exception_table_import_both_files">가져오려면 위의 두 파일을 모두 선택하세요</string>
+    <string name="invalid_table_dict">잘못된 사전:
+%1$s</string>
+    <string name="manage_table_im">테이블 입력기 관리</string>
+    <string name="table_select_files">개별 파일에서…</string>
+    <string name="table_dict_select_title">사전 파일 (.dict 또는 .txt)</string>
+    <string name="table_file_does_not_exist_message">테이블 입력기 사전 "%1$s"가 존재하지 않습니다. 사전 파일을 확인하거나 다시 가져오세요.</string>
+    <string name="llm_space_commit_prediction">스페이스로 AI 예측 확정</string>
+    <string name="invalid_im">잘못된 입력기 설정 파일:
+%1$s</string>
+    <string name="punctuation_pos_bottom_right">오른쪽 하단</string>
+    <string name="table_already_exists">테이블 입력기 설정 파일 "%1$s"가 이미 존재합니다</string>
+    <string name="table_conf_select_title">입력기 설정 파일 (.conf 또는 .conf.in)</string>
+    <string name="exception_table">테이블 입력기 사전(.dict 또는 .txt)을 찾을 수 없습니다</string>
+    <string name="llm_prediction_display_mode_candidate_bar_overlay">후보 바(대체)</string>
+    <string name="space_behavior_picker">입력기 선택 대화상자 표시</string>
 </resources>

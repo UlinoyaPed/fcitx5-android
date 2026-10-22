@@ -3,8 +3,6 @@
     <string name="app_name">Método de entrada Cisne</string>
     <string name="app_name_release">Método de entrada Cisne</string>
     <string name="app_name_debug">Método de entrada Cisne (depuración)</string>
-    <string name="app_name_mainline_release">Método de entrada Cisne</string>
-    <string name="app_name_mainline_debug">Método de entrada Cisne (depuración)</string>
     <string name="save">Guardar</string>
     <string name="input_methods">Métodos de entrada</string>
     <string name="addons">Complementos</string>
@@ -80,9 +78,6 @@
     <string name="clear_background_image">Quitar imagen de fondo</string>
     <string name="dark_keys">Teclas oscuras</string>
     <string name="punctuation_position">Posición del carácter secundario</string>
-    <string name="sub_label_padding">Margen interior de los caracteres secundarios</string>
-    <string name="secondary_label_position">Posición del carácter secundario 2</string>
-    <string name="sub_label_follow_layout">Seguir la disposición actual</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo…</string>
     <string name="light_mode_theme">Tema en modo claro</string>
@@ -121,12 +116,6 @@
     <string name="system_default">Predeterminado del sistema</string>
     <string name="default_">Predeterminado</string>
     <string name="delete_all_pinned_items">¿Quiere eliminar todos los elementos anclados?</string>
-    <string name="table_file_does_not_exist_title">Tabla no disponible</string>
-    <string name="import_table">Importar tabla</string>
-    <string name="table_from_zip">Desde ZIP…</string>
-    <string name="table_select_files">Desde archivos separados…</string>
-    <string name="table_file_placeholder">Seleccionar archivo…</string>
-    <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
     <string name="space_behavior_none">Ninguno</string>
     <string name="space_behavior_enumerate">Enumerar métodos de entrada</string>
     <string name="delete_theme">Eliminar tema</string>
@@ -262,7 +251,8 @@
     <string name="prediction_space_behavior_commit_prediction">Confirmar la predicción resaltada</string>
     <string name="prediction_backspace_behavior">Acción de retroceso durante la predicción</string>
     <string name="prediction_backspace_behavior_delete_text">Eliminar texto antes del cursor</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">Descartar candidatos y mostrar la barra de herramientas</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">Borrar candidatos de predicción</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">Borrar predicción y eliminar texto</string>
     <string name="text_keyboard_layout_alphabet_key_main_required">El carácter principal no debe estar vacío</string>
     <string name="text_keyboard_layout_alphabet_key_alt_required">El carácter secundario no debe estar vacío</string>
     <string name="text_keyboard_layout_alphabet_key_main_length_invalid">El carácter principal debe ser un solo carácter</string>
@@ -275,21 +265,22 @@
     <string name="text_keyboard_layout_file_select_title">Lista de distribuciones del teclado</string>
     <string name="text_keyboard_layout_file_select_summary">Archivo actual: %1$s</string>
     <string name="text_keyboard_layout_manage_title">Gestión de diseños de teclado</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">Diseño activo</string>
     <string name="text_keyboard_layout_manage_set_default">Establecer como predeterminado</string>
     <string name="text_keyboard_layout_manage_collapse">Contraer</string>
     <string name="text_keyboard_layout_manage_expand">Expandir</string>
     <string name="text_keyboard_layout_manage_submode_uncustomized">%1$s (sin personalizar)</string>
     <string name="text_keyboard_layout_manage_submode_inherited">%1$s (heredado)</string>
-    <string name="text_keyboard_layout_manage_base_reset">Diseño base restablecido: %1$s</string>
+    <string name="text_keyboard_layout_manage_base_reset">Diseño del método de entrada padre restablecido: %1$s</string>
     <string name="text_keyboard_layout_manage_base_reset_action">Restablecer este diseño</string>
     <string name="text_keyboard_layout_manage_reset_base_confirm">El diseño %1$s se restablecerá al diseño predeterminado de 26 teclas después de eliminarlo.</string>
-    <string name="text_keyboard_layout_manage_show_uncustomized">Mostrar diseños base sin personalizar</string>
-    <string name="text_keyboard_layout_manage_hide_uncustomized">Ocultar diseños base sin personalizar</string>
+    <string name="text_keyboard_layout_manage_show_uncustomized">Mostrar diseños del método de entrada padre sin personalizar</string>
+    <string name="text_keyboard_layout_manage_hide_uncustomized">Ocultar diseños del método de entrada padre sin personalizar</string>
     <string name="text_keyboard_layout_manage_reset_type_message">Elegir cómo restablecer el diseño %1$s</string>
-    <string name="text_keyboard_layout_manage_reset_option_inherit">Heredar el diseño base</string>
+    <string name="text_keyboard_layout_manage_reset_option_inherit">Heredar el diseño del método de entrada padre</string>
     <string name="text_keyboard_layout_manage_reset_option_factory">Restablecer al diseño de fábrica de 26 teclas</string>
-    <string name="text_keyboard_layout_manage_sub_reset_inherit">Restablecido: %1$s ahora hereda el diseño base</string>
+    <string name="text_keyboard_layout_manage_sub_reset_inherit">Restablecido: %1$s ahora hereda el diseño del método de entrada padre</string>
     <string name="text_keyboard_layout_manage_move_up">Mover arriba</string>
     <string name="text_keyboard_layout_manage_delete">Eliminar</string>
     <string name="text_keyboard_layout_manage_import">Importar</string>
@@ -578,12 +569,6 @@
     <string name="exception_quickphrase_filename">La extension de %1$s no corresponde a una frase rapida</string>
     <string name="exception_quickphrase_parse">No se pudo analizar la linea de frase rapida: %1$s</string>
     <string name="exception_sougou_dict_filename">La extension de %1$s no corresponde a un diccionario sogou</string>
-    <string name="exception_table">No se encontro el diccionario del metodo de entrada de tabla (.dict o .txt)</string>
-    <string name="exception_table_conf_filename">La extension de "%1$s" no corresponde a un archivo de configuracion de metodo de entrada de tabla (.conf o .conf.in)</string>
-    <string name="exception_table_dict_filename">La extension de "%1$s" no corresponde a un archivo de diccionario de metodo de entrada de tabla (.dict o .txt)</string>
-    <string name="exception_table_im">No se encontro el archivo de configuracion del metodo de entrada de tabla (.conf o .conf.in)</string>
-    <string name="exception_table_im_filename">La extension de "%1$s" no corresponde a un paquete de metodo de entrada de tabla (.zip)</string>
-    <string name="exception_table_import_both_files">Seleccione ambos archivos anteriores para importar</string>
     <string name="exception_text_dict_filename">La extension de %1$s no corresponde a un diccionario de texto</string>
     <string name="exception_theme_cropped_image">No se pudo guardar la imagen recortada del fondo del tema</string>
     <string name="exception_theme_filename">La extension de %1$s no corresponde a un tema</string>
@@ -636,11 +621,7 @@
     <string name="instruction_copy">Intente copiar algo</string>
     <string name="instruction_enable_clipboard_listening">Para activar la gestión del portapapeles, habilite «Registrar historial del portapapeles» en los ajustes.</string>
     <string name="invalid_data_descriptor">Descriptor de datos invalido</string>
-    <string name="invalid_im">Archivo de configuracion de metodo de entrada invalido:
-%1$s</string>
     <string name="invalid_plugin_descriptor">Descriptor de complemento invalido</string>
-    <string name="invalid_table_dict">Diccionario invalido:
-%1$s</string>
     <string name="caps_key_behavior">Comportamiento de la tecla de mayúsculas</string>
     <string name="caps_key_behavior_default">Mantener el comportamiento predeterminado</string>
     <string name="caps_key_behavior_single_tap_lock">Un toque bloquea las mayúsculas</string>
@@ -665,7 +646,6 @@
     <string name="rime_schemas_unavailable">No hay esquemas de Rime disponibles. Instala y activa el complemento de Rime y completa la implementación de los esquemas.</string>
     <string name="rime_schema_switch_failed">No se pudo cambiar el esquema de Rime. Activa Rime en Métodos de entrada y vuelve a abrir el menú cuando termine la implementación.</string>
     <string name="lang_switch_key_behavior">Comportamiento de tecla de cambio de idioma</string>
-    <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
     <string name="missing_data_descriptor">Falta descriptor de datos</string>
     <string name="missing_plugin_descriptor">Falta descriptor de complemento</string>
     <string name="move_cursor_down">Mover cursor hacia abajo</string>
@@ -692,7 +672,6 @@
     <string name="preferred_voice_input">Entrada de voz preferida</string>
     <string name="private_mode">Modo privado (toque para abrir el área de estado)</string>
     <string name="punctuation_pos_bottom">Abajo</string>
-    <string name="punctuation_pos_bottom_right">Abajo a la derecha</string>
     <string name="punctuation_pos_top">Arriba</string>
     <string name="uppercase_position">Posición de las mayúsculas</string>
     <string name="uppercase_pos_none">Ninguno</string>
@@ -742,7 +721,7 @@
     <string name="split_keyboard_enabled_summary_short">Division automatica activada</string>
     <string name="split_keyboard_disabled_summary">Division automatica desactivada</string>
     <string name="space_behavior_activate">Alternar estado de activacion del metodo de entrada</string>
-    <string name="space_behavior_picker">Mostrar dialogo selector de metodo de entrada</string>
+    <string name="space_behavior_repeat_space">Repetir la salida de espacios</string>
     <string name="space_behavior_voice_input">Cambiar a entrada de voz</string>
     <string name="space_behavior_switch_to_english">Cambiar entre metodos de entrada chino e ingles</string>
     <string name="space_long_press_behavior">Comportamiento de pulsacion larga de la barra espaciadora</string>
@@ -767,11 +746,6 @@
     <string name="switch_to_voice_input">Cambiar a entrada de voz</string>
     <string name="toggle_number_keyboard">Alternar teclado numérico</string>
     <string name="synced">¡Sincronizado!</string>
-    <string name="table_already_exists">El archivo de configuracion del metodo de entrada de tabla "%1$s" ya existe</string>
-    <string name="table_conf_select_title">Archivo de configuracion del metodo de entrada (.conf o .conf.in)</string>
-    <string name="table_dict_replace_message">Ya existe el diccionario del metodo de entrada de tabla "%1$s". Puede importar uno nuevo y reemplazarlo.</string>
-    <string name="table_file_does_not_exist_message">El diccionario del metodo de entrada de tabla "%1$s" no existe. Revise el archivo o importelo de nuevo.</string>
-    <string name="table_im">Metodos de entrada de tabla</string>
     <string name="text_editing">Edicion de texto</string>
     <string name="text_editing_button_radius">Radio de boton de edicion de texto</string>
     <string name="text_keyboard_layout_file_delete">Eliminar diseño</string>
@@ -791,7 +765,6 @@
     <string name="toolbar_dynamic_height">Altura dinamica de la barra</string>
     <string name="toolbar_dynamic_height_summary">Aumenta automaticamente la altura para contener completamente los candidatos cuando la fuente de estos es demasiado grande para la barra de candidatos</string>
     <string name="unimplemented_type">⛔ Tipo no implementado</string>
-    <string name="update_table">Actualizar tabla</string>
     <string name="user_data_imported">Los datos de usuario de %1$s se importaron, reiniciando…</string>
     <string name="vivo_keypress_workaround">Corregir problema de pulsaciones en Vivo</string>
     <string name="text_keyboard_layout_compose_override_title">Anulación durante composición</string>
@@ -885,7 +858,6 @@
     <string name="llm_sample_count">Número de muestreos</string>
     <string name="llm_prediction_display_mode">Modo de visualización de predicciones</string>
     <string name="llm_prediction_display_mode_floating_window">Ventana flotante</string>
-    <string name="llm_prediction_display_mode_candidate_bar_overlay">Barra de candidatos (reemplazar)</string>
     <string name="llm_prediction_display_mode_candidate_expanded">Lista de candidatos expandida</string>
     <string name="llm_max_output_tokens">Máximo de tokens de salida</string>
     <string name="llm_max_output_tokens_summary">%1$d. Este valor se envía con la solicitud al LLM y marca, a grandes rasgos, lo larga que puede ser la respuesta. Cuanto mayor sea, más larga suele salir, pero no es un límite fijo de caracteres.</string>
@@ -965,18 +937,6 @@
     <string name="theme_preview_next">Tema siguiente</string>
     <string name="theme_preview_in_use">En uso</string>
 
-    <string name="llm_space_commit_prediction">Confirmar predicción de IA con espacio</string>
-    <string name="llm_space_commit_prediction_summary">Desactivado por defecto. Al activarlo, espacio confirma la primera predicción de IA visible fuera de la composición; al desactivarlo, introduce un espacio.</string>
-    <string name="personal_candidate_index_labels">Mostrar números en la barra de candidatos del teclado físico</string>
-    <string name="personal_hardware_digit_selection">Seleccionar candidatos con teclas numéricas físicas</string>
-    <string name="personal_hardware_space_selection">Confirmar el candidato resaltado con el espacio físico</string>
-    <string name="personal_hardware_prediction_dismiss">Descartar predicciones con Escape o Retroceso físicos</string>
-    <string name="personal_digit_swipe_selection">Seleccionar candidatos nativos deslizando las etiquetas numéricas</string>
-    <string name="personal_dock_toolbar">Mostrar candidatos flotantes junto a la barra del teclado físico</string>
-    <string name="personal_reverse_above_cursor">Invertir candidatos verticales sobre el cursor</string>
-    <string name="personal_punctuation_letters_only">Aplicar la posición del carácter secundario solo a las letras</string>
-
-    <!-- Reviewed optional input features -->
     <string name="auto_close_brackets">Completar automáticamente los pares de símbolos</string>
     <string name="insert_space_between_chinese_and_english">Insertar espacios entre caracteres chinos e ingleses</string>
     <string name="edit_swipe_symbol_mapping">Asignación de símbolos al deslizar</string>
@@ -997,4 +957,80 @@
     <string name="cannot_resolve_swipe_symbol_mapping">No se puede obtener la ruta del archivo de asignaciones</string>
     <string name="swipe_symbol_picker_title">Elegir de las asignaciones de símbolos</string>
     <string name="swipe_symbol_picker_empty">No hay asignaciones de símbolos</string>
+    <string name="macro_editor_swipe_timing_hint">Cada tarjeta agrupa uno o más momentos. Un momento solo puede estar en una tarjeta. El momento que coincide sustituye a «Todos»; los estados sin momento propio usan «Todos». Una tarjeta sin momento no tiene efecto.</string>
+    <string name="macro_editor_add_timing_action">+ Añadir momento / acción</string>
+    <string name="macro_editor_choose_timings_title">Elegir momentos de acción</string>
+    <string name="macro_editor_choose_at_least_one">Elige al menos un momento</string>
+    <string name="macro_editor_no_timings_available">Todos los momentos ya se usan en otras tarjetas</string>
+    <string name="macro_editor_timing_card_empty">Sin acción</string>
+    <string name="macro_editor_delete_timing_title">Eliminar esta tarjeta de momento</string>
+    <string name="macro_editor_delete_timing_message">Se descartarán sus pasos.</string>
+    <string name="swipe_action_timing_code_no_candidates">Con código, sin candidatos</string>
+    <string name="swipe_action_timing_code_all">Con código (todos)</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
+    <string name="custom_shuangpin">Shuangpin personalizado</string>
+    <string name="custom_shuangpin_tab_mapping">Asignación de sílabas</string>
+    <string name="custom_shuangpin_tab_preferences">Preferencias</string>
+    <string name="custom_shuangpin_scheme_name">Nombre del esquema</string>
+    <string name="custom_shuangpin_zero_initial">Marcador de inicial cero</string>
+    <string name="custom_shuangpin_initials">Asignaciones de iniciales</string>
+    <string name="custom_shuangpin_finals">Asignaciones de finales</string>
+    <string name="custom_shuangpin_key_none">Sin configurar</string>
+    <string name="custom_shuangpin_mapping_hint">Las teclas sin configurar usan la regla predeterminada. Las iniciales y finales de varias letras normalmente necesitan una tecla explícita.</string>
+    <string name="custom_shuangpin_name_invalid">Usa un nombre no vacío que no coincida con el de un esquema integrado.</string>
+    <string name="custom_shuangpin_scheme_id">ID del método de entrada (el prefijo shuangpin- es fijo)</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">Usa letras minúsculas, dígitos o guiones (no vacío ni un esquema integrado).</string>
+    <string name="custom_shuangpin_zero_initial_invalid">Usa solo letras minúsculas y *.</string>
+    <string name="custom_shuangpin_syllables">Sobrescrituras de sílabas</string>
+    <string name="custom_shuangpin_edit_syllables">Editar sobrescrituras de sílabas</string>
+    <string name="custom_shuangpin_syllable_count">%1$d sobrescritura(s)</string>
+    <string name="custom_shuangpin_syllables_hint">Una asignación por línea: pinyin completo=dos teclas. Puedes separar varias teclas con comas.</string>
+    <string name="custom_shuangpin_syllables_invalid">Sobrescritura de sílaba no válida. Usa líneas como ju=jv o shi=ui,is.</string>
+    <string name="macro_editor_swipe_timing">Momento de la acción</string>
+    <string name="swipe_action_timing_no_code_no_candidates">Sin código, sin candidatos</string>
+    <string name="swipe_action_timing_code_and_candidates">Con código y candidatos</string>
+    <string name="swipe_action_timing_no_code_candidates">Sin código, con candidatos</string>
+    <string name="swipe_action_timing_all">Todos</string>
+    <string name="text_keyboard_layout_compose_override_description">El estado de composición significa que el método de entrada está introduciendo un código de entrada.</string>
+    <string name="exception_table_im_filename">La extension de "%1$s" no corresponde a un paquete de metodo de entrada de tabla (.zip)</string>
+    <string name="sub_label_follow_layout">Seguir la disposición actual</string>
+    <string name="table_dict_replace_message">Ya existe el diccionario del metodo de entrada de tabla "%1$s". Puede importar uno nuevo y reemplazarlo.</string>
+    <string name="personal_punctuation_letters_only">Aplicar la posición del carácter secundario solo a las letras</string>
+    <string name="personal_reverse_above_cursor">Invertir candidatos verticales sobre el cursor</string>
+    <string name="table_im">Metodos de entrada de tabla</string>
+    <string name="personal_dock_toolbar">Mostrar candidatos flotantes junto a la barra del teclado físico</string>
+    <string name="personal_digit_swipe_selection">Seleccionar candidatos nativos deslizando las etiquetas numéricas</string>
+    <string name="table_file_does_not_exist_title">Tabla no disponible</string>
+    <string name="sub_label_padding">Margen interior de los caracteres secundarios</string>
+    <string name="personal_candidate_index_labels">Mostrar números en la barra de candidatos del teclado físico</string>
+    <string name="llm_space_commit_prediction_summary">Desactivado por defecto. Al activarlo, espacio confirma la primera predicción de IA visible fuera de la composición; al desactivarlo, introduce un espacio.</string>
+    <string name="exception_table_dict_filename">La extension de "%1$s" no corresponde a un archivo de diccionario de metodo de entrada de tabla (.dict o .txt)</string>
+    <string name="secondary_label_position">Posición del carácter secundario 2</string>
+    <string name="update_table">Actualizar tabla</string>
+    <string name="import_table">Importar tabla</string>
+    <string name="exception_table_im">No se encontro el archivo de configuracion del metodo de entrada de tabla (.conf o .conf.in)</string>
+    <string name="personal_hardware_prediction_dismiss">Descartar predicciones con Escape o Retroceso físicos</string>
+    <string name="personal_hardware_digit_selection">Seleccionar candidatos con teclas numéricas físicas</string>
+    <string name="table_file_placeholder">Seleccionar archivo…</string>
+    <string name="table_from_zip">Desde ZIP…</string>
+    <string name="exception_table_conf_filename">La extension de "%1$s" no corresponde a un archivo de configuracion de metodo de entrada de tabla (.conf o .conf.in)</string>
+    <string name="personal_hardware_space_selection">Confirmar el candidato resaltado con el espacio físico</string>
+    <string name="exception_table_import_both_files">Seleccione ambos archivos anteriores para importar</string>
+    <string name="invalid_table_dict">Diccionario invalido:
+%1$s</string>
+    <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
+    <string name="table_select_files">Desde archivos separados…</string>
+    <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
+    <string name="table_file_does_not_exist_message">El diccionario del metodo de entrada de tabla "%1$s" no existe. Revise el archivo o importelo de nuevo.</string>
+    <string name="llm_space_commit_prediction">Confirmar predicción de IA con espacio</string>
+    <string name="invalid_im">Archivo de configuracion de metodo de entrada invalido:
+%1$s</string>
+    <string name="punctuation_pos_bottom_right">Abajo a la derecha</string>
+    <string name="table_already_exists">El archivo de configuracion del metodo de entrada de tabla "%1$s" ya existe</string>
+    <string name="table_conf_select_title">Archivo de configuracion del metodo de entrada (.conf o .conf.in)</string>
+    <string name="exception_table">No se encontro el diccionario del metodo de entrada de tabla (.dict o .txt)</string>
+    <string name="llm_prediction_display_mode_candidate_bar_overlay">Barra de candidatos (reemplazar)</string>
+    <string name="space_behavior_picker">Mostrar dialogo selector de metodo de entrada</string>
 </resources>

@@ -59,6 +59,8 @@ object FcitxDaemon {
                 idx: Int,
                 expected: FcitxEvent.PagedCandidateEvent.Data,
             ) = realFcitx.selectPrediction(idx, expected)
+
+            override suspend fun refreshImEntry() = realFcitx.refreshImEntry()
         }
     }
 

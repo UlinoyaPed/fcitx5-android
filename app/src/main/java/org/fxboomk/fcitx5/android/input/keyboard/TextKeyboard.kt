@@ -17,6 +17,7 @@ import org.fxboomk.fcitx5.android.core.KeyStates
 import org.fxboomk.fcitx5.android.input.FcitxInputMethodService
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.popup.PopupAction
@@ -393,9 +394,12 @@ class TextKeyboard private constructor(
 
     private fun layoutSignature(ime: InputMethodEntry): String {
         val json = textLayoutJson
+        val parentKey = ShuangpinLayoutKeys.parentBaseLayoutKey(ime.uniqueName)
         val layoutSource = when {
             json?.containsKey(ime.uniqueName) == true -> "u:${ime.uniqueName}"
             json?.containsKey(ime.displayName) == true -> "d:${ime.displayName}"
+            // 双拼方案回退到"双拼"父级输入法布局，签名需随父布局变化
+            parentKey != null && json?.containsKey(parentKey) == true -> "p:$parentKey"
             else -> "default"
         }
         val subModeLabel = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }

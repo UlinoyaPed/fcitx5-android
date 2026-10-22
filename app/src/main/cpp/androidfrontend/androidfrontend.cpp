@@ -82,11 +82,14 @@ public:
     [[nodiscard]] const char *frontend() const override { return "androidfrontend"; }
 
     void commitStringImpl(const std::string &text) override {
-        frontend_->commitString(text, -1);
+        // A pending client preedit means this commit replaces the composition shown
+        // in the editor, which is what the Kotlin layer treats as "from composition".
+        frontend_->commitString(text, -1, !inputPanel().clientPreedit().empty());
     }
 
     void commitStringWithCursorImpl(const std::string &text, size_t cursor) override {
-        frontend_->commitString(text, static_cast<int>(cursor));
+        frontend_->commitString(text, static_cast<int>(cursor),
+                                !inputPanel().clientPreedit().empty());
     }
 
     void forwardKeyImpl(const ForwardKeyEvent &key) override {
@@ -439,13 +442,18 @@ void AndroidFrontend::forwardKey(const Key &key, bool isRelease) {
     keyEventCallback(sym, key.states(), Key::keySymToUnicode(sym), isRelease, -1);
 }
 
-void AndroidFrontend::commitString(const std::string &str, const int cursor) {
+void AndroidFrontend::commitString(const std::string &str, const int cursor,
+                                   const bool replacesPendingPreedit) {
     // Whether to pad the commit with spaces is decided in the Kotlin layer, which
     // owns the "insert space between Chinese and English" preference. Here we only
     // report whether this commit finalizes the composition — a candidate selection
     // or a Return-committed preedit — i.e. the cases that layer should pad.
+    // Picking a candidate with a number key on a hardware keyboard is handled inside
+    // the engine and sets neither flag below, but the commit still replaces the
+    // client preedit in the editor, which the input context reports explicitly.
     commitStringCallback(str, cursor,
-                         selectingCandidate_ || committingViaReturn_);
+                         selectingCandidate_ || committingViaReturn_ ||
+                             replacesPendingPreedit);
 }
 
 void AndroidFrontend::updateCandidateList(const std::vector<CandidateEntity> &candidates, const int size) {

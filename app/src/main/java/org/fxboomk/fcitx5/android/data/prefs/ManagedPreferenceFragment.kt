@@ -48,6 +48,11 @@ abstract class ManagedPreferenceFragment(private val preferenceProvider: Managed
         PreferenceScrollHelper.scrollToPendingPreference(this, viewModel)
     }
 
+    override fun onResume() {
+        super.onResume()
+        PreferenceScrollHelper.scrollToPendingPreference(this, viewModel)
+    }
+
     override fun onStop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             lifecycleScope.launch(Dispatchers.IO) {

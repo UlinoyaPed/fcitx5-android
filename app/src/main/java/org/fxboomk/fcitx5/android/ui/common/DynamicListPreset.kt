@@ -17,7 +17,8 @@ fun <T> Context.DynamicListUi(
     enableOrder: Boolean = false,
     initCheckBox: (CheckBox.(T) -> Unit) = { visibility = View.GONE },
     initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
-    show: (T) -> String
+    show: (T) -> String,
+    initRenameButton: (ImageButton.(T) -> Unit)? = null,
 ): BaseDynamicListUi<T> = object :
     BaseDynamicListUi<T>(
         this,
@@ -25,7 +26,8 @@ fun <T> Context.DynamicListUi(
         initialEntries,
         enableOrder,
         initCheckBox,
-        initSettingsButton
+        initSettingsButton,
+        initRenameButton
     ) {
     init {
         addTouchCallback()

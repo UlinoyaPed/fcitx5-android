@@ -8,11 +8,13 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -23,10 +25,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,11 +42,13 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransf
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fxboomk.fcitx5.android.utils.saveIconTint
 import splitties.dimensions.dp
+import splitties.resources.drawable
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
+import splitties.views.imageDrawable
 import kotlinx.serialization.json.*
 import kotlinx.serialization.encodeToString
 import java.io.File
@@ -62,17 +68,18 @@ class PopupEditorActivity : AppCompatActivity() {
         RecyclerView(this).apply {
             layoutManager = LinearLayoutManager(this@PopupEditorActivity)
             isNestedScrollingEnabled = false
+            clipToPadding = false
         }
     }
 
-    private val addRowButton by lazy {
-        TextView(this).apply {
-            text = getString(R.string.popup_editor_add_mapping)
-            textSize = 16f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorButtonNormal))
+    /** 右下角圆形"加号"按钮，与「输入法」页右下角的添加按钮样式一致。 */
+    private val fab by lazy {
+        FloatingActionButton(this).apply {
+            imageDrawable = drawable(R.drawable.ic_baseline_plus_24)!!.apply {
+                setTint(styledColor(android.R.attr.colorForegroundInverse))
+            }
+            contentDescription = getString(R.string.popup_editor_add_mapping)
+            setOnClickListener { openEditor(null) }
         }
     }
 
@@ -90,7 +97,6 @@ class PopupEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             val pad = dp(16)
             setPadding(pad, pad, pad, pad)
-            addView(addRowButton)
             addView(usageHint)
             addView(recyclerView)
         }
@@ -104,7 +110,17 @@ class PopupEditorActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams(matchParent, wrapContent)
             )
             addView(
-                mainContainer,
+                FrameLayout(this@PopupEditorActivity).apply {
+                    addView(mainContainer, FrameLayout.LayoutParams(matchParent, matchParent))
+                    addView(
+                        fab,
+                        FrameLayout.LayoutParams(wrapContent, wrapContent).apply {
+                            gravity = Gravity.BOTTOM or Gravity.END
+                            val m = dp(16)
+                            setMargins(m, m, m, m)
+                        }
+                    )
+                },
                 LinearLayout.LayoutParams(matchParent, 0).apply { weight = 1f }
             )
         }
@@ -159,6 +175,11 @@ class PopupEditorActivity : AppCompatActivity() {
             insets
         }
         ViewCompat.requestApplyInsets(toolbar)
+
+        // 末行可滚动到悬浮按钮上方：列表底部留出 FAB 高度 + 边距的空间。
+        fab.doOnLayout { fab ->
+            recyclerView.updatePadding(bottom = fab.height + dp(16))
+        }
 
         loadState()
         setupRecyclerView()
@@ -264,7 +285,6 @@ class PopupEditorActivity : AppCompatActivity() {
                 outRect.bottom = dp(1)
             }
         })
-        addRowButton.setOnClickListener { openEditor(null) }
     }
 
     private fun openEditor(originalKey: String?) {

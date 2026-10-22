@@ -30,6 +30,12 @@ class MainViewModel : ViewModel() {
 
     private var pendingPreferenceScrollKey: String? = null
 
+    /**
+     * Index of the tab holding the pending preference, for pages that host their
+     * preferences in a ViewPager. Null when the page has a single tab.
+     */
+    private var pendingPreferenceTab: Int? = null
+
     val fcitx: FcitxConnection = FcitxDaemon.connect(javaClass.name)
 
     fun setToolbarTitle(title: String) {
@@ -68,15 +74,19 @@ class MainViewModel : ViewModel() {
         pluginMenuTrigger.value = null
     }
 
-    fun requestPreferenceScroll(key: String) {
+    fun requestPreferenceScroll(key: String, tab: Int? = null) {
         pendingPreferenceScrollKey = key
+        pendingPreferenceTab = tab
     }
 
     fun peekPendingPreferenceScrollKey(): String? = pendingPreferenceScrollKey
 
+    fun peekPendingPreferenceTab(): Int? = pendingPreferenceTab
+
     fun consumePendingPreferenceScrollKey(key: String) {
         if (pendingPreferenceScrollKey == key) {
             pendingPreferenceScrollKey = null
+            pendingPreferenceTab = null
         }
     }
 

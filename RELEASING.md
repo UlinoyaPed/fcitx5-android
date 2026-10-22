@@ -61,3 +61,8 @@ git push origin v0.1.0-personal.1
 | F-Droid / `fdroid.yml` | 指定元数据路径的 PR、手动或仓库事件 | 验证官方 F-Droid 构建流程，包含四种 ABI。它仍依赖官方 Jenkins、官方包名和元数据路径，尚未适配个人版，也不会把个人版自动上架 F-Droid。 |
 
 原来的 **Publish**（`publish.yml`）已经移除。它把 Gradle 构建约定、公共库和插件开发库发布到 GitHub Packages，面向其他项目的开发者，不生成 APK 或 GitHub Release。个人版的构建约定通过 `includeBuild` 使用本仓库源码，公共库和插件开发库通过 `project(...)` 引用，Nightly / Release / PR 所需的第三方 AAR 则在构建时发布到本地目录，因此无需独立的远程 Maven 发布工作流。Gradle 本地发布任务仍然保留。
+
+
+## 2026-10-23 构建任务调整
+
+应用移除旧 flavor 后，构建使用 `:app:assembleRelease`、`:app:testDebugUnitTest`，应用输出在 `app/build/outputs/apk/release/`。调试及测试构建使用 `:app:assembleDebug`、`:app:assembleDebugAndroidTest`。Nightly、Release 和个人包名没有因此改变；工作流继续构建全部插件并校验签名，不再调用 Mainline/Fx 任务或移动旧 flavor 目录。

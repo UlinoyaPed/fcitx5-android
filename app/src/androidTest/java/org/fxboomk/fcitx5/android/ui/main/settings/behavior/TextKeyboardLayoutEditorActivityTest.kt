@@ -3,10 +3,13 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.content.Intent
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
@@ -40,7 +43,9 @@ class TextKeyboardLayoutEditorActivityTest {
         assertEquals(listOf("default", "custom-keys", "custom-height", "child-only"), visible)
         assertTrue("pinyin" in data.baseLayoutNames()) // Source lookup still sees stored, hidden groups.
         invoke(activity, "buildSpinner")
-        val spinner = get(activity, "layoutSpinner") as android.widget.Spinner
+        // layoutSpinner 是 `by lazy` 属性，其 JVM 字段名带 $delegate 后缀，
+        // 需通过生成的 getLayoutSpinner() 访问器读取，而不是反射字段。
+        val spinner = invoke(activity, "getLayoutSpinner") as android.widget.Spinner
         val items = (0 until spinner.adapter.count).map { spinner.adapter.getItem(it).toString() }
         assertEquals(listOf("English", "custom-keys", "custom-height", "child-only"), items)
         assertEquals(originalData, data.exportCurrentJsonString())
@@ -75,11 +80,17 @@ class TextKeyboardLayoutEditorActivityTest {
         val data = manager(activity)
         data.entries["healthy"] = data.copyLayout(data.entries.getValue("default"))
         data.entries["default"] = mutableListOf()
+        // 「双拼」父级输入法布局缺失有效行 → 其下属方案（小鹤双拼）继承不到任何行。
+        // 注意：未定制布局的输入法会回退出厂 26 键预设，因此要让继承链真正为空，
+        // 必须让父级条目存在但内容为空（而不是让条目缺失）。
+        data.entries["shuangpin"] = mutableListOf()
+        // "healthy" 的行与出厂预设一致，只有作为已启用输入法才可见，才能成为回退目标。
         set(activity, "allImesFromJson", arrayOf(InputMethodEntry("healthy", "Healthy", "", "", "", "en", "test", false)))
-        selectDraft(activity, "missing-base", null)
+        selectDraft(activity, "shuangpin-xiaohe", null)
+        // 继承到无效行时回退到第一个有效父级输入法布局，且不把被放弃的草稿落盘
         assertEquals("healthy", get(activity, "currentLayout"))
         assertNull(get(activity, "bufferedLayoutKey"))
-        assertFalse(data.entries.containsKey("missing-base"))
+        assertFalse(data.entries.containsKey("shuangpin-xiaohe"))
     }
 
     @Test fun emptyChildRecoversToBaseWithoutReselectingTheEmptyChild() = withEditor { activity, _ ->
@@ -109,6 +120,46 @@ class TextKeyboardLayoutEditorActivityTest {
         } finally {
             removeTestFile(secondFile)
         }
+    }
+
+    @Test fun firstEditOfShuangpinSchemeCarriesOverInheritedMacroKeyAndFrozenHeight() = withEditor { activity, file ->
+        val data = manager(activity)
+        // 定制「双拼」父级输入法布局：把一个字母键换成宏按键，并设置高度覆写
+        val macroKey = LayoutJsonUtils.parseLayoutRows(
+            Json.parseToJsonElement(
+                """[[{"type":"MacroKey","label":"宏","tap":{"macro":[{"type":"text","text":"hi"}]}}]]"""
+            ).jsonArray
+        ).first().first().toMutableMap()
+        val base = data.copyLayout(data.entries.getValue("default"))
+        val rowIndex = base.indexOfFirst { row -> row.any { it["type"] == "AlphabetKey" } }
+        val keyIndex = base[rowIndex].indexOfFirst { it["type"] == "AlphabetKey" }
+        base[rowIndex][keyIndex] = macroKey
+        data.entries["shuangpin"] = base
+        data.setLayoutHeightPercentOverride("shuangpin", LayoutHeightPercentOverrides(43, 29))
+
+        // 首次编辑「小鹤双拼」：草稿整份继承父级输入法布局，宏按键一并带过来
+        selectDraft(activity, "shuangpin-xiaohe", null)
+        assertEquals("shuangpin-xiaohe", get(activity, "bufferedLayoutKey"))
+        assertEquals("MacroKey", rows(activity)[rowIndex][keyIndex]["type"])
+        rows(activity)[rowIndex][keyIndex]["label"] = "改"
+        assertTrue(invoke(activity, "hasChanges") as Boolean)
+        assertTrue(invoke(activity, "saveLayout") as Boolean)
+
+        val reloaded = LayoutDataManager(activity).apply { loadFromFile(file) }
+        // 首次编辑后，方案专属布局沿用了继承来的宏设定（不只是高度）
+        val schemeMacro = reloaded.entries.getValue("shuangpin-xiaohe").flatten()
+            .first { it["type"] == "MacroKey" }
+        assertEquals("改", schemeMacro["label"])
+        assertNotNull(schemeMacro["tap"])
+        // 继承到的高度被一并固化，不再仅靠「双拼」父级输入法布局兜底
+        assertEquals(
+            LayoutHeightPercentOverrides(43, 29),
+            reloaded.getLayoutHeightPercentOverride("shuangpin-xiaohe")
+        )
+        // 父级输入法布局本身未被方案的编辑改动
+        val baseMacro = reloaded.entries.getValue("shuangpin").flatten()
+            .first { it["type"] == "MacroKey" }
+        assertEquals("宏", baseMacro["label"])
     }
 
     private fun selectDraft(activity: TextKeyboardLayoutEditorActivity, base: String, submode: String?) {

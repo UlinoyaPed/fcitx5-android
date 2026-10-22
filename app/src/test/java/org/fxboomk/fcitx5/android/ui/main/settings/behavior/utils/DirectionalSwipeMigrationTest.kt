@@ -54,6 +54,22 @@ class DirectionalSwipeMigrationTest {
     }
 
     @Test
+    fun timingActionsSurviveKeyRoundTrip() {
+        val timed = MacroAction(
+            listOf(MacroStep.Text("all")),
+            mapOf(SwipeActionTiming.CodeAndCandidates to listOf(MacroStep.Text("composing")))
+        )
+        for (type in types) {
+            val key = create(mapOf("type" to type, "swipeDown" to LayoutJsonUtils.macroActionToJson(timed)))
+            assertEquals(type, timed, key.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single().downMacro)
+            val saved = LayoutJsonUtils.keyDefToJson(key)
+            val reloaded = create(saved).behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single()
+            assertEquals(type, timed, reloaded.downMacro)
+            assertNull(type, reloaded.upMacro)
+        }
+    }
+
+    @Test
     fun legacyEventsAndLabelsMigrateForEveryKeyAndPosition() {
         for (type in types) for (position in PunctuationPosition.entries) {
             val legacy = mapOf("type" to type, "label" to "K", "swipe" to LayoutJsonUtils.macroActionToJson(up), "swipeLabel" to "legacy")

@@ -3,8 +3,6 @@
     <string name="app_name">Swan Input Method</string>
     <string name="app_name_release">Swan Input Method</string>
     <string name="app_name_debug">Swan Input Method (Debug)</string>
-    <string name="app_name_mainline_release">Swan Input Method</string>
-    <string name="app_name_mainline_debug">Swan Input Method (Debug)</string>
     <string name="save">Save</string>
     <string name="input_methods">Input Methods</string>
     <string name="addons">Addons</string>
@@ -173,11 +171,7 @@
     <string name="dark_keys">Dark Keys</string>
     <string name="recrop_image">Re-Crop Image</string>
     <string name="punctuation_position">Secondary character position</string>
-    <string name="sub_label_padding">Secondary character padding</string>
-    <string name="secondary_label_position">Secondary character 2 position</string>
-    <string name="sub_label_follow_layout">Follow existing layout</string>
     <string name="punctuation_pos_bottom">Bottom</string>
-    <string name="punctuation_pos_bottom_right">Bottom Right</string>
     <string name="punctuation_pos_top">Top</string>
     <string name="punctuation_pos_top_right">Top Right</string>
     <string name="punctuation_pos_none">None</string>
@@ -332,25 +326,6 @@
     <string name="saving">Saving</string>
     <string name="delete_all_pinned_items">Delete all pinned items?</string>
     <string name="vivo_keypress_workaround">Fix Vivo keypress issue</string>
-    <string name="invalid_im">Invalid input method configuration file:\n%1$s</string>
-    <string name="invalid_table_dict">Invalid dictionary:\n%1$s</string>
-    <string name="exception_table_im">Configuration file of table-based input method (.conf or .conf.in) not found</string>
-    <string name="exception_table">Dictionary of table-based input method (.dict or .txt) not found</string>
-    <string name="table_im">Table-based Input Methods</string>
-    <string name="manage_table_im">Manage Table-based Input Methods</string>
-    <string name="exception_table_im_filename">The extension of \"%1$s\" does not indicate a table input method package (.zip)</string>
-    <string name="table_already_exists">Configuration file of table-based input method \"%1$s\" already exists</string>
-    <string name="table_file_does_not_exist_title">Table unavailable</string>
-    <string name="table_file_does_not_exist_message">Dictionary of table-based input methods \"%1$s\" does not exist. Please check the dict file or re-import.</string>
-    <string name="import_table">Import Table</string>
-    <string name="table_from_zip">From zip…</string>
-    <string name="table_select_files">From separate files…</string>
-    <string name="table_file_placeholder">Select file…</string>
-    <string name="table_conf_select_title">Input method configuration file (.conf or .conf.in)</string>
-    <string name="table_dict_select_title">Dictionary file (.dict or .txt)</string>
-    <string name="exception_table_conf_filename">The extension of \"%1$s\" does not indicate a configuration file of table-based input method (.conf or .conf.in)</string>
-    <string name="exception_table_dict_filename">The extension of \"%1$s\" does not indicate a dictionary file of table-based input method (.dict or .txt)</string>
-    <string name="exception_table_import_both_files">Please select both of above files to import</string>
     <string name="notification_permission_message">Without the permission to post notifications, we are not able to notify you when some time-consuming operations are done.</string>
     <string name="notification_permission_title">No Notification Permission</string>
     <string name="toolbar_num_row_on_password">Show number row on toolbar when inputting password</string>
@@ -361,7 +336,7 @@
     <string name="space_behavior_none">None</string>
     <string name="space_behavior_enumerate">Enumerate input methods</string>
     <string name="space_behavior_activate">Toggle input method activate state</string>
-    <string name="space_behavior_picker">Show input method picker dialog</string>
+    <string name="space_behavior_repeat_space">Repeat space output</string>
     <string name="space_behavior_voice_input">Switch to voice input</string>
     <string name="space_behavior_switch_to_english">Switch between Chinese and English input methods</string>
     <string name="space_key_label_mode">Space key label style</string>
@@ -373,7 +348,8 @@
     <string name="prediction_space_behavior_commit_prediction">提交高亮预测项</string>
     <string name="prediction_backspace_behavior">Backspace behavior during prediction</string>
     <string name="prediction_backspace_behavior_delete_text">Delete text before cursor</string>
-    <string name="prediction_backspace_behavior_dismiss_candidates">Dismiss candidates and show toolbar</string>
+    <string name="prediction_backspace_behavior_clear_prediction_candidates">Clear prediction candidates</string>
+    <string name="prediction_backspace_behavior_clear_prediction_and_delete_text">Clear prediction and delete text</string>
     <string name="space_swipe_vertical_behavior">Space key vertical swipe behavior</string>
     <string name="space_swipe_vertical_behavior_arrow_keys">Move highlight word by word</string>
     <string name="space_swipe_vertical_behavior_candidate_rows">Switch candidate rows</string>
@@ -460,7 +436,7 @@
     <string name="ai_clip_open_count" translatable="false">AI 候选 (%1$d)</string>
     <string name="ai_clip_collapse" translatable="false">收起 AI 候选面板</string>
     <string name="ai_clip_question_answer" translatable="false">问答</string>
-    <string name="ai_clip_thinking" translatable="false">思考</string>
+
     <string name="ai_clip_translate" translatable="false">翻译</string>
     <string name="ai_clip_long_form" translatable="false">长文</string>
     <string name="ai_clip_suggestions_loading" translatable="false">正在生成候选…</string>
@@ -504,10 +480,17 @@
     <string name="llm_chat_api_enabled" translatable="false">聊天对话接口</string>
     <string name="llm_model" translatable="false">模型名称</string>
     <string name="llm_model_status" translatable="false">模型名称与状态</string>
+
+
+
     <string name="llm_model_summary_hint" translatable="false">可手动填写，也可远程拉取后选择</string>
     <string name="llm_model_status_remote_ready">状态：远端模型可用</string>
     <string name="llm_model_status_remote_unavailable">状态：远端模型不可用</string>
     <string name="llm_model_status_remote_missing_name">状态：未填写模型名称</string>
+
+
+
+
     <string name="llm_model_status_remote_summary" translatable="false">%1$s\n%2$s</string>
     <string name="llm_model_select" translatable="false">选择模型</string>
     <string name="llm_model_fetching" translatable="false">正在远程拉取模型列表…</string>
@@ -529,8 +512,13 @@
     <string name="llm_max_prediction_candidates" translatable="false">最多预测候选数</string>
     <string name="llm_prediction_display_mode">预测项显示方式</string>
     <string name="llm_prediction_display_mode_floating_window">悬浮窗</string>
-    <string name="llm_prediction_display_mode_candidate_bar_overlay">候选栏(覆盖)</string>
     <string name="llm_prediction_display_mode_candidate_expanded">候选展开区</string>
+
+
+
+
+
+
     <string name="llm_max_output_tokens">最大输出词元数</string>
     <string name="llm_max_output_tokens_summary">%1$d。该参数会随请求发送给 LLM，可理解为本次回答的大致长度：数值越大，通常能生成更长内容，但不是最终显示字数的硬性上限。</string>
     <string name="llm_max_context_chars">最大上下文字数</string>
@@ -692,8 +680,6 @@
     <string name="grant_permission">Grant permission</string>
     <string name="clear_clp_db_confirm">Clipboard database would be completely cleared, including pinned items. Proceed?</string>
     <string name="expand_keypress_area">Expand key area to the edge</string>
-    <string name="update_table">Update table</string>
-    <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
     <string name="lang_switch_key_long_press_behavior">Language key long-press popup</string>
     <string name="lang_switch_long_press_default">Default (including external input methods)</string>
     <string name="lang_switch_long_press_builtin_and_rime">Built-in input methods and Rime schemas</string>
@@ -804,21 +790,22 @@
     <string name="text_keyboard_layout_file_select_title">Keyboard Layout List</string>
     <string name="text_keyboard_layout_file_select_summary">Current profile: %1$s</string>
     <string name="text_keyboard_layout_manage_title">Keyboard Layout Management</string>
+    <string name="text_keyboard_layout_manage_shuangpin">Shuangpin</string>
     <string name="text_keyboard_layout_manage_active_layout">Active layout</string>
     <string name="text_keyboard_layout_manage_set_default">Set as default</string>
     <string name="text_keyboard_layout_manage_collapse">Collapse</string>
     <string name="text_keyboard_layout_manage_expand">Expand</string>
     <string name="text_keyboard_layout_manage_submode_uncustomized">%1$s (not customized)</string>
     <string name="text_keyboard_layout_manage_submode_inherited">%1$s (inherited)</string>
-    <string name="text_keyboard_layout_manage_base_reset">Base layout reset: %1$s</string>
+    <string name="text_keyboard_layout_manage_base_reset">Parent input method layout reset: %1$s</string>
     <string name="text_keyboard_layout_manage_base_reset_action">Reset this layout</string>
     <string name="text_keyboard_layout_manage_reset_base_confirm">Layout %1$s will be reset to the default 26-key layout after deletion.</string>
-    <string name="text_keyboard_layout_manage_show_uncustomized">Show uncustomized base layouts</string>
-    <string name="text_keyboard_layout_manage_hide_uncustomized">Hide uncustomized base layouts</string>
+    <string name="text_keyboard_layout_manage_show_uncustomized">Show uncustomized parent input method layouts</string>
+    <string name="text_keyboard_layout_manage_hide_uncustomized">Hide uncustomized parent input method layouts</string>
     <string name="text_keyboard_layout_manage_reset_type_message">Choose how to reset layout %1$s</string>
-    <string name="text_keyboard_layout_manage_reset_option_inherit">Inherit base layout</string>
+    <string name="text_keyboard_layout_manage_reset_option_inherit">Inherit parent input method layout</string>
     <string name="text_keyboard_layout_manage_reset_option_factory">Reset to factory 26-key layout</string>
-    <string name="text_keyboard_layout_manage_sub_reset_inherit">Reset: %1$s now inherits the base layout</string>
+    <string name="text_keyboard_layout_manage_sub_reset_inherit">Reset: %1$s now inherits the parent input method layout</string>
     <string name="text_keyboard_layout_manage_move_up">Move up</string>
     <string name="text_keyboard_layout_manage_delete">Delete</string>
     <string name="text_keyboard_layout_manage_import">Import</string>
@@ -910,6 +897,7 @@
     <string name="text_keyboard_layout_longpress_label_fallback_notice">Long Press Label is empty, popup will use Label.</string>
     <string name="text_keyboard_layout_macro_no_event">No event configured</string>
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (%2$d steps total)</string>
+    <string name="text_keyboard_layout_macro_timing_preview">%1$s: %2$s</string>
     <string name="text_keyboard_layout_alt_label">Secondary character</string>
     <string name="text_keyboard_layout_alt_label_one">Secondary character 2</string>
     <string name="text_keyboard_layout_swipe_label">Swipe Label</string>
@@ -951,6 +939,22 @@
     <!-- Macro Editor -->
     <string name="macro_editor_title">Edit %1$s</string>
     <string name="macro_editor_add_step">+ Add Step</string>
+    <string name="macro_editor_swipe_timing">Action timing</string>
+    <string name="macro_editor_swipe_timing_hint">Each card owns one or more timings. A timing belongs to one card only. A timing that matches replaces “All”; states with no configured timing use “All”. A card with steps but no timing has no effect.</string>
+    <string name="macro_editor_swipe_timing_item_configured">%1$s (%2$d)</string>
+    <string name="swipe_action_timing_no_code_no_candidates">No code, no candidates</string>
+    <string name="swipe_action_timing_code_and_candidates">Has code and candidates</string>
+    <string name="swipe_action_timing_no_code_candidates">No code, has candidates</string>
+    <string name="macro_editor_add_timing_action">+ Add Timing / Action</string>
+    <string name="macro_editor_choose_timings_title">Choose action timings</string>
+    <string name="macro_editor_choose_at_least_one">Pick at least one timing</string>
+    <string name="macro_editor_no_timings_available">Every timing is already used by another card</string>
+    <string name="macro_editor_timing_card_empty">No action</string>
+    <string name="macro_editor_delete_timing_title">Delete this timing card</string>
+    <string name="macro_editor_delete_timing_message">Its steps will be discarded.</string>
+    <string name="swipe_action_timing_code_no_candidates">Has code, no candidates</string>
+    <string name="swipe_action_timing_code_all">Has code (all)</string>
+    <string name="swipe_action_timing_all">All</string>
     <string name="macro_editor_step_type_tap">Tap Keys</string>
     <string name="macro_editor_step_type_shortcut">Shortcut</string>
     <string name="macro_editor_step_type_edit">Edit Action</string>
@@ -1010,6 +1014,7 @@
     <string name="text_keyboard_layout_compose_override_not_configured">Use default key behavior while composing</string>
     <string name="text_keyboard_layout_compose_override_configured">Custom key behavior is configured for composing state</string>
     <string name="text_keyboard_layout_compose_override_edit_button">Edit composing key</string>
+    <string name="text_keyboard_layout_compose_override_description">Composing state means the input method is in the process of entering an input code.</string>
     <string name="text_keyboard_layout_compose_override_clear_button">Clear</string>
     <string name="text_keyboard_layout_compose_override_editor_title">Edit composing key</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">Independent key color</string>
@@ -1108,15 +1113,61 @@
     <string name="theme_category_title">%1$s (%2$d)</string>
     <string name="theme_category_expanded">Expanded</string>
     <string name="theme_category_collapsed">Collapsed</string>
-
-    <string name="llm_space_commit_prediction">Commit AI prediction with space</string>
-    <string name="llm_space_commit_prediction_summary">Off by default. When enabled, space commits the first visible AI prediction outside composition; when disabled, space remains literal.</string>
-    <string name="personal_candidate_index_labels">Show candidate index labels on the physical keyboard bar</string>
-    <string name="personal_hardware_digit_selection">Select candidates with physical digit keys</string>
-    <string name="personal_hardware_space_selection">Select the highlighted candidate with physical space</string>
-    <string name="personal_hardware_prediction_dismiss">Dismiss predictions with physical Escape or Backspace</string>
-    <string name="personal_digit_swipe_selection">Select native candidates by swiping digit sublabels</string>
-    <string name="personal_dock_toolbar">Keep floating candidates alongside the physical keyboard toolbar</string>
-    <string name="personal_reverse_above_cursor">Reverse vertical candidates above the cursor</string>
+    <string name="custom_shuangpin">Custom Shuangpin</string>
+    <string name="custom_shuangpin_tab_mapping">Syllable mapping</string>
+    <string name="custom_shuangpin_tab_preferences">Preferences</string>
+    <string name="custom_shuangpin_scheme_name">Scheme name</string>
+    <string name="custom_shuangpin_zero_initial">Zero-initial marker</string>
+    <string name="custom_shuangpin_initials">Initial mappings</string>
+    <string name="custom_shuangpin_finals">Final mappings</string>
+    <string name="custom_shuangpin_key_none">Not set</string>
+    <string name="custom_shuangpin_mapping_hint">Unset keys use the default rule. Multi-letter initials and finals normally need an explicit key.</string>
+    <string name="custom_shuangpin_name_invalid">Use a non-empty name that is not one of the built-in scheme names.</string>
+    <string name="custom_shuangpin_scheme_id">Input method ID (prefix shuangpin- is fixed)</string>
+    <string name="custom_shuangpin_scheme_id_hint">mysp</string>
+    <string name="custom_shuangpin_id_invalid">Use lowercase letters, digits or hyphens (not empty, not a built-in scheme).</string>
+    <string name="custom_shuangpin_zero_initial_invalid">Use lowercase letters and * only.</string>
+    <string name="custom_shuangpin_syllables">Syllable overrides</string>
+    <string name="custom_shuangpin_edit_syllables">Edit syllable overrides</string>
+    <string name="custom_shuangpin_syllable_count">%1$d override(s)</string>
+    <string name="custom_shuangpin_syllables_hint">One mapping per line: full pinyin=two-key. Multiple keys can be separated by commas.</string>
+    <string name="custom_shuangpin_syllables_invalid">Invalid syllable override. Use lines like ju=jv or shi=ui,is.</string>
+    <string name="exception_table_im_filename">The extension of \"%1$s\" does not indicate a table input method package (.zip)</string>
+    <string name="sub_label_follow_layout">Follow existing layout</string>
+    <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
     <string name="personal_punctuation_letters_only">Apply secondary character position only to letter keys</string>
+    <string name="personal_reverse_above_cursor">Reverse vertical candidates above the cursor</string>
+    <string name="table_im">Table-based Input Methods</string>
+    <string name="personal_dock_toolbar">Keep floating candidates alongside the physical keyboard toolbar</string>
+    <string name="personal_digit_swipe_selection">Select native candidates by swiping digit sublabels</string>
+    <string name="table_file_does_not_exist_title">Table unavailable</string>
+    <string name="sub_label_padding">Secondary character padding</string>
+    <string name="personal_candidate_index_labels">Show candidate index labels on the physical keyboard bar</string>
+    <string name="llm_space_commit_prediction_summary">Off by default. When enabled, space commits the first visible AI prediction outside composition; when disabled, space remains literal.</string>
+    <string name="exception_table_dict_filename">The extension of \"%1$s\" does not indicate a dictionary file of table-based input method (.dict or .txt)</string>
+    <string name="secondary_label_position">Secondary character 2 position</string>
+    <string name="update_table">Update table</string>
+    <string name="import_table">Import Table</string>
+    <string name="exception_table_im">Configuration file of table-based input method (.conf or .conf.in) not found</string>
+    <string name="personal_hardware_prediction_dismiss">Dismiss predictions with physical Escape or Backspace</string>
+    <string name="personal_hardware_digit_selection">Select candidates with physical digit keys</string>
+    <string name="table_file_placeholder">Select file…</string>
+    <string name="table_from_zip">From zip…</string>
+    <string name="exception_table_conf_filename">The extension of \"%1$s\" does not indicate a configuration file of table-based input method (.conf or .conf.in)</string>
+    <string name="personal_hardware_space_selection">Select the highlighted candidate with physical space</string>
+    <string name="exception_table_import_both_files">Please select both of above files to import</string>
+    <string name="invalid_table_dict">Invalid dictionary:\n%1$s</string>
+    <string name="manage_table_im">Manage Table-based Input Methods</string>
+    <string name="table_select_files">From separate files…</string>
+    <string name="table_dict_select_title">Dictionary file (.dict or .txt)</string>
+    <string name="table_file_does_not_exist_message">Dictionary of table-based input methods \"%1$s\" does not exist. Please check the dict file or re-import.</string>
+    <string name="llm_space_commit_prediction">Commit AI prediction with space</string>
+    <string name="invalid_im">Invalid input method configuration file:\n%1$s</string>
+    <string name="punctuation_pos_bottom_right">Bottom Right</string>
+    <string name="table_already_exists">Configuration file of table-based input method \"%1$s\" already exists</string>
+    <string name="table_conf_select_title">Input method configuration file (.conf or .conf.in)</string>
+    <string name="exception_table">Dictionary of table-based input method (.dict or .txt) not found</string>
+    <string name="llm_prediction_display_mode_candidate_bar_overlay">候选栏(覆盖)</string>
+    <string name="ai_clip_thinking" translatable="false">思考</string>
+    <string name="space_behavior_picker">Show input method picker dialog</string>
 </resources>

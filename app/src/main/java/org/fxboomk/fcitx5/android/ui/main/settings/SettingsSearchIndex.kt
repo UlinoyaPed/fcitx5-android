@@ -15,11 +15,15 @@ import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
+import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
+import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.Const
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
@@ -35,7 +39,12 @@ data class SettingsSearchResult(
     val preferenceKey: String? = null,
     val summary: String? = null,
     val keywords: List<String> = emptyList(),
-    val externalUri: String? = null
+    val externalUri: String? = null,
+    /**
+     * Index of the tab holding the preference, for pages that host their preferences
+     * in a ViewPager. Null when the page has a single tab.
+     */
+    val tab: Int? = null
 ) {
     private val searchableTitle: String by lazy {
         title.lowercase(Locale.getDefault())
@@ -69,6 +78,120 @@ private fun String.searchTerms(): List<String> = trim()
     .lowercase(Locale.getDefault())
     .split(Regex("\\s+"))
     .filter { it.isNotBlank() }
+
+/**
+ * Localized labels needed to build the searchable entries of the custom shuangpin
+ * "Syllable mapping" tab. Kept free of any Android dependency so that the entry
+ * list can be verified by plain unit tests.
+ */
+internal data class CustomShuangpinMappingLabels(
+    val pageTitle: String,
+    val tabTitle: String,
+    val zeroInitialTitle: String,
+    val initialsTitle: String,
+    val finalsTitle: String,
+    val syllablesTitle: String,
+    val editSyllablesTitle: String,
+    val noneTitle: String,
+    val keyword: String
+)
+
+/**
+ * Searchable entries of the custom shuangpin "Syllable mapping" tab. Every entry
+ * points at the tab holding the preference, so that selecting it opens the right
+ * page and scrolls to the right item.
+ */
+internal fun buildCustomShuangpinMappingItems(
+    labels: CustomShuangpinMappingLabels,
+    schemeInitials: Map<String, String>,
+    schemeFinals: Map<String, String>
+): List<SettingsSearchResult> {
+    val basePath = listOf(labels.pageTitle, labels.tabTitle)
+    val keywords = listOf(labels.keyword)
+    return buildList {
+        add(
+            SettingsSearchResult(
+                title = labels.zeroInitialTitle,
+                path = basePath,
+                route = SettingsRoute.CustomShuangpin,
+                preferenceKey = CustomShuangpinMappingFragment.KEY_ZERO_INITIAL,
+                summary = labels.zeroInitialTitle,
+                keywords = keywords,
+                tab = CustomShuangpinFragment.TAB_MAPPING
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = labels.initialsTitle,
+                path = basePath,
+                route = SettingsRoute.CustomShuangpin,
+                preferenceKey = CustomShuangpinMappingFragment.KEY_INITIALS_GROUP,
+                summary = labels.initialsTitle,
+                keywords = keywords,
+                tab = CustomShuangpinFragment.TAB_MAPPING
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = labels.finalsTitle,
+                path = basePath,
+                route = SettingsRoute.CustomShuangpin,
+                preferenceKey = CustomShuangpinMappingFragment.KEY_FINALS_GROUP,
+                summary = labels.finalsTitle,
+                keywords = keywords,
+                tab = CustomShuangpinFragment.TAB_MAPPING
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = labels.syllablesTitle,
+                path = basePath,
+                route = SettingsRoute.CustomShuangpin,
+                preferenceKey = CustomShuangpinMappingFragment.KEY_SYLLABLES_GROUP,
+                summary = labels.syllablesTitle,
+                keywords = keywords,
+                tab = CustomShuangpinFragment.TAB_MAPPING
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = labels.editSyllablesTitle,
+                path = basePath + labels.syllablesTitle,
+                route = SettingsRoute.CustomShuangpin,
+                preferenceKey = CustomShuangpinMappingFragment.KEY_SYLLABLES,
+                summary = labels.syllablesTitle,
+                keywords = keywords,
+                tab = CustomShuangpinFragment.TAB_MAPPING
+            )
+        )
+        CustomShuangpinSchemeCodec.INITIALS.forEach { initial ->
+            add(
+                SettingsSearchResult(
+                    title = initial,
+                    path = basePath + labels.initialsTitle,
+                    route = SettingsRoute.CustomShuangpin,
+                    preferenceKey = CustomShuangpinMappingFragment.KEY_INITIAL_PREFIX + initial,
+                    summary = schemeInitials[initial].orEmpty().ifEmpty { labels.noneTitle },
+                    keywords = keywords,
+                    tab = CustomShuangpinFragment.TAB_MAPPING
+                )
+            )
+        }
+        CustomShuangpinSchemeCodec.FINALS.forEach { final ->
+            add(
+                SettingsSearchResult(
+                    title = final,
+                    path = basePath + labels.finalsTitle,
+                    route = SettingsRoute.CustomShuangpin,
+                    preferenceKey = CustomShuangpinMappingFragment.KEY_FINAL_PREFIX + final,
+                    summary = schemeFinals[final].orEmpty().ifEmpty { labels.noneTitle },
+                    keywords = keywords,
+                    tab = CustomShuangpinFragment.TAB_MAPPING
+                )
+            )
+        }
+    }
+}
 
 data class ToolbarMenuSearchSpec(
     @StringRes val title: Int,
@@ -236,6 +359,30 @@ object SettingsSearchIndex {
                 )
             )
             fcitx.enabledIme().forEach { ime ->
+                if (CustomShuangpinSchemeStore.isCustomScheme(ime.uniqueName)) {
+                    add(
+                        SettingsSearchResult(
+                            title = CustomShuangpinSchemeStore.displayName(),
+                            path = listOf(context.getString(R.string.input_methods)),
+                            route = SettingsRoute.CustomShuangpin,
+                            summary = context.getString(R.string.custom_shuangpin)
+                        )
+                    )
+                    addAll(customShuangpinMappingItems(context))
+                    addAll(
+                        rawConfigItems(
+                            context,
+                            CustomShuangpinSchemeStore.displayName(),
+                            SettingsRoute.CustomShuangpin,
+                            fcitx.getImConfig(ime.uniqueName),
+                            tab = CustomShuangpinFragment.TAB_PREFERENCES,
+                            extraPath = listOf(
+                                context.getString(R.string.custom_shuangpin_tab_preferences)
+                            )
+                        )
+                    )
+                    return@forEach
+                }
                 addAll(
                     rawConfigItems(
                         context,
@@ -261,6 +408,28 @@ object SettingsSearchIndex {
                     }
                 }
         }
+
+    /**
+     * Items living in the "Syllable mapping" tab of the custom shuangpin page.
+     */
+    private fun customShuangpinMappingItems(context: Context): List<SettingsSearchResult> {
+        val scheme = CustomShuangpinSchemeStore.load()
+        return buildCustomShuangpinMappingItems(
+            CustomShuangpinMappingLabels(
+                pageTitle = CustomShuangpinSchemeStore.displayName(),
+                tabTitle = context.getString(R.string.custom_shuangpin_tab_mapping),
+                zeroInitialTitle = context.getString(R.string.custom_shuangpin_zero_initial),
+                initialsTitle = context.getString(R.string.custom_shuangpin_initials),
+                finalsTitle = context.getString(R.string.custom_shuangpin_finals),
+                syllablesTitle = context.getString(R.string.custom_shuangpin_syllables),
+                editSyllablesTitle = context.getString(R.string.custom_shuangpin_edit_syllables),
+                noneTitle = context.getString(R.string.custom_shuangpin_key_none),
+                keyword = context.getString(R.string.custom_shuangpin)
+            ),
+            scheme.initials,
+            scheme.finals
+        )
+    }
 
     private fun MutableList<SettingsSearchResult>.addPage(
         context: Context,
@@ -467,19 +636,22 @@ object SettingsSearchIndex {
         context: Context,
         pageTitle: String,
         route: SettingsRoute,
-        raw: RawConfig
+        raw: RawConfig,
+        tab: Int? = null,
+        extraPath: List<String> = emptyList()
     ): List<SettingsSearchResult> {
         val desc = raw.findByName("desc") ?: return emptyList()
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { return emptyList() }
-        val path = listOf(pageTitle, topLevelDesc.name).distinct()
-        return topLevelDesc.values.flatMap { descriptorItems(context, route, path, it) }
+        val path = (listOf(pageTitle) + extraPath + listOf(topLevelDesc.name)).distinct()
+        return topLevelDesc.values.flatMap { descriptorItems(context, route, path, it, tab) }
     }
 
     private fun descriptorItems(
         context: Context,
         route: SettingsRoute,
         path: List<String>,
-        descriptor: ConfigDescriptor<*, *>
+        descriptor: ConfigDescriptor<*, *>,
+        tab: Int? = null
     ): List<SettingsSearchResult> {
         if (hideKeyConfig && ConfigType.pretty(descriptor.ty).contains("Key")) {
             return emptyList()
@@ -487,7 +659,7 @@ object SettingsSearchIndex {
         return if (descriptor is ConfigCustom) {
             val section = descriptor.description ?: descriptor.name
             descriptor.customTypeDef?.values.orEmpty().flatMap {
-                descriptorItems(context, route, path + section, it)
+                descriptorItems(context, route, path + section, it, tab)
             }
         } else {
             listOf(
@@ -497,7 +669,8 @@ object SettingsSearchIndex {
                     route = route,
                     preferenceKey = descriptor.name,
                     summary = descriptor.tooltip,
-                    keywords = listOf(descriptor.name, ConfigType.pretty(descriptor.ty))
+                    keywords = listOf(descriptor.name, ConfigType.pretty(descriptor.ty)),
+                    tab = tab
                 )
             )
         }

@@ -17,6 +17,34 @@ class LayoutDataManagerComparisonTest {
         assertEquals(listOf("default", "pinyin", "rime", "shuangpin", "wubi"), keys)
     }
 
+    @Test fun shuangpinSchemesGroupUnderShuangpinBase() {
+        assertEquals(listOf("default", "shuangpin"), availableBaseLayoutNames(
+            listOf("default", "shuangpin-xiaohe", "shuangpin-ms", "shuangpin-custom"),
+            arrayOf(
+                ime("keyboard-us", "English"),
+                ime("shuangpin-xiaohe", "小鹤双拼"),
+                ime("shuangpin-ms", "微软双拼"),
+            )
+        ))
+    }
+
+    @Test fun customizedShuangpinSchemeKeepsItsGroupVisibleWithoutEnabledIme() {
+        assertEquals(listOf("shuangpin"), availableBaseLayoutNames(
+            listOf("shuangpin-xiaohe"), emptyArray(), setOf("shuangpin-xiaohe")
+        ))
+    }
+
+    @Test fun shuangpinSchemeUniqueNamesMapToShuangpinBase() {
+        assertEquals(
+            "shuangpin",
+            baseLayoutKeyForIme(listOf("shuangpin"), ime("shuangpin-xiaohe", "小鹤双拼"))
+        )
+        assertEquals(
+            "shuangpin",
+            baseLayoutKeyForIme(listOf("shuangpin"), ime("shuangpin-custom", "自定义双拼"))
+        )
+    }
+
     @Test fun storedDisplayNameAliasesDoNotCreateDuplicateBases() {
         assertEquals(listOf("拼音"), availableBaseLayoutNames(
             listOf("default", "拼音", "拼音:child"), arrayOf(ime("pinyin", "拼音"))

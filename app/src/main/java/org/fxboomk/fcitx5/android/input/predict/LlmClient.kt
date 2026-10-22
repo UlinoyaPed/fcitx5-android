@@ -679,7 +679,7 @@ internal class LlmClient(
         val text = StringBuilder()
 
         fun emitChunk(chunk: String) {
-            if (chunk.isBlank()) return
+            if (chunk.isEmpty()) return
             text.append(chunk)
             onPartialText?.invoke(text.toString())
         }
@@ -737,13 +737,13 @@ internal class LlmClient(
             "content_block_start" -> {
                 val block = json.optJSONObject("content_block") ?: return
                 if (block.optString("type") == "text") {
-                    block.optNonBlankText("text")?.let(onTextDelta)
+                    block.optStreamingText("text")?.let(onTextDelta)
                 }
             }
             "content_block_delta" -> {
                 val delta = json.optJSONObject("delta") ?: return
                 if (delta.optString("type") == "text_delta") {
-                    delta.optNonBlankText("text")?.let(onTextDelta)
+                    delta.optStreamingText("text")?.let(onTextDelta)
                 }
             }
         }
@@ -760,21 +760,33 @@ internal class LlmClient(
             if (delta != null) {
                 extractDeltaText(delta)?.let(onTextDelta)
             } else {
-                first?.optNonBlankText("text")?.let(onTextDelta)
+                first?.optStreamingText("text")?.let(onTextDelta)
             }
             return
         }
         extractDeltaText(json)?.let(onTextDelta)
     }
 
-    private fun extractDeltaText(json: JSONObject): String? {
-        return extractDeltaText(json.toString())
+    private fun extractDeltaText(json: JSONObject): String? = when (val content = json.opt("content")) {
+        is String -> content.takeIf { it.isNotEmpty() }
+        is JSONArray -> buildString {
+            for (i in 0 until content.length()) {
+                val part = content.optJSONObject(i) ?: continue
+                if (part.optString("type") == "text") {
+                    part.optStreamingText("text")?.let { append(it) }
+                }
+            }
+        }.takeIf { it.isNotEmpty() }
+        else -> null
     }
 
-    private fun extractDeltaText(raw: String): String? {
-        return extractFirstStringField(raw, "content")
-            ?: extractStructuredTextContent(raw)
-    }
+    private fun extractDeltaText(raw: String): String? =
+        runCatching { extractDeltaText(JSONObject(raw)) }.getOrNull()
+
+    // A whitespace-only delta or the literal word "null" is valid text.
+    // JSON null, numbers, objects and thinking blocks must never become text.
+    private fun JSONObject.optStreamingText(key: String): String? =
+        (opt(key) as? String)?.takeIf { it.isNotEmpty() }
 
     private fun JSONObject.optNonBlankText(key: String): String? {
         val value = opt(key)

@@ -18,6 +18,20 @@ import org.json.JSONObject
 class LlmClientTest {
 
     @Test
+    fun streamingDeltasPreserveLiteralNullAndUnicodeButRejectNonTextValues() {
+        val client = LlmClient()
+        val method = LlmClient::class.java.getDeclaredMethod("extractDeltaText", String::class.java)
+        method.isAccessible = true
+        assertEquals("null", method.invoke(client, """{"content":"null"}"""))
+        assertEquals(" ", method.invoke(client, """{"content":" "}"""))
+        assertEquals("👩‍💻你好", method.invoke(client, """{"content":"👩‍💻你好"}"""))
+        assertEquals("A B", method.invoke(client, """{"content":[{"type":"text","text":"A"},{"type":"text","text":" "},{"type":"text","text":"B"}]}"""))
+        for (raw in listOf("""{"content":null}""", """{"content":123}""", """{"content":{"insert_text":"wrong"}}""", """{"content":[{"type":"thinking","text":"private"},{"type":"text","text":123}]}""")) {
+            assertNull(raw, method.invoke(client, raw))
+        }
+    }
+
+    @Test
     fun streamingProviderErrorIsRejectedBeforeItCanBecomeSuggestionText() {
         val client = LlmClient()
         val method = LlmClient::class.java.getDeclaredMethod(
@@ -39,6 +53,78 @@ class LlmClientTest {
 
         assertEquals(LlmPredictionFailure.Kind.BILLING_OR_QUOTA, failure.kind)
         assertFalse(failure.userMessage.contains("secret details"))
+    }
+
+    @Test
+    fun streamingOpenAiDeltasPreserveWordSeparatingSpaces() {
+        val client = LlmClient()
+        val method = LlmClient::class.java.getDeclaredMethod(
+            "consumeStreamingResponse",
+            InputStream::class.java,
+            String::class.java,
+            Function1::class.java,
+        )
+        method.isAccessible = true
+        val stream = ByteArrayInputStream(
+            """
+            data: {"choices":[{"delta":{"content":"The"}}]}
+
+            data: {"choices":[{"delta":{"content":" quick"}}]}
+
+            data: {"choices":[{"delta":{"content":" "}}]}
+
+            data: {"choices":[{"delta":{"content":"brown"}}]}
+
+            data: {"choices":[{"delta":{"content":" fox"}}]}
+
+            data: [DONE]
+
+            """.trimIndent().toByteArray(),
+        )
+        val partials = mutableListOf<String>()
+
+        val result = method.invoke(
+            client,
+            stream,
+            "https://api.openai.com/v1/chat/completions",
+            { partial: String -> partials += partial },
+        )
+
+        assertEquals("The quick brown fox", result)
+        assertEquals("The quick brown fox", partials.last())
+    }
+
+    @Test
+    fun streamingAnthropicDeltasPreserveWordSeparatingSpaces() {
+        val client = LlmClient()
+        val method = LlmClient::class.java.getDeclaredMethod(
+            "consumeStreamingResponse",
+            InputStream::class.java,
+            String::class.java,
+            Function1::class.java,
+        )
+        method.isAccessible = true
+        val stream = ByteArrayInputStream(
+            """
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"The"}}
+
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":" quick"}}
+
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":" brown"}}
+
+            """.trimIndent().toByteArray(),
+        )
+        val partials = mutableListOf<String>()
+
+        val result = method.invoke(
+            client,
+            stream,
+            "https://api.anthropic.com/v1/messages",
+            { partial: String -> partials += partial },
+        )
+
+        assertEquals("The quick brown", result)
+        assertEquals("The quick brown", partials.last())
     }
 
     @Test

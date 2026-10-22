@@ -1,0 +1,1004 @@
+{
+  "review_date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "personal_base_sha": "39ebe25a896fa72e9772f260242786c39960f900",
+  "previous_upstream_sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
+  "reviewed_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
+  "commit_count": 37,
+  "commits": [
+    {
+      "sha": "fa6ce114bf085feb64b31bf01c17aed7b0afc095",
+      "title": "chore(i18n): add swipe-mapping translations and clarify compose-state wording",
+      "decision": "adjusted",
+      "reason": "Accept missing translations and compose-state wording; keep personal secondary-character naming.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "sha": "1898616dc34d1a094a73f748afd6d91d71df8fc3",
+      "title": "feat(keyboard): time swipe macros by input state",
+      "decision": "adjusted",
+      "reason": "Accept per-state swipe macros, specificity and explicit empty actions; retain physical directions, followShift and opt-in digit-swipe policy.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyAction.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/SwipeActionTiming.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/SwipeActionTimingTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/DirectionalSwipeMigrationTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/SwipeActionTimingJsonTest.kt"
+      ]
+    },
+    {
+      "sha": "c0ed166718d91de00791c3b258d502a3266aef01",
+      "title": "fix(android): keep editor dialogs alive across rotation",
+      "decision": "accepted",
+      "reason": "Retain editors through orientation changes without adding a display switch.",
+      "files": [
+        "app/src/main/AndroidManifest.xml"
+      ]
+    },
+    {
+      "sha": "67d82ecad4e11726486b93ac05c8a0138ede7306",
+      "title": "fix(keyboard): preserve hand-written empty timing actions in the editors",
+      "decision": "accepted",
+      "reason": "Preserve hand-authored empty timing actions instead of silently restoring fallback behavior.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/SwipeActionTimingJsonTest.kt"
+      ]
+    },
+    {
+      "sha": "3cb229e29a4f8d14cc49a0f23d62fc550f56dbe8",
+      "title": "feat(settings): use bottom-right circular FAB for mapping editors",
+      "decision": "accepted",
+      "reason": "Accept reachable bottom-right mapping-editor FAB, including final-row scroll space.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/MappingEditorFloatingActionButtonTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/PopupEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/SwipeSymbolMappingEditorActivity.kt"
+      ]
+    },
+    {
+      "sha": "2b5931244dbad5d867804475e8fcfb43921040b0",
+      "title": "feat(keyboard): group swipe actions into per-timing cards",
+      "decision": "accepted",
+      "reason": "Accept timing cards and multiple state selection; legacy macros continue to work with no timing configuration.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/SwipeActionTiming.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/SwipeActionTimingTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/SwipeActionTimingJsonTest.kt"
+      ]
+    },
+    {
+      "sha": "1d85a0d57236bb03587144454a6e0bd99208853e",
+      "title": "docs: update Chinese and English READMEs",
+      "decision": "adjusted",
+      "reason": "Keep personal README identity and retained table-engine statements; document adopted features in MAINTENANCE instead of copying incompatible upstream claims.",
+      "files": [
+        "README.en.md",
+        "README.md"
+      ]
+    },
+    {
+      "sha": "c0bfa88fb09dfc71a61603abad9c8b92271717e6",
+      "title": "build: remove fx flavor entirely",
+      "decision": "adjusted",
+      "reason": "Remove obsolete application flavors; preserve org.ulinoyaped application/plugin IDs and adapt personal reusable Nightly/Release build task names and APK paths.",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/nix.yml",
+        ".github/workflows/pull_request.yml",
+        "app/build.gradle.kts",
+        "app/src/main/java/org/fxboomk/fcitx5/android/utils/AppUtil.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "gradle.properties",
+        "lib/plugin-base/src/main/AndroidManifest.xml",
+        "scripts/libime-lm/README.md",
+        "scripts/libime-lm/build-zh-cn-lm.sh"
+      ]
+    },
+    {
+      "sha": "1c73ad8f106828234c56aded8ad53b691715c691",
+      "title": "feat: add editable custom shuangpin and collapsible preference groups",
+      "decision": "adjusted",
+      "reason": "Accept optional custom Shuangpin editing and collapsible groups; prevent sweeping other user entries and preserve manual entry content. Personal correction: per-scheme settings use the native conf/pinyin/<uniqueName>.conf path; verified through real JNI persistence.",
+      "files": [
+        ".gitmodules",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/CustomShuangpinScheme.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/CustomShuangpinSchemeStore.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/config/UserConfigFiles.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScreenFactory.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsRoute.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/InputMethodListFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/utils/AppUtil.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/utils/CollapsiblePreferenceCategory.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/data/pinyin/CustomShuangpinSchemeCodecTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "09993b3caa462cc5c731574739907dd0daaf766a",
+      "title": "fix(i18n): complete missing translations",
+      "decision": "accepted",
+      "reason": "Accept missing translations for the new controls.",
+      "files": [
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml"
+      ]
+    },
+    {
+      "sha": "2716994ad9a56044f239dd17a4b794b05a0b2c93",
+      "title": "chore: trigger remote CI verification",
+      "decision": "reviewed_no_code",
+      "reason": "Empty CI trigger commit; no executable changes.",
+      "files": []
+    },
+    {
+      "sha": "d9c4749fb72b79a4a46707c4573b31d48b812928",
+      "title": "feat(shuangpin): editable custom scheme, per-scheme entries and ordered add dialog",
+      "decision": "adjusted",
+      "reason": "Accept per-scheme input methods and ordered add UI; retain existing configurations and legacy scheme migration.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinSchemeMigration.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/FcitxPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinMappingFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinPreferencesFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/InputMethodListFragment.kt",
+        "app/src/main/res/layout/fragment_custom_shuangpin.xml",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinSchemeMigrationTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "5a81d42a3c0413971e8d68102ec86fe1773fb9c8",
+      "title": "Merge pull request #15 from boomker/shuangpin_refactor",
+      "decision": "merge_covered",
+      "reason": "Merge commit covered by the reviewed Shuangpin feature commits; no double application.",
+      "files": []
+    },
+    {
+      "sha": "75c3ead41c0d8ec9a46622904e9e3f5dfa24c504",
+      "title": "chore(submodule): bump libime and fcitx5-chinese-addons to f5a-swan tips",
+      "decision": "accepted",
+      "reason": "Review libime and Chinese-addons fork changes for custom schemes; keep table engine files and personal native Fcitx revision.",
+      "files": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "fe85c3461f0340ac1c2d78b829573c84a486740f",
+      "title": "fix(shuangpin): per-IM settings isolation and live space key label",
+      "decision": "accepted",
+      "reason": "Accept isolated per-IM settings and refresh space-key labels without changing main-glyph placement.",
+      "files": [
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "44d4070faca5e6dd4fe0e3df5fd89c21e0a03198",
+      "title": "feat(shuangpin): rename custom scheme from the input method list",
+      "decision": "adjusted",
+      "reason": "Accept rename entry point; preserve user-maintained entry contents, check collisions and restore touched files if rename fails.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/BaseDynamicListUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/DynamicListPreset.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinMappingFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/InputMethodListFragment.kt"
+      ]
+    },
+    {
+      "sha": "f658682ac4c450815333b13aa42d0f4dd384b954",
+      "title": "feat(pinyin): make the custom shuangpin uniqueName user-editable",
+      "decision": "adjusted",
+      "reason": "Accept validated custom IDs; reject configuration/layout collisions before modifying the scheme, and retain unrelated entries. Personal correction: per-scheme settings use the native conf/pinyin/<uniqueName>.conf path; verified through real JNI persistence.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/CustomShuangpinScheme.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/CustomShuangpinSchemeStore.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinLayoutKeys.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinSchemeMigration.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/config/UserConfigFiles.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinPreferencesFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/InputMethodListFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/utils/AppUtil.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinLayoutKeysTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "28c6bb980b9f1353d490b02d0b2706b7120d22b4",
+      "title": "feat(behavior): manage shuangpin schemes as children of a parent layout",
+      "decision": "accepted",
+      "reason": "Accept Shuangpin parent fallback, independent child files and copy-on-first-edit without moving saved child keys.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutResolver.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutCustomizeActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt"
+      ]
+    },
+    {
+      "sha": "76ef3dcd4c81809930c3c0766b9e0a4eaf1ee631",
+      "title": "test(behavior): cover shuangpin child layouts and fix a broken fixture",
+      "decision": "accepted",
+      "reason": "Accept child-layout regression cases and corrected fixture; validate against personal layout behavior.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutCustomizeActivityTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivityTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutResolverTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManagerComparisonTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManagerTest.kt"
+      ]
+    },
+    {
+      "sha": "5c6414e7f002f9e4815a50d23895f29592fc1afb",
+      "title": "refactor(behavior): rename \"base layout\" to \"parent input method layout\"",
+      "decision": "accepted",
+      "reason": "Accept parent-input-method layout wording; preserve stored layout metadata and secondary-character terminology.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivityTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/pinyin/ShuangpinLayoutKeys.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutResolver.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutCustomizeActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutResolverTest.kt"
+      ]
+    },
+    {
+      "sha": "a15a9edeee8ac151811958fcc9cc55ebcf2f3cc6",
+      "title": "test(behavior): assert the save icon tint instead of bitmap equality",
+      "decision": "accepted",
+      "reason": "Check semantic save-icon tint instead of brittle bitmap equality.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutCustomizeActivityTest.kt"
+      ]
+    },
+    {
+      "sha": "1e8392a32e87c5675573ed1a6f2d818dc4925b4c",
+      "title": "chore(deps): bump fcitx5-chinese-addons",
+      "decision": "accepted",
+      "reason": "Review native per-scheme configuration changes and keep table compatibility.",
+      "files": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "74830e282d568727cb6808395bcccaefda5ea652",
+      "title": "fix(behavior): show the 「双拼」 parent input method layout in the active layout chain",
+      "decision": "accepted",
+      "reason": "Show the Shuangpin parent in the active layout chain.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ActiveLayoutChain.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ActiveLayoutChainTest.kt"
+      ]
+    },
+    {
+      "sha": "26ad1af53f25b9073153b3ddb33e6117b7b5bb9e",
+      "title": "feat(behavior): collapse the parent input method layout nodes",
+      "decision": "accepted",
+      "reason": "Accept persistent parent-node collapse state; does not alter input or require another switch.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt"
+      ]
+    },
+    {
+      "sha": "b61e60cc7a3eb415b9f67dfa7d67e2c3db1992f9",
+      "title": "fix(behavior): auto-close paired symbols for engine punctuation commits",
+      "decision": "adjusted",
+      "reason": "Accept native commit cursor forwarding and end-of-text closer detection; retain password/TYPE_NULL/composition/selection guards.",
+      "files": [
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/androidfrontend/androidfrontend.h",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/AutoCloseBracket.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/AutoCloseBracketTest.kt"
+      ]
+    },
+    {
+      "sha": "ce67d45049bef36f143860c78f5da57cb2ec5e62",
+      "title": "fix(input): keep the Rime schema radio outline crisp",
+      "decision": "accepted",
+      "reason": "Accept crisp Rime radio outline using the existing theme and selection state.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/dialog/InputMethodEntryUi.kt"
+      ]
+    },
+    {
+      "sha": "14076b97e66dfe8db30372a9f58510425313860a",
+      "title": "fix(settings): search, expand and highlight every settings entry",
+      "decision": "adjusted",
+      "reason": "Accept complete settings indexing, collapsed group expansion and navigation; retain personal feature search entries and old AI controls.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/ManagedPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/MainFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/MainViewModel.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/FcitxPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScrollHelper.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/LlmAdvancedSettingsFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/LlmSettingsFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinMappingFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/im/CustomShuangpinPreferencesFragment.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/CustomShuangpinSearchIndexTest.kt"
+      ]
+    },
+    {
+      "sha": "b57040c99c25c0890243faf4c22397b691665f14",
+      "title": "fix(settings): react to the scroll request while the page resumes",
+      "decision": "accepted",
+      "reason": "Retry scroll while resumed/async lists rebuild, with lifecycle-bound cancellation.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchNavigationTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScrollHelper.kt"
+      ]
+    },
+    {
+      "sha": "129c2086218f569cc6b2e8acdb6d5bad394b6c21",
+      "title": "test(settings): also assert the custom shuangpin preferences tab is indexed",
+      "decision": "accepted",
+      "reason": "Cover custom Shuangpin preferences-tab search indexing.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchNavigationTest.kt"
+      ]
+    },
+    {
+      "sha": "9e348175d16121cf8efe54d2c5cd5af75cc0da41",
+      "title": "fix(settings): highlight the jumped entry with an outline only",
+      "decision": "adjusted",
+      "reason": "Keep outline-only highlighting; Android pixel regression exposed a missing highlight. Hold the outline from its first rendered frame independently of animation scale and clean up on detach; no display switch or weakened assertion.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchNavigationTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScrollHelper.kt"
+      ]
+    },
+    {
+      "sha": "4bdf8f6a9b420558337f7e7da293305cff437ce4",
+      "title": "test(fcitx): stop the engine tests from hanging the instrumentation run",
+      "decision": "adjusted",
+      "reason": "Accept bounded legacy receive timeouts. The standalone class is explicitly ignored with its missing activated-context fixture documented as follow-up; its three cases were not executed or counted. Real activated-context native verification runs in NativeEngineMaintenanceTest; selected failures and assumption skips were repaired and rerun, not hidden.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/FcitxTest.kt"
+      ]
+    },
+    {
+      "sha": "014cd2c2227ecb829970975f969d3df1eba1b10a",
+      "title": "test(keyboard): fix two device test assumptions that do not hold",
+      "decision": "adjusted",
+      "reason": "Accept candidate test assumption fix; keep stable whole-key main-font geometry checks and independent hint overlay assertions.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateOverflowTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/SameEdgeSubLabelLayoutTest.kt"
+      ]
+    },
+    {
+      "sha": "3e89d9fc4cf3586473020a625c4df48bf667f757",
+      "title": "feat(keyboard): rework backspace behavior on prediction",
+      "decision": "adjusted",
+      "reason": "Add clear-and-delete action; decode legacy DismissCandidates equivalently. Preserve the old app default and explicit saved app choices; otherwise allow the engine prediction setting to apply.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/PredictionBackspaceBehavior.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/PredictionBackspaceBehaviorDecider.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/PredictionBackspaceBehaviorDeciderTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "7b2e1648d1952bd98a3d2cac4098d42c4afd2e37",
+      "title": "feat(keyboard): replace space long-press picker with repeat space",
+      "decision": "adjusted",
+      "reason": "Add opt-in RepeatSpace alongside the existing ShowPicker; do not remap an existing ShowPicker choice to Enumerate.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/SpaceLongPressBehavior.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "sha": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "title": "feat(prediction): refine AI modes, persona and model effort",
+      "decision": "deferred",
+      "reason": "Do not replace LongForm with polishing, remove CandidateBar, reset existing thinking choices, or add newline/replace-input semantics implicitly. Full AI UI/effort batch retained for isolated compatibility work.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/ExpandedCandidateLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/FlexboxExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/GridExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/AiSuggestionExpandedUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/AiSuggestionOverlay.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/AiSuggestionPanelUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/AiSuggestionStripComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmClient.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmLocalModelManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmPredictionBackend.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmPredictor.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmPrompt.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmRequestPolicy.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/LlmModelPreferenceDialogFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/LlmSettingsFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ThinkingEffortSelector.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/predict/AiSuggestionStripComponentTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/predict/LlmClientTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/predict/LlmPrefsTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/predict/LlmPromptTest.kt"
+      ]
+    },
+    {
+      "sha": "262ce20a306738be352817ed284074c38573dec4",
+      "title": "fix(prediction): preserve whitespace in streaming responses",
+      "decision": "adjusted",
+      "reason": "Adopt streaming whitespace preservation independently; use standard JSON types/decoding for text deltas, retain whitespace and literal null text, ignore non-text/thinking values; preserve the existing suggestions/insert_text protocol.",
+      "files": [
+        "app/build.gradle.kts",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/predict/LlmClient.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/predict/LlmClientTest.kt"
+      ]
+    },
+    {
+      "sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
+      "title": "docs: summarize all changes from October 6 to 22",
+      "decision": "adjusted",
+      "reason": "Review upstream summary against actual patches; do not copy claims about deleting tables or replacing personal AI modes into the fork README.",
+      "files": [
+        "README.en.md",
+        "README.md"
+      ]
+    }
+  ],
+  "personal_history_checked": [
+    "2026-10-10 independent main/secondary glyph geometry, padding, positions and composition Shift",
+    "2026-10-12 physical bottom-right secondary slot and JSON insertion protocol",
+    "2026-10-15 table retention, native candidate cursor policy, optional input controls, personal signing/build identity and pinned prebuilt",
+    "2026-10-16 consistent 副字符 / 副字符二 terminology and green customization marker explanation"
+  ],
+  "deferred": [
+    {
+      "sha": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "branch": "maintenance/deferred-ai-2026-10-23",
+      "reason": "Do not replace LongForm with polishing, remove CandidateBar, reset existing thinking choices, or add newline/replace-input semantics implicitly. Full AI UI/effort batch retained for isolated compatibility work.",
+      "required_before_adoption": "Keep existing long-form and candidate-bar behavior and saved thinking settings; introduce polishing as its own explicit action. Verify each request/commit/display path on Android before adoption.",
+      "branch_url": "https://github.com/UlinoyaPed/fcitx5-android/tree/maintenance/deferred-ai-2026-10-23",
+      "branch_head": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "branch_content": "Original upstream proposal only; not a validated personal build. Branch created and SHA verified."
+    }
+  ],
+  "settings_changes": [
+    "Existing space long-press ShowPicker remains available with its saved value; RepeatSpace is an additional opt-in choice.",
+    "Existing prediction-backspace app default and explicit stored app choices remain effective; legacy DismissCandidates maps to equivalent clear behavior. Clear-and-delete is available as a distinct choice.",
+    "Custom Shuangpin and swipe timing are configured in their existing editors and do not need blanket global enable switches.",
+    "No routine layout/repair switches added. All existing personal feature controls remain."
+  ],
+  "validation": {
+    "status": "passed",
+    "unit_tests": {
+      "tests": 698,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_instrumentation": {
+      "tests": 155,
+      "failures": 0,
+      "ignored": 0,
+      "api": 29,
+      "abi": "x86_64",
+      "emulator": "software emulation without KVM; final full suite used disabled window/transition/animator animations; separate highlight check used normal animations. Assertions and class set unchanged",
+      "classes": 31,
+      "groups": [
+        {
+          "group": "core",
+          "classes": [
+            "data.pinyin.CustomShuangpinPreservationTest",
+            "input.keyboard.BottomRightSubLabelTest",
+            "input.keyboard.SwipeMappingIntegrationTest",
+            "data.prefs.LegacyChineseEnglishSpacingTest",
+            "input.NativeEngineMaintenanceTest",
+            "input.dialog.RimeSchemaPickerTest",
+            "input.predict.LlmCompletionProtocolTest",
+            "input.keyboard.ComposeShiftPresentationTest",
+            "input.keyboard.SubLabelControlsTest",
+            "input.keyboard.IndependentSubLabelPositionTest",
+            "input.keyboard.KeyLabelFontIndependenceTest",
+            "input.bar.CandidateBarHeightTest",
+            "input.keyboard.KeyLabelStabilityTest",
+            "input.keyboard.RemainingSpaceSubLabelLayoutTest",
+            "input.keyboard.SwipeLetterDispatchTest",
+            "input.keyboard.DirectionalSwipeBehaviorTest",
+            "input.keyboard.SameEdgeSubLabelLayoutTest",
+            "input.keyboard.VerticalSubLabelLayoutTest",
+            "input.keyboard.DirectionalSwipeLabelTest",
+            "input.keyboard.PunctuationPositionScopeTest",
+            "input.clipboard.ClipboardCategoryButtonsTest",
+            "input.clipboard.ClipboardSearchRefreshTest",
+            "input.candidates.floating.PagedCandidatesUiTest",
+            "ui.main.settings.PersonalFeatureControlsTest"
+          ],
+          "exit_code": 0,
+          "tests": 111,
+          "seconds": 194.158,
+          "status": "passed"
+        },
+        {
+          "group": "ui1",
+          "classes": [
+            "ui.main.settings.SettingsSearchNavigationTest",
+            "ui.main.settings.behavior.MappingEditorFloatingActionButtonTest",
+            "ui.main.settings.behavior.TextKeyboardLayoutCustomizeActivityTest",
+            "ui.main.settings.behavior.dialog.KeyEditorActivitySwipeTest",
+            "input.config.DirectionalSwipeMigrationFileTest"
+          ],
+          "exit_code": 0,
+          "tests": 24,
+          "seconds": 309.933,
+          "status": "passed"
+        },
+        {
+          "group": "ui2",
+          "classes": [
+            "ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest",
+            "ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest"
+          ],
+          "exit_code": 0,
+          "tests": 20,
+          "seconds": 327.521,
+          "status": "passed",
+          "original_full_run": {
+            "group": "ui2",
+            "classes": [
+              "ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest",
+              "ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest"
+            ],
+            "exit_code": 0,
+            "tests": null,
+            "seconds": 327.521,
+            "status": "failed"
+          },
+          "verification": "case-level full-run + one corrected locale retest",
+          "verified_cases": [
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#dropdownHidesDisabledPresetsAndKeepsCustomizedLayoutsWithoutWriting",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#emptyChildRecoversToBaseWithoutReselectingTheEmptyChild",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#firstEditOfShuangpinSchemeCarriesOverInheritedMacroKeyAndFrozenHeight",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#invalidInheritedRowsRecoverWithoutMaterializingTheAbandonedDraft",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#menuRefreshDoesNotLoseLaterBaseOrSubmodeEdits",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#missingBaseIsVisibleAndBrowsingDoesNotMaterializeIt",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#profileReloadDiscardsDraftWithoutLeakingItIntoNextProfile",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeFilterUsesContrastingAccentTintInBothThemes",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeIdentityAndRimeSchemaAreShownWithoutCustomLayouts",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeLayoutRefreshesWhenReturningAfterImeSwitch",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#childOnlyAndUnmatchedSiblingSummariesBothUseActiveImeName",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#deleteButtonsUseDestructiveColorInBothThemes",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#disabledPresetsAreHiddenButCustomizationsAndChildrenRemain",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#enabledImeWithoutStoredBaseIsFilterableWithoutMaterializingLayout",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#openingAndFilteringProfilesPreservesDefaultFallback",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#parentLayoutNodesCollapseAndExpandTheirChildren",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#profileFilterPreservesCustomizationsAndSurvivesReopening",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#resettingBaseLayoutKeepsChildLayoutsAndHeights",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#rimeFallbackRowsRetainIdentityAndFactoryStateWhenEngineLabelsAreEmpty",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#shuangpinChildrenOnlyListSchemesEnabledInInputMethodList"
+          ]
+        }
+      ],
+      "earlier_attempts": [
+        {
+          "result": "instrumentation_startup_killed",
+          "reason": "After replacing only the test APK, Android killed the instrumentation before any case began due to a pending content-provider publishing timeout. System log identified the provider/PackageReplaced restart; stopped the disposable DocumentsUI consumer and let pending startup work settle before retrying. No passed cases claimed."
+        },
+        {
+          "result": "activity_launch_timeout",
+          "reason": "Focused highlight retry during concurrent release build and indexing exceeded the instrumentation 45-second Activity launch timeout before reaching pixel assertions. The system log later reported the Activity displayed at 52.530 seconds; this attempt was not counted as passed."
+        },
+        {
+          "result": "timeout",
+          "reason": "Combined 31-class suite exceeded 1200-second host timeout; no pass claimed."
+        },
+        {
+          "result": "environment_interrupted",
+          "reason": "Environment restart interrupted UI1 after core passed. A later resume exposed the separate highlight assertion failure."
+        }
+      ],
+      "coverage": [
+        "Stable centered main glyphs, independent secondary font geometry, padding, physical bottom-right/RTL and physical swipe hints",
+        "Composition Shift state and repeated empty-preedit behavior",
+        "Android JSON request/response and insertion protocol; offline compatibility fixtures only",
+        "Custom Shuangpin entry preservation, explicit rename/collision protection and native per-scheme config persistence",
+        "Native Pinyin/Shuangpin candidate generation and table/Wubi availability",
+        "Settings navigation and highlight, layout editors and migration, swipe actions, preserved personal feature controls"
+      ],
+      "fixture_corrections": {
+        "ui2_baseline": {
+          "tests": 20,
+          "passed": 18,
+          "failures": 1,
+          "assumption_skips": 1
+        },
+        "locale": "Scheme parent label comes from the localized text_keyboard_layout_manage_shuangpin resource, independently of the synthetic active IME displayName. Replaced the Chinese-only parent expectation with the resource label; exact chain structure and file-preservation assertions retained.",
+        "input_context": "Real native activate/focus context and two enabled engines set up and restored explicitly; assumptions strengthened to assertions, so engine-switch refresh case must execute.",
+        "revalidation": {
+          "status": "passed",
+          "method": "19 successful cases from the unmodified full UI2 run plus a targeted rerun of its sole failed locale assertion after fixing test resources; same production APK, unchanged assertions for the other 19 cases. This is not claimed as an all-green single run.",
+          "full_run": {
+            "tests": 20,
+            "passed": 19,
+            "failed": 1,
+            "assumption_skips": 0,
+            "log_sha256": "2f4f21bc7fcb6ef371290b3944e54a019843d21a5946cb3ba0525bc6546b6206"
+          },
+          "targeted_retest": {
+            "tests": 1,
+            "passed": 1,
+            "failed": 0,
+            "case": "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeIdentityAndRimeSchemaAreShownWithoutCustomLayouts",
+            "seconds": 38.25,
+            "log_sha256": "0810643335657ee8e3b64662d64b0cc788ad45e8fff41aaa4f70b8401590fc7b"
+          },
+          "verified_cases": [
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#dropdownHidesDisabledPresetsAndKeepsCustomizedLayoutsWithoutWriting",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#emptyChildRecoversToBaseWithoutReselectingTheEmptyChild",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#firstEditOfShuangpinSchemeCarriesOverInheritedMacroKeyAndFrozenHeight",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#invalidInheritedRowsRecoverWithoutMaterializingTheAbandonedDraft",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#menuRefreshDoesNotLoseLaterBaseOrSubmodeEdits",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#missingBaseIsVisibleAndBrowsingDoesNotMaterializeIt",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest#profileReloadDiscardsDraftWithoutLeakingItIntoNextProfile",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeFilterUsesContrastingAccentTintInBothThemes",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeIdentityAndRimeSchemaAreShownWithoutCustomLayouts",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#activeLayoutRefreshesWhenReturningAfterImeSwitch",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#childOnlyAndUnmatchedSiblingSummariesBothUseActiveImeName",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#deleteButtonsUseDestructiveColorInBothThemes",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#disabledPresetsAreHiddenButCustomizationsAndChildrenRemain",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#enabledImeWithoutStoredBaseIsFilterableWithoutMaterializingLayout",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#openingAndFilteringProfilesPreservesDefaultFallback",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#parentLayoutNodesCollapseAndExpandTheirChildren",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#profileFilterPreservesCustomizationsAndSurvivesReopening",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#resettingBaseLayoutKeepsChildLayoutsAndHeights",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#rimeFallbackRowsRetainIdentityAndFactoryStateWhenEngineLabelsAreEmpty",
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest#shuangpinChildrenOnlyListSchemesEnabledInInputMethodList"
+          ]
+        }
+      },
+      "regression_fix": {
+        "before": "Search-navigation pixel assertion failed with normal animations: the highlight was never painted on the target row. Code review also found that animation scale zero immediately removed the outline.",
+        "after": "Draw the outline immediately; hold it after the first frame independently of animator scale, then remove it. Clean up when detached. Original pixel assertions retained; full 155-case selection rerun on the corrected APK.",
+        "baseline_result": {
+          "tests": 24,
+          "failures": 1,
+          "passed": 23
+        },
+        "extra_check": "Original highlight case also verified separately with normal system animation scales."
+      },
+      "physical_device_testing": "not performed",
+      "online_model_quality_testing": "not performed",
+      "counting": "155 unique selected cases verified; UI2 combines 19 successful cases from its full run and one corrected locale retest. All raw failing/timeout attempts are retained in the record; three legacy standalone FcitxTest cases are excluded."
+    },
+    "android_builds": {
+      "debug": "x86_64 app and instrumentation APKs passed",
+      "release": "arm64-v8a app and all 10 plugins passed",
+      "configuration_cache": "Final debug and release task graphs stored configuration-cache entries successfully",
+      "commands": [
+        ":app:testDebugUnitTest",
+        ":app:assembleDebug :app:assembleDebugAndroidTest",
+        ":app:assembleRelease :assembleReleasePlugins :app:lintRelease"
+      ]
+    },
+    "apks": {
+      "status": "passed",
+      "count": 11,
+      "signing": "One temporary local verification certificate; repository production secrets were not accessed or changed.",
+      "apks": [
+        {
+          "apk": "app/build/outputs/apk/release/org.ulinoyaped.fcitx5.android-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android",
+          "sha256": "8dee1dfc7ac62236746499a62fdb35c7c5bfcfe97e186c913b98a2b3bebe9b3f",
+          "arm64_native_libraries": 29,
+          "model_sha256": [
+            "df62f5880141a5435334c82fc66db9fd0a2e0d28a02148ec5fb577c9e30e58cd"
+          ]
+        },
+        {
+          "apk": "plugin/anthy/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.anthy-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.anthy",
+          "sha256": "8270402a84fd8f039eba9e3a545a997a1d624aec45ad6374f6c4256b7dc621f3",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/chewing/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.chewing-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.chewing",
+          "sha256": "72c445de972b7b3804b2fd5067261a57ec519246e3efbd44e9b051db83867b38",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/clipboard-filter/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.clipboard_filter-20261022-39ebe25a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_filter",
+          "sha256": "49368beb738b67a64358e55f73d2baf658488f7129977669863438467fe8e333",
+          "arm64_native_libraries": 0,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/clipboard-sync/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.clipboard_sync-20261022-39ebe25a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_sync",
+          "sha256": "1e6a9b7de5290ce9d7df0b17ab34f03d4971de53e9ac5ecb0bf7620f5feb9d1c",
+          "arm64_native_libraries": 0,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/hangul/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.hangul-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.hangul",
+          "sha256": "1bb8ebaf1cce402c14f10aeba1cf080aac0174d4f0e32619922e4bf7fc891d1e",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/jyutping/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.jyutping-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.jyutping",
+          "sha256": "6bda1fd1cb33e40a98b5b8ac831f81f1d554888424cc4399ae934e641ad372de",
+          "arm64_native_libraries": 3,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/rime/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.rime-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.rime",
+          "sha256": "77ae3eeb75693a7ef7593265e0c2787374a5a27294ee7bb0d2c5e6a9a6c952cc",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/sayura/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.sayura-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.sayura",
+          "sha256": "708946a12509edff0cf9ec629f0fabe36bc2cd669d646cd3784460ab6e71356b",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/thai/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.thai-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.thai",
+          "sha256": "cc3c3f7e1be8988bece97ac6bb5588dca9b621121438a82fe52210bba6cbc48b",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        },
+        {
+          "apk": "plugin/unikey/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.unikey-20261022-39ebe25a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.unikey",
+          "sha256": "7115948aaa0cccec82b5a6fad85666f4e7b3cb3164c379622bdb0404bf8333f1",
+          "arm64_native_libraries": 1,
+          "model_sha256": []
+        }
+      ]
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 386,
+      "result": "passed",
+      "previous_release_warnings": 380,
+      "warning_delta": {
+        "NotifyDataSetChanged": 3,
+        "PluralsCandidate": 1,
+        "NewerVersionAvailable": 1,
+        "UseTomlInstead": 1
+      },
+      "new_missing_translation_or_lint_error": false
+    },
+    "workflows": {
+      "actionlint": "1.7.12",
+      "result": "passed",
+      "production_signing_secrets": "not accessed or modified; local validation used a temporary certificate"
+    },
+    "gitnexus": {
+      "status": "passed_full_listing_with_documented_coverage_limits",
+      "index_nodes": 65471,
+      "index_edges": 109697,
+      "indexed_flows": 862,
+      "index_clusters": 1552,
+      "process_discovery_limits": {
+        "candidate_entrypoints_dropped": 6231,
+        "candidate_entrypoints_total": 6431,
+        "walks_cut_by_budget": 63,
+        "traces_depth_capped": 14,
+        "callees_dropped": 1532,
+        "processes_dropped": 0
+      },
+      "global_coverage": "lower bound; see limitations",
+      "fts_recovery": "Incremental FTS rebuild failed with Invalid UTF-8; repair-fts also failed. Full forced rebuild restored graph and FTS successfully; no search failure suppressed.",
+      "late_fixture_impact": "Profile manager test impact UNKNOWN; JUnit @Test declarations, runner class selections and exact runtime case IDs confirmed before fixture edits.",
+      "late_highlight_impact": "PreferenceScrollHelper class impact LOW, 25 upstream files/dependencies, four direct importers. Method lookup returned UNKNOWN; literal callsite in highlightWhenBound confirmed and original Android pixel test used for verification.",
+      "display_adjustment_proof": {
+        "change": "Only listing cap 1000 -> 10000; no algorithm or flag changes",
+        "original_sha256": "c421d9cfd6af419ee3ad210a27f1158385a35f73f22cd2aeafc49ca3cd3ec506",
+        "expanded_listing_sha256": "2e870006a7f78c10ecf9faf87e0779797582a1d38525c3672f7d1d7312e44c55"
+      },
+      "full_listing_adjustment": "Stock detect_changes clips changed_symbols at 1000 even with limit=10000. Used a separate local copy of the same backend changing only DETECT_CHANGES_MAX_LISTED_SYMBOLS from 1000 to 10000; original module and analysis algorithms unchanged. Original summary 1246 symbols / 193 processes matched expanded full arrays. No flags or results suppressed.",
+      "scopes": {
+        "all": {
+          "summary": {
+            "changed_count": 1251,
+            "affected_count": 193,
+            "changed_files": 108,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1251,
+          "listed_processes": 193,
+          "partial": false,
+          "truncated": false
+        },
+        "compare": {
+          "summary": {
+            "changed_count": 1251,
+            "affected_count": 193,
+            "changed_files": 108,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1251,
+          "listed_processes": 193,
+          "partial": false,
+          "truncated": false
+        }
+      }
+    },
+    "source_check": "git diff --cached --check passed; XML resources parsed; personal geometry files and update identity retained",
+    "native_build_patch": "Existing dirty fcitx5 worktree is the tracked fcitx5-global-options-ui.patch applied by prepare_personal_build.sh; reverse-apply check passed. No new fcitx5 gitlink or untracked native patch is published."
+  },
+  "limitations": [
+    "No physical-phone, physical-keyboard or online model quality testing. Offline streaming/protocol cases do not establish online model quality.",
+    "Graph is a lower bound: scope extraction fails for BaseDynamicListUi and process discovery caps leave omitted flows. UNKNOWN resource/JNI/test paths were checked through literal references and build/runtime verification.",
+    "Paired-symbol changes retain the previous composition guard; native cursor support is verified independently without claiming untested preedit overlap behavior.",
+    "The standalone legacy FcitxTest class is explicitly ignored upstream because it never activates its native input context; its three cases were not run or counted. NativeEngineMaintenanceTest verifies the packaged model, table availability, real activated-context Pinyin/Shuangpin candidates and configuration persistence. Legacy standalone event-stream tests remain follow-up work."
+  ],
+  "personal_source_preservation": {
+    "app/src/main/java/org/fxboomk/fcitx5/android/data/theme/ThemePrefs.kt": {
+      "blob": "7f74adba33bc760755f910bc481e6c1ade9b3a6a",
+      "unchanged_from_personal_base": true
+    },
+    "app/src/main/java/org/fxboomk/fcitx5/android/input/AutoScaleTextView.kt": {
+      "blob": "386dbddd3836ac811c19702d03adc741a04244ca",
+      "unchanged_from_personal_base": true
+    },
+    "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyView.kt": {
+      "blob": "331161991fc49f87cc0e9cac75c818bf7fceffff",
+      "unchanged_from_personal_base": true
+    }
+  },
+  "maintenance_prompt": {
+    "repository_file": "maintenance/task-prompt.txt",
+    "automation_id": "6ac9065509e0819184f9503d7939ab90",
+    "timezone": "Asia/Shanghai",
+    "schedule": "Friday 06:00",
+    "reconciled_history": [
+      "conversation available this run",
+      "personal main through 39ebe25a",
+      "MAINTENANCE.md",
+      "maintenance/ historical review records"
+    ],
+    "note": "Task and repository prompt updated this run; preserve actual saved choices, data and deferred AI compatibility requirements.",
+    "prompt_utf8_sha256": "02ce9c2c1624e04f9dd1f838a40440f1e3274e3747cd06a644629825c379fe4e"
+  }
+}

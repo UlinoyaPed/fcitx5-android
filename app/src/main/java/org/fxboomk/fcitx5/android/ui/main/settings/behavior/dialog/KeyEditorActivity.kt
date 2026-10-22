@@ -41,6 +41,7 @@ import org.fxboomk.fcitx5.android.data.theme.THEME_COLOR_REF_PREFIX
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.keyboard.DefaultSwipeSymbolMapping
+import org.fxboomk.fcitx5.android.input.keyboard.SwipeActionTiming
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
@@ -152,12 +153,43 @@ class KeyEditorActivity : AppCompatActivity() {
     private var nonMacroSwipeDownLabelEdit: EditText? = null
 
     private var macroTapStepsData: List<Any> = emptyList()
-    private var macroSwipeUpStepsData: List<Any> = emptyList()
-    private var macroSwipeDownStepsData: List<Any> = emptyList()
+    private var macroSwipeUpAction = SwipeActionDraft()
+    private var macroSwipeDownAction = SwipeActionDraft()
     private var macroLongPressStepsData: List<Any> = emptyList()
-    private var nonMacroSwipeUpStepsData: List<Any> = emptyList()
-    private var nonMacroSwipeDownStepsData: List<Any> = emptyList()
+    private var nonMacroSwipeUpAction = SwipeActionDraft()
+    private var nonMacroSwipeDownAction = SwipeActionDraft()
     private var macroEditCallback: ((List<Any>) -> Unit)? = null
+    private var swipeEditCallback: ((List<Any>, Map<String, List<Any>>?) -> Unit)? = null
+
+    /** A swipe action in layout map form: the All steps plus steps keyed by timing id. */
+    private data class SwipeActionDraft(
+        val steps: List<Any> = emptyList(),
+        val timingSteps: Map<String, List<Any>> = emptyMap()
+    ) {
+        fun isEmpty() = steps.isEmpty() && timingSteps.isEmpty()
+
+        fun toActionMap(): Map<String, Any> = buildMap {
+            put("macro", steps)
+            if (timingSteps.isNotEmpty()) {
+                put("timingActions", timingSteps.mapValues { (_, timed) -> mapOf("macro" to timed) })
+            }
+        }
+
+        companion object {
+            private fun macroSteps(action: Any?): List<Any> =
+                ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
+
+            fun from(action: Any?): SwipeActionDraft {
+                val timingSteps = ((action as? Map<*, *>)?.get("timingActions") as? Map<*, *>)
+                    ?.entries?.mapNotNull { (id, timed) ->
+                        val timing = SwipeActionTiming.fromId(id as? String ?: return@mapNotNull null)
+                        if (timing == null || timing == SwipeActionTiming.All) return@mapNotNull null
+                        timing.id to macroSteps(timed)
+                    }?.toMap().orEmpty()
+                return SwipeActionDraft(macroSteps(action), timingSteps)
+            }
+        }
+    }
     private var saveMenuItem: MenuItem? = null
     private var deleteMenuItem: MenuItem? = null
     private var baselineKeySnapshot: String = ""
@@ -194,7 +226,15 @@ class KeyEditorActivity : AppCompatActivity() {
             val data = result.data ?: return@registerForActivityResult
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
             val steps = data.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT) ?: return@registerForActivityResult
-            macroEditCallback?.invoke(steps.map { it as Any })
+            val swipeCallback = swipeEditCallback
+            if (swipeCallback != null) {
+                val timingSteps = data
+                    .serializable<HashMap<String, ArrayList<Map<*, *>>>>(MacroEditorActivity.EXTRA_TIMING_RESULT)
+                    ?.mapValues { (_, timed) -> timed.map { it as Any } }
+                swipeCallback(steps.map { it as Any }, timingSteps)
+            } else {
+                macroEditCallback?.invoke(steps.map { it as Any })
+            }
         }
 
     private val colorEditorLauncher =
@@ -391,8 +431,8 @@ class KeyEditorActivity : AppCompatActivity() {
         weightFieldOriginalValue = null
         nonMacroSwipeUpLabelEdit = null
         nonMacroSwipeDownLabelEdit = null
-        nonMacroSwipeUpStepsData = emptyList()
-        nonMacroSwipeDownStepsData = emptyList()
+        nonMacroSwipeUpAction = SwipeActionDraft()
+        nonMacroSwipeDownAction = SwipeActionDraft()
 
         initDisplayText(
             keyData,
@@ -591,11 +631,11 @@ class KeyEditorActivity : AppCompatActivity() {
 
                 // 拆分后的上/下划宏。旧版单个 "swipe" 在此按标点符号位置一次性迁移：
                 // 底部 → 下划，否则 → 上划（与运行时 Primary 方向一致）。
-                val (swipeUpMacroSteps, swipeDownMacroSteps) = resolveMacroSwipeSteps()
+                val (swipeUpMacroAction, swipeDownMacroAction) = resolveMacroSwipeActions()
 
                 macroTapStepsData = tapMacroSteps
-                macroSwipeUpStepsData = swipeUpMacroSteps
-                macroSwipeDownStepsData = swipeDownMacroSteps
+                macroSwipeUpAction = swipeUpMacroAction
+                macroSwipeDownAction = swipeDownMacroAction
                 macroLongPressStepsData = longPressMacroSteps
 
                 createMacroEditorButton(
@@ -615,11 +655,11 @@ class KeyEditorActivity : AppCompatActivity() {
 
                 createMacroEditorButton(
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event_up),
-                    previewText = buildMacroPreview(swipeUpMacroSteps),
+                    previewText = buildSwipeMacroPreview(swipeUpMacroAction),
                     onClick = {
-                        openMacroEditor(macroSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event_up)) { newSteps ->
+                        openSwipeMacroEditor(macroSwipeUpAction, getString(R.string.text_keyboard_layout_macro_swipe_event_up)) { newAction ->
                             val draft = buildDraftKeyData()
-                            macroSwipeUpStepsData = newSteps
+                            macroSwipeUpAction = newAction
                             applyMacroSwipeDraft(draft)
                             keyData = draft
                             rebuildFields()
@@ -630,11 +670,11 @@ class KeyEditorActivity : AppCompatActivity() {
 
                 createMacroEditorButton(
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event_down),
-                    previewText = buildMacroPreview(swipeDownMacroSteps),
+                    previewText = buildSwipeMacroPreview(swipeDownMacroAction),
                     onClick = {
-                        openMacroEditor(macroSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event_down)) { newSteps ->
+                        openSwipeMacroEditor(macroSwipeDownAction, getString(R.string.text_keyboard_layout_macro_swipe_event_down)) { newAction ->
                             val draft = buildDraftKeyData()
-                            macroSwipeDownStepsData = newSteps
+                            macroSwipeDownAction = newAction
                             applyMacroSwipeDraft(draft)
                             keyData = draft
                             rebuildFields()
@@ -702,20 +742,16 @@ class KeyEditorActivity : AppCompatActivity() {
         fieldsContainer.addView(upLabel.first)
         fieldsContainer.addView(downLabel.first)
 
-        fun steps(actionKey: String): List<Any> =
-            ((keyData[actionKey] as? Map<*, *>)?.get("macro") as? List<*>)
-                ?.filterNotNull() ?: emptyList()
+        nonMacroSwipeUpAction = SwipeActionDraft.from(keyData["swipeUp"])
+        nonMacroSwipeDownAction = SwipeActionDraft.from(keyData["swipeDown"])
 
-        nonMacroSwipeUpStepsData = steps("swipeUp")
-        nonMacroSwipeDownStepsData = steps("swipeDown")
-
-        fun addSwipeEditor(actionKey: String, titleRes: Int, initialSteps: List<Any>) {
+        fun addSwipeEditor(actionKey: String, titleRes: Int, initialAction: SwipeActionDraft) {
             val title = getString(titleRes)
-            createMacroEditorButton(title, buildMacroPreview(initialSteps)) {
-                openMacroEditor(initialSteps, title) { newSteps ->
+            createMacroEditorButton(title, buildSwipeMacroPreview(initialAction)) {
+                openSwipeMacroEditor(initialAction, title) { newAction ->
                     val draft = buildDraftKeyData()
-                    if (newSteps.isNotEmpty()) {
-                        draft[actionKey] = mapOf("macro" to newSteps)
+                    if (!newAction.isEmpty()) {
+                        draft[actionKey] = newAction.toActionMap()
                     } else {
                         draft.remove(actionKey)
                     }
@@ -726,25 +762,25 @@ class KeyEditorActivity : AppCompatActivity() {
             }.forEach { fieldsContainer.addView(it) }
         }
 
-        addSwipeEditor("swipeUp", R.string.text_keyboard_layout_macro_swipe_event_up, nonMacroSwipeUpStepsData)
-        addSwipeEditor("swipeDown", R.string.text_keyboard_layout_macro_swipe_event_down, nonMacroSwipeDownStepsData)
+        addSwipeEditor("swipeUp", R.string.text_keyboard_layout_macro_swipe_event_up, nonMacroSwipeUpAction)
+        addSwipeEditor("swipeDown", R.string.text_keyboard_layout_macro_swipe_event_down, nonMacroSwipeDownAction)
     }
 
     private fun applyDirectionalSwipeDraft(target: MutableMap<String, Any?>) {
         target.remove("swipe")
         target.remove("swipeLabel")
-        fun writeDirection(actionKey: String, labelEdit: EditText?, steps: List<Any>) {
+        fun writeDirection(actionKey: String, labelEdit: EditText?, action: SwipeActionDraft) {
             val labelKey = "${actionKey}Label"
             val label = labelEdit?.text?.toString()?.trim().orEmpty()
             if (label.isNotEmpty()) target[labelKey] = label else target.remove(labelKey)
-            if (steps.isNotEmpty()) {
-                target[actionKey] = mapOf("macro" to steps)
+            if (!action.isEmpty()) {
+                target[actionKey] = action.toActionMap()
             } else {
                 target.remove(actionKey)
             }
         }
-        writeDirection("swipeUp", nonMacroSwipeUpLabelEdit, nonMacroSwipeUpStepsData)
-        writeDirection("swipeDown", nonMacroSwipeDownLabelEdit, nonMacroSwipeDownStepsData)
+        writeDirection("swipeUp", nonMacroSwipeUpLabelEdit, nonMacroSwipeUpAction)
+        writeDirection("swipeDown", nonMacroSwipeDownLabelEdit, nonMacroSwipeDownAction)
     }
 
     private fun createWeightEditField(): Pair<LinearLayout, EditText> {
@@ -786,7 +822,10 @@ class KeyEditorActivity : AppCompatActivity() {
         )
 
         val statusView = TextView(this).apply {
-            text = buildComposeOverrideStatusPreview()
+            text = listOf(
+                getString(R.string.text_keyboard_layout_compose_override_description),
+                buildComposeOverrideStatusPreview()
+            ).joinToString("\n")
             textSize = 12f
             setTextColor(styledColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(2), dp(8), dp(8))
@@ -1283,19 +1322,16 @@ class KeyEditorActivity : AppCompatActivity() {
      * 则把旧版单个 "swipe" 按标点符号位置一次性迁移：底部 → 下划，否则 → 上划。
      * 这与运行时旧版 swipe 回退命中的 Primary 方向一致。
      */
-    private fun resolveMacroSwipeSteps(): Pair<List<Any>, List<Any>> {
-        fun steps(key: String): List<Any> =
-            ((keyData[key] as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
+    private fun resolveMacroSwipeActions(): Pair<SwipeActionDraft, SwipeActionDraft> {
+        val up = SwipeActionDraft.from(keyData["swipeUp"])
+        val down = SwipeActionDraft.from(keyData["swipeDown"])
+        if (!up.isEmpty() || !down.isEmpty()) return up to down
 
-        val up = steps("swipeUp")
-        val down = steps("swipeDown")
-        if (up.isNotEmpty() || down.isNotEmpty()) return up to down
-
-        val legacy = steps("swipe")
-        if (legacy.isEmpty()) return emptyList<Any>() to emptyList()
+        val legacy = SwipeActionDraft.from(keyData["swipe"])
+        if (legacy.isEmpty()) return SwipeActionDraft() to SwipeActionDraft()
         val legacyToDown = ThemeManager.prefs.punctuationPosition.getValue() ==
             ThemePrefs.PunctuationPosition.Bottom
-        return if (legacyToDown) emptyList<Any>() to legacy else legacy to emptyList()
+        return if (legacyToDown) SwipeActionDraft() to legacy else legacy to SwipeActionDraft()
     }
 
     /**
@@ -1303,13 +1339,13 @@ class KeyEditorActivity : AppCompatActivity() {
      */
     private fun applyMacroSwipeDraft(target: MutableMap<String, Any?>) {
         target.remove("swipe")
-        if (macroSwipeUpStepsData.isNotEmpty()) {
-            target["swipeUp"] = mapOf("macro" to macroSwipeUpStepsData)
+        if (!macroSwipeUpAction.isEmpty()) {
+            target["swipeUp"] = macroSwipeUpAction.toActionMap()
         } else {
             target.remove("swipeUp")
         }
-        if (macroSwipeDownStepsData.isNotEmpty()) {
-            target["swipeDown"] = mapOf("macro" to macroSwipeDownStepsData)
+        if (!macroSwipeDownAction.isEmpty()) {
+            target["swipeDown"] = macroSwipeDownAction.toActionMap()
         } else {
             target.remove("swipeDown")
         }
@@ -1511,18 +1547,66 @@ class KeyEditorActivity : AppCompatActivity() {
     ) {
         persistCurrentDraft()
         val intent = Intent(this, MacroEditorActivity::class.java)
-        if (initialSteps.isNotEmpty()) {
-            val serializableSteps = ArrayList<Map<*, *>>()
-            initialSteps.forEach { step ->
-                (step as? Map<*, *>)?.let { serializableSteps.add(it) }
-            }
-            if (serializableSteps.isNotEmpty()) {
-                intent.putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, serializableSteps)
-            }
+        serializableSteps(initialSteps)?.let {
+            intent.putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, it)
         }
         intent.putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, eventType)
+        swipeEditCallback = null
         macroEditCallback = callback
         macroEditorLauncher.launch(intent)
+    }
+
+    private fun openSwipeMacroEditor(
+        action: SwipeActionDraft,
+        eventType: String,
+        callback: (SwipeActionDraft) -> Unit
+    ) {
+        persistCurrentDraft()
+        val intent = Intent(this, MacroEditorActivity::class.java)
+        intent.putExtra(MacroEditorActivity.EXTRA_SWIPE_MODE, true)
+        serializableSteps(action.steps)?.let {
+            intent.putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, it)
+        }
+        val timingSteps = HashMap<String, ArrayList<Map<*, *>>>()
+        action.timingSteps.forEach { (id, timed) ->
+            // Empty lists are meaningful: they block fallback to "All" and must
+            // survive the round-trip instead of being silently dropped.
+            timingSteps[id] = serializableSteps(timed) ?: ArrayList()
+        }
+        if (timingSteps.isNotEmpty()) {
+            intent.putExtra(MacroEditorActivity.EXTRA_TIMING_STEPS, timingSteps)
+        }
+        intent.putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, eventType)
+        macroEditCallback = null
+        swipeEditCallback = { steps, resultTimingSteps ->
+            // A result without timing data leaves the existing timing actions untouched.
+            callback(SwipeActionDraft(steps, resultTimingSteps ?: action.timingSteps))
+        }
+        macroEditorLauncher.launch(intent)
+    }
+
+    private fun serializableSteps(steps: List<*>): ArrayList<Map<*, *>>? =
+        steps.mapNotNullTo(ArrayList()) { it as? Map<*, *> }.takeIf { it.isNotEmpty() }
+
+    private fun buildSwipeMacroPreview(action: SwipeActionDraft): String {
+        if (action.timingSteps.isEmpty()) return buildMacroPreview(action.steps)
+        // One line per distinct action; timings the editor grouped on one card share a line.
+        val timings = SwipeActionTiming.entries.mapNotNull { timing ->
+            val steps = if (timing == SwipeActionTiming.All) {
+                action.steps.takeIf { it.isNotEmpty() }
+            } else {
+                action.timingSteps[timing.id]
+            } ?: return@mapNotNull null
+            steps to timing
+        }
+        return timings.groupBy({ it.first }, { it.second })
+            .map { (steps, grouped) ->
+                getString(
+                    R.string.text_keyboard_layout_macro_timing_preview,
+                    grouped.joinToString("、") { getString(MacroEditorActivity.timingLabelRes(it)) },
+                    buildMacroPreview(steps)
+                )
+            }.joinToString("\n")
     }
 
     private fun buildMacroPreview(macroSteps: List<*>?): String {

@@ -102,12 +102,8 @@ jobs:
             :third_party:onnxruntime-genai-android:publish
           ./gradlew clean \
             -PnightlyBuild=${{ inputs.nightly }} \
-            -PincludeMainlineFlavor=true \
-            -PincludeFxFlavor=false \
             -PgithubPackagesRepository="$local_third_party_repository" \
-            :app:assembleMainlineRelease :assembleReleasePlugins :app:testMainlineDebugUnitTest
-          mkdir -p app/build/outputs/apk/release/
-          mv app/build/outputs/apk/mainline/release/*.apk app/build/outputs/apk/release/
+            :app:assembleRelease :assembleReleasePlugins :app:testDebugUnitTest
 
       # move plugin apks to app/build/outputs/apk/release
       - name: Move plugin APKs

@@ -210,7 +210,9 @@ class MainFragment : PaddingPreferenceFragment() {
                     title = result.title,
                     summary = result.path.joinToString(" / ")
                 ) {
-                    result.preferenceKey?.let(viewModel::requestPreferenceScroll)
+                    result.preferenceKey?.let { key ->
+                        viewModel.requestPreferenceScroll(key, result.tab)
+                    }
                     result.route?.let(::navigateWithAnim)
                         ?: result.externalUri?.let { uri ->
                             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))

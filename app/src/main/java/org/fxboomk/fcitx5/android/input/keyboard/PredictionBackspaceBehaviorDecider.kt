@@ -7,25 +7,38 @@ package org.fxboomk.fcitx5.android.input.keyboard
 internal enum class PredictionBackspaceAction {
     SendToFcitx,
     DeleteText,
-    DismissCandidates
+    ClearPredictionCandidates,
+    ClearPredictionCandidatesAndDeleteText
 }
 
+/**
+ * Decide what an on-screen backspace press should do while prediction candidates are shown.
+ *
+ * Priority, from highest to lowest:
+ * 1. An active composition is always handled by the engine.
+ * 2. The expanded AI window is app UI, so the first press only closes it.
+ * 3. A built-in engine that owns a "backspace behavior on prediction" setting (Pinyin)
+ *    decides by itself unless the user explicitly saved an app-level choice.
+ */
 internal fun predictionBackspaceAction(
     hasPreedit: Boolean,
     hasNativePredictionCandidatesVisible: Boolean,
     hasAiPredictionCandidatesVisible: Boolean,
     hasAiExpandedCandidateWindowVisible: Boolean = false,
-    isRimeInputMethod: Boolean,
+    hasEngineBackspaceBehaviorSetting: Boolean = false,
+    hasExplicitAppBackspaceBehavior: Boolean = false,
     predictionBackspaceBehavior: PredictionBackspaceBehavior,
 ): PredictionBackspaceAction = when {
     hasPreedit -> PredictionBackspaceAction.SendToFcitx
-    hasAiExpandedCandidateWindowVisible -> PredictionBackspaceAction.DismissCandidates
+    hasAiExpandedCandidateWindowVisible -> PredictionBackspaceAction.ClearPredictionCandidates
     !hasNativePredictionCandidatesVisible && !hasAiPredictionCandidatesVisible ->
+        PredictionBackspaceAction.SendToFcitx
+    hasEngineBackspaceBehaviorSetting && hasNativePredictionCandidatesVisible &&
+        !hasExplicitAppBackspaceBehavior ->
         PredictionBackspaceAction.SendToFcitx
     predictionBackspaceBehavior == PredictionBackspaceBehavior.DeleteText ->
         PredictionBackspaceAction.DeleteText
-    isRimeInputMethod -> PredictionBackspaceAction.DismissCandidates
-    predictionBackspaceBehavior == PredictionBackspaceBehavior.DismissCandidates ->
-        PredictionBackspaceAction.DismissCandidates
-    else -> PredictionBackspaceAction.SendToFcitx
+    predictionBackspaceBehavior == PredictionBackspaceBehavior.ClearPredictionCandidatesAndDeleteText ->
+        PredictionBackspaceAction.ClearPredictionCandidatesAndDeleteText
+    else -> PredictionBackspaceAction.ClearPredictionCandidates
 }

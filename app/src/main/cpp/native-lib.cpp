@@ -184,6 +184,10 @@ public:
         if (!ic) return nullptr;
         auto *entry = p_instance->inputMethodEntry(ic);
         auto *engine = p_instance->inputMethodEngine(ic);
+        // entry/engine may be null shortly after an input context is created
+        // (before fcitx assigned the input method/engine to it); dereferencing
+        // them would crash. Callers fall back to the cached entry on nullptr.
+        if (!entry || !engine) return nullptr;
         return std::make_unique<InputMethodStatus>(entry, engine, ic);
     }
 

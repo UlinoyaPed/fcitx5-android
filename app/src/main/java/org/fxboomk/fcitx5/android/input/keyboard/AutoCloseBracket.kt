@@ -66,6 +66,20 @@ object AutoCloseBracket {
     /** 若 [text] 恰好是一个已知「左半边」符号，返回应补全的「右半边」，否则返回 null。 */
     fun closerFor(text: String): String? = PAIRS[text]
 
+    /**
+     * 根据提交文本 [text] 与 Fcitx 上报的光标位置 [cursor] 判断是否应自动补全。
+     *
+     * [cursor] 为 -1 表示「提交后光标位于文本末尾」（普通 commitString）。Fcitx 的
+     * `CommitStringWithCursor` 在上屏标点时会带上显式光标：默认配置下只提交「左半边」，
+     * 光标正好等于 [text] 的长度；这种「光标在末尾」的情况与 -1 等价，同样应补全。
+     * 若光标落在文本中间（例如引擎已把成对符号一起提交），则不应再补，避免重复。
+     *
+     * 注意：Fcitx 的 cursor 按码点计数，而此处 [text] 的长度按 UTF-16 计；配对表只含 BMP
+     * 单字符，二者一致，因此可直接比较。
+     */
+    fun closerForCommit(text: String, cursor: Int): String? =
+        if (cursor == -1 || cursor == text.length) closerFor(text) else null
+
     /** [opener] 与紧随其后的 [closer] 是否构成一对可自动闭合的符号。 */
     fun isPair(opener: Char, closer: Char): Boolean =
         PAIRS[opener.toString()] == closer.toString()

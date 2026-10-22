@@ -14,8 +14,10 @@ import androidx.core.graphics.ColorUtils
 import androidx.test.platform.app.InstrumentationRegistry
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.Action
+import org.fxboomk.fcitx5.android.core.CapabilityFlags
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
@@ -23,7 +25,6 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import splitties.resources.styledColor
 import java.io.File
@@ -36,13 +37,31 @@ class TextKeyboardLayoutProfileManagerActivityTest {
         val connectionName = "LayoutProfileManagerTest"
         val connection = FcitxDaemon.connect(connectionName)
         var originalIme: InputMethodEntry? = null
+        var originalEnabled: Array<String>? = null
+        var contextActivated = false
+        val contextId = 12346
         try {
             withManager { activity ->
+                originalIme = connection.runImmediately { currentIme() }
+                originalEnabled = connection.runImmediately { enabledIme().map { it.uniqueName }.toTypedArray() }
+                // Drive a real native input context, as the packaged-engine regression
+                // does, rather than silently skipping when no OS editor has focus.
+                connection.runImmediately {
+                    setEnabledIme(arrayOf("keyboard-us", "pinyin"))
+                    activate(contextId, instrumentation.targetContext.packageName)
+                    contextActivated = true
+                    setCapFlags(CapabilityFlags.DefaultFlags)
+                    focus(true)
+                    activateIme("keyboard-us")
+                }
                 val original = connection.runImmediately { currentIme() }
                 val originalActions = connection.runImmediately { statusArea() }
-                originalIme = original
+                assertTrue(
+                    "Fixture must activate a native input context",
+                    original.uniqueName.isNotEmpty()
+                )
                 val other = connection.runImmediately { enabledIme() }.firstOrNull { it.uniqueName != original.uniqueName }
-                assumeTrue("Needs two enabled IMEs to exercise a real switch", other != null)
+                assertTrue("Fixture must enable two IMEs to exercise a real switch", other != null)
                 val target = requireNotNull(other)
                 val manager = LayoutDataManager(activity).apply {
                     loadFromFile(files.first())
@@ -56,7 +75,7 @@ class TextKeyboardLayoutProfileManagerActivityTest {
                 instrumentation.callActivityOnPause(activity)
                 instrumentation.callActivityOnResume(activity)
                 assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
-                    it.text.toString() == formatActiveLayoutChain(profiles.first(), original, originalActions)
+                    it.text.toString() == expectedChain(activity, profiles.first(), original, originalActions)
                 })
                 instrumentation.callActivityOnPause(activity)
                 connection.runImmediately { activateIme(target.uniqueName) }
@@ -65,10 +84,17 @@ class TextKeyboardLayoutProfileManagerActivityTest {
                 assertEquals(target.uniqueName, current.uniqueName)
                 instrumentation.callActivityOnResume(activity)
                 assertTrue("Resuming must show the new active IME", descendants(activity.window.decorView)
-                    .filterIsInstance<TextView>().any { it.text.toString() == formatActiveLayoutChain(profiles.first(), current, currentActions) })
+                    .filterIsInstance<TextView>().any { it.text.toString() == expectedChain(activity, profiles.first(), current, currentActions) })
             }
         } finally {
-            originalIme?.let { original -> connection.runImmediately { activateIme(original.uniqueName) } }
+            connection.runImmediately {
+                originalEnabled?.let { setEnabledIme(it) }
+                originalIme?.takeIf { it.uniqueName.isNotEmpty() }?.let { activateIme(it.uniqueName) }
+                if (contextActivated) {
+                    focus(false)
+                    deactivate(contextId)
+                }
+            }
             FcitxDaemon.disconnect(connectionName)
         }
     }
@@ -99,6 +125,11 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             val shuangpin = InputMethodEntry("shuangpin", "双拼", "", "", "", "zh", "pinyin", false)
             setPrivateField(activity, "activeIme", shuangpin)
             assertEquals("${profiles.first()}-双拼", invokePrivate(activity, "activeLayoutChain"))
+            // A scheme is a child of the 「双拼」 parent layout, so the parent shows up too.
+            val parentLabel = activity.getString(R.string.text_keyboard_layout_manage_shuangpin)
+            setPrivateField(activity, "activeIme",
+                InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false))
+            assertEquals("${profiles.first()}-$parentLabel-小鹤双拼", invokePrivate(activity, "activeLayoutChain"))
             val rime = InputMethodEntry("rime", "中州韵", "", "", "", "zh", "rime", false,
                 "Latin Mode", "abc", "")
             setPrivateField(activity, "activeStatusActions", arrayOf(
@@ -264,20 +295,117 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             }
             rimeSchemaLabelsCache(activity)["$profile:$baseLayout"] = emptyList()
 
-            val rows = invokePrivate(activity, "subLayoutRows", profile, manager, baseLayout, true) as List<*>
+            val rows = invokePrivate(
+                activity, "subLayoutRows", profile, manager, baseLayout, childLayoutKind("RIME")
+            ) as List<*>
             val row = requireNotNull(rows.single())
-            assertEquals(schema, privateField(row, "label"))
-            assertEquals(key, privateField(row, "subKey"))
+            assertEquals(schema, privateField(row, "displayName"))
+            assertEquals(key, privateField(row, "storedKey"))
             assertEquals("UNCUSTOMIZED", privateField(row, "state").toString())
-            assertEquals(true, privateField(row, "isRimeScheme"))
+            assertEquals("RIME", privateField(row, "kind").toString())
         }
+    }
+
+    /** 反射获取私有的 ChildLayoutKind 枚举常量，用于直接调用私有 subLayoutRows。 */
+    private fun childLayoutKind(name: String): Any =
+        Class.forName(
+            "org.fxboomk.fcitx5.android.ui.main.settings.behavior" +
+                ".TextKeyboardLayoutProfileManagerActivity\$ChildLayoutKind"
+        ).enumConstants.orEmpty().first { it.toString() == name }
+
+    @Test
+    fun shuangpinChildrenOnlyListSchemesEnabledInInputMethodList() = withManager { activity ->
+        val manager = LayoutDataManager(activity).apply { loadFromFile(null) }
+        val enabled = arrayOf(
+            InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false)
+        )
+        // 未启用（仅可用）的内置双拼不应出现在双拼节点下
+        val available = enabled +
+            InputMethodEntry("shuangpin-ms", "微软双拼", "", "", "", "zh", "pinyin", false)
+        setPrivateField(activity, "allImes", enabled)
+        setPrivateField(activity, "allAvailableImes", available)
+
+        val rows = invokePrivate(activity, "shuangpinSubLayoutRows", manager) as List<*>
+        val schemeKeys = rows.map { privateField(requireNotNull(it), "editLayoutKey") }
+        assertEquals(listOf("shuangpin-xiaohe"), schemeKeys)
+        assertFalse(schemeKeys.contains("shuangpin-ms"))
+    }
+
+    @Test
+    fun parentLayoutNodesCollapseAndExpandTheirChildren() = withProfiles { profiles, _ ->
+        withManager { activity ->
+            val profile = profiles.first()
+            val prefs = AppPrefs.getInstance().keyboard
+            // 夹具中唯一带专属子布局的父级输入法布局是 test-parent
+            assertTrue("Child row visible initially",
+                profileTexts(activity, profile).any { it == "• child" })
+
+            baseLayoutToggleButton(activity, profile, "test-parent", collapsed = false).performClick()
+
+            assertFalse("Collapsing a parent layout must hide its child rows",
+                profileTexts(activity, profile).any { it == "• child" })
+            assertEquals("$profile\ttest-parent", prefs.textKeyboardLayoutBaseCollapsed.getValue())
+
+            baseLayoutToggleButton(activity, profile, "test-parent", collapsed = true).performClick()
+
+            assertTrue("Expanding it again must bring the child rows back",
+                profileTexts(activity, profile).any { it == "• child" })
+            assertEquals("", prefs.textKeyboardLayoutBaseCollapsed.getValue())
+        }
+    }
+
+    @Test
+    fun resettingBaseLayoutKeepsChildLayoutsAndHeights() = withManager { activity ->
+        val manager = LayoutDataManager(activity).apply {
+            loadFromFile(null)
+            entries["shuangpin"] = copyLayout(entries.getValue("default"))
+            entries["shuangpin-xiaohe"] = mutableListOf(
+                mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "x"))
+            )
+            entries["rime:custom"] = mutableListOf(
+                mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "y"))
+            )
+            setLayoutHeightPercentOverride(
+                "shuangpin-xiaohe", LayoutHeightPercentOverrides(portrait = 55, landscape = 56)
+            )
+            setLayoutHeightPercentOverride("rime:custom", LayoutHeightPercentOverrides(portrait = 61))
+        }
+        val xiaoheRows = manager.entries.getValue("shuangpin-xiaohe").map { it.map { it.toMap() } }
+        val rimeRows = manager.entries.getValue("rime:custom").map { it.map { it.toMap() } }
+
+        manager.deleteBaseLayoutTree("shuangpin")
+        manager.deleteBaseLayoutTree("rime")
+
+        // 子布局内容与高度覆写均不受父级输入法布局重置影响
+        assertEquals(xiaoheRows, manager.entries.getValue("shuangpin-xiaohe").map { it.map { it.toMap() } })
+        assertEquals(rimeRows, manager.entries.getValue("rime:custom").map { it.map { it.toMap() } })
+        assertEquals(
+            LayoutHeightPercentOverrides(portrait = 55, landscape = 56),
+            manager.getLayoutHeightPercentOverride("shuangpin-xiaohe")
+        )
+        assertEquals(
+            LayoutHeightPercentOverrides(portrait = 61),
+            manager.getLayoutHeightPercentOverride("rime:custom")
+        )
+        // 仅父级输入法布局本身被重置为出厂 26 键
+        assertEquals(null, manager.getLayoutHeightPercentOverride("shuangpin"))
+        assertEquals(null, manager.getLayoutHeightPercentOverride("rime"))
+        assertEquals(
+            manager.defaultPresetSnapshot(),
+            manager.entries.getValue("shuangpin").map { it.map { it.toMap() } }
+        )
+        assertEquals(
+            manager.defaultPresetSnapshot(),
+            manager.entries.getValue("rime").map { it.map { it.toMap() } }
+        )
     }
 
     private fun withProfiles(block: (List<String>, List<File>) -> Unit) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val prefs = AppPrefs.getInstance().keyboard
         val preferences = listOf(prefs.textKeyboardLayoutProfile, prefs.textKeyboardLayoutProfileCollapsed,
-            prefs.textKeyboardLayoutProfileOrder, prefs.textKeyboardLayoutProfileFiltered)
+            prefs.textKeyboardLayoutProfileOrder, prefs.textKeyboardLayoutProfileFiltered,
+            prefs.textKeyboardLayoutBaseCollapsed)
         val originalValues = preferences.map { it.getValue() }
         val profiles = List(2) { "layout-filter-test-${UUID.randomUUID()}" }
         val files = profiles.map { requireNotNull(UserConfigFiles.textKeyboardLayoutJson(it)) }
@@ -296,6 +424,7 @@ class TextKeyboardLayoutProfileManagerActivityTest {
                 prefs.textKeyboardLayoutProfileCollapsed.setValue("")
                 prefs.textKeyboardLayoutProfileOrder.setValue(profiles.joinToString("\n"))
                 prefs.textKeyboardLayoutProfileFiltered.setValue("")
+                prefs.textKeyboardLayoutBaseCollapsed.setValue("")
             }
             block(profiles, files)
         } finally {
@@ -332,6 +461,38 @@ class TextKeyboardLayoutProfileManagerActivityTest {
             it.contentDescription == activity.getString(R.string.text_keyboard_layout_manage_show_uncustomized) ||
                 it.contentDescription == activity.getString(R.string.text_keyboard_layout_manage_hide_uncustomized)
         }
+
+    /**
+     * 与 activity 内部的激活链渲染完全同源的期望值：除 [formatActiveLayoutChain] 外，
+     * 还带上它传入的本地化父级内部输入法布局名（双拼方案才会用上）。
+     */
+    private fun expectedChain(
+        activity: TextKeyboardLayoutProfileManagerActivity,
+        profile: String,
+        ime: InputMethodEntry,
+        actions: Array<Action>
+    ): String? = formatActiveLayoutChain(
+        profile, ime, actions,
+        invokePrivate(activity, "baseLayoutDisplayName", ShuangpinLayoutKeys.BASE_LAYOUT_KEY) as String
+    )
+
+    /** 某父级输入法布局行右侧的展开/折叠按钮（[base] 为其中的可辨识文本片段）。 */
+    private fun baseLayoutToggleButton(
+        activity: TextKeyboardLayoutProfileManagerActivity,
+        profile: String,
+        base: String,
+        collapsed: Boolean
+    ): ImageButton {
+        val contentDescription = activity.getString(
+            if (collapsed) R.string.text_keyboard_layout_manage_expand
+            else R.string.text_keyboard_layout_manage_collapse
+        )
+        val row = profileViews(activity, profile).first { view ->
+            descendants(view).filterIsInstance<TextView>().any { it.text.contains(base) }
+        }
+        return descendants(row).filterIsInstance<ImageButton>()
+            .single { it.contentDescription == contentDescription }
+    }
 
     private fun profileViews(activity: TextKeyboardLayoutProfileManagerActivity, profile: String): List<View> {
         val row = profileRow(activity, profile)

@@ -76,4 +76,27 @@ class ActiveLayoutChainTest {
         val switched = rime.copy(subMode = InputMethodSubMode("double_pinyin", "双拼方案", ""))
         assertEquals("新配置-中州韵-双拼方案", formatActiveLayoutChain("新配置", switched, arrayOf(schemaAction("双拼方案"))))
     }
+
+    private val xiaohe = InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false)
+
+    @Test fun shuangpinSchemeShowsItsParentLayoutInTheChain() {
+        assertEquals("配置-双拼-小鹤双拼", formatActiveLayoutChain("配置", xiaohe, emptyArray(), "双拼"))
+    }
+
+    @Test fun customShuangpinSchemeAlsoShowsTheParentLayout() {
+        val custom = InputMethodEntry("shuangpin-mysp", "我的双拼", "", "", "", "zh", "pinyin", false)
+        assertEquals("配置-双拼-我的双拼", formatActiveLayoutChain("配置", custom, emptyArray(), "双拼"))
+    }
+
+    @Test fun parentLayoutOnlyAppliesToShuangpinSchemes() {
+        // The 「双拼」 base entry is itself that parent layout, so it gains no extra segment.
+        assertEquals("配置-双拼", formatActiveLayoutChain("配置", shuangpin, emptyArray(), "双拼"))
+        val english = shuangpin.copy(uniqueName = "keyboard-us", name = "English", addon = "keyboard")
+        assertEquals("配置-English", formatActiveLayoutChain("配置", english, emptyArray(), "双拼"))
+        assertEquals("配置-中州韵-朙月拼音", formatActiveLayoutChain("配置", rime, schemaActions, "双拼"))
+    }
+
+    @Test fun schemeWithoutParentLayoutNameKeepsTwoSegments() {
+        assertEquals("配置-小鹤双拼", formatActiveLayoutChain("配置", xiaohe, emptyArray()))
+    }
 }

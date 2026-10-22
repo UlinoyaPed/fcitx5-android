@@ -117,7 +117,15 @@ class CommonKeyActionListener :
     private fun FcitxAPI.isRimeInputMethod(): Boolean =
         inputMethodEntryCached.addon == "rime" || inputMethodEntryCached.icon == "fcitx-rime"
 
-    private suspend fun FcitxAPI.dismissPredictionCandidatesToToolbar(resetNativeCandidates: Boolean) {
+    /**
+     * The built-in Pinyin engine exposes its own "Backspace behavior on prediction" option
+     * in its input-method settings. Preserve explicit app choices; otherwise let
+     * the engine decide.
+     */
+    private fun FcitxAPI.hasEngineBackspaceBehaviorSetting(): Boolean =
+        inputMethodEntryCached.addon == "pinyin"
+
+    private suspend fun FcitxAPI.clearPredictionCandidates(resetNativeCandidates: Boolean) {
         if (resetNativeCandidates) {
             reset()
         }
@@ -240,7 +248,8 @@ class CommonKeyActionListener :
                                     hasAiPredictionCandidatesVisible = aiSuggestionStrip.hasVisibleSuggestions(),
                                     hasAiExpandedCandidateWindowVisible =
                                         service.inputView?.isAiSuggestionExpandedWindowVisible() == true,
-                                    isRimeInputMethod = isRimeInputMethod(),
+                                    hasEngineBackspaceBehaviorSetting = hasEngineBackspaceBehaviorSetting(),
+                                    hasExplicitAppBackspaceBehavior = AppPrefs.getInstance().hasExplicitPredictionBackspaceBehavior(),
                                     predictionBackspaceBehavior = predictionBackspaceBehavior,
                                 )
                             ) {
@@ -256,8 +265,12 @@ class CommonKeyActionListener :
                                 }
                                 PredictionBackspaceAction.DeleteText ->
                                     deleteTextAfterPredictionBackspace()
-                                PredictionBackspaceAction.DismissCandidates ->
-                                    dismissPredictionCandidatesToToolbar(nativePredictionCandidatesVisible)
+                                PredictionBackspaceAction.ClearPredictionCandidates ->
+                                    clearPredictionCandidates(nativePredictionCandidatesVisible)
+                                PredictionBackspaceAction.ClearPredictionCandidatesAndDeleteText -> {
+                                    clearPredictionCandidates(nativePredictionCandidatesVisible)
+                                    deleteTextAfterPredictionBackspace()
+                                }
                             }
                         }
                         action.sym.sym == FcitxKeyMapping.FcitxKey_space -> {
@@ -453,6 +466,9 @@ class CommonKeyActionListener :
                             toggleIme()
                         }
                         SpaceLongPressBehavior.ShowPicker -> showInputMethodPicker()
+                        SpaceLongPressBehavior.RepeatSpace -> {
+                            // Handled by the repeat binding of the space key.
+                        }
                         SpaceLongPressBehavior.VoiceInput -> {
                             val started = switchToVoiceInput()
                             voiceHoldActive = started && preferredVoiceInputProviderAvailable()

@@ -72,12 +72,12 @@ object LayoutJsonUtils {
     }
 
     /**
-     * 基础布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
+     * 全局默认布局键 "default"：Fcitx5 自带 English 键盘等没有专属布局键的输入法
      * 共用的回退布局（见 TextKeyboardLayoutResolver 的解析顺序）。
      */
     const val DEFAULT_BASE_LAYOUT_KEY = "default"
 
-    /** 基础布局键 [DEFAULT_BASE_LAYOUT_KEY] 的展示名。 */
+    /** 全局默认布局键 [DEFAULT_BASE_LAYOUT_KEY] 的展示名。 */
     const val DEFAULT_BASE_LAYOUT_DISPLAY_NAME = "English"
 
     /**
@@ -387,7 +387,15 @@ object LayoutJsonUtils {
      */
     fun parseMacroAction(obj: JsonObject): MacroAction {
         val steps = obj["macro"]?.jsonArray?.map { parseMacroStep(it.jsonObject) } ?: emptyList()
-        return MacroAction(steps)
+        val timingActions = (obj["timingActions"] as? JsonObject)?.entries?.mapNotNull { (id, value) ->
+            val timing = SwipeActionTiming.fromId(id)?.takeUnless { it == SwipeActionTiming.All }
+                ?: return@mapNotNull null
+            val action = value as? JsonObject ?: return@mapNotNull null
+            val timedSteps = (action["macro"] as? JsonArray)?.map { parseMacroStep(it.jsonObject) }
+                ?: return@mapNotNull null
+            timing to timedSteps
+        }?.toMap() ?: emptyMap()
+        return MacroAction(steps, timingActions)
     }
 
     /**
@@ -751,8 +759,17 @@ object LayoutJsonUtils {
      * @return JSON 对象，包含 "macro" 字段
      */
     fun macroActionToJson(action: MacroAction): JsonObject {
-        val steps = JsonArray(action.steps.map { macroStepToJson(it) })
-        return JsonObject(mapOf("macro" to steps))
+        val fields = linkedMapOf<String, JsonElement>(
+            "macro" to JsonArray(action.steps.map { macroStepToJson(it) })
+        )
+        val timingActions = action.timingActions.filterKeys { it != SwipeActionTiming.All }
+        if (timingActions.isNotEmpty()) {
+            fields["timingActions"] = JsonObject(timingActions.mapKeys { (timing, _) -> timing.id }
+                .mapValues { (_, steps) ->
+                    JsonObject(mapOf("macro" to JsonArray(steps.map { macroStepToJson(it) })))
+                })
+        }
+        return JsonObject(fields)
     }
 
     /**

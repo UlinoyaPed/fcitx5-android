@@ -17,6 +17,28 @@ class PersonalFeatureControlsTest {
     private val context = instrumentation.targetContext
 
     @Test
+    fun legacySpacePickerAndBackspaceChoicesSurviveUpgrade() {
+        val storage = context.getSharedPreferences("personal_input_upgrade_test", Context.MODE_PRIVATE)
+        try {
+            storage.edit().clear()
+                .putString("space_long_press_behavior", "ShowPicker")
+                .putString("prediction_backspace_behavior", "DeleteText").commit()
+            assertTrue(AppPrefs(storage).hasExplicitPredictionBackspaceBehavior())
+            val prefs = AppPrefs(storage).keyboard
+            assertEquals("ShowPicker", prefs.spaceKeyLongPressBehavior.getValue().name)
+            assertEquals("ShowPicker", storage.getString("space_long_press_behavior", null))
+            assertEquals("DeleteText", prefs.predictionBackspaceBehavior.getValue().name)
+            storage.edit().putString("prediction_backspace_behavior", "DismissCandidates").commit()
+            assertEquals("ClearPredictionCandidates", AppPrefs(storage).keyboard.predictionBackspaceBehavior.getValue().name)
+            storage.edit().clear().commit()
+            assertFalse(AppPrefs(storage).hasExplicitPredictionBackspaceBehavior())
+            assertEquals("DeleteText", AppPrefs(storage).keyboard.predictionBackspaceBehavior.getValue().name)
+        } finally {
+            storage.edit().clear().commit()
+        }
+    }
+
+    @Test
     fun newControlsDefaultOffAndCanBeChangedIndependently() {
         val storage = context.getSharedPreferences("personal_feature_controls_test", Context.MODE_PRIVATE)
         storage.edit().clear().commit()

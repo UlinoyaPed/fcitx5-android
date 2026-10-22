@@ -77,7 +77,7 @@ class DataMigrationManager(
      * 
      * 检测条件：
      * 1. 存在子模式布局（如 "rime:倉頡五代"）
-     * 2. 基础布局中仍有旧格式的 displayText: { "倉頡五代": "手" }
+     * 2. 父级输入法布局中仍有旧格式的 displayText: { "倉頡五代": "手" }
      * 
      * @return true 需要迁移，false 数据已是新格式
      */
