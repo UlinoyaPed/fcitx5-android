@@ -696,7 +696,9 @@ internal class LlmClient(
         val text = StringBuilder()
 
         fun emitChunk(chunk: String) {
-            if (chunk.isBlank()) return
+            // Whitespace-only deltas are significant: providers may stream the
+            // space between words as its own SSE chunk.
+            if (chunk.isEmpty()) return
             text.append(chunk)
             onPartialText?.invoke(text.toString())
         }
@@ -754,13 +756,13 @@ internal class LlmClient(
             "content_block_start" -> {
                 val block = json.optJSONObject("content_block") ?: return
                 if (block.optString("type") == "text") {
-                    block.optNonBlankText("text")?.let(onTextDelta)
+                    block.optStreamingText("text")?.let(onTextDelta)
                 }
             }
             "content_block_delta" -> {
                 val delta = json.optJSONObject("delta") ?: return
                 if (delta.optString("type") == "text_delta") {
-                    delta.optNonBlankText("text")?.let(onTextDelta)
+                    delta.optStreamingText("text")?.let(onTextDelta)
                 }
             }
         }
@@ -777,7 +779,7 @@ internal class LlmClient(
             if (delta != null) {
                 extractDeltaText(delta)?.let(onTextDelta)
             } else {
-                first?.optNonBlankText("text")?.let(onTextDelta)
+                first?.optStreamingText("text")?.let(onTextDelta)
             }
             return
         }
@@ -789,8 +791,19 @@ internal class LlmClient(
     }
 
     private fun extractDeltaText(raw: String): String? {
-        return extractFirstStringField(raw, "content")
+        return extractFirstStringField(raw, "content", trim = false)
             ?: extractStructuredTextContent(raw)
+    }
+
+    /**
+     * Reads a streaming text delta without trimming. Leading/trailing spaces
+     * are part of the token stream and must be preserved when deltas are
+     * concatenated.
+     */
+    private fun JSONObject.optStreamingText(key: String): String? {
+        val value = opt(key)
+        if (value == null || value == JSONObject.NULL) return null
+        return value.toString().takeIf { it.isNotEmpty() && !it.equals("null", ignoreCase = true) }
     }
 
     private fun JSONObject.optNonBlankText(key: String): String? {
@@ -925,7 +938,7 @@ internal class LlmClient(
         return parts.takeIf { it.isNotEmpty() }?.joinToString(separator = "")
     }
 
-    private fun extractFirstStringField(raw: String, fieldName: String): String? {
+    private fun extractFirstStringField(raw: String, fieldName: String, trim: Boolean = true): String? {
         val fieldRegex = Regex(""""$fieldName"\s*:\s*""")
         var searchIndex = 0
         while (true) {
@@ -934,7 +947,7 @@ internal class LlmClient(
             while (valueIndex < raw.length && raw[valueIndex].isWhitespace()) valueIndex++
             if (valueIndex >= raw.length) return null
             when (raw[valueIndex]) {
-                '"' -> return readJsonString(raw, valueIndex)
+                '"' -> return readJsonString(raw, valueIndex, trim)
                 'n' -> {
                     if (raw.startsWith("null", valueIndex)) {
                         searchIndex = valueIndex + 4
@@ -949,7 +962,7 @@ internal class LlmClient(
         }
     }
 
-    private fun readJsonString(raw: String, quoteIndex: Int): String? {
+    private fun readJsonString(raw: String, quoteIndex: Int, trim: Boolean = true): String? {
         var index = quoteIndex + 1
         val out = StringBuilder()
         while (index < raw.length) {
@@ -973,7 +986,7 @@ internal class LlmClient(
                     }
                 }
                 '"' -> {
-                    val value = out.toString().trim()
+                    val value = if (trim) out.toString().trim() else out.toString()
                     return value.takeIf { it.isNotEmpty() && !it.equals("null", ignoreCase = true) }
                 }
                 else -> out.append(ch)

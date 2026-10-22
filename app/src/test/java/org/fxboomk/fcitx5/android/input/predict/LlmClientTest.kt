@@ -42,6 +42,78 @@ class LlmClientTest {
     }
 
     @Test
+    fun streamingOpenAiDeltasPreserveWordSeparatingSpaces() {
+        val client = LlmClient()
+        val method = LlmClient::class.java.getDeclaredMethod(
+            "consumeStreamingResponse",
+            InputStream::class.java,
+            String::class.java,
+            Function1::class.java,
+        )
+        method.isAccessible = true
+        val stream = ByteArrayInputStream(
+            """
+            data: {"choices":[{"delta":{"content":"The"}}]}
+
+            data: {"choices":[{"delta":{"content":" quick"}}]}
+
+            data: {"choices":[{"delta":{"content":" "}}]}
+
+            data: {"choices":[{"delta":{"content":"brown"}}]}
+
+            data: {"choices":[{"delta":{"content":" fox"}}]}
+
+            data: [DONE]
+
+            """.trimIndent().toByteArray(),
+        )
+        val partials = mutableListOf<String>()
+
+        val result = method.invoke(
+            client,
+            stream,
+            "https://api.openai.com/v1/chat/completions",
+            { partial: String -> partials += partial },
+        )
+
+        assertEquals("The quick brown fox", result)
+        assertEquals("The quick brown fox", partials.last())
+    }
+
+    @Test
+    fun streamingAnthropicDeltasPreserveWordSeparatingSpaces() {
+        val client = LlmClient()
+        val method = LlmClient::class.java.getDeclaredMethod(
+            "consumeStreamingResponse",
+            InputStream::class.java,
+            String::class.java,
+            Function1::class.java,
+        )
+        method.isAccessible = true
+        val stream = ByteArrayInputStream(
+            """
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"The"}}
+
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":" quick"}}
+
+            data: {"type":"content_block_delta","delta":{"type":"text_delta","text":" brown"}}
+
+            """.trimIndent().toByteArray(),
+        )
+        val partials = mutableListOf<String>()
+
+        val result = method.invoke(
+            client,
+            stream,
+            "https://api.anthropic.com/v1/messages",
+            { partial: String -> partials += partial },
+        )
+
+        assertEquals("The quick brown", result)
+        assertEquals("The quick brown", partials.last())
+    }
+
+    @Test
     fun customProviderPrefersThinkFalseForOpenAiCompatibleRequests() {
         val variants = LlmRequestPolicy.variants(
             config = config(provider = LlmPrefs.Provider.Custom),
