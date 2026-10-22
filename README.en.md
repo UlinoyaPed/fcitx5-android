@@ -12,25 +12,50 @@ This fork mainly strengthens two areas:
 
 ## Recent Updates
 
-This summary covers the main changes from October 6 through October 17, 2026:
+The following summarizes the 77 commits from October 6 through October 22, 2026, grouped by theme (merge commits excluded):
 
-- Candidate window and physical-keyboard integration are more complete:
-  - The floating candidate window gains a "Smart" position that chooses where to appear based on the cursor area, and a vertical window can flip above the cursor; when a physical keyboard drives the candidate bar, items show 1-9 selection-key hints.
-  - Physical-keyboard digits commit the numbered AI prediction or calculator result, Space commits the currently visible candidate or first prediction, and after arrows move the candidate highlight, shortcuts such as choose character from phrase ("以词定字") and reset frequency act on that highlighted item.
-  - Calculator results now also appear in the floating candidate window; collaboration between the floating window, toolbar, and physical-keyboard candidate bar is more stable, including when hiding the keyboard or handling invalid cursor anchors.
-- Swipe gestures and key behavior are more refined:
-  - MacroKey swipe macros can be configured per input state (no code/no candidates, no code/candidates, code/candidates, code/no candidates, has code (all), and All), resolved by preferring an exact state, then has-code (all), then All; an explicitly empty action blocks the fallback.
-  - Timing editing now uses cards: one card can cover several states, cards can be added from a bottom-right FAB, retimed from the card header, and deleted after confirmation; the "Swipe Event" editor remains compatible with legacy configuration.
-  - A new "Symbol swipe mapping" lets you configure half-width symbols, their Chinese full-width forms, and Caps uppercase forms separately; when Caps is on, key faces also show uppercase swipe symbols.
-  - New "Auto-close paired symbols" and "Insert space between Chinese and English" toggles were added; paired symbols support caret placement and paired backspace, hardware backspace also triggers paired deletion, and the spacing option covers preedits committed with Return.
-  - The layout editor now marks real alt/alt1 changes as customized.
-- Settings, schemes, and input engines:
-  - Key behavior settings were regrouped so "Keys and gestures" keeps only gesture-related items; the Rime scheme picker is now a radio-button single-choice list with the active scheme checked, and related punctuation-swipe and language-key labels were unified.
-  - The popup and symbol-swipe mapping editors use a circular bottom-right FAB to add entries, and the last row remains scrollable above the button.
-  - The built-in zh_CN KenLM language model was upgraded from 4-bit to 8-bit quantization, reducing quantization error and prediction-table entry loss, with reproducible build scripts; the table engine, its data, and related settings were removed entirely, so built-in Chinese input keeps only Pinyin and Shuangpin.
-- Build and stability:
-  - Build tasks are compatible with the Gradle 10 task DSL; native install tasks sharing a CMake build tree are serialized to avoid concurrent regeneration races with the configuration cache enabled.
-  - Key, row, and macro editor dialogs preserve unsaved edits across screen rotation.
+- Smart prediction and AI interaction:
+  - The "Model name and effort" setting now shows a three-line summary for the model, thinking effort, and model/API availability. The model editor lets you choose an effort level from Off, Low, Medium, High, and Max.
+  - The Thinking action in the floating panel and expanded candidate area is now Persona. Pick a built-in or custom persona to regenerate immediately with it.
+  - Long-form mode is now Polish: rewrite the text before the cursor according to the active persona, and tap the result to replace the original text.
+  - Committing a Q&A result from the expanded candidate area inserts a newline before the answer; Return in that area now commits the same way as tapping the content.
+  - The candidate-bar overlay display mode was removed, and Floating window was renamed Standalone floating window.
+  - Fixed missing spaces between English words in streamed responses from some remote providers.
+  - Physical-keyboard digits and Space only commit candidates that are actually visible. Space also commits the arrow-highlighted item while composing, and choose-character-from-phrase and reset-frequency shortcuts now act on the highlighted item; Rime candidates can be navigated with the arrow keys.
+  - Reworked backspace behavior during prediction: "Clear prediction candidates" is the new default fallback, with a new "Clear prediction and delete text" option. Built-in Pinyin/Shuangpin prefer the engine's own setting, and an expanded AI window is always closed first.
+  - The Space long-press picker is replaced by repeated spaces. Del/Esc cancel an in-flight prediction and suppress hidden candidates, and IME-window key events no longer flip the keyboard mode by mistake.
+- Candidate window and physical-keyboard integration:
+  - The floating candidate window gains a "Smart" position that chooses where to appear based on the cursor area, and a vertical window can flip above the cursor.
+  - When a physical keyboard drives the candidate bar, items show 1-9 selection-key hints; physical digits commit the numbered AI prediction or calculator result.
+  - Calculator results now also appear in the floating candidate window. The toolbar can dock alongside the floating window, and paged floating candidates use a more stable Flexbox layout.
+  - Space can commit the highlighted candidate while composing; choose-character-from-phrase and reset-frequency work on the current highlight from both physical and virtual keyboards.
+  - Fixed NaN cursor anchors, hide-keyboard behavior, candidate-bar paging refresh, and main-label jitter during candidate transitions.
+- Swipe gestures, key behavior, and keyboard layouts:
+  - MacroKey swipe macros can be configured per input state, resolved by "exact state > has code > All". Timing editing now uses cards with a bottom-right FAB, card-header retiming, delete confirmation, and an explicitly empty action that blocks fallback.
+  - A new "Symbol swipe mapping" configures half-width symbols, their Chinese full-width forms, and Caps uppercase forms separately; when Caps is on, key faces show the uppercase swipe symbols.
+  - New "Auto-close paired symbols" and "Insert space between Chinese and English" toggles were added. Paired symbols support caret placement and paired backspace, hardware backspace also triggers paired deletion, and the spacing option covers preedits committed with Return.
+  - Fixed paired-symbol completion when the engine commits punctuation, including digit-key punctuation selection and unfinished preedits.
+  - The layout editor marks real alt/alt1 changes as customized, and supports moving a complete row upward, per-key width overrides, legacy weight migration, and uppercase key hints.
+  - Punctuation-swipe behavior, language-key long-press dialogs, font scaling during candidate transitions, and key sublabel rendering were refined.
+- Shuangpin schemes and keyboard layout management:
+  - Added editable custom Shuangpin schemes with independent mapping editing, explicit syllable overrides, and collapsible preference groups.
+  - Custom Shuangpin `uniqueName` is editable and can be renamed directly from the input-method list, migrating the input-method config, user-level input-method entry, and layout file.
+  - Shuangpin schemes are managed as children of a "Shuangpin" parent layout, with a separate layout file per scheme. A full copy is materialized on first edit, so later parent changes do not affect customized children.
+  - The layout manager can collapse the "Rime" and "Shuangpin" parent nodes and shows "profile - Shuangpin - scheme" in the active layout chain.
+  - Each Shuangpin scheme has independent input-method settings; fixed stale space-key labels after scheme changes and engine-state desync after rename.
+  - Added ordered Shuangpin add-dialog entries, migration from the legacy single-Shuangpin profile, and a factory 26-key fallback for uncustomized input methods.
+- Settings, search, and UI:
+  - Settings search now indexes the custom Shuangpin page and preference tabs, expands collapsed groups, and navigates across pages. The highlight is outline-only so it no longer covers the target row.
+  - Search-result navigation continues after the page resumes and retries while an asynchronous list is rebuilt; fixed highlights that were missing or only partially drawn.
+  - "Keys and gestures" was regrouped to keep only gesture-related items, and the Rime scheme picker became a radio-button list with the active engine's scheme checked.
+  - The popup and symbol-swipe mapping editors use a bottom-right circular FAB, and key/row/macro editor dialogs preserve unsaved edits across rotation.
+  - Layout, key, font, and popup editors use state-aware save icons; Rime radio outlines, candidate-bar labels, and input-bar icons were refined.
+  - Clipboard category switching and search refresh are more stable with fewer stale results; missing translations and AI action labels were completed.
+- Chinese engines, build, and maintenance:
+  - The built-in zh_CN KenLM was upgraded to 8-bit quantization, reducing quantization error and prediction-table entry loss. The table engine, its data, and related settings were removed entirely; built-in Chinese input keeps only Pinyin and Shuangpin.
+  - Build tasks are compatible with the Gradle 10 task DSL; native install tasks sharing a CMake build tree are serialized to avoid concurrent regeneration races with the configuration cache; the fx flavor was removed.
+  - Fixed instrumentation-test hangs and two device-test assumptions, and added tests for Shuangpin child layouts, settings search, and save-icon tinting.
+  - Synced upstream and submodules, updated prebuilt models, adjusted CI for third-party artifacts, and maintained the Chinese and English READMEs.
 
 ## Highlights
 
@@ -80,15 +105,20 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 
 - Keeps the original Fcitx5 multi-language input framework.
 - Built-in Chinese input keeps only Pinyin and Shuangpin; table-based input methods, their code tables, and the table addon have been removed from this fork.
+- Editable custom Shuangpin schemes support independent mapping editing, explicit syllable overrides, renaming, and separate input-method settings and layouts per scheme.
 - RIME plugin support remains available for custom schemas, dictionaries, and advanced configuration.
 - Prediction, suggestion, and language-model related capabilities from libime and the Chinese plugin stack are preserved.
 - The built-in zh_CN KenLM has been upgraded from 4-bit to 8-bit quantization, reducing quantization error and prediction-table entry loss; `scripts/libime-lm` provides reproducible model build and verification scripts.
 - The keyboard pulls up ready to type: the fcitx engine stays warm, so returning to the IME or leaving the settings screen no longer repeats Rime initialization and data sync.
 - The input hot path has been through several performance passes: fewer Binder round trips per keystroke, fewer redundant candidate renders, and a raised fcitx thread priority.
 - [`librime` (the Rime plugin)](https://github.com/boomker/librime) prediction capability has been enhanced so it can learn from user input history and supports backup of prediction data.
-- AI prediction and Q&A capabilities have been added and expanded, supporting multiple model providers with dedicated handling for streaming responses, failure fallback, and request throttling.
+- AI prediction and Q&A capabilities have been added and expanded, supporting multiple model providers with dedicated handling for streaming responses, failure fallback, and request throttling. Streaming responses preserve whitespace between words so English translations are no longer glued together.
 - The AI provider list now includes options such as Moonshot.
-- AI candidates support an expanded candidate window for browsing more prediction results.
+- Model thinking effort can be configured (Off, Low, Medium, High, and Max), and "Model name and effort" shows the model, effort, and availability as a three-line summary.
+- The floating panel and expanded candidate area support persona switching, with built-in or custom personas that regenerate content immediately.
+- Long-form mode is now Polish: rewrite the text before the cursor according to the active persona, and tap the result to replace the original text.
+- Committing a Q&A result from the expanded candidate area inserts a newline before the answer.
+- AI candidates support two display modes, Standalone floating window and Expanded candidate area, for browsing more prediction results.
 - The floating candidate window supports smart positioning and flipping above the cursor; the physical keyboard can select visible AI/calculator candidates with digits, commit the currently visible candidate or first prediction with Space, and route shortcuts to the arrow-highlighted item.
 - Calculator results appear in both the horizontal candidate bar and the floating candidate window.
 - On the virtual keyboard, AI predictions and native/Rime candidates follow the same prediction-space behavior; on a physical keyboard, Space prioritizes the currently visible candidate or first prediction.
@@ -101,6 +131,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 ### 4. Keyboard layout and popup preset sharing
 
 - A standalone "Keyboard layout management" page centralizes all layouts (set-as-default, move-up ordering, collapse, CRUD, and QR import/share), while the layout editor focuses on content editing with a live preview and is reachable via deep links from the manager; ordering and collapse state are persisted.
+- Shuangpin schemes are managed as children of a "Shuangpin" parent layout, with parent-node collapsing, child inheritance, and copy-on-first-edit; the active layout chain shows "profile - Shuangpin - scheme".
 - Text keyboard layouts and popup presets can be shared via QR codes.
 - Shared data can be imported either by camera scanning or from a file.
 - QR images can be previewed before sharing so you can verify the content first.
@@ -127,7 +158,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Toolbar button icons can be customized with iconfont code points for a consistent icon-font style.
 - Toolbar previews support custom button icons and inline font sizes, with icons tinted according to the active theme.
 - Toolbar height can be configured independently, and the candidate bar wraps dynamically within the available space so narrow screens and larger fonts remain usable.
-- The main settings page supports search with cross-page navigation, automatic positioning, and highlighting of matched settings; opening the page no longer grabs focus and pops up the keyboard, since the search box activates only after tapping its placeholder.
+- The main settings page supports search with cross-page navigation, automatic positioning, and highlighting of matched settings. Search also indexes the custom Shuangpin page and expands collapsed groups; opening the page no longer grabs focus and pops up the keyboard, since the search box activates only after tapping its placeholder.
 - Key behavior settings were regrouped so "Keys and gestures" keeps only gesture-related items; the Rime scheme picker is now a radio-button single-choice list with the active scheme checked, and related punctuation-swipe and language-key labels were unified.
 - The popup and symbol-swipe mapping editors use a circular bottom-right FAB to add entries, and the last row remains scrollable above the button.
 - Key, row, and macro editor dialogs preserve unsaved edits across screen rotation.
