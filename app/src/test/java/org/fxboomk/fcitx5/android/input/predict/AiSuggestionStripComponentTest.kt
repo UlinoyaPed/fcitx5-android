@@ -2,6 +2,7 @@ package org.fxboomk.fcitx5.android.input.predict
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.fxboomk.fcitx5.android.input.applyAiInsertionUndo
@@ -38,6 +39,51 @@ class AiSuggestionStripComponentTest {
             mergeSingleTextPanelResult(
                 streamedText = "streamed answer",
                 finalText = "",
+            ),
+        )
+    }
+
+    @Test
+    fun questionAnswerExpandedCommitInsertsExactlyOneLeadingNewline() {
+        assertEquals("\n正文内容", questionAnswerCommitText("正文内容", fromExpandedArea = true))
+        assertEquals("\n正文内容", questionAnswerCommitText("\n正文内容", fromExpandedArea = true))
+    }
+
+    @Test
+    fun questionAnswerPanelCommitDoesNotInsertNewline() {
+        assertEquals("正文内容", questionAnswerCommitText("正文内容", fromExpandedArea = false))
+    }
+
+    @Test
+    fun expandedCommitTextPrefersSingleTextThenPanelThenSuggestions() {
+        val base = AiSuggestionStripComponent.PresentationState(
+            mode = AiSuggestionStripComponent.PresentationMode.PanelVisible,
+            suggestions = listOf("suggestion"),
+            anchor = null,
+            panelSuggestions = listOf("panel answer"),
+            singleTextCommitText = "single text",
+            isPanelOpen = true,
+            isLongFormEnabled = false,
+            isSingleTextMode = true,
+            isLoading = false,
+            loadingLabel = null,
+            isQuestionAnswerEnabled = false,
+            isTranslateEnabled = false,
+        )
+
+        assertEquals("single text", expandedCommitText(base))
+        assertEquals("panel answer", expandedCommitText(base.copy(singleTextCommitText = null)))
+        assertEquals(
+            "suggestion",
+            expandedCommitText(base.copy(singleTextCommitText = null, panelSuggestions = emptyList())),
+        )
+        assertNull(
+            expandedCommitText(
+                base.copy(
+                    suggestions = emptyList(),
+                    panelSuggestions = emptyList(),
+                    singleTextCommitText = null,
+                ),
             ),
         )
     }
@@ -100,7 +146,6 @@ class AiSuggestionStripComponentTest {
             isLoading = false,
             loadingLabel = null,
             isQuestionAnswerEnabled = false,
-            isThinkingEnabled = false,
             isTranslateEnabled = true,
         )
 
@@ -121,7 +166,6 @@ class AiSuggestionStripComponentTest {
             isLoading = false,
             loadingLabel = null,
             isQuestionAnswerEnabled = false,
-            isThinkingEnabled = false,
             isTranslateEnabled = false,
             errorMessage = "模型服务暂时不可用，请稍后重试",
         )
@@ -152,7 +196,6 @@ class AiSuggestionStripComponentTest {
             isLoading = false,
             loadingLabel = null,
             isQuestionAnswerEnabled = false,
-            isThinkingEnabled = false,
             isTranslateEnabled = true,
         )
 
@@ -209,7 +252,6 @@ class AiSuggestionStripComponentTest {
             isLoading = false,
             loadingLabel = null,
             isQuestionAnswerEnabled = false,
-            isThinkingEnabled = false,
             isTranslateEnabled = true,
         )
 
@@ -230,7 +272,6 @@ class AiSuggestionStripComponentTest {
             isLoading = true,
             loadingLabel = null,
             isQuestionAnswerEnabled = false,
-            isThinkingEnabled = false,
             isTranslateEnabled = true,
         )
 

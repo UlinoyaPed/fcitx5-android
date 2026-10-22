@@ -143,7 +143,8 @@ internal class RemoteLlmPredictionBackend(
                     useRecentCommitBias = useRecentCommitBias,
                     outputMode = request.outputMode,
                     taskMode = request.taskMode,
-                    enableThinking = request.enableThinking,
+                    enableThinking = request.effectiveThinkingEffort.isEnabled,
+                    thinkingEffort = request.effectiveThinkingEffort,
                 ),
                 onPartialText = onPartialText,
             )
@@ -178,7 +179,8 @@ internal class RemoteLlmPredictionBackend(
                             seed = plan.seed,
                             outputMode = request.outputMode,
                             taskMode = request.taskMode,
-                            enableThinking = request.enableThinking,
+                            enableThinking = request.effectiveThinkingEffort.isEnabled,
+                            thinkingEffort = request.effectiveThinkingEffort,
                         )
                     )
                 }
@@ -285,7 +287,7 @@ internal class LocalLlmPredictionBackend(
                 maxOutputTokens = maxOutputTokens,
                 outputMode = request.outputMode,
                 taskMode = request.taskMode,
-                enableThinking = request.enableThinking,
+                enableThinking = request.effectiveThinkingEffort.isEnabled,
                 personaPreset = config.personaPreset,
                 customPersona = config.customPersona,
             )

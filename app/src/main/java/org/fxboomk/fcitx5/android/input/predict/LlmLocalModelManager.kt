@@ -534,6 +534,20 @@ internal object LlmLocalModelManager : LocalLlmModelStore {
         return "$base\n$compatibility"
     }
 
+    /** Availability of the installed local model, prefixed with 状态： for the settings summary. */
+    fun availabilitySummary(context: Context, model: InstalledModel? = currentModel(context)): String {
+        if (model == null) return context.getString(R.string.llm_model_status_local_unavailable)
+        return when (model.compatibility.state) {
+            Compatibility.Compatible -> context.getString(R.string.llm_model_status_local_ready)
+            Compatibility.Incompatible -> model.compatibility.detail
+                ?.takeIf { it.isNotBlank() }
+                ?.let { context.getString(R.string.llm_model_status_local_unavailable_detailed, it) }
+                ?: context.getString(R.string.llm_model_status_local_unavailable)
+            Compatibility.Skipped, Compatibility.Unknown ->
+                context.getString(R.string.llm_model_status_local_pending)
+        }
+    }
+
     fun presentDisplayName(displayName: String): String =
         displayName.removeSuffix(".onnx").removeSuffix(".ONNX")
 

@@ -53,9 +53,11 @@ class GridExpandedCandidateWindow :
         ExpandedCandidateLayout(
             context = context,
             theme = theme,
-            onSuggestionClick = { suggestion -> inputView.commitAiSuggestionFromUi(suggestion) },
+            onSuggestionClick = { suggestion ->
+                inputView.commitAiSuggestionFromUi(suggestion, fromExpandedArea = true)
+            },
             onQuestionAnswerClick = { inputView.toggleAiQuestionAnswerMode() },
-            onThinkingClick = { inputView.toggleAiThinkingMode() },
+            onPersonaClick = { anchor -> inputView.showAiPersonaPicker(anchor) },
             onTranslateClick = { inputView.toggleAiTranslateMode() },
             onLongFormClick = { inputView.toggleAiLongFormMode() },
         ).apply {

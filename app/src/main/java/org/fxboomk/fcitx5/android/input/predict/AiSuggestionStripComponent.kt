@@ -45,6 +45,19 @@ internal fun mergeSingleTextPanelResult(
     return if (final.length >= streamed.length) final else streamed
 }
 
+internal fun questionAnswerCommitText(answer: String, fromExpandedArea: Boolean): String {
+    return if (fromExpandedArea) {
+        "\n" + answer.trimStart('\n')
+    } else {
+        answer
+    }
+}
+
+internal fun expandedCommitText(state: AiSuggestionStripComponent.PresentationState): String? =
+    state.singleTextCommitText?.takeIf { it.isNotBlank() }
+        ?: state.panelSuggestions.firstOrNull { it.isNotBlank() }
+        ?: state.suggestions.firstOrNull { it.isNotBlank() }
+
 internal fun extractCommittedTranslation(displayText: String): String {
     val lines = displayText.lineSequence()
         .map(String::trim)
@@ -131,7 +144,6 @@ class AiSuggestionStripComponent(
         val isLoading: Boolean,
         val loadingLabel: String?,
         val isQuestionAnswerEnabled: Boolean,
-        val isThinkingEnabled: Boolean,
         val isTranslateEnabled: Boolean,
         val errorMessage: String? = null,
     )
@@ -189,9 +201,6 @@ class AiSuggestionStripComponent(
     private var panelDisplayedText = ""
     private var taskMode = LlmTaskMode.Completion
     private var longFormEnabled = false
-    private var thinkingEnabled = false
-    private var rememberedThinkingEnabled = false
-    private var thinkingModeRuntime: LlmPrefs.Runtime? = null
     private var pseudoStreamToken = 0L
     private var pseudoStreamRunnable: Runnable? = null
     private var startInputPredictionGeneration = 0
@@ -208,7 +217,6 @@ class AiSuggestionStripComponent(
         isLoading = false,
         loadingLabel = null,
         isQuestionAnswerEnabled = false,
-        isThinkingEnabled = false,
         isTranslateEnabled = false,
         errorMessage = null,
     )
@@ -240,14 +248,12 @@ class AiSuggestionStripComponent(
         suppressionUntilCommitRevision = -1
         recentCommittedSegments.clear()
         anchorState = null
-        thinkingModeRuntime = null
         if (!config.enabled) {
             resetPanelContentState()
             clearSuggestions(resetRequestState = true)
             return
         }
         restoreRememberedMode(config)
-        syncThinkingModeForRuntime(config)
         resetPanelContentState()
         clearSuggestions(resetRequestState = true)
         val generation = ++startInputPredictionGeneration
@@ -311,6 +317,8 @@ class AiSuggestionStripComponent(
         return true
     }
 
+    fun currentExpandedCommitText(): String? = expandedCommitText(latestPresentationState)
+
     fun dismissVisibleSuggestions(): Boolean {
         if (!hasVisibleSuggestions()) return false
         suppressPredictionUntilNextCommit("dismiss-visible-suggestions")
@@ -340,17 +348,19 @@ class AiSuggestionStripComponent(
         }
     }
 
-    fun toggleThinkingMode(): Boolean {
-        thinkingEnabled = !thinkingEnabled
-        persistRememberedUiMode()
+    fun selectPersona(value: String): Boolean {
+        val normalized = value.ifBlank { LlmPrefs.PersonaPreset.Custom.value }
+        val prefs = PreferenceManager.getDefaultSharedPreferences(service.applicationContext)
+        prefs.edit().putString(LlmPrefs.KEY_PERSONA_PRESET, normalized).apply()
         refreshPredictionsForModeToggle()
-        return thinkingEnabled
+        return true
     }
 
     fun toggleQuestionAnswerMode(): Boolean {
         taskMode = if (taskMode == LlmTaskMode.QuestionAnswer) {
             LlmTaskMode.Completion
         } else {
+            longFormEnabled = false
             exitTranslateMode()
             LlmTaskMode.QuestionAnswer
         }
@@ -374,7 +384,7 @@ class AiSuggestionStripComponent(
     fun toggleLongFormMode(): Boolean {
         longFormEnabled = !longFormEnabled
         if (longFormEnabled) {
-            exitTranslateMode()
+            taskMode = LlmTaskMode.Completion
         }
         persistRememberedUiMode()
         refreshPredictionsForModeToggle()
@@ -405,7 +415,6 @@ class AiSuggestionStripComponent(
         trigger: PredictionTrigger,
     ): Boolean {
         if (beforeCursor.isBlank()) return false
-        syncThinkingModeForRuntime(config)
 
         val request = LlmPredictor.Request(
             beforeCursor = beforeCursor,
@@ -413,7 +422,7 @@ class AiSuggestionStripComponent(
             historyText = buildHistoryText(config.maxContextChars),
             outputMode = LlmOutputMode.LongForm,
             taskMode = taskMode,
-            enableThinking = thinkingEnabled,
+            thinkingEffort = config.thinkingEffort,
         )
         errorMessage = null
         panelVisible = true
@@ -426,7 +435,7 @@ class AiSuggestionStripComponent(
         predictor.request(
             request = request,
             onResult = { suggestions ->
-                val latestBeforeCursor = fetchBeforeCursor(config).takeLast(config.maxContextChars)
+                val latestBeforeCursor = fetchEntireInputText(config).beforeCursor
                 if (latestBeforeCursor != beforeCursor) return@request
                 errorMessage = null
                 val longForm = suggestions.firstOrNull()
@@ -462,7 +471,7 @@ class AiSuggestionStripComponent(
             },
             onPartial = { partial ->
                 if (trigger == PredictionTrigger.Automatic && predictionSuppressed) return@request
-                val latestBeforeCursor = fetchBeforeCursor(config).takeLast(config.maxContextChars)
+                val latestBeforeCursor = fetchEntireInputText(config).beforeCursor
                 if (latestBeforeCursor != beforeCursor) return@request
                 val streamed = sanitizeSingleCandidate(
                     candidate = partial,
@@ -498,11 +507,19 @@ class AiSuggestionStripComponent(
         suppressionUntilCommitRevision = -1
     }
 
-    internal fun commitSuggestionFromUi(suggestion: String) {
-        if (taskMode == LlmTaskMode.Translate || isTranslatePanelMode()) {
-            commitTranslatedText(suggestion)
-        } else {
-            commitSuggestion(suggestion)
+    internal fun commitSuggestionFromUi(suggestion: String, fromExpandedArea: Boolean = false) {
+        when {
+            taskMode == LlmTaskMode.Translate || isTranslatePanelMode() ->
+                commitTranslatedText(suggestion)
+
+            taskMode == LlmTaskMode.QuestionAnswer || isQuestionAnswerPanelMode() ->
+                commitQuestionAnswer(suggestion, fromExpandedArea)
+
+            isLongFormPanelMode() ->
+                commitPolishedText(suggestion)
+
+            else ->
+                commitSuggestion(suggestion)
         }
     }
 
@@ -565,7 +582,6 @@ class AiSuggestionStripComponent(
             clearSuggestions(resetRequestState = true)
             return
         }
-        syncThinkingModeForRuntime(config)
         if (isAutomatic && !config.autoPredictEnabled) {
             Log.d(TAG, "skip request auto prediction disabled")
             clearSuggestions(resetRequestState = true)
@@ -648,7 +664,7 @@ class AiSuggestionStripComponent(
                 historyText = buildHistoryText(config.maxContextChars),
                 outputMode = LlmOutputMode.Suggestions,
                 taskMode = taskMode,
-                enableThinking = thinkingEnabled,
+                thinkingEffort = config.thinkingEffort,
             ),
             onResult = { suggestions ->
                 if (isAutomatic && predictionSuppressed) {
@@ -735,6 +751,39 @@ class AiSuggestionStripComponent(
         )
         noteCommittedText(suggestion, config)
         service.commitText(suggestion)
+        clearSuggestions(resetRequestState = true)
+    }
+
+    private fun commitQuestionAnswer(answer: String, fromExpandedArea: Boolean) {
+        commitSuggestion(questionAnswerCommitText(answer, fromExpandedArea))
+    }
+
+    private fun commitPolishedText(polished: String) {
+        val config = LlmPrefs.read(service.applicationContext)
+        val snapshot = fetchEntireInputText(config)
+        val inputConnection = service.currentInputConnection
+        if (inputConnection == null || snapshot.beforeCursor.isEmpty()) {
+            commitSuggestion(polished)
+            return
+        }
+        val selection = service.currentInputSelection
+        service.recordAiRewriteUndoSnapshot(
+            beforeCursor = snapshot.beforeCursor,
+            afterCursor = snapshot.afterCursor,
+            selectionStart = selection.start,
+            selectionEnd = selection.end,
+        )
+        val replacedLength = snapshot.beforeCursor.length
+        noteCommittedText(polished, config)
+        lastObservedBeforeCursor = polished.takeLast(config.fetchWindowChars)
+        inputConnection.withBatchEdit {
+            finishComposingText()
+            if (selection.start != selection.end) {
+                setSelection(selection.start, selection.start)
+            }
+            deleteSurroundingText(replacedLength, 0)
+            commitText(polished, 1)
+        }
         clearSuggestions(resetRequestState = true)
     }
 
@@ -895,7 +944,6 @@ class AiSuggestionStripComponent(
             isLoading = isLoadingPanelMode(),
             loadingLabel = loadingLabel(),
             isQuestionAnswerEnabled = taskMode == LlmTaskMode.QuestionAnswer,
-            isThinkingEnabled = thinkingEnabled,
             isTranslateEnabled = taskMode == LlmTaskMode.Translate,
             errorMessage = errorMessage,
         )
@@ -920,34 +968,21 @@ class AiSuggestionStripComponent(
         } else message
     }
 
-    private fun syncThinkingModeForRuntime(config: LlmPrefs.Config) {
-        if (thinkingModeRuntime == config.runtime) return
-        rememberedThinkingEnabled = LlmPrefs.readRememberedUiMode(
-            prefs = PreferenceManager.getDefaultSharedPreferences(service.applicationContext),
-            defaultThinkingEnabled = config.isLocalOnDevice,
-        ).thinkingEnabled
-        thinkingEnabled = rememberedThinkingEnabled
-        thinkingModeRuntime = config.runtime
-    }
-
     private fun restoreRememberedMode(config: LlmPrefs.Config) {
         val remembered = LlmPrefs.readRememberedUiMode(
             prefs = PreferenceManager.getDefaultSharedPreferences(service.applicationContext),
             defaultThinkingEnabled = config.isLocalOnDevice,
         )
         taskMode = remembered.taskMode
-        longFormEnabled = remembered.longFormEnabled
-        rememberedThinkingEnabled = remembered.thinkingEnabled
-        thinkingEnabled = rememberedThinkingEnabled
+        longFormEnabled = remembered.longFormEnabled && taskMode == LlmTaskMode.Completion
     }
 
     private fun persistRememberedUiMode() {
-        rememberedThinkingEnabled = thinkingEnabled
         LlmPrefs.persistRememberedUiMode(
             prefs = PreferenceManager.getDefaultSharedPreferences(service.applicationContext),
             taskMode = taskMode,
             longFormEnabled = longFormEnabled,
-            thinkingEnabled = rememberedThinkingEnabled,
+            thinkingEnabled = false,
         )
     }
 
@@ -1052,7 +1087,14 @@ class AiSuggestionStripComponent(
         if (taskMode == LlmTaskMode.Translate) {
             return requestTranslateContent(config, trigger)
         }
-        val beforeCursor = (beforeCursorOverride ?: fetchBeforeCursor(config)).takeLast(config.maxContextChars)
+        val beforeCursor = beforeCursorOverride
+            ?.takeIf { !longFormEnabled }
+            ?.let { it.takeLast(config.maxContextChars) }
+            ?: if (longFormEnabled) {
+                fetchEntireInputText(config).beforeCursor
+            } else {
+                fetchBeforeCursor(config).takeLast(config.maxContextChars)
+            }
         if (beforeCursor.isBlank()) {
             panelVisible = false
             resetPanelContentState()
@@ -1070,7 +1112,6 @@ class AiSuggestionStripComponent(
         config: LlmPrefs.Config,
         trigger: PredictionTrigger,
     ): Boolean {
-        syncThinkingModeForRuntime(config)
         val inputSnapshot = fetchEntireInputText(config)
         val sourceText = inputSnapshot.text.trim()
         if (sourceText.isBlank()) {
@@ -1083,7 +1124,7 @@ class AiSuggestionStripComponent(
             beforeCursor = sourceText,
             outputMode = LlmOutputMode.Suggestions,
             taskMode = LlmTaskMode.Translate,
-            enableThinking = thinkingEnabled,
+            thinkingEffort = config.thinkingEffort,
         )
         lastRequestedBeforeCursor = sourceText
         cancelPseudoStreaming()
@@ -1166,14 +1207,13 @@ class AiSuggestionStripComponent(
         config: LlmPrefs.Config,
         trigger: PredictionTrigger,
     ): Boolean {
-        syncThinkingModeForRuntime(config)
         val request = LlmPredictor.Request(
             beforeCursor = beforeCursor,
             recentCommittedText = if (config.preferLastCommit) lastCommittedText.takeLast(config.maxContextChars) else "",
             historyText = buildHistoryText(config.maxContextChars),
             outputMode = currentPanelOutputMode(),
             taskMode = LlmTaskMode.QuestionAnswer,
-            enableThinking = thinkingEnabled,
+            thinkingEffort = config.thinkingEffort,
         )
         lastRequestedBeforeCursor = beforeCursor
         cancelPseudoStreaming()
@@ -1326,14 +1366,17 @@ class AiSuggestionStripComponent(
         taskMode: LlmTaskMode,
         isPartial: Boolean = false,
     ): String {
-        val compact = if (taskMode == LlmTaskMode.Translate) {
-            if (isPartial) {
+        val compact = when {
+            taskMode == LlmTaskMode.Translate -> if (isPartial) {
                 normalizeTranslationPartialCandidate(beforeCursor, candidate)
             } else {
                 normalizeTranslationCandidate(beforeCursor, candidate)
             }
-        } else {
-            candidate.lineSequence()
+
+            outputMode == LlmOutputMode.LongForm ->
+                candidate.replace("\r\n", "\n").trim()
+
+            else -> candidate.lineSequence()
                 .map(String::trim)
                 .joinToString(separator = "")
                 .trim()

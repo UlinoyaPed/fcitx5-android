@@ -269,7 +269,6 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
             isLoading = state.isLoading,
             loadingLabel = state.loadingLabel,
             isQuestionAnswerEnabled = state.isQuestionAnswerEnabled,
-            isThinkingEnabled = state.isThinkingEnabled,
             isTranslateEnabled = state.isTranslateEnabled,
             errorMessage = state.errorMessage,
         )
@@ -295,11 +294,6 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
                 visible = false,
                 occupyFullHeight = false,
                 values = emptyList(),
-            )
-            LlmPrefs.PredictionDisplayMode.CandidateBar -> AiExpandedPresentation(
-                visible = hasAiState,
-                occupyFullHeight = hasAiState,
-                values = overlayValues,
             )
             LlmPrefs.PredictionDisplayMode.CandidateExpanded -> {
                 val appendedAiValues = horizontalCandidate.currentExpandedAiSuggestions()

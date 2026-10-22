@@ -325,7 +325,7 @@ class LlmClientTest {
                 model = "kimi-k3",
             ),
             beforeCursor = "hello",
-            enableThinking = false,
+            thinkingEffort = LlmPrefs.ThinkingEffort.Max,
         )
 
         val result = method.invoke(client, request)

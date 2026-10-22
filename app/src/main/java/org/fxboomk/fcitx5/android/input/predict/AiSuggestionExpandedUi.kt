@@ -21,7 +21,7 @@ class AiSuggestionExpandedUi(
     private val theme: Theme,
     private val onSuggestionClick: (String) -> Unit,
     private val onQuestionAnswerClick: () -> Unit,
-    private val onThinkingClick: () -> Unit,
+    private val onPersonaClick: (View) -> Unit,
     private val onTranslateClick: () -> Unit,
     private val onLongFormClick: () -> Unit,
 ) : LinearLayout(context) {
@@ -85,8 +85,8 @@ class AiSuggestionExpandedUi(
         )
     }
 
-    private val thinkingChip = createActionChip(context.getString(R.string.ai_clip_thinking)) {
-        onThinkingClick()
+    private val personaChip = createActionChip(context.getString(R.string.ai_clip_persona)) { anchor ->
+        onPersonaClick(anchor)
     }
     private val questionAnswerChip = createActionChip(context.getString(R.string.ai_clip_question_answer)) {
         onQuestionAnswerClick()
@@ -103,7 +103,7 @@ class AiSuggestionExpandedUi(
         gravity = Gravity.CENTER_VERTICAL
         weightSum = 4f
         val gap = context.dp(8)
-        addView(thinkingChip, weightedChipLayoutParams(gap))
+        addView(personaChip, weightedChipLayoutParams(gap))
         addView(translateChip, weightedChipLayoutParams(gap))
         addView(questionAnswerChip, weightedChipLayoutParams(gap))
         addView(
@@ -166,7 +166,6 @@ class AiSuggestionExpandedUi(
         isLoading: Boolean,
         loadingLabel: String?,
         isQuestionAnswerEnabled: Boolean,
-        isThinkingEnabled: Boolean,
         isTranslateEnabled: Boolean,
         errorMessage: String? = null,
     ) {
@@ -174,7 +173,6 @@ class AiSuggestionExpandedUi(
         if (!visible) return
 
         updateActionChip(questionAnswerChip, active = isQuestionAnswerEnabled)
-        updateActionChip(thinkingChip, active = isThinkingEnabled)
         updateActionChip(translateChip, active = isTranslateEnabled)
         updateActionChip(longFormChip, active = isLongFormEnabled)
 
@@ -259,7 +257,7 @@ class AiSuggestionExpandedUi(
             this.marginEnd = marginEnd
         }
 
-    private fun createActionChip(text: String, onClick: () -> Unit) = TextView(context).apply {
+    private fun createActionChip(text: String, onClick: (View) -> Unit) = TextView(context).apply {
         this.text = text
         textSize = 13f
         gravity = Gravity.CENTER
@@ -268,7 +266,7 @@ class AiSuggestionExpandedUi(
         setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
         setTextColor(theme.altKeyTextColor)
         background = chipBackground(active = false)
-        setOnClickListener { onClick() }
+        setOnClickListener { onClick(it) }
     }
 
     private fun updateActionChip(view: TextView, active: Boolean) {

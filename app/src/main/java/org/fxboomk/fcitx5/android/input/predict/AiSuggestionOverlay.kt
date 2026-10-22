@@ -24,7 +24,7 @@ class AiSuggestionOverlay(
     var onSuggestionClick: ((String) -> Unit)? = null
     var onCollapseClick: (() -> Unit)? = null
     var onQuestionAnswerClick: (() -> Unit)? = null
-    var onThinkingClick: (() -> Unit)? = null
+    var onPersonaClick: ((View) -> Unit)? = null
     var onTranslateClick: (() -> Unit)? = null
     var onLongFormClick: (() -> Unit)? = null
 
@@ -54,7 +54,6 @@ class AiSuggestionOverlay(
         isLoading = false,
         loadingLabel = null,
         isQuestionAnswerEnabled = false,
-        isThinkingEnabled = false,
         isTranslateEnabled = false,
     )
 
@@ -73,7 +72,7 @@ class AiSuggestionOverlay(
         onHeaderDragMove = { rawX, rawY -> updatePanelDrag(rawX, rawY) },
         onHeaderDragEnd = { endPanelDrag() },
         onQuestionAnswerClick = { onQuestionAnswerClick?.invoke() },
-        onThinkingClick = { onThinkingClick?.invoke() },
+        onPersonaClick = { anchor -> onPersonaClick?.invoke(anchor) },
         onTranslateClick = { onTranslateClick?.invoke() },
         onLongFormClick = { onLongFormClick?.invoke() },
     ).apply {
@@ -121,7 +120,6 @@ class AiSuggestionOverlay(
             isLoading = state.isLoading,
             loadingLabel = state.loadingLabel,
             isQuestionAnswerEnabled = state.isQuestionAnswerEnabled,
-            isThinkingEnabled = state.isThinkingEnabled,
             isTranslateEnabled = state.isTranslateEnabled,
             errorMessage = state.errorMessage,
         )

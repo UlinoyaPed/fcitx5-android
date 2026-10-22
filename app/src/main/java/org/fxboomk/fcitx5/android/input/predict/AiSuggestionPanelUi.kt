@@ -30,7 +30,7 @@ class AiSuggestionPanelUi(
     private val onHeaderDragMove: (rawX: Float, rawY: Float) -> Unit,
     private val onHeaderDragEnd: () -> Unit,
     private val onQuestionAnswerClick: () -> Unit,
-    private val onThinkingClick: () -> Unit,
+    private val onPersonaClick: (View) -> Unit,
     private val onTranslateClick: () -> Unit,
     private val onLongFormClick: () -> Unit,
 ) : LinearLayout(context) {
@@ -66,8 +66,8 @@ class AiSuggestionPanelUi(
         setTextColor(theme.candidateTextColor)
     }
 
-    private val thinkingChip = createActionChip(context.getString(R.string.ai_clip_thinking)) {
-        onThinkingClick()
+    private val personaChip = createActionChip(context.getString(R.string.ai_clip_persona)) { anchor ->
+        onPersonaClick(anchor)
     }
 
     private val questionAnswerChip = createActionChip(context.getString(R.string.ai_clip_question_answer)) {
@@ -105,7 +105,7 @@ class AiSuggestionPanelUi(
             }
         )
         addView(
-            thinkingChip,
+            personaChip,
             LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT,
@@ -300,12 +300,10 @@ class AiSuggestionPanelUi(
         isLoading: Boolean,
         loadingLabel: String?,
         isQuestionAnswerEnabled: Boolean,
-        isThinkingEnabled: Boolean,
         isTranslateEnabled: Boolean,
         errorMessage: String? = null,
     ) {
         updateActionChip(questionAnswerChip, active = isQuestionAnswerEnabled)
-        updateActionChip(thinkingChip, active = isThinkingEnabled)
         updateActionChip(translateChip, active = isTranslateEnabled)
         updateActionChip(longFormChip, active = isLongFormEnabled)
 
@@ -411,14 +409,14 @@ class AiSuggestionPanelUi(
             spanCountFor(newConfig)
     }
 
-    private fun createActionChip(text: String, onClick: () -> Unit) = TextView(context).apply {
+    private fun createActionChip(text: String, onClick: (View) -> Unit) = TextView(context).apply {
         this.text = text
         textSize = 13f
         gravity = Gravity.CENTER
         setPadding(context.dp(12), context.dp(6), context.dp(12), context.dp(6))
         setTextColor(theme.altKeyTextColor)
         background = chipBackground(active = false)
-        setOnClickListener { onClick() }
+        setOnClickListener { onClick(it) }
     }
 
     private fun updateActionChip(view: TextView, active: Boolean) {

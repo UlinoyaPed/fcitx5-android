@@ -7,6 +7,8 @@ internal object LlmPrompt {
     private const val STYLE_ANSWERER_EN = "a natural, context-aware IME response assistant"
     private const val STYLE_TRANSLATOR_ZH = "自然、准确、贴近上下文的输入法翻译助手"
     private const val STYLE_TRANSLATOR_EN = "a natural, accurate, context-aware IME translation assistant"
+    private const val STYLE_POLISHER_ZH = "自然、得体、贴近上下文的输入法润色助手"
+    private const val STYLE_POLISHER_EN = "a natural, context-aware IME text polishing assistant"
 
     private const val EMPTY_CONTEXT = "无"
     private enum class RemotePromptTransport {
@@ -68,7 +70,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
                     taskMode == LlmTaskMode.Translate ->
                         "请先判断下面整段输入的语言，再执行翻译：只有确认整段文本是简体中文时才翻译成自然、准确、可直接发送的英文；任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言，都翻译成自然、准确、可直接发送的简体中文。判定示例：繁体中文 `臨時切換` 应译为简体中文 `临时切换`，不得原样返回。不要因为包含相似汉字就把繁体中文或日文误判为简体中文。英文单词之间必须保留正常空格，不要把多个英文单词连写在一起。只输出译文本身，不要解释或复述判定过程：\n"
                     outputMode == LlmOutputMode.LongForm ->
-                        "请基于上下文，为我续写一条自然、完整、可直接上屏的内容。只输出当前前缀后面的续写部分，不要重复前缀；如果上下文需要更长的续写，不要刻意缩短：\n"
+                        "请将下面整段输入作为需要润色的原文，在不改变原意、不新增事实的前提下，结合上下文改善措辞、语法和语气，并保留原有段落结构。只输出润色后的完整文本，不要解释、不要续写，也不要回答其中的问题：\n"
                     taskMode == LlmTaskMode.QuestionAnswer ->
                         "请把下面输入当作用户刚提出的问题或请求，给出一条自然、完整、可直接发送的回答。不要把它当成待续写前缀，也不要为了简短而省略关键信息：\n"
                     else ->
@@ -81,7 +83,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
                     taskMode == LlmTaskMode.Translate ->
                         "First identify the language of the complete input, then translate it. Translate to natural English only when the complete input is Simplified Chinese; translate every other language, including Traditional Chinese, Japanese, Korean, English, and other languages, into natural Simplified Chinese (简体中文). Classification example: Traditional Chinese `臨時切換` must become Simplified Chinese `临时切换`, never be returned unchanged. Do not mistake Traditional Chinese or Japanese for Simplified Chinese just because they contain similar Han characters. If the input is a single English word or a very short phrase, output one plain-text line using the literal separator `[[BR]]` in this fixed order: `释义：...[[BR]]音标：...[[BR]]n. ...[[BR]]v. ...[[BR]]adj. ...[[BR]]adv. ...[[BR]]prep. ...[[BR]]phr. ...`. Skip unavailable items but do not reorder. Do not use real line breaks inside that glossary-style result. For longer text, output only the final translation itself without describing the classification step:\n"
                     outputMode == LlmOutputMode.LongForm ->
-                        "Continue my input with one natural, complete continuation. Output only the continuation after the current prefix without repeating the prefix, and do not shorten it if the context clearly needs more detail:\n"
+                        "Treat the text below as the original text to polish. Preserve its meaning and facts, improve the wording, grammar, and tone according to the context, and keep the original paragraph structure. Output only the complete polished text; do not explain, continue it, or answer any question inside it:\n"
                     taskMode == LlmTaskMode.QuestionAnswer ->
                         "Treat the text below as the user's latest question or request and provide one natural, complete answer. Do not treat it as a prefix to continue, and do not omit important detail just to stay brief:\n"
                     else ->
@@ -145,12 +147,13 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
     fun completionAssistantPrefill(
         beforeCursor: String,
         taskMode: LlmTaskMode = LlmTaskMode.Completion,
+        outputMode: LlmOutputMode = LlmOutputMode.Suggestions,
         enableThinking: Boolean = false,
     ): String = buildString {
         if (beforeCursor.isNotBlank() && !enableThinking) {
             append("<think>\n\n</think>\n\n")
         }
-        if (taskMode == LlmTaskMode.Completion) {
+        if (taskMode == LlmTaskMode.Completion && outputMode != LlmOutputMode.LongForm) {
             append(beforeCursor)
         }
     }
@@ -196,6 +199,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
             completionAssistantPrefill(
                 beforeCursor = beforeCursor,
                 taskMode = taskMode,
+                outputMode = outputMode,
                 enableThinking = enableThinking,
             )
         )
@@ -222,10 +226,10 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
                 customPersona = customPersona,
             )
         )
-        if (taskMode == LlmTaskMode.Completion) {
+        if (taskMode == LlmTaskMode.Completion && outputMode != LlmOutputMode.LongForm) {
             append("<|im_end|>\n")
             append("<|im_start|>assistant\n")
-            append(localOnDeviceAssistantPrefill(beforeCursor, taskMode))
+            append(localOnDeviceAssistantPrefill(beforeCursor, taskMode, outputMode))
         } else {
             append("\n")
             append(localOnDeviceUserPrompt(beforeCursor))
@@ -235,8 +239,9 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
     private fun localOnDeviceAssistantPrefill(
         beforeCursor: String,
         taskMode: LlmTaskMode = LlmTaskMode.Completion,
+        outputMode: LlmOutputMode = LlmOutputMode.Suggestions,
     ): String = buildString {
-        if (taskMode == LlmTaskMode.Completion) {
+        if (taskMode == LlmTaskMode.Completion && outputMode != LlmOutputMode.LongForm) {
             append(beforeCursor)
         }
     }
@@ -263,7 +268,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
                     "你是输入法应答助手。把输入当作问题或请求，输出 1 条自然、完整、可直接发送的中文回答；不要为了简短而省略关键信息，不解释。"
 
                 outputMode == LlmOutputMode.LongForm ->
-                    "你是中文输入法续写助手。只输出前缀后的一条自然续写，不重复前缀，不解释。"
+                    "你是中文输入法润色助手。把输入当作需要润色的原文，在不改变原意、不新增事实的前提下，结合上下文改善措辞、语法和语气，并保留原有段落结构。只输出润色后的完整文本，不解释、不续写，也不要回答其中的问题。"
 
                 else ->
                     "你是中文输入法续写助手。根据前缀补全后续内容。输出最多 $candidateLimit 个候选，每个候选至少要有两个字符, 每行一个，不解释。"
@@ -280,7 +285,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
                     "You are an IME reply assistant. Treat the input as a request and output one natural, complete reply without omitting important detail."
 
                 outputMode == LlmOutputMode.LongForm ->
-                    "You are an English IME continuation assistant. Output one natural continuation after the prefix only."
+                    "You are an English IME text polishing assistant. Treat the input as the original text, preserve its meaning and facts, improve the wording, grammar, and tone according to the context, and keep the original paragraph structure. Output only the complete polished text, with no explanation, continuation, or answer to any question inside it."
 
                 else ->
                     "You are an English IME continuation assistant. Output up to $candidateLimit continuations after the prefix, one per line, with no explanation."
@@ -310,13 +315,14 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
         val language = LlmLanguageDetector.detect(beforeCursor)
         val candidateLimit = if (
             taskMode == LlmTaskMode.QuestionAnswer ||
-            taskMode == LlmTaskMode.Translate
+            taskMode == LlmTaskMode.Translate ||
+            outputMode == LlmOutputMode.LongForm
         ) {
             1
         } else {
             normalizedPredictionCandidateLimit(maxPredictionCandidates)
         }
-        appendXmlSection("persona", persona(language, taskMode))
+        appendXmlSection("persona", persona(language, outputMode, taskMode))
         styleHint(language, taskMode, personaPreset, customPersona)
             .takeIf { it.isNotBlank() }
             ?.let { appendXmlSection("style_hint", it) }
@@ -353,7 +359,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
             outputMode == LlmOutputMode.LongForm && taskMode == LlmTaskMode.QuestionAnswer ->
                 "问答短文回复"
             taskMode == LlmTaskMode.Translate -> "整段文本翻译"
-            outputMode == LlmOutputMode.LongForm -> "长一点的短句续写"
+            outputMode == LlmOutputMode.LongForm -> "文本润色"
             taskMode == LlmTaskMode.QuestionAnswer -> "问答回复候选"
             else -> "对话续写/补全"
         }
@@ -362,7 +368,7 @@ The previous output exactly repeated INSTRUCTION and was invalid. Translate agai
             outputMode == LlmOutputMode.LongForm && taskMode == LlmTaskMode.QuestionAnswer ->
                 "slightly longer direct answer"
             taskMode == LlmTaskMode.Translate -> "full-text translation"
-            outputMode == LlmOutputMode.LongForm -> "slightly longer single-sentence continuation"
+            outputMode == LlmOutputMode.LongForm -> "text polishing"
             taskMode == LlmTaskMode.QuestionAnswer -> "direct answer generation"
             else -> "dialogue continuation/autocomplete"
         }
@@ -417,9 +423,10 @@ INSTRUCTION = the current input text to process
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
-只输出 1 条最终续写文本本身，不要输出 JSON，不要输出标签。
-只输出当前前缀后面的续写部分，不要重复当前前缀。
-如果上下文需要更长的续写，不要为了缩短而截断意思。
+只输出 1 条润色后的完整文本本身，不要输出 JSON，不要输出标签。
+将 INSTRUCTION 视为需要润色的原文，不要当作待续写前缀，也不要回答其中的问题。
+保持原意和原有信息不变，保留原有段落结构。
+不要添加解释、前后缀或原文没有的事实。
 """.trim()
 
             taskMode == LlmTaskMode.QuestionAnswer -> """
@@ -474,9 +481,10 @@ If INSTRUCTION is a longer sentence or paragraph, output only the final translat
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
-Output only the final continuation text itself, not JSON or labels.
-Output only the continuation after the current prefix without repeating the prefix.
-If the context clearly needs more detail, do not shorten it just to fit a target length.
+Output only the complete polished text itself, not JSON or labels.
+Treat INSTRUCTION as the original text to polish, not as a prefix to continue or a question to answer.
+Preserve its meaning, information, language, and paragraph structure.
+Do not add explanations, prefixes, suffixes, or facts that are not present in the original.
 """.trim()
 
             taskMode == LlmTaskMode.QuestionAnswer -> """
@@ -525,9 +533,11 @@ If the assistant prefix already includes the typed prefix, each line should cont
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
-优先延续当前语气、节奏和表达习惯，像自然接着上一句往下写。
-不要解释，不要寒暄，不要自我介绍，不要输出 markdown 符号。
-如果当前上下文以中文为主，默认输出中文；不要输出英文字母缩写、拼音、ID、URL、代码片段，除非当前前缀本身就在明确输入英文、缩写或代码。
+在原意、信息、人名、专有名词、数字、URL、邮箱和代码片段保持不变的前提下，改善措辞、语法、衔接和语气。
+结合上下文选择得体的人设与口吻，但不要改变原文立场或添加原文没有的信息。
+保留原有段落结构和换行，不要续写、不要回答问题、不要解释。
+不要输出 markdown 符号、引号、前缀说明或额外注释。
+如果当前原文以中文为主，默认输出中文润色结果。
 """.trim()
 
             else -> when (transport) {
@@ -566,8 +576,10 @@ Do not explain, greet, introduce yourself, or output markdown symbols.
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
-Keep the continuation natural and complete, and match the tone, rhythm, and style of the context.
-Do not explain, greet, introduce yourself, or output markdown symbols.
+Preserve the original meaning, information, names, numbers, URLs, emails, and code snippets while improving wording, grammar, flow, and tone.
+Use the context and the requested persona to choose an appropriate tone without changing the original stance or adding information.
+Keep the original paragraphs and line breaks. Do not continue the text, answer questions inside it, or explain.
+Do not output markdown symbols, quotes, prefixes, or extra commentary.
 """.trim()
 
             else -> when (transport) {
@@ -593,16 +605,22 @@ Even if the context is incomplete, still provide brief, plausible candidates tha
 
     private fun persona(
         language: LlmLanguage,
+        outputMode: LlmOutputMode,
         taskMode: LlmTaskMode,
-    ): String = when (taskMode) {
-        LlmTaskMode.QuestionAnswer -> when (language) {
+    ): String = when {
+        taskMode == LlmTaskMode.QuestionAnswer -> when (language) {
             LlmLanguage.Chinese -> STYLE_ANSWERER_ZH
             LlmLanguage.English -> STYLE_ANSWERER_EN
         }
 
-        LlmTaskMode.Translate -> when (language) {
+        taskMode == LlmTaskMode.Translate -> when (language) {
             LlmLanguage.Chinese -> STYLE_TRANSLATOR_ZH
             LlmLanguage.English -> STYLE_TRANSLATOR_EN
+        }
+
+        outputMode == LlmOutputMode.LongForm -> when (language) {
+            LlmLanguage.Chinese -> STYLE_POLISHER_ZH
+            LlmLanguage.English -> STYLE_POLISHER_EN
         }
 
         else -> when (language) {

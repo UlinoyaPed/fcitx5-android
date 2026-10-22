@@ -918,16 +918,6 @@ class HorizontalCandidateComponent :
             calculatorSuggestion?.let(::add)
             addAll(aiSuggestions)
         }
-        if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateBar &&
-            extraSuggestions.isNotEmpty()
-        ) {
-            renderAiOnlyCandidates(
-                extraSuggestions.toTypedArray(),
-                calculatorIncluded = calculatorSuggestion != null,
-            )
-            return
-        }
-
         showingAiSuggestions = false
         if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateExpanded &&
             extraSuggestions.isNotEmpty()

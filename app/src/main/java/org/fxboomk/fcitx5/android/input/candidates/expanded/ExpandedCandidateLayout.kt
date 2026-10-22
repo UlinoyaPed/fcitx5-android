@@ -47,7 +47,7 @@ class ExpandedCandidateLayout(
     theme: Theme,
     onSuggestionClick: (String) -> Unit,
     onQuestionAnswerClick: () -> Unit,
-    onThinkingClick: () -> Unit,
+    onPersonaClick: (View) -> Unit,
     onTranslateClick: () -> Unit,
     onLongFormClick: () -> Unit,
 ) : ConstraintLayout(context) {
@@ -131,7 +131,7 @@ class ExpandedCandidateLayout(
         theme = theme,
         onSuggestionClick = onSuggestionClick,
         onQuestionAnswerClick = onQuestionAnswerClick,
-        onThinkingClick = onThinkingClick,
+        onPersonaClick = onPersonaClick,
         onTranslateClick = onTranslateClick,
         onLongFormClick = onLongFormClick,
     )

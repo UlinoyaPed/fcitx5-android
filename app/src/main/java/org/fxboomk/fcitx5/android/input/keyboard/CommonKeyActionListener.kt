@@ -227,6 +227,10 @@ class CommonKeyActionListener :
                         action.sym.keyCode == KeyEvent.KEYCODE_ESCAPE -> {
                             sendKey(action.sym, action.states)
                         }
+                        action.sym.sym == FcitxKeyMapping.FcitxKey_Return &&
+                            withContext(Dispatchers.Main.immediate) {
+                                service.inputView?.commitPrimaryExpandedAiSuggestion() == true
+                            } -> Unit
                         action.sym.sym == FcitxKeyMapping.FcitxKey_BackSpace -> {
                             val preeditVisible = hasPreedit()
                             val nativePredictionCandidatesVisible = hasNativePredictionCandidatesVisible()

@@ -38,6 +38,7 @@ import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.ui.main.settings.DialogSeekBarPreference
 import org.fxboomk.fcitx5.android.ui.main.settings.PreferenceScrollHelper
+import splitties.dimensions.dp
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fxboomk.fcitx5.android.utils.addPreference
@@ -90,11 +91,20 @@ class LlmSettingsFragment : PaddingPreferenceFragment() {
     private val prefsChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             when (key) {
-                LlmPrefs.KEY_ENABLED -> syncEditablePreferenceState()
+                LlmPrefs.KEY_ENABLED -> {
+                    syncEditablePreferenceState()
+                    refreshModelStatusPreference()
+                }
                 LlmPrefs.KEY_PROVIDER, LlmPrefs.KEY_RUNTIME -> {
                     syncEditablePreferenceState()
                     syncRuntimePreferenceState(LlmPrefs.currentRuntime(prefs))
                 }
+                LlmPrefs.KEY_MODEL,
+                LlmPrefs.KEY_BASE_URL,
+                LlmPrefs.KEY_ENABLED_BASE_URLS,
+                LlmPrefs.KEY_API_KEY,
+                LlmPrefs.KEY_SHARE_PRIMARY_API_KEY,
+                LlmPrefs.KEY_THINKING_EFFORT -> refreshModelStatusPreference()
             }
         }
 
@@ -219,23 +229,40 @@ class LlmSettingsFragment : PaddingPreferenceFragment() {
                 summaryProvider = Preference.SummaryProvider<EditTextPreference> { pref ->
                     val sharedPrefs = pref.preferenceManager.sharedPreferences
                     val runtime = sharedPrefs?.let(LlmPrefs::currentRuntime) ?: LlmPrefs.Runtime.Remote
+                    val effort = sharedPrefs?.let(LlmPrefs::currentThinkingEffort)
+                        ?: LlmPrefs.ThinkingEffort.Off
+                    val modelText: String
+                    val statusText: String
                     if (runtime == LlmPrefs.Runtime.LocalOnDevice) {
-                        LlmLocalModelManager.statusSummary(context)
+                        val model = LlmLocalModelManager.currentModel(context)
+                        modelText = model?.let { LlmLocalModelManager.presentDisplayName(it.displayName) }
+                            ?: context.getString(R.string.llm_model_summary_none)
+                        statusText = LlmLocalModelManager.availabilitySummary(context, model)
                     } else {
-                        val models = pref.preferenceManager.sharedPreferences
-                            ?.let(LlmPrefs::enabledModels).orEmpty()
+                        val models = sharedPrefs?.let(LlmPrefs::enabledModels).orEmpty()
                             .filter { it.isNotBlank() }
-                        if (models.isEmpty()) {
-                            context.getString(R.string.llm_model_status_remote_missing_name)
-                        } else {
-                            buildString {
-                                append(context.getString(R.string.llm_model_count_summary, models.size))
-                                models.forEach {
-                                    append('\n')
-                                    append(it)
-                                }
-                            }
+                            .distinct()
+                        modelText = models.joinToString("、")
+                            .ifBlank { context.getString(R.string.llm_model_summary_none) }
+                        val config = sharedPrefs?.let { LlmPrefs.read(it) }
+                        val apiReady = config != null &&
+                            (!config.provider.isVendorProvidedApiService || config.apiKey.isNotBlank())
+                        statusText = when {
+                            models.isEmpty() -> context.getString(R.string.llm_model_status_remote_missing_name)
+                            config?.isUsable == true && apiReady ->
+                                context.getString(R.string.llm_model_status_remote_ready)
+                            else -> context.getString(R.string.llm_model_status_remote_unavailable)
                         }
+                    }
+                    buildString {
+                        append(context.getString(R.string.llm_model_summary_line, modelText))
+                        append('\n')
+                        append(context.getString(
+                            R.string.llm_thinking_effort_summary_line,
+                            context.getString(effort.titleRes),
+                        ))
+                        append('\n')
+                        append(statusText)
                     }
                 },
             ))
@@ -591,9 +618,27 @@ class LlmSettingsFragment : PaddingPreferenceFragment() {
         val ctx = requireContext()
         val model = LlmLocalModelManager.currentModel(ctx) ?: return
         val canUpgrade = !model.upgradeSourceRef.isNullOrBlank()
+        val prefs = preferenceManager.sharedPreferences
+        val contentView = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(ctx.dp(24), ctx.dp(8), ctx.dp(24), 0)
+            addView(TextView(ctx).apply {
+                text = LlmLocalModelManager.statusSummary(ctx)
+            })
+            if (prefs != null) {
+                addView(
+                    ThinkingEffortSelector.create(
+                        ctx,
+                        LlmPrefs.currentThinkingEffort(prefs),
+                    ) { effort ->
+                        LlmPrefs.writeThinkingEffort(prefs, effort)
+                    }
+                )
+            }
+        }
         AlertDialog.Builder(ctx)
             .setTitle(R.string.llm_model_status)
-            .setMessage(LlmLocalModelManager.statusSummary(ctx))
+            .setView(ScrollView(ctx).apply { addView(contentView) })
             .setPositiveButton(
                 if (canUpgrade) {
                     R.string.llm_local_model_manage_upgrade

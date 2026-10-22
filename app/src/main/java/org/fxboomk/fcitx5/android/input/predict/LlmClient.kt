@@ -49,8 +49,16 @@ internal class LlmClient(
         val outputMode: LlmOutputMode = LlmOutputMode.Suggestions,
         val taskMode: LlmTaskMode = LlmTaskMode.Completion,
         val enableThinking: Boolean = false,
+        val thinkingEffort: LlmPrefs.ThinkingEffort = LlmPrefs.ThinkingEffort.Off,
         val translationCorrectionAttempt: Boolean = false,
-    )
+    ) {
+        val effectiveThinkingEffort: LlmPrefs.ThinkingEffort
+            get() = when {
+                thinkingEffort != LlmPrefs.ThinkingEffort.Off -> thinkingEffort
+                enableThinking -> LlmPrefs.ThinkingEffort.High
+                else -> LlmPrefs.ThinkingEffort.Off
+            }
+    }
 
     data class PredictionResponse(
         val suggestions: List<String>,
@@ -424,6 +432,7 @@ internal class LlmClient(
         val assistantPrefill = LlmPrompt.completionAssistantPrefill(
             beforeCursor = request.beforeCursor,
             taskMode = request.taskMode,
+            enableThinking = request.effectiveThinkingEffort.isEnabled,
         )
 
         val stops = JSONArray().apply {
@@ -555,7 +564,8 @@ internal class LlmClient(
     ): List<RequestPlan> = LlmRequestPolicy.variants(
         config = config,
         endpoint = endpoint,
-        enableThinking = request.enableThinking,
+        enableThinking = request.effectiveThinkingEffort.isEnabled,
+        thinkingEffort = request.effectiveThinkingEffort,
         isSuppressed = { baseProtocol, augmentation ->
             augmentation == RequestAugmentation.ThinkingDisabled &&
                 thinkingSuppressionStore.isSuppressed(config, baseProtocol)
@@ -572,6 +582,7 @@ internal class LlmClient(
                 payload = payload,
                 augmentation = variant.augmentation,
                 thinkingBudgetTokens = resolveThinkingBudgetTokens(request),
+                thinkingEffort = request.effectiveThinkingEffort,
             ),
             extractContent = extractContent,
             parseSuggestions = parseSuggestions,
@@ -586,8 +597,11 @@ internal class LlmClient(
                 maxOf(request.config.maxOutputTokens, FULL_TEXT_MODE_MIN_OUTPUT_TOKENS)
             else -> request.config.maxOutputTokens
         }
-        return if (request.enableThinking && request.config.compatApi == LlmPrefs.CompatApi.Anthropic) {
-            maxOf(base, 1280)
+        return if (
+            request.effectiveThinkingEffort.isEnabled &&
+            request.config.compatApi == LlmPrefs.CompatApi.Anthropic
+        ) {
+            maxOf(base, request.effectiveThinkingEffort.budgetTokens + 256)
         } else {
             base
         }
@@ -651,12 +665,16 @@ internal class LlmClient(
     private fun resolveMoonshotSamplingSettings(request: PredictionRequest): MoonshotSamplingSettings? {
         return when {
             isMoonshotK2Model(request.config) -> MoonshotSamplingSettings(
-                temperature = if (request.enableThinking) 1.0 else 0.6,
+                temperature = if (request.effectiveThinkingEffort.isEnabled) 1.0 else 0.6,
                 topP = 0.95,
-                thinkingType = if (request.enableThinking) "enabled" else "disabled",
+                thinkingType = if (request.effectiveThinkingEffort.isEnabled) "enabled" else "disabled",
             )
             isMoonshotK3Model(request.config) -> MoonshotSamplingSettings(
-                reasoningEffort = "max",
+                reasoningEffort = if (request.effectiveThinkingEffort == LlmPrefs.ThinkingEffort.Max) {
+                    "max"
+                } else {
+                    request.effectiveThinkingEffort.reasoningEffort
+                },
                 stripFixedSamplingFields = true,
             )
             else -> null
@@ -664,8 +682,7 @@ internal class LlmClient(
     }
 
     private fun resolveThinkingBudgetTokens(request: PredictionRequest): Int {
-        val maxTokens = resolveMaxTokens(request)
-        return (maxTokens - 256).coerceIn(1024, 32000)
+        return request.effectiveThinkingEffort.budgetTokens.coerceIn(1024, 32000)
     }
 
     private fun consumeStreamingResponse(

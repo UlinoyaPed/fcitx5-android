@@ -94,8 +94,7 @@ class LlmPromptTest {
     }
 
     @Test
-    fun systemPromptSwitchesToTranslateMode() {
-        val prompt = LlmPrompt.systemPrompt(
+    fun systemPromptSwitchesToTranslateMode() {        val prompt = LlmPrompt.systemPrompt(
             maxPredictionCandidates = 5,
             beforeCursor = "今天晚上一起吃饭吗？",
             taskMode = LlmTaskMode.Translate,
@@ -107,6 +106,49 @@ class LlmPromptTest {
         assertTrue(prompt.contains("将 INSTRUCTION 视为完整待翻译文本"))
         assertTrue(prompt.contains("英文译文中的单词之间必须保留正常空格"))
         assertTrue(!prompt.contains("中文续写助手"))
+    }
+
+    @Test
+    fun systemPromptSwitchesToPolishMode() {
+        val prompt = LlmPrompt.systemPrompt(
+            maxPredictionCandidates = 5,
+            beforeCursor = "这个方案我觉得还行但是细节上可能还要再改一下",
+            outputMode = LlmOutputMode.LongForm,
+        )
+
+        assertTrue(prompt.contains("输入法润色助手"))
+        assertTrue(prompt.contains("<task>\n文本润色\n</task>"))
+        assertTrue(prompt.contains("只输出 1 条润色后的完整文本本身"))
+        assertTrue(prompt.contains("将 INSTRUCTION 视为需要润色的原文"))
+        assertTrue(prompt.contains("保持原意和原有信息不变"))
+        assertTrue(!prompt.contains("续写助手"))
+    }
+
+    @Test
+    fun polishPromptTreatsInputAsTextToRewriteRatherThanPrefix() {
+        val prompt = LlmPrompt.userPrompt(
+            beforeCursor = "这个功能好像有点问题你们看看怎么处理",
+            outputMode = LlmOutputMode.LongForm,
+        )
+
+        assertTrue(prompt.contains("作为需要润色的原文"))
+        assertTrue(prompt.contains("不要解释、不要续写"))
+        assertTrue(!prompt.contains("只输出当前前缀后面的续写部分"))
+    }
+
+    @Test
+    fun completionPromptDoesNotPrefillOriginalTextForPolish() {
+        val prompt = LlmPrompt.completionPrompt(
+            beforeCursor = "需要润色的原文",
+            recentCommittedText = "",
+            historyText = "",
+            useRecentCommitBias = false,
+            maxPredictionCandidates = 4,
+            outputMode = LlmOutputMode.LongForm,
+        )
+
+        assertTrue(prompt.contains("<instruction>\n请将下面整段输入作为需要润色的原文"))
+        assertTrue(!prompt.endsWith("需要润色的原文"))
     }
 
     @Test

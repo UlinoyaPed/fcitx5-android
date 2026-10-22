@@ -855,7 +855,7 @@ class LlmPrefsTest {
                 LlmPrefs.KEY_SAMPLE_COUNT to 6,
                 LlmPrefs.KEY_MAX_OUTPUT_TOKENS to 256,
                 LlmPrefs.KEY_MAX_PREDICTION_CANDIDATES to 7,
-                LlmPrefs.KEY_PREDICTION_DISPLAY_MODE to LlmPrefs.PredictionDisplayMode.CandidateBar.value,
+                LlmPrefs.KEY_PREDICTION_DISPLAY_MODE to "candidate_bar",
             )
         )
 
@@ -865,7 +865,7 @@ class LlmPrefsTest {
         assertEquals(256, config.maxOutputTokens)
         assertEquals(7, config.maxPredictionCandidates)
         assertEquals(true, config.autoPredictEnabled)
-        assertEquals(LlmPrefs.PredictionDisplayMode.CandidateBar, config.predictionDisplayMode)
+        assertEquals(LlmPrefs.PredictionDisplayMode.CandidateExpanded, config.predictionDisplayMode)
     }
 
     @Test
@@ -886,6 +886,39 @@ class LlmPrefsTest {
         val config = LlmPrefs.read(prefs)
 
         assertEquals(LlmPrefs.PredictionDisplayMode.CandidateExpanded, config.predictionDisplayMode)
+    }
+
+    @Test
+    fun readMapsLegacyCandidateBarToExpandedCandidates() {
+        val prefs = FakeSharedPreferences(
+            mutableMapOf(
+                LlmPrefs.KEY_PREDICTION_DISPLAY_MODE to "candidate_bar",
+            )
+        )
+
+        val config = LlmPrefs.read(prefs)
+
+        assertEquals(LlmPrefs.PredictionDisplayMode.CandidateExpanded, config.predictionDisplayMode)
+    }
+
+    @Test
+    fun readDefaultsThinkingEffortToOff() {
+        val config = LlmPrefs.read(FakeSharedPreferences())
+
+        assertEquals(LlmPrefs.ThinkingEffort.Off, config.thinkingEffort)
+    }
+
+    @Test
+    fun readSupportsStoredThinkingEffort() {
+        val prefs = FakeSharedPreferences(
+            mutableMapOf(
+                LlmPrefs.KEY_THINKING_EFFORT to LlmPrefs.ThinkingEffort.Medium.ordinal,
+            )
+        )
+
+        val config = LlmPrefs.read(prefs)
+
+        assertEquals(LlmPrefs.ThinkingEffort.Medium, config.thinkingEffort)
     }
 
     @Test

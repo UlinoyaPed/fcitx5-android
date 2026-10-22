@@ -38,6 +38,7 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
 
     // domain (host) -> model name, kept live by each field so it survives rotation.
     private val modelByDomain = linkedMapOf<String, String>()
+    private var pendingThinkingEffort = LlmPrefs.ThinkingEffort.Off
 
     private sealed interface ModelChoiceItem {
         data class Group(val label: String) : ModelChoiceItem
@@ -59,6 +60,13 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
         val prefs = modelPreference.preferenceManager.sharedPreferences
         val provider = prefs?.let(LlmPrefs::currentProvider) ?: LlmPrefs.Provider.Custom
         val currentStatus = savedInstanceState?.getString(STATE_STATUS).orEmpty()
+        pendingThinkingEffort = if (savedInstanceState != null) {
+            LlmPrefs.ThinkingEffort.from(savedInstanceState.getInt(STATE_THINKING_EFFORT))
+        } else if (prefs != null) {
+            LlmPrefs.currentThinkingEffort(prefs)
+        } else {
+            LlmPrefs.ThinkingEffort.Off
+        }
 
         modelByDomain.clear()
         val savedDomains = savedInstanceState?.getStringArrayList(STATE_DOMAINS)
@@ -81,7 +89,13 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
             text = currentStatus
             isVisible = currentStatus.isNotBlank()
         }
-        contentView.addView(domainContainer, fullWidth(0))
+        contentView.addView(
+            ThinkingEffortSelector.create(context, pendingThinkingEffort) { effort ->
+                pendingThinkingEffort = effort
+            },
+            fullWidth(0),
+        )
+        contentView.addView(domainContainer, fullWidth(context.dp(12)))
         contentView.addView(statusView, fullWidth(context.dp(12)))
         refreshDomainRows()
 
@@ -98,6 +112,7 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
         val entries = modelByDomain.entries.toList()
         outState.putStringArrayList(STATE_DOMAINS, ArrayList(entries.map { it.key }))
         outState.putStringArrayList(STATE_VALUES, ArrayList(entries.map { it.value }))
+        outState.putInt(STATE_THINKING_EFFORT, pendingThinkingEffort.ordinal)
         if (::statusView.isInitialized) {
             outState.putString(STATE_STATUS, statusView.text?.toString().orEmpty())
         }
@@ -148,6 +163,7 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
         val provider = LlmPrefs.currentProvider(prefs)
         val primary = LlmPrefs.primaryDomain(prefs)
         LlmPrefs.writeScopedModels(prefs, provider, modelByDomain, primary)
+        LlmPrefs.writeThinkingEffort(prefs, pendingThinkingEffort)
         val primaryModel = primary?.let { modelByDomain[it] }.orEmpty()
         if (primaryModel.isNotBlank()) modelPreference.text = primaryModel
     }
@@ -293,6 +309,7 @@ class LlmModelPreferenceDialogFragment : DialogFragment() {
         private const val STATE_STATUS = "llm_model_status"
         private const val STATE_DOMAINS = "llm_model_domains"
         private const val STATE_VALUES = "llm_model_values"
+        private const val STATE_THINKING_EFFORT = "llm_thinking_effort"
 
         internal fun resolveUnprefixedGroupLabel(
             providerLabel: String,

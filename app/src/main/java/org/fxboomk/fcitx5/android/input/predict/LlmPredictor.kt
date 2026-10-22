@@ -58,7 +58,15 @@ internal class LlmPredictor(
         val outputMode: LlmOutputMode = LlmOutputMode.Suggestions,
         val taskMode: LlmTaskMode = LlmTaskMode.Completion,
         val enableThinking: Boolean = false,
-    )
+        val thinkingEffort: LlmPrefs.ThinkingEffort = LlmPrefs.ThinkingEffort.Off,
+    ) {
+        val effectiveThinkingEffort: LlmPrefs.ThinkingEffort
+            get() = when {
+                thinkingEffort != LlmPrefs.ThinkingEffort.Off -> thinkingEffort
+                enableThinking -> LlmPrefs.ThinkingEffort.High
+                else -> LlmPrefs.ThinkingEffort.Off
+            }
+    }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val requestTracker = RequestTracker()

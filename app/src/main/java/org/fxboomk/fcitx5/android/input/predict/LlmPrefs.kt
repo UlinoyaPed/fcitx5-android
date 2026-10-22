@@ -37,6 +37,7 @@ object LlmPrefs {
     const val KEY_MAX_PREDICTION_CANDIDATES = KEY_PREFIX + "max_prediction_candidates"
     const val KEY_MAX_CONTEXT_CHARS = KEY_PREFIX + "max_context_chars"
     const val KEY_PREDICTION_DISPLAY_MODE = KEY_PREFIX + "prediction_display_mode"
+    const val KEY_THINKING_EFFORT = KEY_PREFIX + "thinking_effort"
     const val KEY_PERSONA_PRESET = KEY_PREFIX + "persona_preset"
     const val KEY_CUSTOM_PERSONA = KEY_PREFIX + "custom_persona"
     const val KEY_CUSTOM_PERSONA_NAMES = KEY_PREFIX + "custom_persona_names"
@@ -65,6 +66,7 @@ object LlmPrefs {
         KEY_MAX_PREDICTION_CANDIDATES,
         KEY_MAX_CONTEXT_CHARS,
         KEY_PREDICTION_DISPLAY_MODE,
+        KEY_THINKING_EFFORT,
         KEY_PERSONA_PRESET,
         KEY_CUSTOM_PERSONA,
         KEY_CUSTOM_PERSONA_NAMES,
@@ -113,12 +115,54 @@ object LlmPrefs {
         val titleRes: Int,
     ) {
         FloatingWindow("floating_window", R.string.llm_prediction_display_mode_floating_window),
-        CandidateBar("candidate_bar", R.string.llm_prediction_display_mode_candidate_bar_overlay),
         CandidateExpanded("candidate_expanded", R.string.llm_prediction_display_mode_candidate_expanded);
 
         companion object {
+            private const val LEGACY_CANDIDATE_BAR = "candidate_bar"
+
             fun from(value: String?): PredictionDisplayMode =
-                entries.firstOrNull { it.value == value } ?: FloatingWindow
+                entries.firstOrNull { it.value == value }
+                    ?: if (value == LEGACY_CANDIDATE_BAR) {
+                        CandidateExpanded
+                    } else {
+                        FloatingWindow
+                    }
+        }
+    }
+
+    enum class ThinkingEffort(
+        val titleRes: Int,
+    ) {
+        Off(R.string.llm_thinking_effort_off),
+        Low(R.string.llm_thinking_effort_low),
+        Medium(R.string.llm_thinking_effort_medium),
+        High(R.string.llm_thinking_effort_high),
+        Max(R.string.llm_thinking_effort_max);
+
+        val isEnabled: Boolean
+            get() = this != Off
+
+        val budgetTokens: Int
+            get() = when (this) {
+                Off -> 0
+                Low -> 1024
+                Medium -> 2048
+                High -> 4096
+                Max -> 8192
+            }
+
+        val reasoningEffort: String
+            get() = when (this) {
+                Off -> "none"
+                Low -> "low"
+                Medium -> "medium"
+                High -> "high"
+                Max -> "high"
+            }
+
+        companion object {
+            fun from(index: Int?): ThinkingEffort =
+                entries.getOrElse(index ?: 0) { Off }
         }
     }
 
@@ -450,6 +494,7 @@ object LlmPrefs {
         val maxContextChars: Int,
         val preferLastCommit: Boolean,
         val predictionDisplayMode: PredictionDisplayMode = PredictionDisplayMode.FloatingWindow,
+        val thinkingEffort: ThinkingEffort = ThinkingEffort.Off,
         val personaPreset: PersonaPreset = PersonaPreset.Custom,
         val personaName: String = "",
         val customPersona: String = "",
@@ -532,6 +577,14 @@ object LlmPrefs {
             DEFAULT_MAX_CONTEXT_CHARS,
             8..512,
         )
+        val thinkingEffort = ThinkingEffort.from(
+            readBoundedIntPreference(
+                prefs,
+                KEY_THINKING_EFFORT,
+                ThinkingEffort.Off.ordinal,
+                0..ThinkingEffort.entries.lastIndex,
+            )
+        )
         val rawBaseUrl = overrides.baseUrl ?: prefs.getString(
             KEY_BASE_URL,
             providerDefaultBaseUrl(provider, prefs),
@@ -568,6 +621,7 @@ object LlmPrefs {
             predictionDisplayMode = PredictionDisplayMode.from(
                 prefs.getString(KEY_PREDICTION_DISPLAY_MODE, PredictionDisplayMode.FloatingWindow.value)
             ),
+            thinkingEffort = thinkingEffort,
             personaPreset = PersonaPreset.from(personaValue),
             personaName = currentPersonaName(prefs),
             customPersona = readPersonaDetail(
@@ -694,6 +748,20 @@ object LlmPrefs {
             DEFAULT_MAX_CONTEXT_CHARS,
             8..512,
         )
+        migrateIntPreference(
+            prefs,
+            KEY_THINKING_EFFORT,
+            ThinkingEffort.Off.ordinal,
+            0..ThinkingEffort.entries.lastIndex,
+        )
+        if (prefs.getString(KEY_PREDICTION_DISPLAY_MODE, null) == "candidate_bar") {
+            prefs.edit()
+                .putString(
+                    KEY_PREDICTION_DISPLAY_MODE,
+                    PredictionDisplayMode.CandidateExpanded.value,
+                )
+                .apply()
+        }
     }
 
     fun normalizeBaseUrl(raw: String): String {
@@ -883,6 +951,22 @@ object LlmPrefs {
         return PredictionDisplayMode.from(
             prefs.getString(KEY_PREDICTION_DISPLAY_MODE, PredictionDisplayMode.FloatingWindow.value)
         )
+    }
+
+    fun currentThinkingEffort(prefs: SharedPreferences): ThinkingEffort {
+        migrateLegacyPreferenceKeys(prefs)
+        return ThinkingEffort.from(
+            readBoundedIntPreference(
+                prefs,
+                KEY_THINKING_EFFORT,
+                ThinkingEffort.Off.ordinal,
+                0..ThinkingEffort.entries.lastIndex,
+            )
+        )
+    }
+
+    fun writeThinkingEffort(prefs: SharedPreferences, effort: ThinkingEffort) {
+        prefs.edit().putInt(KEY_THINKING_EFFORT, effort.ordinal).apply()
     }
 
     internal fun readRememberedUiMode(

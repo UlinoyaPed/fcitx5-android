@@ -32,7 +32,10 @@ import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsResponse
+import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.ListPopupWindow
+import android.widget.ListView
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceManager
@@ -1180,7 +1183,7 @@ class InputView(
         onDismissRequest = { aiSuggestionStrip.collapsePanel() }
         onCollapseClick = { aiSuggestionStrip.collapsePanel() }
         onQuestionAnswerClick = { aiSuggestionStrip.toggleQuestionAnswerMode() }
-        onThinkingClick = { aiSuggestionStrip.toggleThinkingMode() }
+        onPersonaClick = { anchor -> showAiPersonaPicker(anchor) }
         onTranslateClick = { aiSuggestionStrip.toggleTranslateMode() }
         onLongFormClick = { aiSuggestionStrip.toggleLongFormMode() }
         onSuggestionClick = { suggestion -> aiSuggestionStrip.commitSuggestionFromUi(suggestion) }
@@ -2882,8 +2885,8 @@ class InputView(
         listener?.invoke(latestAiSuggestionPresentationState)
     }
 
-    internal fun commitAiSuggestionFromUi(suggestion: String) {
-        aiSuggestionStrip.commitSuggestionFromUi(suggestion)
+    internal fun commitAiSuggestionFromUi(suggestion: String, fromExpandedArea: Boolean = false) {
+        aiSuggestionStrip.commitSuggestionFromUi(suggestion, fromExpandedArea)
         post {
             aiSuggestionStrip.collapsePanel()
             (windowManager.currentWindowOrNull() as? BaseExpandedCandidateWindow<*>)
@@ -2892,12 +2895,60 @@ class InputView(
         }
     }
 
+    internal fun commitPrimaryExpandedAiSuggestion(): Boolean {
+        if (!isAiSuggestionExpandedWindowVisible()) return false
+        val suggestion = aiSuggestionStrip.currentExpandedCommitText()
+        if (suggestion != null) {
+            commitAiSuggestionFromUi(suggestion, fromExpandedArea = true)
+        }
+        // Consume Return while the expanded area is interactive even before content arrives,
+        // so it never falls through to a newline commit that leaves the area blank.
+        return true
+    }
+
     internal fun commitCalculatorSuggestionFromUi(suggestion: String) {
         service.commitText(suggestion)
         horizontalCandidate.updateCalculatorSuggestion(null)
     }
 
-    internal fun toggleAiThinkingMode(): Boolean = aiSuggestionStrip.toggleThinkingMode()
+    internal fun showAiPersonaPicker(anchor: View) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(service.applicationContext)
+        val options = LlmPrefs.builtInPersonaOptions(themedContext) +
+            LlmPrefs.readCustomPersonaNames(prefs).map { name ->
+                LlmPrefs.PersonaOption(
+                    value = name,
+                    title = name,
+                    description = "",
+                )
+            }
+        if (options.isEmpty()) return
+        val currentValue = LlmPrefs.currentPersonaValue(prefs)
+        val popup = ListPopupWindow(themedContext).apply {
+            setAdapter(
+                ArrayAdapter(
+                    themedContext,
+                    android.R.layout.simple_list_item_single_choice,
+                    options.map { it.title },
+                )
+            )
+            anchorView = anchor
+            isModal = true
+            width = themedContext.dp(180)
+            setOnItemClickListener { _, _, position, _ ->
+                aiSuggestionStrip.selectPersona(options[position].value)
+                dismiss()
+            }
+        }
+        popup.show()
+        popup.listView?.apply {
+            choiceMode = ListView.CHOICE_MODE_SINGLE
+            val selected = options.indexOfFirst { it.value == currentValue }
+            if (selected >= 0) {
+                setItemChecked(selected, true)
+                smoothScrollToPosition(selected)
+            }
+        }
+    }
 
     internal fun toggleAiQuestionAnswerMode(): Boolean = aiSuggestionStrip.toggleQuestionAnswerMode()
 

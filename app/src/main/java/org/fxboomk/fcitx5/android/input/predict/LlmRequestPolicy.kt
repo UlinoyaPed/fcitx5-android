@@ -9,6 +9,8 @@ internal enum class RequestAugmentation {
     ThinkingDisabled,
     ThinkingEnabled,
     ReasoningEffortNone,
+    ReasoningEffortLow,
+    ReasoningEffortMedium,
     ReasoningEffortHigh,
 }
 
@@ -25,6 +27,8 @@ internal object LlmRequestPolicy {
         config: LlmPrefs.Config,
         endpoint: String,
         enableThinking: Boolean,
+        thinkingEffort: LlmPrefs.ThinkingEffort =
+            if (enableThinking) LlmPrefs.ThinkingEffort.High else LlmPrefs.ThinkingEffort.Off,
         isSuppressed: (baseProtocol: String, augmentation: RequestAugmentation) -> Boolean = { _, _ -> false },
     ): List<RequestVariant> {
         val baseProtocol = if (isAnthropicEndpoint(endpoint)) {
@@ -32,7 +36,7 @@ internal object LlmRequestPolicy {
         } else {
             "openai_chat_completions"
         }
-        val augmentation = preferredAugmentation(config, enableThinking)
+        val augmentation = preferredAugmentation(config, thinkingEffort)
         return buildList {
             if (augmentation != RequestAugmentation.None && !isSuppressed(baseProtocol, augmentation)) {
                 add(
@@ -45,6 +49,8 @@ internal object LlmRequestPolicy {
                             RequestAugmentation.ThinkingDisabled -> "${baseProtocol}_thinking_disabled"
                             RequestAugmentation.ThinkingEnabled -> "${baseProtocol}_thinking_enabled"
                             RequestAugmentation.ReasoningEffortNone -> "${baseProtocol}_reasoning_none"
+                            RequestAugmentation.ReasoningEffortLow -> "${baseProtocol}_reasoning_low"
+                            RequestAugmentation.ReasoningEffortMedium -> "${baseProtocol}_reasoning_medium"
                             RequestAugmentation.ReasoningEffortHigh -> "${baseProtocol}_reasoning_high"
                         },
                         augmentation = augmentation,
@@ -66,6 +72,7 @@ internal object LlmRequestPolicy {
         payload: JSONObject,
         augmentation: RequestAugmentation,
         thinkingBudgetTokens: Int? = null,
+        thinkingEffort: LlmPrefs.ThinkingEffort = LlmPrefs.ThinkingEffort.High,
     ): JSONObject {
         val result = JSONObject(payload.toString())
         when (augmentation) {
@@ -80,10 +87,11 @@ internal object LlmRequestPolicy {
                 ) {
                     result.put("thinking", JSONObject().put("type", "enabled"))
                     if (!result.has("reasoning_effort")) {
-                        result.put("reasoning_effort", "high")
+                        result.put("reasoning_effort", thinkingEffort.reasoningEffort)
                     }
                 } else {
-                    val budget = thinkingBudgetTokens ?: 1024
+                    val budget = thinkingBudgetTokens
+                        ?: thinkingEffort.budgetTokens.coerceAtLeast(1024)
                     result.put(
                         "thinking",
                         JSONObject()
@@ -93,6 +101,8 @@ internal object LlmRequestPolicy {
                 }
             }
             RequestAugmentation.ReasoningEffortNone -> result.put("reasoning_effort", "none")
+            RequestAugmentation.ReasoningEffortLow -> result.put("reasoning_effort", "low")
+            RequestAugmentation.ReasoningEffortMedium -> result.put("reasoning_effort", "medium")
             RequestAugmentation.ReasoningEffortHigh -> result.put("reasoning_effort", "high")
         }
         return result
@@ -113,9 +123,10 @@ internal object LlmRequestPolicy {
 
     private fun preferredAugmentation(
         config: LlmPrefs.Config,
-        enableThinking: Boolean,
-    ): RequestAugmentation =
-        if (config.compatApi == LlmPrefs.CompatApi.Anthropic) {
+        thinkingEffort: LlmPrefs.ThinkingEffort,
+    ): RequestAugmentation {
+        val enableThinking = thinkingEffort.isEnabled
+        return if (config.compatApi == LlmPrefs.CompatApi.Anthropic) {
             when (config.provider) {
                 LlmPrefs.Provider.Anthropic,
                 LlmPrefs.Provider.MiniMax,
@@ -136,10 +147,13 @@ internal object LlmRequestPolicy {
                 }
                 LlmPrefs.Provider.OpenAI,
                 LlmPrefs.Provider.Gemini,
-                -> if (enableThinking) {
-                    RequestAugmentation.ReasoningEffortHigh
-                } else {
-                    RequestAugmentation.ReasoningEffortNone
+                -> when (thinkingEffort) {
+                    LlmPrefs.ThinkingEffort.Off -> RequestAugmentation.ReasoningEffortNone
+                    LlmPrefs.ThinkingEffort.Low -> RequestAugmentation.ReasoningEffortLow
+                    LlmPrefs.ThinkingEffort.Medium -> RequestAugmentation.ReasoningEffortMedium
+                    LlmPrefs.ThinkingEffort.High,
+                    LlmPrefs.ThinkingEffort.Max,
+                    -> RequestAugmentation.ReasoningEffortHigh
                 }
 
                 LlmPrefs.Provider.DeepSeek,
@@ -153,4 +167,5 @@ internal object LlmRequestPolicy {
                 else -> RequestAugmentation.None
             }
         }
+    }
 }
