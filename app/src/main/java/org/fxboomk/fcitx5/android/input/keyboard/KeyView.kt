@@ -1786,79 +1786,89 @@ class AltTextKeyView(
         internal fun alignRemainingSpaceMainLabels(keys: List<AltTextKeyView>) {
             val eligible = keys.filter { key ->
                 key.visibility == View.VISIBLE &&
-                    (key.remainingSpaceTopLabels.isNotEmpty() || key.remainingSpaceBottomLabels.isNotEmpty()) &&
+                    key.altDef.character.length == 1 && key.altDef.character[0].isLetter() &&
                     key.mainText.width > 0 && key.mainText.height > 0
             }
-            // Keys with the same top/bottom occupancy share a baseline. Different
-            // remaining-space bands are centered independently.
-            eligible.groupBy { key ->
-                key.remainingSpaceTopLabels.isNotEmpty() to key.remainingSpaceBottomLabels.isNotEmpty()
-            }.values.forEach { band ->
-                val glyphs = band.mapNotNull { key ->
-                    val text = key.mainText.text.toString()
-                    val bounds = Rect()
-                    key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
-                    if (bounds.isEmpty) return@mapNotNull null
-                    val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
-                        .coerceAtLeast(0)
-                    Triple(key, bounds, min(1f, availableWidth.toFloat() / bounds.width()))
-                }
-                if (glyphs.isEmpty()) return@forEach
+            val placements = eligible.mapNotNull { key ->
+                val text = key.mainText.text.toString()
+                val bounds = Rect()
+                key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
+                if (bounds.isEmpty) return@mapNotNull null
 
-                val bandTop = if (glyphs.first().first.remainingSpaceTopLabels.isNotEmpty()) {
-                    glyphs.maxOf { (key) ->
-                        key.remainingSpaceTopLabels.maxOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedGlyphBounds().bottom
-                        }
+                val bandTop = if (key.remainingSpaceTopLabels.isNotEmpty()) {
+                    key.remainingSpaceTopLabels.maxOf { label ->
+                        label.top + label.renderedGlyphBounds().bottom
                     }
                 } else {
-                    glyphs.maxOf { (key) ->
-                        (key.top + key.appearanceView.top + key.vMargin).toFloat()
-                    }
+                    key.vMargin.toFloat()
                 }
-                val bandBottom = if (glyphs.first().first.remainingSpaceBottomLabels.isNotEmpty()) {
-                    glyphs.minOf { (key) ->
-                        key.remainingSpaceBottomLabels.minOf { label ->
-                            key.top + key.appearanceView.top + label.top + label.renderedGlyphBounds().top
-                        }
+                val bandBottom = if (key.remainingSpaceBottomLabels.isNotEmpty()) {
+                    key.remainingSpaceBottomLabels.minOf { label ->
+                        label.top + label.renderedGlyphBounds().top
                     }
                 } else {
-                    glyphs.minOf { (key) ->
-                        (key.top + key.appearanceView.top + key.appearanceView.height - key.vMargin).toFloat()
-                    }
+                    (key.appearanceView.height - key.vMargin).toFloat()
                 }
-                val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
-                val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
-                val xHeightTop = glyphs.minOf { (key, _, scale) -> key.mainLabelXHeight().top * scale }
-                val xHeightBottom = glyphs.maxOf { (key, _, scale) -> key.mainLabelXHeight().bottom * scale }
-                // 1px is absorbed by ink rasterization; the measured ink gap is dp(2)-1
-                val minGap = glyphs.maxOf { (key) -> key.dp(2) - 1 }
-                val firstKey = glyphs.first().first
-                val faceCenter =
-                    firstKey.top + firstKey.appearanceView.top + firstKey.appearanceView.height / 2f
-                // A single edge leaves a one-sided band; centring in it pushes the
-                // letter away from the key face. Centre the x-height instead and
-                // clamp only when the full ink would touch the sublabel.
-                val centerOnFace =
-                    firstKey.remainingSpaceTopLabels.isEmpty() != firstKey.remainingSpaceBottomLabels.isEmpty()
-                val geometry = computeMainLabelGeometry(
+                val xHeight = key.mainLabelXHeight()
+                val inputs = MainLabelBandGeometryInputs(
                     bandTop = bandTop,
                     bandBottom = bandBottom,
-                    faceCenter = faceCenter,
-                    inkTop = glyphTop,
-                    inkBottom = glyphBottom,
-                    xHeightTop = xHeightTop,
-                    xHeightBottom = xHeightBottom,
-                    minGap = minGap.toFloat(),
-                    centerOnFace = centerOnFace,
+                    faceCenter = key.appearanceView.height / 2f,
+                    inkTop = bounds.top.toFloat(),
+                    inkBottom = bounds.bottom.toFloat(),
+                    xHeightTop = xHeight.top.toFloat(),
+                    xHeightBottom = xHeight.bottom.toFloat(),
+                    minGap = (key.dp(2) - 1).toFloat(),
+                    centerOnFace = key.remainingSpaceTopLabels.isEmpty() ||
+                        key.remainingSpaceBottomLabels.isEmpty(),
                 )
-                glyphs.forEach { (key, _, widthScale) ->
-                    key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
-                        geometry.baseline - key.top - key.appearanceView.top - key.mainText.top,
-                        widthScale * geometry.scale
-                    )
-                }
+                val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
+                    .coerceAtLeast(0)
+                MainLabelPlacement(
+                    key = key,
+                    widthScale = min(1f, availableWidth.toFloat() / bounds.width()),
+                    inputs = inputs,
+                )
             }
+            val sharedScale = placements.minOfOrNull { it.inputs.geometry().scale } ?: return
+            placements.forEach { placement ->
+                val geometry = placement.inputs.geometry(scaleOverride = sharedScale)
+                placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
+                    geometry.baseline - placement.key.mainText.top,
+                    placement.widthScale * geometry.scale,
+                )
+            }
+        }
+
+        private data class MainLabelPlacement(
+            val key: AltTextKeyView,
+            val widthScale: Float,
+            val inputs: MainLabelBandGeometryInputs,
+        )
+
+        private data class MainLabelBandGeometryInputs(
+            val bandTop: Float,
+            val bandBottom: Float,
+            val faceCenter: Float,
+            val inkTop: Float,
+            val inkBottom: Float,
+            val xHeightTop: Float,
+            val xHeightBottom: Float,
+            val minGap: Float,
+            val centerOnFace: Boolean,
+        ) {
+            fun geometry(scaleOverride: Float? = null) = computeMainLabelGeometry(
+                bandTop = bandTop,
+                bandBottom = bandBottom,
+                faceCenter = faceCenter,
+                inkTop = inkTop,
+                inkBottom = inkBottom,
+                xHeightTop = xHeightTop,
+                xHeightBottom = xHeightBottom,
+                minGap = minGap,
+                centerOnFace = centerOnFace,
+                scaleOverride = scaleOverride,
+            )
         }
     }
 

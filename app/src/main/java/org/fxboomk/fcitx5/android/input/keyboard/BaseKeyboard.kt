@@ -178,9 +178,9 @@ abstract class BaseKeyboard(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (!::keyRows.isInitialized) return
-        keyRows.forEach { row ->
-            AltTextKeyView.alignRemainingSpaceMainLabels(row.children.filterIsInstance<AltTextKeyView>().toList())
-        }
+        AltTextKeyView.alignRemainingSpaceMainLabels(
+            keyRows.flatMap { row -> row.children.filterIsInstance<AltTextKeyView>() }
+        )
     }
 
     protected open fun reloadLayout() {
@@ -649,12 +649,12 @@ abstract class BaseKeyboard(
                 row.children.forEach { child ->
                     (child as? AltTextKeyView)?.refreshLayout()
                 }
-                // A stable-height global-layout callback runs after onLayout's
-                // row alignment. Restore it before drawing this frame, rather
-                // than leaving the labels at their per-view fallback baseline.
-                // Actual geometry changes are realigned again by onLayout.
-                AltTextKeyView.alignRemainingSpaceMainLabels(row.children.filterIsInstance<AltTextKeyView>().toList())
             }
+            // A stable-height global-layout callback runs after onLayout's
+            // alignment. Restore keyboard-wide letter scaling before drawing.
+            AltTextKeyView.alignRemainingSpaceMainLabels(
+                keyRows.flatMap { row -> row.children.filterIsInstance<AltTextKeyView>() }
+            )
         }
     }
 

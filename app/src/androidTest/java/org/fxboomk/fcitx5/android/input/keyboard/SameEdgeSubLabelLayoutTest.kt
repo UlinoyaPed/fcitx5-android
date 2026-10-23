@@ -285,6 +285,72 @@ class SameEdgeSubLabelLayoutTest {
     }
 
     @Test
+    fun mainLetterScaleDoesNotDependOnSecondLabelEdge() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        instrumentation.runOnMainSync {
+            val prefs = ThemeManager.prefs
+            val oldUppercase = prefs.uppercasePosition.getValue()
+            try {
+                prefs.uppercasePosition.setValue(UppercasePosition.Top)
+                fun create(
+                    primary: KeyDef.Appearance.AltTextPosition,
+                    secondary: KeyDef.Appearance.AltTextPosition?
+                ): AltTextKeyView {
+                    val appearance = KeyDef.Appearance.AltText(
+                        displayText = "g",
+                        character = "g",
+                        altText = "?",
+                        altText1 = secondary?.let { "!" },
+                        textSize = 24f,
+                    ).apply {
+                        altTextPositionOverride = primary
+                        altText1PositionOverride = secondary
+                    }
+                    return AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+                }
+
+                val withSecondCornerLabel = create(
+                    KeyDef.Appearance.AltTextPosition.Top,
+                    KeyDef.Appearance.AltTextPosition.TopRight
+                )
+                val withoutSecondLabel = create(
+                    KeyDef.Appearance.AltTextPosition.Top,
+                    null
+                )
+                val width = (48 * context.resources.displayMetrics.density).roundToInt()
+                val uppercaseOnly = create(
+                    KeyDef.Appearance.AltTextPosition.Top,
+                    null
+                ).also {
+                    it.altText.text = ""
+                    it.altText1.text = ""
+                }
+                val keys = listOf(withSecondCornerLabel, withoutSecondLabel, uppercaseOnly)
+                keys.forEachIndexed { index, key ->
+                    val heightDp = listOf(38, 52, 64)[index]
+                    val height = (heightDp * context.resources.displayMetrics.density).roundToInt()
+                    repeat(3) {
+                        key.refreshLayout()
+                        key.measure(
+                            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                        )
+                        key.layout(0, 0, width, height)
+                    }
+                }
+                AltTextKeyView.alignRemainingSpaceMainLabels(keys)
+                val scales = keys.map { requireNotNull(it.mainText.glyphPlacement).scale }
+                assertTrue("Main letter scale must be shared across key rows and label layouts", scales.distinct().size == 1)
+                val glyphHeights = keys.map { it.mainText.renderedGlyphBounds().height() }
+                assertTrue("Identical letters must render at the same height", glyphHeights.max() - glyphHeights.min() <= 1f)
+            } finally {
+                prefs.uppercasePosition.setValue(oldUppercase)
+            }
+        }
+    }
+
+    @Test
     fun independentSameEdgeLabelsKeepLegacyMainLabelPosition() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext

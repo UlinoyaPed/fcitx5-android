@@ -281,7 +281,9 @@ class AutoScaleTextView @JvmOverloads constructor(
             textScaleY = it.scale
         }
         baselineX = calculateBaselineX(paddingLeft, contentWidth, textLeft, textWidth, textScaleX)
-        baselineY = glyphPlacement?.baseline
+        // Keep shared row labels on the same rasterization grid. Fractional
+        // baselines make otherwise identical strokes look heavier on some rows.
+        baselineY = glyphPlacement?.baseline?.roundToInt()?.toFloat()
             ?: calculateBaselineY(
                 paddingTop,
                 contentHeight,
