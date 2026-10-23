@@ -82,7 +82,14 @@ class SameEdgeSubLabelLayoutTest {
                                         ).maxOrNull() ?: key.vMargin
                                         val above = main.top - subBottom
                                         val below = key.getChildAt(0).height - key.vMargin - main.bottom
-                                        assertEquals(case, above.toFloat(), below.toFloat(), 2f)
+                                        val faceCenter = key.getChildAt(0).height / 2f
+                                        val xCenter = xHeightCenter(key.mainText)
+                                        val centered = kotlin.math.abs(xCenter - faceCenter) <= 2f
+                                        val clamped = above <= dp(2) - 1 + 2 || below <= dp(2) - 1 + 2
+                                        assertTrue(
+                                            "$case: x-height centre=$xCenter face centre=$faceCenter gaps=$above/$below",
+                                            centered || clamped
+                                        )
                                         // The clearance to the bottom margin is reserved
                                         // by the layout itself.
                                         assertTrue(case, below >= dp(2) - 1)
@@ -150,7 +157,20 @@ class SameEdgeSubLabelLayoutTest {
                     val keyBottom = keys.minOf { it.getChildAt(0).height - it.vMargin }
                     val above = mainBounds.minOf { it.top } - subBottom
                     val below = keyBottom - mainBounds.maxOf { it.bottom }
-                    assertEquals("Shared row glyph band: $text / $font", above.toFloat(), below.toFloat(), 2f)
+                    val faceCenter = keys.first().getChildAt(0).height / 2f
+                    val xCenters = keys.map { xHeightCenter(it.mainText) }
+                    assertEquals(
+                        "Row x-height centre: $text / $font",
+                        faceCenter.toDouble(),
+                        xCenters.first().toDouble(),
+                        2.0
+                    )
+                    assertTrue("Row x-height centres must match: $text / $font",
+                        xCenters.max() - xCenters.min() <= 1f)
+                    assertTrue("Row glyphs must clear the top labels: $text / $font",
+                        above >= dp(2) - 1)
+                    assertTrue("Row glyphs must clear the bottom inset: $text / $font",
+                        below >= dp(2) - 1)
                     val baselines = keys.map { it.mainText.top + it.mainText.baseline }
                     assertTrue("Letters must share a baseline", baselines.max() - baselines.min() <= 1)
                 }
@@ -207,8 +227,14 @@ class SameEdgeSubLabelLayoutTest {
                             val main = inkBounds(key.mainText)
                             val gapAbove = main.top - subBottom
                             val gapBelow = key.getChildAt(0).height - key.vMargin - main.bottom
-                            assertEquals(case, gapAbove.toFloat(), gapBelow.toFloat(), 2f)
+                            assertEquals(
+                                "$case: x-height must stay on the key-face centre",
+                                (key.getChildAt(0).height / 2f).toDouble(),
+                                xHeightCenter(key.mainText).toDouble(),
+                                2.0
+                            )
                             assertTrue(case, gapAbove >= dp(2) - 1)
+                            assertTrue(case, gapBelow >= 0f)
 
                             appearance.altTextPositionOverride = null
                             appearance.altText1PositionOverride = null
@@ -253,6 +279,10 @@ class SameEdgeSubLabelLayoutTest {
 
     private fun inkBounds(view: AutoScaleTextView): Rect =
         requireNotNull(inkBoundsOrNull(view)) { "No visible ink for '${view.text}'" }
+
+    private fun xHeightCenter(view: AutoScaleTextView): Float {
+        return view.top + view.renderedXHeightCenter()
+    }
 
     @Test
     fun independentSameEdgeLabelsKeepLegacyMainLabelPosition() {

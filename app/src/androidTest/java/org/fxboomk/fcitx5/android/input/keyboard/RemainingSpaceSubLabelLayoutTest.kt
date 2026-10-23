@@ -374,7 +374,14 @@ class RemainingSpaceSubLabelLayoutTest {
 
     private enum class Edge { Top, Bottom }
     private data class Edges(val primary: Edge? = null, val secondary: Edge? = null, val uppercase: Edge? = null)
-    private data class Ink(val main: Rect, val top: Int, val bottom: Int)
+    private data class Ink(
+        val main: Rect,
+        val top: Int,
+        val bottom: Int,
+        val faceCenter: Float,
+        val xHeightCenter: Float,
+        val singleEdge: Boolean
+    )
     private data class Sample(
         val main: String, val font: Typeface, val scale: Float, val density: Int, val fontScale: Float,
         val primary: AltTextPosition, val secondary: AltTextPosition, val uppercase: Boolean = false,
@@ -439,7 +446,13 @@ class RemainingSpaceSubLabelLayoutTest {
         // 主字按 paint 字形界居中，实际绘制墨迹受字体回退与栅格化影响，
         // 高密度大字号下垂直漂移可达 ~1.5dp；平衡容差随密度缩放
         val tolerance = maxOf(2f, key.context.resources.displayMetrics.density * 1.5f)
-        assertGaps(label, readInk(label, key, edges), if (normalRow) dp(key.context, 2) - 1 else 0, tolerance)
+        assertGaps(
+            label,
+            readInk(label, key, edges),
+            if (normalRow) dp(key.context, 2) - 1 else 0,
+            tolerance,
+            normalRow
+        )
     }
 
     private fun readInk(label: String, key: AltTextKeyView, edges: Edges): Ink {
@@ -469,15 +482,40 @@ class RemainingSpaceSubLabelLayoutTest {
         val main = inkBounds(key.mainText)
         assertTrue("$label: invalid main scale ${key.mainText.textScaleX}",
             key.mainText.textScaleX.isFinite() && key.mainText.textScaleX > 0f)
-        return Ink(main, top, bottom)
+        val topCount = listOfNotNull(edges.primary, edges.secondary, edges.uppercase).count { it == Edge.Top }
+        val bottomCount = listOfNotNull(edges.primary, edges.secondary, edges.uppercase).count { it == Edge.Bottom }
+        return Ink(
+            main = main,
+            top = top,
+            bottom = bottom,
+            faceCenter = appearance.height / 2f,
+            xHeightCenter = xHeightCenter(key.mainText),
+            singleEdge = (topCount == 0) != (bottomCount == 0)
+        )
     }
 
-    private fun assertGaps(label: String, ink: Ink, minimum: Int, tolerance: Float = 2f) {
+    private fun assertGaps(
+        label: String,
+        ink: Ink,
+        minimum: Int,
+        tolerance: Float = 2f,
+        normalRow: Boolean = true
+    ) {
         val above = ink.main.top - ink.top
         val below = ink.bottom - ink.main.bottom
         val message = "$label: main=${ink.main}, band=[${ink.top}, ${ink.bottom}], gaps=$above/$below"
-        assertEquals(message, above.toFloat(), below.toFloat(), tolerance)
+        if (ink.singleEdge && normalRow) {
+            // One edge leaves a one-sided band. The main glyph is centred on the
+            // key face by its x-height instead of being pushed into that band.
+            assertEquals(message, ink.faceCenter.toDouble(), ink.xHeightCenter.toDouble(), tolerance.toDouble())
+        } else {
+            assertEquals(message, above.toFloat(), below.toFloat(), tolerance)
+        }
         assertTrue("$message, minimum=$minimum", above >= minimum && below >= minimum)
+    }
+
+    private fun xHeightCenter(view: AutoScaleTextView): Float {
+        return view.top + view.renderedXHeightCenter()
     }
 
     private fun inkBounds(view: AutoScaleTextView): Rect {

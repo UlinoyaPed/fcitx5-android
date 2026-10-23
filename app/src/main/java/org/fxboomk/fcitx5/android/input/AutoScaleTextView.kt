@@ -56,6 +56,15 @@ class AutoScaleTextView @JvmOverloads constructor(
             invalidate()
         }
 
+    /** Center the x-height of a single Latin lowercase label in its drawing box. */
+    internal var centerLowercaseXHeight = false
+        set(value) {
+            if (field == value) return
+            field = value
+            needsCalculateTransform = true
+            invalidate()
+        }
+
     /** Optional placement supplied after a keyboard row has measured all its labels. */
     internal data class GlyphPlacement(val baseline: Float, val scale: Float)
 
@@ -72,6 +81,7 @@ class AutoScaleTextView @JvmOverloads constructor(
     private var needsMeasureText = true
     private val fontMetrics = Paint.FontMetrics()
     private val textBounds = Rect()
+    private val lowercaseReferenceBounds = Rect()
 
     private var needsCalculateTransform = true
     private var baselineX = 0.0f
@@ -141,6 +151,14 @@ class AutoScaleTextView @JvmOverloads constructor(
             baselineX + ink.right * textScaleX + scrollX,
             baselineY + ink.bottom * textScaleY + scrollY
         )
+    }
+
+    /** Vertical centre of the x-height band in this view's coordinate space. */
+    internal fun renderedXHeightCenter(): Float {
+        calculateTransform(width, height)
+        paint.getTextBounds("x", 0, 1, lowercaseReferenceBounds)
+        return baselineY +
+            (lowercaseReferenceBounds.top + lowercaseReferenceBounds.bottom) * textScaleY / 2f
     }
 
     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
@@ -217,6 +235,13 @@ class AutoScaleTextView @JvmOverloads constructor(
         val textWidth: Float = textBounds.width().toFloat()
         val textTop = if (useGlyphBounds) textBounds.top.toFloat() else fontMetrics.top
         val textHeight = if (useGlyphBounds) textBounds.height().toFloat() else fontMetrics.bottom - fontMetrics.top
+        val centeredTextBounds = if (centerLowercaseXHeight && !useGlyphBounds &&
+            text.length == 1 && text[0] in 'a'..'z'
+        ) {
+            lowercaseReferenceBounds.also { paint.getTextBounds("x", 0, 1, it) }
+        } else {
+            null
+        }
 
         val widthScaleLimit = if (textWidth > 0f && contentWidth > 0) {
             contentWidth.toFloat() / textWidth
@@ -257,7 +282,13 @@ class AutoScaleTextView @JvmOverloads constructor(
         }
         baselineX = calculateBaselineX(paddingLeft, contentWidth, textLeft, textWidth, textScaleX)
         baselineY = glyphPlacement?.baseline
-            ?: calculateBaselineY(paddingTop, contentHeight, textTop, textHeight, textScaleY)
+            ?: calculateBaselineY(
+                paddingTop,
+                contentHeight,
+                centeredTextBounds?.top?.toFloat() ?: textTop,
+                centeredTextBounds?.height()?.toFloat() ?: textHeight,
+                textScaleY
+            )
     }
 
     private fun calculateBaselineX(

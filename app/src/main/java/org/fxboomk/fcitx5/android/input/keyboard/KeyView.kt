@@ -594,6 +594,7 @@ open class TextKeyView(
         text = def.displayText
         setTextSize(TypedValue.COMPLEX_UNIT_SP, baseMainTextSizeSp)
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
+        centerLowercaseXHeight = true
         // Set font key for batch setting in BaseKeyboard.reloadLayout()
         fontKey = "key_main_font"
         setTypeface(typeface, def.textStyle)
@@ -683,6 +684,7 @@ class AltTextKeyView(
     private var lastDirectionalLabelMask = -1
     private var remainingSpaceTopLabels = emptyList<AutoScaleTextView>()
     private var remainingSpaceBottomLabels = emptyList<AutoScaleTextView>()
+    private val xHeightBounds = Rect()
 
     /**
      * The base-class `def` is typed as the generic [KeyDef.Appearance];
@@ -1775,6 +1777,11 @@ class AltTextKeyView(
         alignRemainingSpaceMainLabels(listOf(this))
     }
 
+    private fun mainLabelXHeight(): Rect {
+        mainText.paint.getTextBounds("x", 0, 1, xHeightBounds)
+        return xHeightBounds
+    }
+
     companion object {
         internal fun alignRemainingSpaceMainLabels(keys: List<AltTextKeyView>) {
             val eligible = keys.filter { key ->
@@ -1822,22 +1829,33 @@ class AltTextKeyView(
                 }
                 val glyphTop = glyphs.minOf { (_, bounds, scale) -> bounds.top * scale }
                 val glyphBottom = glyphs.maxOf { (_, bounds, scale) -> bounds.bottom * scale }
+                val xHeightTop = glyphs.minOf { (key, _, scale) -> key.mainLabelXHeight().top * scale }
+                val xHeightBottom = glyphs.maxOf { (key, _, scale) -> key.mainLabelXHeight().bottom * scale }
                 // 1px is absorbed by ink rasterization; the measured ink gap is dp(2)-1
                 val minGap = glyphs.maxOf { (key) -> key.dp(2) - 1 }
-                // Prefer keeping the two-pixel breathing room, but on very short rows
-                // the band can be thinner than the reserved gaps; shrink the glyph to
-                // the raw band instead of scaling it out of sight. One pixel per edge
-                // is dropped to absorb rasterization rounding of the scaled ink.
-                val reserved = bandBottom - bandTop - minGap * 2
-                val availableHeight =
-                    if (reserved > 0f) reserved else (bandBottom - bandTop).coerceAtLeast(0f) - 2f
-                val heightScale = min(1f, availableHeight / (glyphBottom - glyphTop))
-                // Align actual ink, not font metrics, halfway through the free band.
-                val baseline = (bandTop + bandBottom - (glyphTop + glyphBottom) * heightScale) / 2f
+                val firstKey = glyphs.first().first
+                val faceCenter =
+                    firstKey.top + firstKey.appearanceView.top + firstKey.appearanceView.height / 2f
+                // A single edge leaves a one-sided band; centring in it pushes the
+                // letter away from the key face. Centre the x-height instead and
+                // clamp only when the full ink would touch the sublabel.
+                val centerOnFace =
+                    firstKey.remainingSpaceTopLabels.isEmpty() != firstKey.remainingSpaceBottomLabels.isEmpty()
+                val geometry = computeMainLabelGeometry(
+                    bandTop = bandTop,
+                    bandBottom = bandBottom,
+                    faceCenter = faceCenter,
+                    inkTop = glyphTop,
+                    inkBottom = glyphBottom,
+                    xHeightTop = xHeightTop,
+                    xHeightBottom = xHeightBottom,
+                    minGap = minGap.toFloat(),
+                    centerOnFace = centerOnFace,
+                )
                 glyphs.forEach { (key, _, widthScale) ->
                     key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
-                        baseline - key.top - key.appearanceView.top - key.mainText.top,
-                        widthScale * heightScale
+                        geometry.baseline - key.top - key.appearanceView.top - key.mainText.top,
+                        widthScale * geometry.scale
                     )
                 }
             }
