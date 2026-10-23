@@ -52,6 +52,34 @@ class TextKeyboardLayoutEditorActivityTest {
         assertEquals(originalFile, file.readText())
     }
 
+    @Test fun shuangpinParentIsOmittedFromLayoutSpinner() = withEditor { activity, _ ->
+        val data = manager(activity)
+        data.entries["shuangpin"] = data.copyLayout(data.entries.getValue("default"))
+        set(activity, "allImesFromJson", arrayOf(
+            InputMethodEntry("keyboard-us", "English", "", "", "", "en", "androidkeyboard", false),
+            InputMethodEntry("shuangpin-xiaohe", "小鹤双拼", "", "", "", "zh", "pinyin", false),
+            InputMethodEntry("shuangpin-ms", "微软双拼", "", "", "", "zh", "pinyin", false)
+        ))
+
+        invoke(activity, "buildSpinner")
+        val spinner = invoke(activity, "getLayoutSpinner") as android.widget.Spinner
+        val items = (0 until spinner.adapter.count).map { spinner.adapter.getItem(it).toString() }
+
+        assertEquals(listOf("English", "小鹤双拼", "微软双拼"), items)
+        assertFalse("双拼" in items)
+    }
+
+    @Test fun directShuangpinParentEditKeepsTargetWithoutShowingCategorySpinner() = withEditor { activity, _ ->
+        set(activity, "targetForceBase", true)
+        set(activity, "currentLayout", "shuangpin")
+
+        invoke(activity, "buildSpinner")
+
+        assertEquals("shuangpin", get(activity, "currentLayout"))
+        val spinnerContainer = invoke(activity, "getSpinnerContainer") as android.view.View
+        assertEquals(android.view.View.GONE, spinnerContainer.visibility)
+    }
+
     @Test fun menuRefreshDoesNotLoseLaterBaseOrSubmodeEdits() = withEditor { activity, file ->
         // Exercise both virtual bases and inherited non-Rime submodes through the same draft lifecycle.
         for ((base, submode) in listOf(
