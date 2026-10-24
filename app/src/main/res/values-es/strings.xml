@@ -820,6 +820,15 @@
     <string name="theme_category_animation">Efectos de animación</string>
     <string name="theme_category_theme_mode">Modo de tema</string>
     <string name="theme_category_other_style">Otros estilos</string>
+    <string name="theme_mode_summary_follow_system">Siguiendo el sistema · %1$d claro / %2$d oscuro</string>
+    <string name="theme_mode_summary_manual">Manual · %1$d claro / %2$d oscuro</string>
+    <string name="theme_key_style_summary">Borde %1$s · Onda %2$s · Radio %3$d dp</string>
+    <string name="theme_toolbar_style_summary">Borde %1$s · Altura dinámica %2$s · Altura %3$d dp</string>
+    <string name="theme_candidate_style_summary">%1$s · Radio de resaltado %2$d dp</string>
+    <string name="theme_candidate_style_summary_floating">%1$s · %2$s · Radio de resaltado %3$d dp</string>
+    <string name="theme_animation_summary_enabled">Animaciones activadas</string>
+    <string name="theme_animation_summary_disabled">Animaciones desactivadas</string>
+    <string name="theme_other_style_summary">Edición de texto %1$d dp · Portapapeles %2$d dp</string>
     <string name="toggle_day_night_theme">Cambio de tema</string>
     <string name="gboard_light_main_key_tone">Opacidad de las teclas principales</string>
     <string name="gboard_light_other_key_tone">Opacidad de las teclas secundarias</string>

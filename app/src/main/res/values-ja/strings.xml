@@ -820,6 +820,15 @@
     <string name="theme_category_animation">アニメーション効果</string>
     <string name="theme_category_theme_mode">テーマモード</string>
     <string name="theme_category_other_style">その他のスタイル</string>
+    <string name="theme_mode_summary_follow_system">システムに従う · ライト %1$d / ダーク %2$d</string>
+    <string name="theme_mode_summary_manual">手動 · ライト %1$d / ダーク %2$d</string>
+    <string name="theme_key_style_summary">枠線 %1$s · リップル %2$s · 角丸 %3$d dp</string>
+    <string name="theme_toolbar_style_summary">枠線 %1$s · 動的高さ %2$s · 高さ %3$d dp</string>
+    <string name="theme_candidate_style_summary">%1$s · ハイライト角丸 %2$d dp</string>
+    <string name="theme_candidate_style_summary_floating">%1$s · %2$s · ハイライト角丸 %3$d dp</string>
+    <string name="theme_animation_summary_enabled">アニメーション有効</string>
+    <string name="theme_animation_summary_disabled">アニメーション無効</string>
+    <string name="theme_other_style_summary">テキスト編集 %1$d dp · クリップボード %2$d dp</string>
     <string name="toggle_day_night_theme">テーマ切替</string>
     <string name="gboard_light_main_key_tone">メインキーの不透明度</string>
     <string name="gboard_light_other_key_tone">サブキーの不透明度</string>

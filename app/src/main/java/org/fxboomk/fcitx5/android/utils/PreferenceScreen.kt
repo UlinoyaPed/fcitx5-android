@@ -5,6 +5,8 @@
 package org.fxboomk.fcitx5.android.utils
 
 import android.content.Context
+import android.text.TextUtils
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.preference.Preference
@@ -90,6 +92,16 @@ class LongClickPreference(context: Context) : Preference(context) {
         holder.itemView.setOnLongClickListener {
             onLongClick?.invoke()
             true
+        }
+    }
+}
+
+class SingleLineSummaryPreference(context: Context) : Preference(context) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        holder.itemView.findViewById<TextView>(android.R.id.summary)?.apply {
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
         }
     }
 }

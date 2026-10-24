@@ -818,6 +818,15 @@
     <string name="theme_category_animation">Animationseffekte</string>
     <string name="theme_category_theme_mode">Themenmodus</string>
     <string name="theme_category_other_style">Weitere Stile</string>
+    <string name="theme_mode_summary_follow_system">System folgen · %1$d hell / %2$d dunkel</string>
+    <string name="theme_mode_summary_manual">Manuell · %1$d hell / %2$d dunkel</string>
+    <string name="theme_key_style_summary">Rahmen %1$s · Welleffekt %2$s · Radius %3$d dp</string>
+    <string name="theme_toolbar_style_summary">Rahmen %1$s · Dynamische Höhe %2$s · Höhe %3$d dp</string>
+    <string name="theme_candidate_style_summary">%1$s · Hervorhebungsradius %2$d dp</string>
+    <string name="theme_candidate_style_summary_floating">%1$s · %2$s · Hervorhebungsradius %3$d dp</string>
+    <string name="theme_animation_summary_enabled">Animationen aktiviert</string>
+    <string name="theme_animation_summary_disabled">Animationen deaktiviert</string>
+    <string name="theme_other_style_summary">Textbearbeitung %1$d dp · Zwischenablage %2$d dp</string>
     <string name="toggle_day_night_theme">Themenwechsel</string>
     <string name="gboard_light_main_key_tone">Deckkraft der Haupttasten</string>
     <string name="gboard_light_other_key_tone">Deckkraft der Nebentasten</string>

@@ -16,9 +16,11 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.utils.SingleLineSummaryPreference
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
 import org.fxboomk.fcitx5.android.utils.navigateWithAnim
+import org.fxboomk.fcitx5.android.utils.setup
 
 internal object KeyboardSettingsSupport {
 
@@ -134,10 +136,16 @@ internal object KeyboardSettingsSupport {
         fragment: ManagedPreferenceFragment,
         @StringRes title: Int,
         summary: String,
-        route: SettingsRoute
+        route: SettingsRoute,
+        key: String? = null
     ) {
-        addPreference(title, summary) {
-            fragment.navigateWithAnim(route)
-        }
+        addPreference(
+            SingleLineSummaryPreference(context).apply {
+                this.key = key
+                setup(context.getString(title), summary) {
+                    fragment.navigateWithAnim(route)
+                }
+            }
+        )
     }
 }
