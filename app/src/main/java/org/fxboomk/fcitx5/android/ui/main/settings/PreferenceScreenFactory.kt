@@ -63,7 +63,9 @@ object PreferenceScreenFactory {
         fragmentManager: FragmentManager,
         raw: RawConfig,
         save: () -> Unit,
-        layout: ConfigLayout? = null
+        layout: ConfigLayout? = null,
+        sectionIndex: Int? = null,
+        onSectionClick: ((Int) -> Unit)? = null
     ): PreferenceScreen {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
@@ -73,10 +75,40 @@ object PreferenceScreenFactory {
         // TODO: needs some error handling
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { throw it }
         screen.title = topLevelDesc.name
-        if (layout == null) {
+        if (layout?.focusedCustomName != null) {
+            val custom = topLevelDesc.values.firstOrNull { it.name == layout.focusedCustomName }
+            if (custom is ConfigCustom) {
+                val customConfig = cfg.findByName(custom.name) ?: return screen
+                val childLayout = layout.children[custom.name] ?: ConfigLayout()
+                renderCustomChildren(
+                    context,
+                    fragmentManager,
+                    customConfig,
+                    screen,
+                    custom,
+                    childLayout,
+                    FcitxRawConfigStore(customConfig, childLayout.booleanAliases()),
+                    save
+                )
+            }
+        } else if (layout == null) {
             topLevelDesc.values.forEach {
                 general(context, fragmentManager, cfg.findByName(it.name), screen, it, store, save)
             }
+        } else if (layout.sectionNavigation && sectionIndex == null && onSectionClick != null) {
+            renderSectionLinks(context, screen, topLevelDesc.values, layout, onSectionClick)
+        } else if (layout.sectionNavigation && sectionIndex != null) {
+            renderSelectedSection(
+                context,
+                fragmentManager,
+                cfg,
+                screen,
+                topLevelDesc.values,
+                layout,
+                sectionIndex,
+                store,
+                save
+            )
         } else {
             renderSections(
                 context,
@@ -90,6 +122,72 @@ object PreferenceScreenFactory {
             )
         }
         return screen
+    }
+
+    private fun renderSectionLinks(
+        context: Context,
+        screen: PreferenceScreen,
+        descriptors: List<ConfigDescriptor<*, *>>,
+        layout: ConfigLayout,
+        onSectionClick: (Int) -> Unit
+    ) {
+        val byName = descriptors.associateBy { it.name }
+        val used = layout.sections.flatMap { it.options }.toSet()
+        val groups = layout.sections.mapIndexed { index, section ->
+            index to section.options.mapNotNull(byName::get)
+        } + listOf(
+            layout.sections.size to descriptors.filter { it.name !in used }
+        )
+        groups.forEach { (index, group) ->
+            if (group.none(::isDescriptorVisible)) return@forEach
+            val title = layout.sectionTitle(context, index)
+                ?: layout.fallbackSectionTitle?.let(context::getString)
+                ?: return@forEach
+            Preference(context).apply {
+                key = "config_section_$index"
+                this.title = title
+                isSingleLineTitle = false
+                isIconSpaceReserved = false
+                setOnPreferenceClickListener {
+                    onSectionClick(index)
+                    true
+                }
+            }.also(screen::addPreference)
+        }
+    }
+
+    private fun renderSelectedSection(
+        context: Context,
+        fragmentManager: FragmentManager,
+        cfg: RawConfig,
+        screen: PreferenceScreen,
+        descriptors: List<ConfigDescriptor<*, *>>,
+        layout: ConfigLayout,
+        sectionIndex: Int,
+        store: PreferenceDataStore,
+        save: () -> Unit
+    ) {
+        val names = layout.sections.getOrNull(sectionIndex)?.options
+        val selected = if (names != null) {
+            names.mapNotNull { name ->
+                descriptors.firstOrNull { it.name == name }
+            }
+        } else {
+            val used = layout.sections.flatMap { it.options }.toSet()
+            descriptors.filter { it.name !in used }
+        }
+        selected.forEach { descriptor ->
+            general(
+                context,
+                fragmentManager,
+                cfg.findByName(descriptor.name),
+                screen,
+                descriptor,
+                store,
+                save,
+                layout
+            )
+        }
     }
 
     private fun ConfigLayout?.booleanAliases(): Map<String, Pair<String, String>> =
@@ -307,17 +405,18 @@ object PreferenceScreenFactory {
         }
 
         val titleText = layout?.titleOverride(context, descriptor.name) ?: displayTitle()
+        val summaryText = layout?.summaryOverride(context, descriptor.name) ?: descriptor.tooltip
 
         when (descriptor) {
             is ConfigBool -> MySwitchPreference(context).apply {
-                summary = descriptor.tooltip
+                summary = summaryText
                 setDefaultValue(descriptor.defaultValue)
             }
             is ConfigEnum -> {
                 val enumSwitch = layout?.enumSwitches?.get(descriptor.name)
                 if (enumSwitch != null) {
                     MySwitchPreference(context).apply {
-                        summary = descriptor.tooltip
+                        summary = summaryText
                         setDefaultValue(descriptor.defaultValue == enumSwitch.onValue)
                     }
                 } else {
@@ -437,19 +536,51 @@ object PreferenceScreenFactory {
         val subStore = FcitxRawConfigStore(cfg ?: RawConfig(), childLayout.booleanAliases())
         val customTitle = layout?.titleOverride(context, descriptor.name)
             ?: descriptor.description ?: descriptor.name
-        val subPref = CollapsiblePreferenceCategory(
-            context,
-            stateKey = "${rootTitle(parent)}:${descriptor.name}"
-        ).apply {
-            key = descriptor.name
-            setCollapsibleTitle(customTitle)
+        val subPref = if (childLayout?.collapsible == false) {
+            PreferenceCategory(context).apply {
+                key = descriptor.name
+                title = customTitle
+                isIconSpaceReserved = false
+                isSingleLineTitle = false
+            }
+        } else {
+            CollapsiblePreferenceCategory(
+                context,
+                stateKey = "${rootTitle(parent)}:${descriptor.name}",
+                initiallyCollapsed = childLayout?.initiallyCollapsed ?: false
+            ).apply {
+                key = descriptor.name
+                setCollapsibleTitle(customTitle)
+            }
         }
         parent.addPreference(subPref)
 
+        renderCustomChildren(
+            context,
+            fragmentManager,
+            cfg,
+            subPref,
+            descriptor,
+            childLayout ?: ConfigLayout(),
+            subStore,
+            save
+        )
+    }
+
+    private fun renderCustomChildren(
+        context: Context,
+        fragmentManager: FragmentManager,
+        cfg: RawConfig?,
+        parent: PreferenceGroup,
+        descriptor: ConfigCustom,
+        childLayout: ConfigLayout,
+        store: PreferenceDataStore,
+        save: () -> Unit
+    ) {
         val children = descriptor.customTypeDef?.values.orEmpty()
-        if (childLayout == null) {
+        if (childLayout.sections.isEmpty()) {
             children.forEach {
-                general(context, fragmentManager, cfg?.findByName(it.name), subPref, it, subStore, save)
+                general(context, fragmentManager, cfg?.findByName(it.name), parent, it, store, save, childLayout)
             }
             return
         }
@@ -457,31 +588,47 @@ object PreferenceScreenFactory {
         val remaining = LinkedHashMap<String, ConfigDescriptor<*, *>>()
         children.forEach { remaining[it.name] = it }
         for (section in childLayout.sections) {
+            val sectionParent: PreferenceGroup = when {
+                section.title == null -> parent
+                section.collapsible -> CollapsiblePreferenceCategory(
+                    context,
+                    stateKey = "${rootTitle(parent)}:${descriptor.name}:${section.title}",
+                    initiallyCollapsed = section.initiallyCollapsed
+                ).apply { setCollapsibleTitle(context.getString(section.title)) }
+                    .also(parent::addPreference)
+                else -> PreferenceCategory(context).apply {
+                    setTitle(section.title)
+                    isIconSpaceReserved = false
+                    isSingleLineTitle = false
+                }.also(parent::addPreference)
+            }
             for (name in section.options) {
                 val child = remaining.remove(name) ?: continue
                 general(
                     context,
                     fragmentManager,
                     cfg?.findByName(name),
-                    subPref,
+                    sectionParent,
                     child,
-                    subStore,
+                    store,
                     save,
                     childLayout
                 )
             }
         }
-        for (child in remaining.values) {
-            general(
-                context,
-                fragmentManager,
-                cfg?.findByName(child.name),
-                subPref,
-                child,
-                subStore,
-                save,
-                childLayout
-            )
+        if (childLayout.includeUnlistedOptions) {
+            for (child in remaining.values) {
+                general(
+                    context,
+                    fragmentManager,
+                    cfg?.findByName(child.name),
+                    parent,
+                    child,
+                    store,
+                    save,
+                    childLayout
+                )
+            }
         }
     }
 

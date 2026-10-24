@@ -21,6 +21,20 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
     override fun getConfigLayout(context: Context): ConfigLayout? =
         AddonConfigLayouts.get(context, args.uniqueName)
 
+    override fun getConfigSectionRoute(
+        context: Context,
+        sectionIndex: Int
+    ): SettingsRoute? = AddonConfigLayouts.get(context, args.uniqueName)
+        ?.sectionTitle(context, sectionIndex)
+        ?.let { sectionTitle ->
+            val layout = AddonConfigLayouts.get(context, args.uniqueName)!!
+            if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
+                SettingsRoute.FuzzyConfig(args.name, args.uniqueName, true, sectionTitle)
+            } else SettingsRoute.ConfigSection(
+                args.name, args.uniqueName, true, sectionIndex, sectionTitle
+            )
+        }
+
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
         fcitx.getAddonConfig(args.uniqueName)
 

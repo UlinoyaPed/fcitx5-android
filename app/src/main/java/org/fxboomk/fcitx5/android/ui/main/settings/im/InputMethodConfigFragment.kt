@@ -21,6 +21,19 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
     override fun getConfigLayout(context: Context): ConfigLayout? =
         AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
 
+    override fun getConfigSectionRoute(
+        context: Context,
+        sectionIndex: Int
+    ): SettingsRoute? = AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
+        ?.let { layout ->
+            val sectionTitle = layout.sectionTitle(context, sectionIndex) ?: return@let null
+            if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
+                SettingsRoute.FuzzyConfig(args.name, args.uniqueName, false, sectionTitle)
+            } else SettingsRoute.ConfigSection(
+                args.name, args.uniqueName, false, sectionIndex, sectionTitle
+            )
+        }
+
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
         return fcitx.getImConfig(args.uniqueName)
     }

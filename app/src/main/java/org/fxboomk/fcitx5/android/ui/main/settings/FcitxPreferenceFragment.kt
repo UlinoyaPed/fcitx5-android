@@ -25,6 +25,7 @@ import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.addPreference
+import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 
 abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
     abstract fun getPageTitle(): String
@@ -43,6 +44,12 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
      * Optional presentation layout for the generated preference screen.
      */
     protected open fun getConfigLayout(context: Context): ConfigLayout? = null
+
+    /** Optional section index when this page displays one config group. */
+    protected open fun getConfigSection(): Int? = null
+
+    /** Route used when a grouped config page opens one of its sections. */
+    protected open fun getConfigSectionRoute(context: Context, sectionIndex: Int): SettingsRoute? = null
 
     abstract suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig
     abstract suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig)
@@ -119,7 +126,14 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
                     preferenceFragmentManager,
                     raw,
                     ::save,
-                    getConfigLayout(context)
+                    getConfigLayout(context),
+                    getConfigSection(),
+                    { index ->
+                        getConfigSectionRoute(context, index)?.let { route ->
+                            preferenceFragmentManager.primaryNavigationFragment
+                                ?.navigateWithAnim(route)
+                        }
+                    }
                 ).apply {
                     if (isEmpty()) {
                         addPreference(R.string.no_config_options)

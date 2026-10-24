@@ -1040,7 +1040,9 @@
     <string name="pinyin_config_punctuation">標點</string>
     <string name="pinyin_config_script_conversion">簡繁轉換</string>
     <string name="pinyin_config_quickphrase_regex">快速輸入正則</string>
-    <string name="pinyin_config_fuzzy">模糊拼音</string>
+    <string name="pinyin_config_fuzzy">模糊音</string>
+    <string name="pinyin_config_fuzzy_settings">設定</string>
+    <string name="pinyin_config_fuzzy_mappings">音節映射</string>
     <string name="pinyin_config_cloud_enabled">雲拼音</string>
     <string name="pinyin_config_cloud_animation">雲載入動畫</string>
     <string name="pinyin_config_cloud_placeholder">保留雲佔位符</string>
@@ -1049,10 +1051,17 @@
     <string name="pinyin_config_fuzzy_common_typo">常見錯誤</string>
     <string name="pinyin_config_fuzzy_inner">音節內分割</string>
     <string name="pinyin_config_fuzzy_inner_short">短拼音分割</string>
-    <string name="pinyin_config_fuzzy_lowercase">小寫匹配</string>
+    <string name="pinyin_config_fuzzy_lowercase">小寫字母匹配</string>
     <string name="pinyin_config_fuzzy_partial_final">匹配不完整韻母</string>
     <string name="pinyin_config_fuzzy_partial_sp">部分雙拼匹配</string>
     <string name="pinyin_config_fuzzy_correction">鄰鍵糾錯</string>
+    <string name="pinyin_config_fuzzy_correction_summary">依照鍵盤配置修正鄰鍵誤觸造成的拼寫偏差。</string>
+    <string name="pinyin_config_fuzzy_common_typo_summary">嘗試匹配常見的拼音誤拼。</string>
+    <string name="pinyin_config_fuzzy_inner_summary">允許將一個拼音拆分為兩個音節，例如 xian → xi\'an。</string>
+    <string name="pinyin_config_fuzzy_inner_short_summary">允許較短拼音的音節內分割，例如 qie → qi\'e。</string>
+    <string name="pinyin_config_fuzzy_lowercase_summary">將單個小寫英文字母也納入拼音匹配。</string>
+    <string name="pinyin_config_fuzzy_partial_final_summary">僅輸入韻母開頭時也嘗試補全，例如 e 可匹配 en、eng、ei。</string>
+    <string name="pinyin_config_fuzzy_partial_sp_summary">輸入長度達到 4 個字元時，允許按部分雙拼編碼匹配。</string>
     <string name="pinyin_config_commit_preedit">提交預編輯</string>
     <!-- 附加元件顯示名稱 -->
     <string name="addon_unicode_name">字元集擴充</string>

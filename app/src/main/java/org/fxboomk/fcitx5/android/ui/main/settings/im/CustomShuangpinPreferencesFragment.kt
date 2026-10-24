@@ -13,6 +13,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
+import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 
 class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
     override val shouldUpdateToolbarTitle = false
@@ -28,6 +29,26 @@ class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
             context,
             CustomShuangpinSchemeStore.currentUniqueName()
         )
+
+    override fun getConfigSectionRoute(
+        context: Context,
+        sectionIndex: Int
+    ): SettingsRoute? {
+        val uniqueName = CustomShuangpinSchemeStore.currentUniqueName()
+        val layout = AddonConfigLayouts.getForInputMethod(context, uniqueName) ?: return null
+        val sectionTitle = layout.sectionTitle(context, sectionIndex) ?: return null
+        return if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
+            SettingsRoute.FuzzyConfig(
+                getString(R.string.custom_shuangpin_tab_preferences), uniqueName, false, sectionTitle
+            )
+        } else SettingsRoute.ConfigSection(
+            getString(R.string.custom_shuangpin_tab_preferences),
+            uniqueName,
+            false,
+            sectionIndex,
+            sectionTitle
+        )
+    }
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
         fcitx.getImConfig(CustomShuangpinSchemeStore.currentUniqueName())

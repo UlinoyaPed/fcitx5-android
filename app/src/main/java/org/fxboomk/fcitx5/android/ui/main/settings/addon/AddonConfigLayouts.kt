@@ -17,16 +17,17 @@ import java.util.Locale
  */
 object AddonConfigLayouts {
 
+    val FUZZY_MAPPING_OPTIONS = setOf(
+        "VE_UE", "IN_ING", "EN_ENG", "AN_ANG", "U_OU", "V_U",
+        "IAN_IANG", "UAN_UANG", "C_CH", "F_H", "L_N", "L_R", "S_SH", "Z_ZH"
+    )
+
     fun get(context: Context, uniqueName: String): ConfigLayout? = when (uniqueName) {
         "pinyin" -> PinyinConfigLayout.get(context)
         else -> null
     }
 
-    /**
-     * Pinyin layout for input-method configs that are backed by the pinyin
-     * engine. The engine exposes the same schema for the pinyin entry and all
-     * shuangpin entries, including user-defined scheme ids.
-     */
+    /** Layout for pinyin and shuangpin input-method configs. */
     fun getForInputMethod(context: Context, uniqueName: String): ConfigLayout? =
         if (uniqueName == "pinyin" ||
             uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
@@ -36,6 +37,35 @@ object AddonConfigLayouts {
         } else {
             null
         }
+
+    fun isFuzzySection(layout: ConfigLayout, index: Int): Boolean =
+        layout.sections.getOrNull(index)?.options?.contains("Fuzzy") == true
+
+    internal fun fuzzyMappingOptionOrder(): List<String> =
+        PinyinConfigLayout.fuzzyMappingOptionOrder()
+
+    fun getFuzzyTab(context: Context, uniqueName: String, mapping: Boolean): ConfigLayout? {
+        val base = getForInputMethod(context, uniqueName) ?: return null
+        return ConfigLayout(
+            focusedCustomName = "Fuzzy",
+            includeUnlistedOptions = false,
+            children = mapOf(
+                "Fuzzy" to ConfigLayout(
+                    includeUnlistedOptions = false,
+                    sections = listOf(
+                        ConfigLayout.Section(
+                            options = PinyinConfigLayout.fuzzyOptions(mapping)
+                        )
+                    ),
+                    titleOverrides = base.children["Fuzzy"]?.titleOverrides ?: emptyMap(),
+                    summaryOverrides = if (mapping) emptyMap() else {
+                        base.children["Fuzzy"]?.summaryOverrides ?: emptyMap()
+                    },
+                    enumSwitches = base.children["Fuzzy"]?.enumSwitches ?: emptyMap()
+                )
+            )
+        )
+    }
 }
 
 private object PinyinConfigLayout {
@@ -102,6 +132,10 @@ private object PinyinConfigLayout {
             )
         ),
         ConfigLayout.Section(
+            R.string.pinyin_config_fuzzy,
+            listOf("Fuzzy")
+        ),
+        ConfigLayout.Section(
             R.string.pinyin_config_section_lexicon,
             listOf(
                 "DictManager",
@@ -127,8 +161,6 @@ private object PinyinConfigLayout {
                 "CloudPinyin"
             )
         ),
-        // Fuzzy pinyin is a large collapsible block; keep it at the bottom.
-        ConfigLayout.Section(options = listOf("Fuzzy"))
     )
 
     private val titleOverrides = mapOf(
@@ -169,28 +201,58 @@ private object PinyinConfigLayout {
         "CloudPinyin" to R.string.pinyin_config_cloud_config
     )
 
-    private val fuzzyOrder = listOf(
+    private val fuzzySettingsOrder = listOf(
         "Correction",
         "NG_GN",
         "Inner",
         "InnerShort",
         "LowerCaseMatchLetter",
         "PartialSp",
-        "PartialFinal",
-        "VE_UE",
-        "IN_ING",
-        "EN_ENG",
-        "AN_ANG",
-        "U_OU",
-        "V_U",
-        "IAN_IANG",
-        "UAN_UANG",
-        "C_CH",
-        "F_H",
-        "L_N",
-        "L_R",
-        "S_SH",
-        "Z_ZH"
+        "PartialFinal"
+    )
+
+    /** Sort mapping rows by the combined syllable length, keeping c/s/z families together. */
+    private val fuzzyMappingSyllables = mapOf(
+        "VE_UE" to ("ue" to "ve"),
+        "IN_ING" to ("in" to "ing"),
+        "EN_ENG" to ("en" to "eng"),
+        "AN_ANG" to ("an" to "ang"),
+        "U_OU" to ("u" to "ou"),
+        "V_U" to ("u" to "v"),
+        "IAN_IANG" to ("ian" to "iang"),
+        "UAN_UANG" to ("uan" to "uang"),
+        "C_CH" to ("c" to "ch"),
+        "F_H" to ("f" to "h"),
+        "L_N" to ("l" to "n"),
+        "L_R" to ("l" to "r"),
+        "S_SH" to ("s" to "sh"),
+        "Z_ZH" to ("z" to "zh")
+    )
+
+    private val groupedFuzzyMappings = setOf("C_CH", "S_SH", "Z_ZH")
+
+    private val fuzzyMappingOrder = fuzzyMappingSyllables.entries
+        .sortedWith(
+            compareBy<Map.Entry<String, Pair<String, String>>>(
+                { it.value.first.length + it.value.second.length },
+                { if (it.key in groupedFuzzyMappings) 0 else 1 },
+                { it.value.first },
+                { it.value.second.length },
+                { it.value.second }
+            )
+        )
+        .map { it.key }
+
+    private val fuzzyOrder = fuzzySettingsOrder + fuzzyMappingOrder
+
+    private val fuzzySummaryOverrides = mapOf(
+        "Correction" to R.string.pinyin_config_fuzzy_correction_summary,
+        "NG_GN" to R.string.pinyin_config_fuzzy_common_typo_summary,
+        "Inner" to R.string.pinyin_config_fuzzy_inner_summary,
+        "InnerShort" to R.string.pinyin_config_fuzzy_inner_short_summary,
+        "LowerCaseMatchLetter" to R.string.pinyin_config_fuzzy_lowercase_summary,
+        "PartialFinal" to R.string.pinyin_config_fuzzy_partial_final_summary,
+        "PartialSp" to R.string.pinyin_config_fuzzy_partial_sp_summary
     )
 
     private val fuzzyTitleOverrides = mapOf(
@@ -203,10 +265,16 @@ private object PinyinConfigLayout {
         "Correction" to R.string.pinyin_config_fuzzy_correction
     )
 
+    fun fuzzyOptions(mapping: Boolean): List<String> =
+        if (mapping) fuzzyMappingOptionOrder() else fuzzySettingsOrder
+
+    fun fuzzyMappingOptionOrder(): List<String> = fuzzyMappingOrder
+
     fun get(context: Context): ConfigLayout {
         val shortTitles = useShortTitles(context)
         return ConfigLayout(
             sections = sections,
+            sectionNavigation = true,
             fallbackSectionTitle = R.string.pinyin_config_section_other,
             titleOverrides = if (shortTitles) titleOverrides else emptyMap(),
             entryTitleOverrides = if (shortTitles) {
@@ -220,8 +288,10 @@ private object PinyinConfigLayout {
             },
             children = mapOf(
                 "Fuzzy" to ConfigLayout(
+                    collapsible = false,
                     sections = listOf(ConfigLayout.Section(options = fuzzyOrder)),
                     titleOverrides = if (shortTitles) fuzzyTitleOverrides else emptyMap(),
+                    summaryOverrides = if (shortTitles) fuzzySummaryOverrides else emptyMap(),
                     enumSwitches = mapOf(
                         "Correction" to ConfigLayout.EnumSwitch(
                             onValue = "QWERTY",

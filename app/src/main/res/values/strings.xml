@@ -1185,7 +1185,9 @@
     <string name="pinyin_config_punctuation">Punctuation</string>
     <string name="pinyin_config_script_conversion">Script conversion</string>
     <string name="pinyin_config_quickphrase_regex">Quick phrase regex</string>
-    <string name="pinyin_config_fuzzy">Fuzzy pinyin</string>
+    <string name="pinyin_config_fuzzy">Fuzzy sounds</string>
+    <string name="pinyin_config_fuzzy_settings">Settings</string>
+    <string name="pinyin_config_fuzzy_mappings">Syllable mappings</string>
     <string name="pinyin_config_cloud_enabled">Cloud Pinyin</string>
     <string name="pinyin_config_cloud_animation">Cloud loading animation</string>
     <string name="pinyin_config_cloud_placeholder">Keep cloud placeholder</string>
@@ -1194,10 +1196,17 @@
     <string name="pinyin_config_fuzzy_common_typo">Common typos</string>
     <string name="pinyin_config_fuzzy_inner">Inner segment</string>
     <string name="pinyin_config_fuzzy_inner_short">Short inner segment</string>
-    <string name="pinyin_config_fuzzy_lowercase">Lowercase match</string>
+    <string name="pinyin_config_fuzzy_lowercase">Lowercase letter match</string>
     <string name="pinyin_config_fuzzy_partial_final">Match partial finals</string>
     <string name="pinyin_config_fuzzy_partial_sp">Partial shuangpin match</string>
     <string name="pinyin_config_fuzzy_correction">Neighbor-key correction</string>
+    <string name="pinyin_config_fuzzy_correction_summary">Correct nearby-key typos using the keyboard layout.</string>
+    <string name="pinyin_config_fuzzy_common_typo_summary">Try matching common pinyin misspellings.</string>
+    <string name="pinyin_config_fuzzy_inner_summary">Allow one pinyin syllable to split into two, such as xian → xi\'an.</string>
+    <string name="pinyin_config_fuzzy_inner_short_summary">Allow splits in shorter pinyin, such as qie → qi\'e.</string>
+    <string name="pinyin_config_fuzzy_lowercase_summary">Treat a single lowercase letter as a pinyin match.</string>
+    <string name="pinyin_config_fuzzy_partial_final_summary">Allow an initial final to match longer finals, e.g. e to en, eng, or ei.</string>
+    <string name="pinyin_config_fuzzy_partial_sp_summary">Allow partial Shuangpin matching when the input is at least 4 characters long.</string>
     <string name="pinyin_config_commit_preedit">Commit preedit</string>
     <!-- Addon display names -->
     <string name="addon_unicode_name">Character set extensions</string>

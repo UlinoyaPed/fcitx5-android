@@ -16,9 +16,21 @@ import androidx.annotation.StringRes
  */
 data class ConfigLayout(
     val sections: List<Section> = emptyList(),
+    /** Render sections as navigation entries on the root page. */
+    val sectionNavigation: Boolean = false,
+    /** Render only the children of this top-level custom option. */
+    val focusedCustomName: String? = null,
+    /** Keep custom options omitted from [sections] out of the generated page. */
+    val includeUnlistedOptions: Boolean = true,
+    /** Whether custom options using this layout should be collapsible. */
+    val collapsible: Boolean = true,
+    /** Initial collapsed state for custom options using this layout. */
+    val initiallyCollapsed: Boolean = false,
     @StringRes val fallbackSectionTitle: Int? = null,
     /** Overrides for option titles, keyed by fcitx option name. */
     val titleOverrides: Map<String, Int> = emptyMap(),
+    /** Overrides for option summaries, keyed by fcitx option name. */
+    val summaryOverrides: Map<String, Int> = emptyMap(),
     /**
      * Overrides for individual enum entries, keyed by fcitx option name and then
      * by the raw enum value.
@@ -34,7 +46,11 @@ data class ConfigLayout(
 ) {
     data class Section(
         @StringRes val title: Int? = null,
-        val options: List<String> = emptyList()
+        val options: List<String> = emptyList(),
+        /** Render this section as a collapsible preference group. */
+        val collapsible: Boolean = false,
+        /** Initial collapsed state when [collapsible] is true. */
+        val initiallyCollapsed: Boolean = false
     )
 
     /**
@@ -45,6 +61,12 @@ data class ConfigLayout(
     fun titleOverride(context: Context, option: String): String? =
         titleOverrides[option]?.let(context::getString)
 
+    fun summaryOverride(context: Context, option: String): String? =
+        summaryOverrides[option]?.let(context::getString)
+
     fun entryTitleOverride(context: Context, option: String, value: String): String? =
         entryTitleOverrides[option]?.get(value)?.let(context::getString)
+
+    fun sectionTitle(context: Context, index: Int): String? =
+        sections.getOrNull(index)?.title?.let(context::getString)
 }

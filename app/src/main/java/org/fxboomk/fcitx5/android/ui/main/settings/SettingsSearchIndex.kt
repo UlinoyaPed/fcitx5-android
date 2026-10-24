@@ -793,8 +793,52 @@ object SettingsSearchIndex {
         val desc = raw.findByName("desc") ?: return emptyList()
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { return emptyList() }
         val path = (listOf(pageTitle) + extraPath + listOf(topLevelDesc.name)).distinct()
-        return topLevelDesc.values.flatMap {
-            descriptorItems(context, route, path, it, tab, layout)
+        val groupedLayout = layout?.takeIf { it.sectionNavigation }
+        return topLevelDesc.values.flatMap { descriptor ->
+            val sectionIndex = groupedLayout?.sections?.indexOfFirst {
+                descriptor.name in it.options
+            }?.takeIf { it >= 0 } ?: groupedLayout?.sections?.size
+            val sectionTitle = sectionIndex?.let { index ->
+                groupedLayout?.sectionTitle(context, index)
+                    ?: groupedLayout?.fallbackSectionTitle?.let(context::getString)
+            }
+            val destination = if (sectionIndex != null && sectionTitle != null) {
+                if (groupedLayout != null && AddonConfigLayouts.isFuzzySection(groupedLayout, sectionIndex)) {
+                    SettingsRoute.FuzzyConfig(
+                        pageTitle = path.first(),
+                        uniqueName = when (route) {
+                            is SettingsRoute.AddonConfig -> route.uniqueName
+                            is SettingsRoute.InputMethodConfig -> route.uniqueName
+                            is SettingsRoute.CustomShuangpin -> CustomShuangpinSchemeStore.currentUniqueName()
+                            else -> ""
+                        },
+                        isAddon = route is SettingsRoute.AddonConfig,
+                        sectionTitle = sectionTitle
+                    )
+                } else SettingsRoute.ConfigSection(
+                    pageTitle = path.first(),
+                    uniqueName = when (route) {
+                        is SettingsRoute.AddonConfig -> route.uniqueName
+                        is SettingsRoute.InputMethodConfig -> route.uniqueName
+                        is SettingsRoute.CustomShuangpin ->
+                            CustomShuangpinSchemeStore.currentUniqueName()
+                        else -> ""
+                    },
+                    isAddon = route is SettingsRoute.AddonConfig,
+                    sectionIndex = sectionIndex,
+                    sectionTitle = sectionTitle
+                )
+            } else {
+                route
+            }
+            descriptorItems(
+                context,
+                destination,
+                if (sectionTitle != null) path + sectionTitle else path,
+                descriptor,
+                tab,
+                groupedLayout?.children?.get(descriptor.name) ?: layout
+            )
         }
     }
 
@@ -814,7 +858,10 @@ object SettingsSearchIndex {
                 ?: descriptor.description ?: descriptor.name
             val childLayout = layout?.children?.get(descriptor.name)
             descriptor.customTypeDef?.values.orEmpty().flatMap {
-                descriptorItems(context, route, path + section, it, tab, childLayout)
+                val fuzzyTab = if (descriptor.name == "Fuzzy") {
+                    if (it.name in AddonConfigLayouts.FUZZY_MAPPING_OPTIONS) 1 else 0
+                } else tab
+                descriptorItems(context, route, path + section, it, fuzzyTab, childLayout)
             }
         } else {
             listOf(
