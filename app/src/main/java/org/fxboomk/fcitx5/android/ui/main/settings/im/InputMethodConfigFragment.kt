@@ -4,16 +4,22 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.im
 
+import android.content.Context
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
+import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
 import org.fxboomk.fcitx5.android.utils.lazyRoute
 
 class InputMethodConfigFragment : FcitxPreferenceFragment() {
     val args by lazyRoute<SettingsRoute.InputMethodConfig>()
 
     override fun getPageTitle(): String = args.name
+
+    override fun getConfigLayout(context: Context): ConfigLayout? =
+        AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
         return fcitx.getImConfig(args.uniqueName)

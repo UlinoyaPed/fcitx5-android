@@ -7,6 +7,7 @@ package org.fxboomk.fcitx5.android.ui.main.settings.addon
 import android.content.Context
 import android.os.Build
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import java.util.Locale
 
@@ -20,6 +21,21 @@ object AddonConfigLayouts {
         "pinyin" -> PinyinConfigLayout.get(context)
         else -> null
     }
+
+    /**
+     * Pinyin layout for input-method configs that are backed by the pinyin
+     * engine. The engine exposes the same schema for the pinyin entry and all
+     * shuangpin entries, including user-defined scheme ids.
+     */
+    fun getForInputMethod(context: Context, uniqueName: String): ConfigLayout? =
+        if (uniqueName == "pinyin" ||
+            uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
+            ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName)
+        ) {
+            PinyinConfigLayout.get(context)
+        } else {
+            null
+        }
 }
 
 private object PinyinConfigLayout {

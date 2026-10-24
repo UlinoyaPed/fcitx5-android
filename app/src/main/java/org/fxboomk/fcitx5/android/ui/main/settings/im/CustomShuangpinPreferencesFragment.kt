@@ -4,12 +4,15 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.im
 
+import android.content.Context
 import androidx.fragment.app.FragmentManager
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
+import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
 
 class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
     override val shouldUpdateToolbarTitle = false
@@ -19,6 +22,12 @@ class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
 
     override fun getPageTitle(): String =
         getString(R.string.custom_shuangpin_tab_preferences)
+
+    override fun getConfigLayout(context: Context): ConfigLayout? =
+        AddonConfigLayouts.getForInputMethod(
+            context,
+            CustomShuangpinSchemeStore.currentUniqueName()
+        )
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
         fcitx.getImConfig(CustomShuangpinSchemeStore.currentUniqueName())

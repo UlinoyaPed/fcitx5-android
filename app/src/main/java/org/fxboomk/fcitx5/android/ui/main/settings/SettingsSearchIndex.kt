@@ -352,6 +352,10 @@ object SettingsSearchIndex {
                             tab = CustomShuangpinFragment.TAB_PREFERENCES,
                             extraPath = listOf(
                                 context.getString(R.string.custom_shuangpin_tab_preferences)
+                            ),
+                            layout = AddonConfigLayouts.getForInputMethod(
+                                context,
+                                ime.uniqueName
                             )
                         )
                     )
@@ -362,7 +366,11 @@ object SettingsSearchIndex {
                         context,
                         ime.displayName,
                         SettingsRoute.InputMethodConfig(ime.displayName, ime.uniqueName),
-                        fcitx.getImConfig(ime.uniqueName)
+                        fcitx.getImConfig(ime.uniqueName),
+                        layout = AddonConfigLayouts.getForInputMethod(
+                            context,
+                            ime.uniqueName
+                        )
                     )
                 )
             }
