@@ -1,0 +1,50 @@
+/*
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
+ */
+package org.fxboomk.fcitx5.android.ui.main.settings.theme
+
+import androidx.preference.Preference
+import androidx.preference.PreferenceScreen
+import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
+import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.utils.addPreference
+import org.fxboomk.fcitx5.android.utils.navigateWithAnim
+
+class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
+
+    companion object {
+        private const val THEME_ENTRY_KEY = "theme_list_entry"
+    }
+
+    override fun onPreferenceUiCreated(screen: PreferenceScreen) {
+        screen.removeAll()
+        val ctx = requireContext()
+        screen.addPreference(
+            Preference(ctx).apply {
+                key = THEME_ENTRY_KEY
+                setTitle(R.string.theme)
+                setSummary(ThemeManager.activeTheme.name)
+                isIconSpaceReserved = false
+                isSingleLineTitle = false
+                setOnPreferenceClickListener {
+                    navigateWithAnim(SettingsRoute.ThemeList)
+                    true
+                }
+            }
+        )
+        screen.addPreference(
+            R.string.configure,
+            getString(R.string.theme_config_summary)
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeConfig)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        findPreference<Preference>(THEME_ENTRY_KEY)?.summary = ThemeManager.activeTheme.name
+    }
+}

@@ -6,4 +6,5 @@
     <item name="button_layout_switch" type="id" />
     <item name="button_symbol_layout_switch" type="id" />
     <item name="settings_search_view" type="id" />
+    <item name="theme_list_container" type="id" />
 </resources>

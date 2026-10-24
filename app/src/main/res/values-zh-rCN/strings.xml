@@ -151,6 +151,12 @@
     <string name="theme_preview_previous">上一个主题</string>
     <string name="theme_preview_next">下一个主题</string>
     <string name="theme_preview_in_use">当前使用</string>
+    <string name="theme_config_summary">按键、工具栏、候选词、动画与主题模式</string>
+    <string name="theme_category_key_style">按键样式</string>
+    <string name="theme_category_toolbar_style">工具栏样式</string>
+    <string name="theme_category_candidate_style">候选词样式</string>
+    <string name="theme_category_animation">动画特效</string>
+    <string name="theme_category_theme_mode">主题模式</string>
     <string name="toggle_day_night_theme">主题切换</string>
     <string name="key_ripple_effect">启用按键水波纹特效</string>
     <string name="key_border">启用按键边框</string>

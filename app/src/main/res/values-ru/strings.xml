@@ -814,6 +814,12 @@
     <string name="clipboard_entry_file">Файл</string>
     <string name="clipboard_entry_file_named">Файл · %1$s</string>
     <string name="theme_appearance">Внешний вид темы</string>
+    <string name="theme_config_summary">Клавиши, панель инструментов, кандидаты, анимация и режим темы</string>
+    <string name="theme_category_key_style">Стиль клавиш</string>
+    <string name="theme_category_toolbar_style">Стиль панели инструментов</string>
+    <string name="theme_category_candidate_style">Стиль кандидатов</string>
+    <string name="theme_category_animation">Эффекты анимации</string>
+    <string name="theme_category_theme_mode">Режим темы</string>
     <string name="toggle_day_night_theme">Переключение темы</string>
     <string name="gboard_light_main_key_tone">Непрозрачность основных клавиш</string>
     <string name="gboard_light_other_key_tone">Непрозрачность дополнительных клавиш</string>

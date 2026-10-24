@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         }
         navController.addOnDestinationChangedListener { _, dest, _ ->
             dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
-            if (dest.hasRoute<SettingsRoute.Theme>()) {
+            if (dest.hasRoute<SettingsRoute.ThemeList>()) {
                 viewModel.disableToolbarShadow()
             } else {
                 viewModel.enableToolbarShadow()

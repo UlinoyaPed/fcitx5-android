@@ -41,7 +41,9 @@ import org.fxboomk.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodListFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsFragment
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
 import org.fxboomk.fcitx5.android.utils.parcelable
@@ -79,6 +81,12 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object Theme : SettingsRoute()
+
+    @Serializable
+    data object ThemeList : SettingsRoute()
+
+    @Serializable
+    data object ThemeConfig : SettingsRoute()
 
     @Serializable
     data object VirtualKeyboard : SettingsRoute()
@@ -250,8 +258,14 @@ sealed class SettingsRoute : Parcelable {
 
             /* ========== Android ========== */
 
-            fragment<ThemeFragment, Theme> {
+            fragment<ThemeAppearanceFragment, Theme> {
                 label = ctx.getString(R.string.theme_appearance)
+            }
+            fragment<ThemeFragment, ThemeList> {
+                label = ctx.getString(R.string.theme)
+            }
+            fragment<ThemeSettingsFragment, ThemeConfig> {
+                label = ctx.getString(R.string.configure)
             }
             fragment<KeyboardSettingsHomeFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)

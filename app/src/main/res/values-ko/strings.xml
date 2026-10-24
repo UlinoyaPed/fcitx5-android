@@ -812,6 +812,12 @@
     <string name="clipboard_entry_file">파일</string>
     <string name="clipboard_entry_file_named">파일 · %1$s</string>
     <string name="theme_appearance">테마 모양</string>
+    <string name="theme_config_summary">키, 도구 모음, 후보 단어, 애니메이션 및 테마 모드</string>
+    <string name="theme_category_key_style">키 스타일</string>
+    <string name="theme_category_toolbar_style">도구 모음 스타일</string>
+    <string name="theme_category_candidate_style">후보 단어 스타일</string>
+    <string name="theme_category_animation">애니메이션 효과</string>
+    <string name="theme_category_theme_mode">테마 모드</string>
     <string name="toggle_day_night_theme">테마 전환</string>
     <string name="gboard_light_main_key_tone">주요 키 영역 불투명도</string>
     <string name="gboard_light_other_key_tone">보조 키 영역 불투명도</string>

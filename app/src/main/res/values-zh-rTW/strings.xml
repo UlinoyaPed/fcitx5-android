@@ -133,6 +133,12 @@
     <string name="theme_preview_previous">上一個主題</string>
     <string name="theme_preview_next">下一個主題</string>
     <string name="theme_preview_in_use">目前使用中</string>
+    <string name="theme_config_summary">按鍵、工具列、候選詞、動畫與主題模式</string>
+    <string name="theme_category_key_style">按鍵樣式</string>
+    <string name="theme_category_toolbar_style">工具列樣式</string>
+    <string name="theme_category_candidate_style">候選詞樣式</string>
+    <string name="theme_category_animation">動畫特效</string>
+    <string name="theme_category_theme_mode">主題模式</string>
     <string name="key_ripple_effect">啟用按鍵水波紋特效</string>
     <string name="key_border">啟用按鍵邊框</string>
     <string name="brightness">亮度</string>

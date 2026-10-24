@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,17 +23,11 @@ import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.alpha
 import org.fxboomk.fcitx5.android.utils.isDarkMode
 import splitties.dimensions.dp
@@ -51,14 +46,12 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalLayout
 import splitties.views.dsl.core.imageView
 import splitties.views.dsl.core.lParams
-import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.wrapContent
 import splitties.views.imageResource
 import splitties.views.setPaddingDp
 
 class ThemeFragment : Fragment() {
-    private val viewModel: MainViewModel by activityViewModels()
 
     companion object {
         // Visual scale applied to the keyboard preview.
@@ -66,10 +59,6 @@ class ThemeFragment : Fragment() {
     }
 
     private lateinit var previewUi: KeyboardPreviewUi
-
-    private lateinit var tabLayout: TabLayout
-
-    private lateinit var viewPager: ViewPager2
 
     private lateinit var prevThemeButton: ImageView
     private lateinit var nextThemeButton: ImageView
@@ -239,33 +228,6 @@ class ThemeFragment : Fragment() {
             })
         }
 
-        tabLayout = TabLayout(this)
-
-        viewPager = ViewPager2(this).apply {
-            adapter = object : FragmentStateAdapter(this@ThemeFragment) {
-                override fun getItemCount() = 2
-                override fun createFragment(position: Int): Fragment = when (position) {
-                    0 -> ThemeListFragment()
-                    else -> ThemeSettingsFragment()
-                }
-            }
-        }
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = getString(
-                when (position) {
-                    0 -> R.string.theme
-                    else -> R.string.configure
-                }
-            )
-        }.attach()
-
-        val pendingPreferenceKey = viewModel.peekPendingPreferenceScrollKey()
-        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key }
-        if (pendingPreferenceKey in themePreferenceKeys) {
-            viewPager.setCurrentItem(1, false)
-        }
-
         // The preview renders at PREVIEW_SCALE from its top edge (pivotY = 0),
         // so its layout bounds extend past the visible bitmap by (1 - scale) of
         // the height at the bottom. Pull the footer up to sit right under the
@@ -314,28 +276,37 @@ class ThemeFragment : Fragment() {
                 below(preview)
                 centerHorizontally()
             })
-            add(tabLayout, lParams(matchParent, wrapContent) {
-                below(carouselFooter, dp(4))
-            })
             backgroundColor = styledColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
 
         refreshPreview()
 
-        constraintLayout {
+        val themeListContainer = FrameLayout(this).apply {
+            id = R.id.theme_list_container
+        }
+
+        val root = constraintLayout {
             add(previewWrapper, lParams(height = wrapContent) {
                 topOfParent()
                 startOfParent()
                 endOfParent()
             })
-            add(viewPager, lParams {
+            add(themeListContainer, lParams {
                 below(previewWrapper)
                 startOfParent()
                 endOfParent()
                 bottomOfParent()
             })
         }
+
+        if (childFragmentManager.findFragmentById(R.id.theme_list_container) == null) {
+            childFragmentManager.beginTransaction()
+                .replace(R.id.theme_list_container, ThemeListFragment())
+                .commit()
+        }
+
+        root
     }
 
     override fun onStart() {

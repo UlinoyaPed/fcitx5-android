@@ -23,6 +23,7 @@ import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.Const
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
@@ -316,7 +317,7 @@ object SettingsSearchIndex {
                     includeHorizontalCandidateSettings = includeHorizontalCandidateSettings
                 )
             )
-            addAll(managedItems(context, ThemeManager.prefs, SettingsRoute.Theme, R.string.theme_appearance))
+            addAll(themeItems(context))
             val candidateItems = managedItems(
                 context,
                 prefs.candidates,
@@ -341,7 +342,10 @@ object SettingsSearchIndex {
                 }
             )
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
-            addAll(managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced))
+            addAll(
+                managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced)
+                    .filterNot { it.preferenceKey in ThemeSettingsSupport.advancedMovedKeys }
+            )
             addAll(advancedExtraItems(context))
             addAll(llmItems(context))
             addAll(toolbarMenuItems(context))
@@ -438,6 +442,83 @@ object SettingsSearchIndex {
     ) {
         val label = context.getString(title)
         add(SettingsSearchResult(label, listOf(label), route))
+    }
+
+    private fun themeItems(context: Context): List<SettingsSearchResult> = buildList {
+        val pageTitle = context.getString(R.string.theme_appearance)
+        val configureTitle = context.getString(R.string.configure)
+        val configurePath = listOf(pageTitle, configureTitle)
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.theme),
+                path = listOf(pageTitle),
+                route = SettingsRoute.ThemeList,
+                summary = ThemeManager.activeTheme.name
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = configureTitle,
+                path = listOf(pageTitle),
+                route = SettingsRoute.ThemeConfig,
+                summary = context.getString(R.string.theme_config_summary)
+            )
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeConfig,
+            configurePath,
+            R.string.theme_category_key_style,
+            ThemeSettingsSupport.keyStyleKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeConfig,
+            configurePath,
+            R.string.theme_category_toolbar_style,
+            ThemeSettingsSupport.toolbarStyleKeys
+        )
+        addThemeSection(
+            context,
+            AppPrefs.getInstance().advanced,
+            SettingsRoute.ThemeConfig,
+            configurePath,
+            R.string.theme_category_candidate_style,
+            ThemeSettingsSupport.candidateStyleKeys
+        )
+        addThemeSection(
+            context,
+            AppPrefs.getInstance().advanced,
+            SettingsRoute.ThemeConfig,
+            configurePath,
+            R.string.theme_category_animation,
+            ThemeSettingsSupport.animationKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeConfig,
+            configurePath,
+            R.string.theme_category_theme_mode,
+            ThemeSettingsSupport.themeModeKeys
+        )
+    }
+
+    private fun MutableList<SettingsSearchResult>.addThemeSection(
+        context: Context,
+        provider: ManagedPreferenceProvider,
+        route: SettingsRoute,
+        basePath: List<String>,
+        @StringRes sectionTitle: Int,
+        keys: List<String>
+    ) {
+        val uiByKey = provider.managedPreferencesUi.associateBy { it.key }
+        val path = basePath + context.getString(sectionTitle)
+        keys.mapNotNull(uiByKey::get).forEach { ui ->
+            add(ui.toSearchResult(context, route, path))
+        }
     }
 
     private fun keyboardItems(
