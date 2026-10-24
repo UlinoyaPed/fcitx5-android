@@ -76,11 +76,21 @@ internal object KeyboardSettingsSupport {
         "split_keyboard_use_landscape_layout"
     )
 
-    val horizontalCandidateKeys = listOf(
+    val horizontalCandidateKeysBeforeAppearance = listOf(
         "preedit_style",
         "horizontal_candidate_style",
-        "expanded_candidate_style",
+        "expanded_candidate_style"
+    )
+
+    val horizontalCandidateKeysAfterAppearance = listOf(
         "expanded_candidate_grid_span_count_portrait"
+    )
+
+    val horizontalCandidateKeys =
+        horizontalCandidateKeysBeforeAppearance + horizontalCandidateKeysAfterAppearance
+
+    val horizontalCandidateAppearanceKeys = listOf(
+        "candidate_highlight_radius"
     )
 
     val candidateWindowKeys = listOf(
@@ -89,6 +99,10 @@ internal object KeyboardSettingsSupport {
         "candidates_window_padding",
         "candidates_window_radius",
         "candidates_window_min_width"
+    )
+
+    val candidateItemKeys = listOf(
+        "candidates_item_padding_vertical"
     )
 
     fun ManagedPreferenceFragment.addManagedPreference(

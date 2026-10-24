@@ -337,8 +337,9 @@
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - Размер шрифта</string>
     <string name="font_size_editor_hint">Перетащите для изменения размера шрифта (%1$d–%2$d sp)</string>
-    <string name="candidates_padding">Отступы элементов-кандидатов (плавающее окно)</string>
-    <string name="candidate_highlight_radius">Радиус скругления выделения кандидата</string>
+    <string name="candidates_padding">Отступы элементов-кандидатов</string>
+    <string name="candidates_items">Элементы кандидатов</string>
+    <string name="candidate_highlight_radius">Радиус скругления фона выделения кандидата</string>
     <string name="candidates_window_min_width">Минимальная ширина окна кандидата</string>
     <string name="candidates_window_padding">Поле окна кандидата</string>
     <string name="restart_fcitx_instance">Перезапустить экземпляр fcitx</string>

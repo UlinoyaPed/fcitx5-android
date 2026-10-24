@@ -554,8 +554,9 @@
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
-    <string name="candidates_padding">候補項目の余白（フローティングウィンドウ）</string>
-    <string name="candidate_highlight_radius">候補のハイライト角半径</string>
+    <string name="candidates_padding">候補項目の余白</string>
+    <string name="candidates_items">候補項目</string>
+    <string name="candidate_highlight_radius">候補ハイライト背景の角丸半径</string>
     <string name="candidates_window_min_width">候補ウィンドウの最小幅</string>
     <string name="candidates_window_padding">候補ウィンドウのパディング</string>
     <string name="restart_fcitx_instance">Fcitx インスタンスを再起動</string>

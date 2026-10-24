@@ -717,8 +717,9 @@
     <string name="top_right">Top Right</string>
     <string name="bottom_left">Bottom Left</string>
     <string name="bottom_right">Bottom Right</string>
-    <string name="candidates_padding">Candidate item padding (floating window)</string>
-    <string name="candidate_highlight_radius">Candidate highlight radius</string>
+    <string name="candidates_padding">Candidate item padding</string>
+    <string name="candidates_items">Candidate items</string>
+    <string name="candidate_highlight_radius">Candidate highlight background radius</string>
     <string name="candidates_window_min_width">Candidate window minimum width</string>
     <string name="candidates_window_padding">Candidate window padding</string>
     <string name="restart_fcitx_instance">Restart fcitx instance</string>

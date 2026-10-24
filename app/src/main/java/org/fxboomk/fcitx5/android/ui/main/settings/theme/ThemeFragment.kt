@@ -32,7 +32,6 @@ import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.alpha
 import org.fxboomk.fcitx5.android.utils.isDarkMode
@@ -262,8 +261,7 @@ class ThemeFragment : Fragment() {
         }.attach()
 
         val pendingPreferenceKey = viewModel.peekPendingPreferenceScrollKey()
-        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key } +
-            ThemePrefs.CandidateAppearancePreferenceKeys
+        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key }
         if (pendingPreferenceKey in themePreferenceKeys) {
             viewPager.setCurrentItem(1, false)
         }

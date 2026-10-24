@@ -354,7 +354,8 @@
     <string name="top_right">오른쪽 상단</string>
     <string name="bottom_left">왼쪽 하단</string>
     <string name="bottom_right">오른쪽 하단</string>
-    <string name="candidates_padding">후보 항목 여백 (플로팅 창)</string>
+    <string name="candidates_padding">후보 항목 여백</string>
+    <string name="candidates_items">후보 항목</string>
     <string name="candidates_window_min_width">후보 창 최소 너비</string>
     <string name="candidates_window_padding">후보 창 패딩</string>
     <string name="restart_fcitx_instance">Fcitx 인스턴스 재시작</string>
@@ -501,7 +502,7 @@
     <string name="button_up_haptic_feedback">키를 뗄 때 햅틱 피드백</string>
     <string name="button_vibration_amplitude">키 진동 강도</string>
     <string name="button_vibration_milliseconds">키 진동 시간</string>
-    <string name="candidate_highlight_radius">후보 강조 모서리 반경</string>
+    <string name="candidate_highlight_radius">후보 강조 배경 모서리 반경</string>
     <string name="candidates_window">후보 창</string>
     <string name="candidate_display_mode">후보 표시 방식</string>
     <string name="candidate_display_mode_horizontal">가로 후보 표시줄</string>

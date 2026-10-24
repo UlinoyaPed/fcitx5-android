@@ -366,7 +366,8 @@
     <string name="top_right">Arriba derecha</string>
     <string name="bottom_left">Abajo izquierda</string>
     <string name="bottom_right">Abajo derecha</string>
-    <string name="candidates_padding">Relleno de elementos candidatos (ventana flotante)</string>
+    <string name="candidates_padding">Relleno de elementos candidatos</string>
+    <string name="candidates_items">Elementos candidatos</string>
     <string name="candidates_window_min_width">Ancho mínimo de ventana de candidatos</string>
     <string name="candidates_window_padding">Relleno de ventana de candidatos</string>
     <string name="restart_fcitx_instance">Reiniciar instancia de fcitx</string>
@@ -518,7 +519,7 @@
     <string name="build_git_hash">Hash Git de compilacion</string>
     <string name="build_time">Hora de compilacion</string>
     <string name="button_up_haptic_feedback">Respuesta haptica al soltar tecla</string>
-    <string name="candidate_highlight_radius">Radio de resaltado del candidato</string>
+    <string name="candidate_highlight_radius">Radio del fondo resaltado del candidato</string>
     <string name="candidates_window">Ventana de candidatos</string>
     <string name="candidate_display_mode">Modo de visualización de candidatos</string>
     <string name="candidate_display_mode_horizontal">Barra horizontal de candidatos</string>

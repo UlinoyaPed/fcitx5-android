@@ -92,6 +92,7 @@ class KeyboardLayoutAndSplitSettingsFragment : KeyboardSectionFragment() {
 class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
     private var horizontalCategory: PreferenceCategory? = null
     private var candidateWindowCategory: PreferenceCategory? = null
+    private var candidateItemCategory: PreferenceCategory? = null
 
     private val onCandidateDisplayModeChangeListener =
         ManagedPreferenceProvider.OnChangeListener { key ->
@@ -109,13 +110,25 @@ class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
             )
             screen.addCategory(R.string.candidate_display_mode_horizontal) {
                 horizontalCategory = this
-                horizontalCandidateKeys.forEach { key ->
+                horizontalCandidateKeysBeforeAppearance.forEach { key ->
+                    addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
+                }
+                horizontalCandidateAppearanceKeys.forEach { key ->
+                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
+                }
+                horizontalCandidateKeysAfterAppearance.forEach { key ->
                     addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
                 }
             }
             screen.addCategory(R.string.candidates_window) {
                 candidateWindowCategory = this
                 candidateWindowKeys.forEach { key ->
+                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
+                }
+            }
+            screen.addCategory(R.string.candidates_items) {
+                candidateItemCategory = this
+                candidateItemKeys.forEach { key ->
                     addManagedPreference(this, AppPrefs.getInstance().candidates, key)
                 }
             }
@@ -131,15 +144,18 @@ class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
             FloatingCandidatesMode.InputDevice -> {
                 horizontalCategory?.isVisible = true
                 candidateWindowCategory?.isVisible = false
+                candidateItemCategory?.isVisible = false
             }
             FloatingCandidatesMode.Always -> {
                 horizontalCategory?.isVisible = false
                 candidateWindowCategory?.isVisible = true
+                candidateItemCategory?.isVisible = true
             }
             FloatingCandidatesMode.SystemDefault,
             FloatingCandidatesMode.Disabled -> {
                 horizontalCategory?.isVisible = false
                 candidateWindowCategory?.isVisible = false
+                candidateItemCategory?.isVisible = false
             }
         }
     }

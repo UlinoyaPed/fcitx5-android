@@ -23,6 +23,10 @@ class KeyboardCandidateSettingsOrganizationTest {
             KeyboardSettingsSupport.horizontalCandidateKeys
         )
         assertEquals(
+            listOf("candidate_highlight_radius"),
+            KeyboardSettingsSupport.horizontalCandidateAppearanceKeys
+        )
+        assertEquals(
             listOf(
                 "candidates_window_orientation",
                 "virtual_keyboard_candidates_position",
@@ -31,6 +35,26 @@ class KeyboardCandidateSettingsOrganizationTest {
                 "candidates_window_min_width"
             ),
             KeyboardSettingsSupport.candidateWindowKeys
+        )
+        assertEquals(
+            listOf("candidates_item_padding_vertical"),
+            KeyboardSettingsSupport.candidateItemKeys
+        )
+    }
+
+    @Test
+    fun candidateHighlightRadiusIsOrderedBeforeGridSpanCount() {
+        assertEquals(
+            listOf(
+                "preedit_style",
+                "horizontal_candidate_style",
+                "expanded_candidate_style",
+                "candidate_highlight_radius",
+                "expanded_candidate_grid_span_count_portrait"
+            ),
+            KeyboardSettingsSupport.horizontalCandidateKeysBeforeAppearance +
+                KeyboardSettingsSupport.horizontalCandidateAppearanceKeys +
+                KeyboardSettingsSupport.horizontalCandidateKeysAfterAppearance
         )
     }
 
