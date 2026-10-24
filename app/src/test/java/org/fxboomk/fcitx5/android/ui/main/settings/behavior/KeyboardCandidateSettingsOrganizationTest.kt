@@ -16,7 +16,6 @@ class KeyboardCandidateSettingsOrganizationTest {
     fun candidateAppearanceSettingsMovedToThemeAppearance() {
         assertEquals(
             listOf(
-                "preedit_style",
                 "horizontal_candidate_style",
                 "expanded_candidate_style",
                 "candidate_highlight_radius",
@@ -99,5 +98,15 @@ class KeyboardCandidateSettingsOrganizationTest {
             "preferred_voice_input",
             KeyboardSettingsSupport.basicBehaviorKeys.last()
         )
+    }
+
+    @Test
+    fun compositionAreaStyleLivesInOtherStyles() {
+        assertEquals(
+            listOf("preedit_style"),
+            ThemeSettingsSupport.otherStyleKeyboardKeys
+        )
+        assertTrue("preedit_style" in ThemeSettingsSupport.otherStyleKeys)
+        assertFalse("preedit_style" in ThemeSettingsSupport.candidateHorizontalKeys)
     }
 }

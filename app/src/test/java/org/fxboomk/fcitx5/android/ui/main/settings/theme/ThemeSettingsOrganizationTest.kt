@@ -18,7 +18,6 @@ class ThemeSettingsOrganizationTest {
             listOf(
                 "key_border",
                 "key_border_stroke",
-                "key_ripple_effect",
                 "gboard_style_side_keys",
                 "key_radius",
                 "key_horizontal_margin",
@@ -44,7 +43,6 @@ class ThemeSettingsOrganizationTest {
             listOf(
                 "key_border",
                 "key_border_stroke",
-                "key_ripple_effect",
                 "gboard_style_side_keys",
                 "keep_keyboard_letters_uppercase",
                 "show_lang_switch_key",
@@ -95,6 +93,18 @@ class ThemeSettingsOrganizationTest {
                 "text_editing_button_radius",
                 "clipboard_entry_radius"
             ),
+            ThemeSettingsSupport.otherStyleThemeKeys
+        )
+        assertEquals(
+            listOf("preedit_style"),
+            ThemeSettingsSupport.otherStyleKeyboardKeys
+        )
+        assertEquals(
+            listOf(
+                "text_editing_button_radius",
+                "clipboard_entry_radius",
+                "preedit_style"
+            ),
             ThemeSettingsSupport.otherStyleKeys
         )
         assertEquals(
@@ -113,7 +123,7 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.themeModeKeys
         )
         assertEquals(
-            listOf("disable_animation"),
+            listOf("key_ripple_effect", "disable_animation"),
             ThemeSettingsSupport.animationKeys
         )
     }
@@ -122,7 +132,6 @@ class ThemeSettingsOrganizationTest {
     fun candidateAppearanceKeepsItsDisplayModeOrder() {
         assertEquals(
             listOf(
-                "preedit_style",
                 "horizontal_candidate_style",
                 "expanded_candidate_style",
                 "candidate_highlight_radius",
@@ -172,7 +181,8 @@ class ThemeSettingsOrganizationTest {
         val themeKeys = ThemeSettingsSupport.keyStyleThemeKeys +
             ThemeSettingsSupport.toolbarStyleThemeKeys +
             ThemeSettingsSupport.themeModeKeys +
-            ThemeSettingsSupport.otherStyleKeys
+            ThemeSettingsSupport.animationThemeKeys +
+            ThemeSettingsSupport.otherStyleThemeKeys
         assertEquals(
             setOf(
                 "key_border",

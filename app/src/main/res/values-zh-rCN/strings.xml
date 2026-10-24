@@ -159,13 +159,12 @@
     <string name="theme_category_other_style">其他样式</string>
     <string name="theme_mode_summary_follow_system">跟随系统 · 亮色 %1$d / 暗色 %2$d</string>
     <string name="theme_mode_summary_manual">手动 · 亮色 %1$d / 暗色 %2$d</string>
-    <string name="theme_key_style_summary">边框 %1$s · 水波纹 %2$s · 圆角 %3$d dp</string>
+    <string name="theme_key_style_summary">边框 %1$s · 圆角 %2$d dp</string>
     <string name="theme_toolbar_style_summary">边框 %1$s · 动态高度 %2$s · 高度 %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · 高亮圆角 %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · 高亮圆角 %3$d dp</string>
-    <string name="theme_animation_summary_enabled">动画已启用</string>
-    <string name="theme_animation_summary_disabled">动画已禁用</string>
-    <string name="theme_other_style_summary">文本编辑 %1$d dp · 剪贴板 %2$d dp</string>
+    <string name="theme_animation_summary">水波纹 %1$s · 动画 %2$s</string>
+    <string name="theme_other_style_summary">编码区 %1$s · 文本编辑 %2$d dp · 剪贴板 %3$d dp</string>
     <string name="toggle_day_night_theme">主题切换</string>
     <string name="key_ripple_effect">启用按键水波纹特效</string>
     <string name="key_border">启用按键边框</string>

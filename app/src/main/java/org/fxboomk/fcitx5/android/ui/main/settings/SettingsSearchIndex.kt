@@ -549,11 +549,19 @@ object SettingsSearchIndex {
         }
         addThemeSection(
             context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeAnimation,
+            pagePath,
+            R.string.theme_category_animation,
+            ThemeSettingsSupport.animationThemeKeys
+        )
+        addThemeSection(
+            context,
             prefs.advanced,
             SettingsRoute.ThemeAnimation,
             pagePath,
             R.string.theme_category_animation,
-            ThemeSettingsSupport.animationKeys
+            ThemeSettingsSupport.animationAdvancedKeys
         )
         addThemeSection(
             context,
@@ -561,7 +569,15 @@ object SettingsSearchIndex {
             SettingsRoute.ThemeOtherStyle,
             pagePath,
             R.string.theme_category_other_style,
-            ThemeSettingsSupport.otherStyleKeys
+            ThemeSettingsSupport.otherStyleThemeKeys
+        )
+        addThemeSection(
+            context,
+            prefs.keyboard,
+            SettingsRoute.ThemeOtherStyle,
+            pagePath,
+            R.string.theme_category_other_style,
+            ThemeSettingsSupport.otherStyleKeyboardKeys
         )
     }
 

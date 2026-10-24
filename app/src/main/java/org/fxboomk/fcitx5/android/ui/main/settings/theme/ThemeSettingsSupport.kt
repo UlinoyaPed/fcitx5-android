@@ -14,7 +14,6 @@ internal object ThemeSettingsSupport {
     val keyStyleThemeSwitchKeys = listOf(
         "key_border",
         "key_border_stroke",
-        "key_ripple_effect",
         "gboard_style_side_keys"
     )
 
@@ -75,10 +74,16 @@ internal object ThemeSettingsSupport {
 
     val toolbarStyleKeys = toolbarStyleSwitchKeys + toolbarStyleNonSwitchKeys
 
-    val otherStyleKeys = listOf(
+    val otherStyleThemeKeys = listOf(
         "text_editing_button_radius",
         "clipboard_entry_radius"
     )
+
+    val otherStyleKeyboardKeys = listOf(
+        "preedit_style"
+    )
+
+    val otherStyleKeys = otherStyleThemeKeys + otherStyleKeyboardKeys
 
     val candidateEmojiKeys = listOf(
         "hide_unsupported_emojis",
@@ -86,7 +91,6 @@ internal object ThemeSettingsSupport {
     )
 
     val candidateHorizontalKeysBeforeAppearance = listOf(
-        "preedit_style",
         "horizontal_candidate_style",
         "expanded_candidate_style"
     )
@@ -120,9 +124,15 @@ internal object ThemeSettingsSupport {
         candidateWindowKeys +
         candidateItemKeys
 
-    val animationKeys = listOf(
+    val animationThemeKeys = listOf(
+        "key_ripple_effect"
+    )
+
+    val animationAdvancedKeys = listOf(
         "disable_animation"
     )
+
+    val animationKeys = animationThemeKeys + animationAdvancedKeys
 
     val themeModeKeys = listOf(
         "follow_system_dark_mode",
@@ -137,7 +147,7 @@ internal object ThemeSettingsSupport {
      * Preferences that keep living in [org.fxboomk.fcitx5.android.data.prefs.AppPrefs.Advanced]
      * but are presented by the appearance pages.
      */
-    val advancedMovedKeys = candidateEmojiKeys + animationKeys
+    val advancedMovedKeys = candidateEmojiKeys + animationAdvancedKeys
 
     fun ManagedPreferenceFragment.addThemePreferences(
         parent: PreferenceGroup,

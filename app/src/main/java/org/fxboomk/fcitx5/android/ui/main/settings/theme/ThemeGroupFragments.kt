@@ -174,12 +174,17 @@ class ThemeCandidateStyleFragment : ThemeGroupFragment(AppPrefs.getInstance().ca
     }
 }
 
-class ThemeAnimationFragment : ThemeGroupFragment(AppPrefs.getInstance().advanced) {
+class ThemeAnimationFragment : ThemeGroupFragment(ThemeManager.prefs) {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         addThemePreferences(
             screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.animationThemeKeys
+        )
+        addThemePreferences(
+            screen,
             AppPrefs.getInstance().advanced,
-            ThemeSettingsSupport.animationKeys
+            ThemeSettingsSupport.animationAdvancedKeys
         )
     }
 }
@@ -201,6 +206,15 @@ class ThemeModeFragment : ThemeGroupFragment(ThemeManager.prefs) {
 
 class ThemeOtherStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.otherStyleKeys)
+        addThemePreferences(
+            screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.otherStyleThemeKeys
+        )
+        addThemePreferences(
+            screen,
+            AppPrefs.getInstance().keyboard,
+            ThemeSettingsSupport.otherStyleKeyboardKeys
+        )
     }
 }

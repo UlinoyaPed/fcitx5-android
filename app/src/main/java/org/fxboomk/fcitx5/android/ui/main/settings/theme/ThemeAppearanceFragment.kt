@@ -164,7 +164,6 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         return ctx.getString(
             R.string.theme_key_style_summary,
             enabledLabel(ctx, prefs.keyBorder.getValue()),
-            enabledLabel(ctx, prefs.keyRippleEffect.getValue()),
             prefs.keyRadius.getValue()
         )
     }
@@ -206,19 +205,17 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         }
     }
 
-    private fun buildAnimationSummary(ctx: Context): String {
-        val summaryRes = if (AppPrefs.getInstance().advanced.disableAnimation.getValue()) {
-            R.string.theme_animation_summary_disabled
-        } else {
-            R.string.theme_animation_summary_enabled
-        }
-        return ctx.getString(summaryRes)
-    }
+    private fun buildAnimationSummary(ctx: Context): String = ctx.getString(
+        R.string.theme_animation_summary,
+        enabledLabel(ctx, ThemeManager.prefs.keyRippleEffect.getValue()),
+        enabledLabel(ctx, !AppPrefs.getInstance().advanced.disableAnimation.getValue())
+    )
 
     private fun buildOtherStyleSummary(ctx: Context): String {
         val prefs = ThemeManager.prefs
         return ctx.getString(
             R.string.theme_other_style_summary,
+            ctx.getString(AppPrefs.getInstance().keyboard.compositionAreaStyle.getValue().stringRes),
             prefs.textEditingButtonRadius.getValue(),
             prefs.clipboardEntryRadius.getValue()
         )

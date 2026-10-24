@@ -820,13 +820,12 @@
     <string name="theme_category_other_style">기타 스타일</string>
     <string name="theme_mode_summary_follow_system">시스템 따름 · 라이트 %1$d / 다크 %2$d</string>
     <string name="theme_mode_summary_manual">수동 · 라이트 %1$d / 다크 %2$d</string>
-    <string name="theme_key_style_summary">테두리 %1$s · 물결 효과 %2$s · 반경 %3$d dp</string>
+    <string name="theme_key_style_summary">테두리 %1$s · 반경 %2$d dp</string>
     <string name="theme_toolbar_style_summary">테두리 %1$s · 동적 높이 %2$s · 높이 %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · 강조 반경 %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · 강조 반경 %3$d dp</string>
-    <string name="theme_animation_summary_enabled">애니메이션 사용</string>
-    <string name="theme_animation_summary_disabled">애니메이션 사용 안 함</string>
-    <string name="theme_other_style_summary">텍스트 편집 %1$d dp · 클립보드 %2$d dp</string>
+    <string name="theme_animation_summary">물결 효과 %1$s · 애니메이션 %2$s</string>
+    <string name="theme_other_style_summary">입력 %1$s · 텍스트 편집 %2$d dp · 클립보드 %3$d dp</string>
     <string name="toggle_day_night_theme">테마 전환</string>
     <string name="gboard_light_main_key_tone">주요 키 영역 불투명도</string>
     <string name="gboard_light_other_key_tone">보조 키 영역 불투명도</string>
