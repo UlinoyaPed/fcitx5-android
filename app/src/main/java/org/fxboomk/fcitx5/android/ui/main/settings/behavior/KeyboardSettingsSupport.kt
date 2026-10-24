@@ -39,19 +39,12 @@ internal object KeyboardSettingsSupport {
     val basicBehaviorKeys = listOf(
         "reset_keyboard_on_focus_change",
         "inline_suggestions",
-        "keep_keyboard_letters_uppercase",
-        "show_lang_switch_key",
-        "popup_on_key_press",
         "auto_close_brackets",
         "insert_space_between_chinese_and_english",
         "expand_keypress_area"
     )
 
     val toolbarAndInputKeys = listOf(
-        "toolbar_dynamic_height",
-        "toolbar_num_row_on_password",
-        "physical_keyboard_horizontal_candidate_bar",
-        "show_voice_input_button",
         "preferred_voice_input"
     )
 
@@ -61,7 +54,6 @@ internal object KeyboardSettingsSupport {
         "caps_key_behavior",
         "lang_switch_key_behavior",
         "lang_switch_key_long_press_behavior",
-        "space_key_label_mode",
         "space_long_press_behavior",
         "space_swipe_vertical_behavior",
         "prediction_space_behavior",
@@ -69,40 +61,8 @@ internal object KeyboardSettingsSupport {
     )
 
     val layoutKeys = listOf(
-        "keyboard_height_percent",
-        "keyboard_side_padding",
-        "keyboard_bottom_padding",
         SPLIT_ENABLED_KEY,
         "split_keyboard_use_landscape_layout"
-    )
-
-    val horizontalCandidateKeysBeforeAppearance = listOf(
-        "preedit_style",
-        "horizontal_candidate_style",
-        "expanded_candidate_style"
-    )
-
-    val horizontalCandidateKeysAfterAppearance = listOf(
-        "expanded_candidate_grid_span_count_portrait"
-    )
-
-    val horizontalCandidateKeys =
-        horizontalCandidateKeysBeforeAppearance + horizontalCandidateKeysAfterAppearance
-
-    val horizontalCandidateAppearanceKeys = listOf(
-        "candidate_highlight_radius"
-    )
-
-    val candidateWindowKeys = listOf(
-        "candidates_window_orientation",
-        "virtual_keyboard_candidates_position",
-        "candidates_window_padding",
-        "candidates_window_radius",
-        "candidates_window_min_width"
-    )
-
-    val candidateItemKeys = listOf(
-        "candidates_item_padding_vertical"
     )
 
     fun ManagedPreferenceFragment.addManagedPreference(

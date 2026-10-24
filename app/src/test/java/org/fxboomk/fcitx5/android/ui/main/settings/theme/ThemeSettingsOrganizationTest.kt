@@ -4,6 +4,7 @@
 
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -25,6 +26,22 @@ class ThemeSettingsOrganizationTest {
                 "punctuation_position",
                 "uppercase_position"
             ),
+            ThemeSettingsSupport.keyStyleThemeKeys
+        )
+        assertEquals(
+            listOf(
+                "keep_keyboard_letters_uppercase",
+                "show_lang_switch_key",
+                "popup_on_key_press",
+                "space_key_label_mode",
+                "keyboard_height_percent",
+                "keyboard_side_padding",
+                "keyboard_bottom_padding"
+            ),
+            ThemeSettingsSupport.keyStyleKeyboardKeys
+        )
+        assertEquals(
+            ThemeSettingsSupport.keyStyleThemeKeys + ThemeSettingsSupport.keyStyleKeyboardKeys,
             ThemeSettingsSupport.keyStyleKeys
         )
         assertEquals(
@@ -33,6 +50,20 @@ class ThemeSettingsOrganizationTest {
                 "toolbar_height",
                 "navbar_radius"
             ),
+            ThemeSettingsSupport.toolbarStyleThemeKeys
+        )
+        assertEquals(
+            listOf(
+                "toolbar_dynamic_height",
+                "toolbar_num_row_on_password",
+                "physical_keyboard_horizontal_candidate_bar",
+                "show_voice_input_button"
+            ),
+            ThemeSettingsSupport.toolbarStyleKeyboardKeys
+        )
+        assertEquals(
+            ThemeSettingsSupport.toolbarStyleThemeKeys +
+                ThemeSettingsSupport.toolbarStyleKeyboardKeys,
             ThemeSettingsSupport.toolbarStyleKeys
         )
         assertEquals(
@@ -44,11 +75,7 @@ class ThemeSettingsOrganizationTest {
         )
         assertEquals(
             listOf("hide_unsupported_emojis", "default_emoji_skin_tone"),
-            ThemeSettingsSupport.candidateStyleKeys
-        )
-        assertEquals(
-            listOf("disable_animation"),
-            ThemeSettingsSupport.animationKeys
+            ThemeSettingsSupport.candidateEmojiKeys
         )
         assertEquals(
             listOf(
@@ -60,6 +87,45 @@ class ThemeSettingsOrganizationTest {
                 "wallpaper_blend_percent"
             ),
             ThemeSettingsSupport.themeModeKeys
+        )
+        assertEquals(
+            listOf("disable_animation"),
+            ThemeSettingsSupport.animationKeys
+        )
+    }
+
+    @Test
+    fun candidateAppearanceKeepsItsDisplayModeOrder() {
+        assertEquals(
+            listOf(
+                "preedit_style",
+                "horizontal_candidate_style",
+                "expanded_candidate_style",
+                "candidate_highlight_radius",
+                "expanded_candidate_grid_span_count_portrait"
+            ),
+            ThemeSettingsSupport.candidateHorizontalKeys
+        )
+        assertEquals(
+            listOf(
+                "candidates_window_orientation",
+                "virtual_keyboard_candidates_position",
+                "candidates_window_padding",
+                "candidates_window_radius",
+                "candidates_window_min_width"
+            ),
+            ThemeSettingsSupport.candidateWindowKeys
+        )
+        assertEquals(
+            listOf("candidates_item_padding_vertical"),
+            ThemeSettingsSupport.candidateItemKeys
+        )
+        assertEquals(
+            ThemeSettingsSupport.candidateEmojiKeys +
+                ThemeSettingsSupport.candidateHorizontalKeys +
+                ThemeSettingsSupport.candidateWindowKeys +
+                ThemeSettingsSupport.candidateItemKeys,
+            ThemeSettingsSupport.candidateStyleKeys
         )
     }
 
@@ -77,14 +143,10 @@ class ThemeSettingsOrganizationTest {
 
     @Test
     fun everyThemePreferenceAppearsInExactlyOneGroup() {
-        val themeGroups = listOf(
-            ThemeSettingsSupport.keyStyleKeys,
-            ThemeSettingsSupport.toolbarStyleKeys,
-            ThemeSettingsSupport.themeModeKeys,
+        val themeKeys = ThemeSettingsSupport.keyStyleThemeKeys +
+            ThemeSettingsSupport.toolbarStyleThemeKeys +
+            ThemeSettingsSupport.themeModeKeys +
             ThemeSettingsSupport.otherStyleKeys
-        )
-        val themeKeys = themeGroups.flatten()
-        assertEquals(themeKeys.size, themeKeys.toSet().size)
         assertEquals(
             setOf(
                 "key_border",
@@ -110,14 +172,22 @@ class ThemeSettingsOrganizationTest {
             ),
             themeKeys.toSet()
         )
-        assertTrue(ThemeSettingsSupport.advancedMovedKeys.none { it in themeKeys })
-        assertFalse(
-            ThemeSettingsSupport.candidateStyleKeys.any {
-                it in ThemeSettingsSupport.keyStyleKeys ||
-                    it in ThemeSettingsSupport.toolbarStyleKeys ||
-                    it in ThemeSettingsSupport.themeModeKeys ||
-                    it in ThemeSettingsSupport.otherStyleKeys
-            }
+        assertEquals(themeKeys.size, themeKeys.toSet().size)
+    }
+
+    @Test
+    fun appearanceGroupsDoNotDuplicatePreferences() {
+        val groups = listOf(
+            ThemeSettingsSupport.keyStyleKeys,
+            ThemeSettingsSupport.toolbarStyleKeys,
+            ThemeSettingsSupport.candidateStyleKeys,
+            ThemeSettingsSupport.themeModeKeys,
+            ThemeSettingsSupport.otherStyleKeys
         )
+        val appearanceKeys = groups.flatten()
+        assertEquals(appearanceKeys.size, appearanceKeys.toSet().size)
+        assertTrue(ThemeSettingsSupport.animationKeys.none { it in appearanceKeys })
+        assertTrue(ThemeSettingsSupport.candidateEmojiKeys.all { it in ThemeSettingsSupport.candidateStyleKeys })
+        assertFalse("show_lang_switch_key" in KeyboardSettingsSupport.basicBehaviorKeys)
     }
 }

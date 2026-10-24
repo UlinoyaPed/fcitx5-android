@@ -716,7 +716,7 @@ data object SettingsCandidatesWindowAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        AppUtil.launchMainToRoute(context, SettingsRoute.VirtualKeyboardCandidates)
+        AppUtil.launchMainToRoute(context, SettingsRoute.ThemeCandidateStyle)
     }
 }
 

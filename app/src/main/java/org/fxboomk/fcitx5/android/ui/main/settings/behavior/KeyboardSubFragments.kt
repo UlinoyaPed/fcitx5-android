@@ -6,13 +6,11 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.content.Intent
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
-import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
 
@@ -85,85 +83,6 @@ class KeyboardLayoutAndSplitSettingsFragment : KeyboardSectionFragment() {
 
     override fun onDestroy() {
         AppPrefs.getInstance().keyboard.unregisterOnChangeListener(onSplitEnabledChangeListener)
-        super.onDestroy()
-    }
-}
-
-class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
-    private var horizontalCategory: PreferenceCategory? = null
-    private var candidateWindowCategory: PreferenceCategory? = null
-    private var candidateItemCategory: PreferenceCategory? = null
-
-    private val onCandidateDisplayModeChangeListener =
-        ManagedPreferenceProvider.OnChangeListener { key ->
-            if (key == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY) {
-                updateCandidateSettingVisibility()
-            }
-        }
-
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        KeyboardSettingsSupport.run {
-            addManagedPreference(
-                screen,
-                AppPrefs.getInstance().candidates,
-                AppPrefs.CANDIDATE_DISPLAY_MODE_KEY
-            )
-            screen.addCategory(R.string.candidate_display_mode_horizontal) {
-                horizontalCategory = this
-                horizontalCandidateKeysBeforeAppearance.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
-                }
-                horizontalCandidateAppearanceKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
-                }
-                horizontalCandidateKeysAfterAppearance.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
-                }
-            }
-            screen.addCategory(R.string.candidates_window) {
-                candidateWindowCategory = this
-                candidateWindowKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
-                }
-            }
-            screen.addCategory(R.string.candidates_items) {
-                candidateItemCategory = this
-                candidateItemKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
-                }
-            }
-            updateCandidateSettingVisibility()
-            AppPrefs.getInstance().candidates.registerOnChangeListener(
-                onCandidateDisplayModeChangeListener
-            )
-        }
-    }
-
-    private fun updateCandidateSettingVisibility() {
-        when (AppPrefs.getInstance().candidates.mode.getValue()) {
-            FloatingCandidatesMode.InputDevice -> {
-                horizontalCategory?.isVisible = true
-                candidateWindowCategory?.isVisible = false
-                candidateItemCategory?.isVisible = false
-            }
-            FloatingCandidatesMode.Always -> {
-                horizontalCategory?.isVisible = false
-                candidateWindowCategory?.isVisible = true
-                candidateItemCategory?.isVisible = true
-            }
-            FloatingCandidatesMode.SystemDefault,
-            FloatingCandidatesMode.Disabled -> {
-                horizontalCategory?.isVisible = false
-                candidateWindowCategory?.isVisible = false
-                candidateItemCategory?.isVisible = false
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        AppPrefs.getInstance().candidates.unregisterOnChangeListener(
-            onCandidateDisplayModeChangeListener
-        )
         super.onDestroy()
     }
 }

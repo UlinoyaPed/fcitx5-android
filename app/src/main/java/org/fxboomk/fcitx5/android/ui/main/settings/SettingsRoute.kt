@@ -29,7 +29,6 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFrag
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardAdvancedCustomizationFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardBasicSettingsFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardCandidatesSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardKeyAndGestureSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardLayoutAndSplitSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
@@ -127,13 +126,7 @@ sealed class SettingsRoute : Parcelable {
     data object VirtualKeyboardLayoutAndSplit : SettingsRoute()
 
     @Serializable
-    data object VirtualKeyboardCandidates : SettingsRoute()
-
-    @Serializable
     data object VirtualKeyboardAdvancedCustomization : SettingsRoute()
-
-    @Serializable
-    data object CandidatesWindow : SettingsRoute()
 
     @Serializable
     data object Clipboard : SettingsRoute()
@@ -320,14 +313,8 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardLayoutAndSplitSettingsFragment, VirtualKeyboardLayoutAndSplit> {
                 label = ctx.getString(R.string.keyboard_settings_layout_and_split)
             }
-            fragment<KeyboardCandidatesSettingsFragment, VirtualKeyboardCandidates> {
-                label = ctx.getString(R.string.keyboard_settings_candidates)
-            }
             fragment<KeyboardAdvancedCustomizationFragment, VirtualKeyboardAdvancedCustomization> {
                 label = ctx.getString(R.string.keyboard_settings_advanced_customization)
-            }
-            fragment<KeyboardCandidatesSettingsFragment, CandidatesWindow> {
-                label = ctx.getString(R.string.keyboard_settings_candidates)
             }
             fragment<ClipboardSettingsFragment, Clipboard> {
                 label = ctx.getString(R.string.clipboard)

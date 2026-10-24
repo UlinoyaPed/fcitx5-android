@@ -5,25 +5,29 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.os.Build
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreference
+import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport.addManagedPreference
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport.addThemePreferences
+import org.fxboomk.fcitx5.android.utils.addCategory
 
 abstract class ThemeGroupFragment(
-    private val groupProvider: ManagedPreferenceProvider,
-    private val keys: List<String>
-) : ManagedPreferenceFragment(groupProvider) {
+    provider: ManagedPreferenceProvider
+) : ManagedPreferenceFragment(provider) {
 
-    override fun onPreferenceUiCreated(screen: PreferenceScreen) {
+    final override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         screen.removeAll()
-        keys.forEach { key ->
-            addManagedPreference(screen, groupProvider, key)
-        }
+        onBuildPreferenceScreen(screen)
     }
+
+    protected abstract fun onBuildPreferenceScreen(screen: PreferenceScreen)
 
     override fun onStop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -33,32 +37,141 @@ abstract class ThemeGroupFragment(
     }
 }
 
-class ThemeKeyStyleFragment : ThemeGroupFragment(
-    ThemeManager.prefs,
-    ThemeSettingsSupport.keyStyleKeys
-)
+class ThemeKeyStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.keyStyleThemeKeys)
+        addThemePreferences(
+            screen,
+            AppPrefs.getInstance().keyboard,
+            ThemeSettingsSupport.keyStyleKeyboardKeys
+        )
+    }
+}
 
-class ThemeToolbarStyleFragment : ThemeGroupFragment(
-    ThemeManager.prefs,
-    ThemeSettingsSupport.toolbarStyleKeys
-)
+class ThemeToolbarStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        addThemePreferences(
+            screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.toolbarStyleThemeKeys
+        )
+        addThemePreferences(
+            screen,
+            AppPrefs.getInstance().keyboard,
+            ThemeSettingsSupport.toolbarStyleKeyboardKeys
+        )
+    }
+}
 
-class ThemeCandidateStyleFragment : ThemeGroupFragment(
-    AppPrefs.getInstance().advanced,
-    ThemeSettingsSupport.candidateStyleKeys
-)
+class ThemeCandidateStyleFragment : ThemeGroupFragment(AppPrefs.getInstance().candidates) {
 
-class ThemeAnimationFragment : ThemeGroupFragment(
-    AppPrefs.getInstance().advanced,
-    ThemeSettingsSupport.animationKeys
-)
+    private var horizontalCategory: PreferenceCategory? = null
+    private var candidateWindowCategory: PreferenceCategory? = null
+    private var candidateItemCategory: PreferenceCategory? = null
 
-class ThemeModeFragment : ThemeGroupFragment(
-    ThemeManager.prefs,
-    ThemeSettingsSupport.themeModeKeys
-) {
+    private val onCandidateDisplayModeChangeListener =
+        ManagedPreferenceProvider.OnChangeListener { key ->
+            if (key == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY) {
+                updateCandidateSettingVisibility()
+            }
+        }
+
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        val candidates = AppPrefs.getInstance().candidates
+        val keyboard = AppPrefs.getInstance().keyboard
+        val advanced = AppPrefs.getInstance().advanced
+        addManagedPreference(screen, candidates, AppPrefs.CANDIDATE_DISPLAY_MODE_KEY)
+        screen.addCategory(R.string.candidate_display_mode_horizontal) {
+            horizontalCategory = this
+            addThemePreferences(
+                this,
+                keyboard,
+                ThemeSettingsSupport.candidateHorizontalKeysBeforeAppearance
+            )
+            addThemePreferences(
+                this,
+                candidates,
+                ThemeSettingsSupport.candidateHorizontalAppearanceKeys
+            )
+            addThemePreferences(
+                this,
+                keyboard,
+                ThemeSettingsSupport.candidateHorizontalKeysAfterAppearance
+            )
+        }
+        screen.addCategory(R.string.candidates_window) {
+            candidateWindowCategory = this
+            addThemePreferences(
+                this,
+                candidates,
+                ThemeSettingsSupport.candidateWindowKeys
+            )
+        }
+        screen.addCategory(R.string.candidates_items) {
+            candidateItemCategory = this
+            addThemePreferences(
+                this,
+                candidates,
+                ThemeSettingsSupport.candidateItemKeys
+            )
+        }
+        screen.addCategory(R.string.emoji_and_symbols) {
+            addThemePreferences(
+                this,
+                advanced,
+                ThemeSettingsSupport.candidateEmojiKeys
+            )
+        }
+        updateCandidateSettingVisibility()
+        candidates.registerOnChangeListener(onCandidateDisplayModeChangeListener)
+    }
+
+    private fun updateCandidateSettingVisibility() {
+        when (AppPrefs.getInstance().candidates.mode.getValue()) {
+            FloatingCandidatesMode.InputDevice -> {
+                horizontalCategory?.isVisible = true
+                candidateWindowCategory?.isVisible = false
+                candidateItemCategory?.isVisible = false
+            }
+            FloatingCandidatesMode.Always -> {
+                horizontalCategory?.isVisible = false
+                candidateWindowCategory?.isVisible = true
+                candidateItemCategory?.isVisible = true
+            }
+            FloatingCandidatesMode.SystemDefault,
+            FloatingCandidatesMode.Disabled -> {
+                horizontalCategory?.isVisible = false
+                candidateWindowCategory?.isVisible = false
+                candidateItemCategory?.isVisible = false
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        AppPrefs.getInstance().candidates.unregisterOnChangeListener(
+            onCandidateDisplayModeChangeListener
+        )
+        super.onDestroy()
+    }
+}
+
+class ThemeAnimationFragment : ThemeGroupFragment(AppPrefs.getInstance().advanced) {
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        addThemePreferences(
+            screen,
+            AppPrefs.getInstance().advanced,
+            ThemeSettingsSupport.animationKeys
+        )
+    }
+}
+
+class ThemeModeFragment : ThemeGroupFragment(ThemeManager.prefs) {
 
     private val followSystemDayNightTheme = ThemeManager.prefs.followSystemDayNightTheme
+
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.themeModeKeys)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -67,7 +180,8 @@ class ThemeModeFragment : ThemeGroupFragment(
     }
 }
 
-class ThemeOtherStyleFragment : ThemeGroupFragment(
-    ThemeManager.prefs,
-    ThemeSettingsSupport.otherStyleKeys
-)
+class ThemeOtherStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
+    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
+        addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.otherStyleKeys)
+    }
+}

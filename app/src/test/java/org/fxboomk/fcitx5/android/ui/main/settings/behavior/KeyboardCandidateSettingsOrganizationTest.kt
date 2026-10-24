@@ -4,6 +4,7 @@
 
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -12,19 +13,16 @@ import org.junit.Test
 class KeyboardCandidateSettingsOrganizationTest {
 
     @Test
-    fun candidateSettingsAreGroupedByDisplayModeAndConfiguredObject() {
+    fun candidateAppearanceSettingsMovedToThemeAppearance() {
         assertEquals(
             listOf(
                 "preedit_style",
                 "horizontal_candidate_style",
                 "expanded_candidate_style",
+                "candidate_highlight_radius",
                 "expanded_candidate_grid_span_count_portrait"
             ),
-            KeyboardSettingsSupport.horizontalCandidateKeys
-        )
-        assertEquals(
-            listOf("candidate_highlight_radius"),
-            KeyboardSettingsSupport.horizontalCandidateAppearanceKeys
+            ThemeSettingsSupport.candidateHorizontalKeys
         )
         assertEquals(
             listOf(
@@ -34,38 +32,60 @@ class KeyboardCandidateSettingsOrganizationTest {
                 "candidates_window_radius",
                 "candidates_window_min_width"
             ),
-            KeyboardSettingsSupport.candidateWindowKeys
+            ThemeSettingsSupport.candidateWindowKeys
         )
         assertEquals(
             listOf("candidates_item_padding_vertical"),
-            KeyboardSettingsSupport.candidateItemKeys
+            ThemeSettingsSupport.candidateItemKeys
+        )
+        assertFalse(
+            ThemeSettingsSupport.candidateHorizontalKeys.any {
+                it in KeyboardSettingsSupport.keyAndGestureKeys ||
+                    it in KeyboardSettingsSupport.basicBehaviorKeys
+            }
         )
     }
 
     @Test
     fun candidateHighlightRadiusIsOrderedBeforeGridSpanCount() {
         assertEquals(
-            listOf(
-                "preedit_style",
-                "horizontal_candidate_style",
-                "expanded_candidate_style",
-                "candidate_highlight_radius",
-                "expanded_candidate_grid_span_count_portrait"
-            ),
-            KeyboardSettingsSupport.horizontalCandidateKeysBeforeAppearance +
-                KeyboardSettingsSupport.horizontalCandidateAppearanceKeys +
-                KeyboardSettingsSupport.horizontalCandidateKeysAfterAppearance
+            ThemeSettingsSupport.candidateHorizontalKeysBeforeAppearance +
+                ThemeSettingsSupport.candidateHorizontalAppearanceKeys +
+                ThemeSettingsSupport.candidateHorizontalKeysAfterAppearance,
+            ThemeSettingsSupport.candidateHorizontalKeys
         )
     }
 
     @Test
-    fun languageSwitchVisibilityIsInBasicBehaviorAndCapsBehaviorPrecedesLanguageSwitchBehavior() {
-        assertTrue("show_lang_switch_key" in KeyboardSettingsSupport.basicBehaviorKeys)
-        assertFalse("show_lang_switch_key" in KeyboardSettingsSupport.keyAndGestureKeys)
+    fun movedKeyAppearanceSettingsNoLongerLiveInKeyboardBehaviorSections() {
+        for (key in listOf(
+            "show_lang_switch_key",
+            "popup_on_key_press",
+            "space_key_label_mode",
+            "keyboard_height_percent",
+            "keyboard_side_padding",
+            "keyboard_bottom_padding"
+        )) {
+            assertFalse("$key should not be in basic behavior", key in KeyboardSettingsSupport.basicBehaviorKeys)
+            assertFalse("$key should not be in key and gesture", key in KeyboardSettingsSupport.keyAndGestureKeys)
+            assertFalse("$key should not be in layout", key in KeyboardSettingsSupport.layoutKeys)
+        }
         assertEquals(
             KeyboardSettingsSupport.keyAndGestureKeys.indexOf("caps_key_behavior") + 1,
             KeyboardSettingsSupport.keyAndGestureKeys.indexOf("lang_switch_key_behavior")
         )
     }
 
+    @Test
+    fun movedToolbarAppearanceSettingsNoLongerLiveInToolbarSection() {
+        for (key in listOf(
+            "toolbar_dynamic_height",
+            "toolbar_num_row_on_password",
+            "physical_keyboard_horizontal_candidate_bar",
+            "show_voice_input_button"
+        )) {
+            assertTrue("$key should be in theme toolbar style", key in ThemeSettingsSupport.toolbarStyleKeyboardKeys)
+            assertFalse("$key should not be in toolbar and input", key in KeyboardSettingsSupport.toolbarAndInputKeys)
+        }
+    }
 }

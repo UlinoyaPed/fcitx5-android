@@ -296,9 +296,6 @@ object SettingsSearchIndex {
 
     fun androidItems(context: Context): List<SettingsSearchResult> {
         val prefs = AppPrefs.getInstance()
-        val candidateDisplayMode = prefs.candidates.mode.getValue()
-        val includeHorizontalCandidateSettings =
-            candidateDisplayMode == FloatingCandidatesMode.InputDevice
         return buildList {
             addPage(context, R.string.global_options, SettingsRoute.GlobalConfig)
             addPage(context, R.string.addons, SettingsRoute.AddonList)
@@ -310,37 +307,8 @@ object SettingsSearchIndex {
             addPage(context, R.string.plugins, SettingsRoute.Plugin)
             addPage(context, R.string.advanced, SettingsRoute.Advanced)
 
-            addAll(
-                keyboardItems(
-                    context,
-                    prefs.keyboard,
-                    includeHorizontalCandidateSettings = includeHorizontalCandidateSettings
-                )
-            )
+            addAll(keyboardItems(context, prefs.keyboard))
             addAll(themeItems(context))
-            val candidateItems = managedItems(
-                context,
-                prefs.candidates,
-                SettingsRoute.VirtualKeyboardCandidates,
-                R.string.keyboard_settings_candidates
-            )
-            addAll(
-                when (candidateDisplayMode) {
-                    FloatingCandidatesMode.Always -> candidateItems.filter {
-                        it.preferenceKey == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY ||
-                            it.preferenceKey in KeyboardSettingsSupport.candidateWindowKeys ||
-                            it.preferenceKey in KeyboardSettingsSupport.candidateItemKeys
-                    }
-                    FloatingCandidatesMode.InputDevice -> candidateItems.filter {
-                        it.preferenceKey == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY ||
-                            it.preferenceKey in KeyboardSettingsSupport.horizontalCandidateAppearanceKeys
-                    }
-                    FloatingCandidatesMode.SystemDefault,
-                    FloatingCandidatesMode.Disabled -> candidateItems.filter {
-                        it.preferenceKey == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY
-                    }
-                }
-            )
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
             addAll(
                 managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced)
@@ -445,8 +413,10 @@ object SettingsSearchIndex {
     }
 
     private fun themeItems(context: Context): List<SettingsSearchResult> = buildList {
+        val prefs = AppPrefs.getInstance()
         val pageTitle = context.getString(R.string.theme_appearance)
         val pagePath = listOf(pageTitle)
+        val candidatePath = pagePath + context.getString(R.string.theme_category_candidate_style)
         add(
             SettingsSearchResult(
                 title = context.getString(R.string.theme),
@@ -456,11 +426,11 @@ object SettingsSearchIndex {
             )
         )
         listOf(
+            R.string.theme_category_theme_mode to SettingsRoute.ThemeMode,
             R.string.theme_category_key_style to SettingsRoute.ThemeKeyStyle,
             R.string.theme_category_toolbar_style to SettingsRoute.ThemeToolbarStyle,
             R.string.theme_category_candidate_style to SettingsRoute.ThemeCandidateStyle,
             R.string.theme_category_animation to SettingsRoute.ThemeAnimation,
-            R.string.theme_category_theme_mode to SettingsRoute.ThemeMode,
             R.string.theme_category_other_style to SettingsRoute.ThemeOtherStyle
         ).forEach { (title, route) ->
             add(SettingsSearchResult(context.getString(title), pagePath, route))
@@ -468,10 +438,26 @@ object SettingsSearchIndex {
         addThemeSection(
             context,
             ThemeManager.prefs,
+            SettingsRoute.ThemeMode,
+            pagePath,
+            R.string.theme_category_theme_mode,
+            ThemeSettingsSupport.themeModeKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
             SettingsRoute.ThemeKeyStyle,
             pagePath,
             R.string.theme_category_key_style,
-            ThemeSettingsSupport.keyStyleKeys
+            ThemeSettingsSupport.keyStyleThemeKeys
+        )
+        addThemeSection(
+            context,
+            prefs.keyboard,
+            SettingsRoute.ThemeKeyStyle,
+            pagePath,
+            R.string.theme_category_key_style,
+            ThemeSettingsSupport.keyStyleKeyboardKeys
         )
         addThemeSection(
             context,
@@ -479,31 +465,87 @@ object SettingsSearchIndex {
             SettingsRoute.ThemeToolbarStyle,
             pagePath,
             R.string.theme_category_toolbar_style,
-            ThemeSettingsSupport.toolbarStyleKeys
+            ThemeSettingsSupport.toolbarStyleThemeKeys
         )
         addThemeSection(
             context,
-            AppPrefs.getInstance().advanced,
-            SettingsRoute.ThemeCandidateStyle,
+            prefs.keyboard,
+            SettingsRoute.ThemeToolbarStyle,
             pagePath,
-            R.string.theme_category_candidate_style,
-            ThemeSettingsSupport.candidateStyleKeys
+            R.string.theme_category_toolbar_style,
+            ThemeSettingsSupport.toolbarStyleKeyboardKeys
         )
         addThemeSection(
             context,
-            AppPrefs.getInstance().advanced,
+            prefs.candidates,
+            SettingsRoute.ThemeCandidateStyle,
+            candidatePath,
+            null,
+            listOf(AppPrefs.CANDIDATE_DISPLAY_MODE_KEY)
+        )
+        addThemeSection(
+            context,
+            prefs.advanced,
+            SettingsRoute.ThemeCandidateStyle,
+            candidatePath,
+            R.string.emoji_and_symbols,
+            ThemeSettingsSupport.candidateEmojiKeys
+        )
+        when (prefs.candidates.mode.getValue()) {
+            FloatingCandidatesMode.InputDevice -> {
+                addThemeSection(
+                    context,
+                    prefs.keyboard,
+                    SettingsRoute.ThemeCandidateStyle,
+                    candidatePath,
+                    R.string.candidate_display_mode_horizontal,
+                    ThemeSettingsSupport.candidateHorizontalKeysBeforeAppearance
+                )
+                addThemeSection(
+                    context,
+                    prefs.candidates,
+                    SettingsRoute.ThemeCandidateStyle,
+                    candidatePath,
+                    R.string.candidate_display_mode_horizontal,
+                    ThemeSettingsSupport.candidateHorizontalAppearanceKeys
+                )
+                addThemeSection(
+                    context,
+                    prefs.keyboard,
+                    SettingsRoute.ThemeCandidateStyle,
+                    candidatePath,
+                    R.string.candidate_display_mode_horizontal,
+                    ThemeSettingsSupport.candidateHorizontalKeysAfterAppearance
+                )
+            }
+            FloatingCandidatesMode.Always -> {
+                addThemeSection(
+                    context,
+                    prefs.candidates,
+                    SettingsRoute.ThemeCandidateStyle,
+                    candidatePath,
+                    R.string.candidates_window,
+                    ThemeSettingsSupport.candidateWindowKeys
+                )
+                addThemeSection(
+                    context,
+                    prefs.candidates,
+                    SettingsRoute.ThemeCandidateStyle,
+                    candidatePath,
+                    R.string.candidates_items,
+                    ThemeSettingsSupport.candidateItemKeys
+                )
+            }
+            FloatingCandidatesMode.SystemDefault,
+            FloatingCandidatesMode.Disabled -> Unit
+        }
+        addThemeSection(
+            context,
+            prefs.advanced,
             SettingsRoute.ThemeAnimation,
             pagePath,
             R.string.theme_category_animation,
             ThemeSettingsSupport.animationKeys
-        )
-        addThemeSection(
-            context,
-            ThemeManager.prefs,
-            SettingsRoute.ThemeMode,
-            pagePath,
-            R.string.theme_category_theme_mode,
-            ThemeSettingsSupport.themeModeKeys
         )
         addThemeSection(
             context,
@@ -520,11 +562,11 @@ object SettingsSearchIndex {
         provider: ManagedPreferenceProvider,
         route: SettingsRoute,
         basePath: List<String>,
-        @StringRes sectionTitle: Int,
+        @StringRes sectionTitle: Int?,
         keys: List<String>
     ) {
         val uiByKey = provider.managedPreferencesUi.associateBy { it.key }
-        val path = basePath + context.getString(sectionTitle)
+        val path = sectionTitle?.let { basePath + context.getString(it) } ?: basePath
         keys.mapNotNull(uiByKey::get).forEach { ui ->
             add(ui.toSearchResult(context, route, path))
         }
@@ -532,8 +574,7 @@ object SettingsSearchIndex {
 
     private fun keyboardItems(
         context: Context,
-        keyboardPrefs: AppPrefs.Keyboard,
-        includeHorizontalCandidateSettings: Boolean
+        keyboardPrefs: AppPrefs.Keyboard
     ): List<SettingsSearchResult> = buildList {
         addKeyboardSection(
             context,
@@ -582,15 +623,6 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
-        if (includeHorizontalCandidateSettings) {
-            addKeyboardSection(
-                context,
-                keyboardPrefs,
-                R.string.keyboard_settings_candidates,
-                SettingsRoute.VirtualKeyboardCandidates,
-                KeyboardSettingsSupport.horizontalCandidateKeys
-            )
-        }
         addAdvancedKeyboardItem(context, R.string.edit_fontset, R.string.edit_fontset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary)
         addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
