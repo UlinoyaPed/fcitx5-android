@@ -4,14 +4,10 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
-import androidx.annotation.StringRes
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceScreen
-import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
-import org.fxboomk.fcitx5.android.utils.addCategory
 
 internal object ThemeSettingsSupport {
 
@@ -19,10 +15,10 @@ internal object ThemeSettingsSupport {
         "key_border",
         "key_border_stroke",
         "key_ripple_effect",
+        "gboard_style_side_keys",
         "key_radius",
         "key_horizontal_margin",
         "key_vertical_margin",
-        "gboard_style_side_keys",
         "punctuation_position",
         "uppercase_position"
     )
@@ -30,7 +26,10 @@ internal object ThemeSettingsSupport {
     val toolbarStyleKeys = listOf(
         "navbar_border",
         "toolbar_height",
-        "navbar_radius",
+        "navbar_radius"
+    )
+
+    val otherStyleKeys = listOf(
         "text_editing_button_radius",
         "clipboard_entry_radius"
     )
@@ -58,19 +57,6 @@ internal object ThemeSettingsSupport {
      * but are presented by the appearance configuration page.
      */
     val advancedMovedKeys = candidateStyleKeys + animationKeys
-
-    fun ManagedPreferenceFragment.addThemeSection(
-        screen: PreferenceScreen,
-        @StringRes title: Int,
-        provider: ManagedPreferenceProvider,
-        keys: List<String>
-    ) {
-        screen.addCategory(title) {
-            keys.forEach { key ->
-                addManagedPreference(this, provider, key)
-            }
-        }
-    }
 
     fun ManagedPreferenceFragment.addManagedPreference(
         parent: PreferenceGroup,

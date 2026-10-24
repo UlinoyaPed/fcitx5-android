@@ -446,63 +446,72 @@ object SettingsSearchIndex {
 
     private fun themeItems(context: Context): List<SettingsSearchResult> = buildList {
         val pageTitle = context.getString(R.string.theme_appearance)
-        val configureTitle = context.getString(R.string.configure)
-        val configurePath = listOf(pageTitle, configureTitle)
+        val pagePath = listOf(pageTitle)
         add(
             SettingsSearchResult(
                 title = context.getString(R.string.theme),
-                path = listOf(pageTitle),
+                path = pagePath,
                 route = SettingsRoute.ThemeList,
                 summary = ThemeManager.activeTheme.name
             )
         )
-        add(
-            SettingsSearchResult(
-                title = configureTitle,
-                path = listOf(pageTitle),
-                route = SettingsRoute.ThemeConfig,
-                summary = context.getString(R.string.theme_config_summary)
-            )
-        )
+        listOf(
+            R.string.theme_category_key_style to SettingsRoute.ThemeKeyStyle,
+            R.string.theme_category_toolbar_style to SettingsRoute.ThemeToolbarStyle,
+            R.string.theme_category_candidate_style to SettingsRoute.ThemeCandidateStyle,
+            R.string.theme_category_animation to SettingsRoute.ThemeAnimation,
+            R.string.theme_category_theme_mode to SettingsRoute.ThemeMode,
+            R.string.theme_category_other_style to SettingsRoute.ThemeOtherStyle
+        ).forEach { (title, route) ->
+            add(SettingsSearchResult(context.getString(title), pagePath, route))
+        }
         addThemeSection(
             context,
             ThemeManager.prefs,
-            SettingsRoute.ThemeConfig,
-            configurePath,
+            SettingsRoute.ThemeKeyStyle,
+            pagePath,
             R.string.theme_category_key_style,
             ThemeSettingsSupport.keyStyleKeys
         )
         addThemeSection(
             context,
             ThemeManager.prefs,
-            SettingsRoute.ThemeConfig,
-            configurePath,
+            SettingsRoute.ThemeToolbarStyle,
+            pagePath,
             R.string.theme_category_toolbar_style,
             ThemeSettingsSupport.toolbarStyleKeys
         )
         addThemeSection(
             context,
             AppPrefs.getInstance().advanced,
-            SettingsRoute.ThemeConfig,
-            configurePath,
+            SettingsRoute.ThemeCandidateStyle,
+            pagePath,
             R.string.theme_category_candidate_style,
             ThemeSettingsSupport.candidateStyleKeys
         )
         addThemeSection(
             context,
             AppPrefs.getInstance().advanced,
-            SettingsRoute.ThemeConfig,
-            configurePath,
+            SettingsRoute.ThemeAnimation,
+            pagePath,
             R.string.theme_category_animation,
             ThemeSettingsSupport.animationKeys
         )
         addThemeSection(
             context,
             ThemeManager.prefs,
-            SettingsRoute.ThemeConfig,
-            configurePath,
+            SettingsRoute.ThemeMode,
+            pagePath,
             R.string.theme_category_theme_mode,
             ThemeSettingsSupport.themeModeKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeOtherStyle,
+            pagePath,
+            R.string.theme_category_other_style,
+            ThemeSettingsSupport.otherStyleKeys
         )
     }
 

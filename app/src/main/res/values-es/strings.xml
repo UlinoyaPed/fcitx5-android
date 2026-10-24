@@ -814,12 +814,12 @@
     <string name="clipboard_entry_file">Archivo</string>
     <string name="clipboard_entry_file_named">Archivo · %1$s</string>
     <string name="theme_appearance">Apariencia del tema</string>
-    <string name="theme_config_summary">Teclas, barra de herramientas, candidatos, animación y modo de tema</string>
     <string name="theme_category_key_style">Estilo de teclas</string>
     <string name="theme_category_toolbar_style">Estilo de barra de herramientas</string>
     <string name="theme_category_candidate_style">Estilo de candidatos</string>
     <string name="theme_category_animation">Efectos de animación</string>
     <string name="theme_category_theme_mode">Modo de tema</string>
+    <string name="theme_category_other_style">Otros estilos</string>
     <string name="toggle_day_night_theme">Cambio de tema</string>
     <string name="gboard_light_main_key_tone">Opacidad de las teclas principales</string>
     <string name="gboard_light_other_key_tone">Opacidad de las teclas secundarias</string>

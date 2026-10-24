@@ -153,12 +153,12 @@
     <string name="theme_preview_previous">Previous theme</string>
     <string name="theme_preview_next">Next theme</string>
     <string name="theme_preview_in_use">In use</string>
-    <string name="theme_config_summary">Keys, toolbar, candidates, animation and theme mode</string>
     <string name="theme_category_key_style">Key style</string>
     <string name="theme_category_toolbar_style">Toolbar style</string>
     <string name="theme_category_candidate_style">Candidate style</string>
     <string name="theme_category_animation">Animation effects</string>
     <string name="theme_category_theme_mode">Theme mode</string>
+    <string name="theme_category_other_style">Other styles</string>
     <string name="toggle_day_night_theme">Day/Night Theme</string>
     <string name="key_ripple_effect">Enable key ripple effect</string>
     <string name="key_border">Enable key border</string>

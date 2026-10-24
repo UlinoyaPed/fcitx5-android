@@ -41,9 +41,14 @@ import org.fxboomk.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodListFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAnimationFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeCandidateStyleFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeKeyStyleFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeModeFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeOtherStyleFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeToolbarStyleFragment
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
 import org.fxboomk.fcitx5.android.utils.parcelable
@@ -86,7 +91,22 @@ sealed class SettingsRoute : Parcelable {
     data object ThemeList : SettingsRoute()
 
     @Serializable
-    data object ThemeConfig : SettingsRoute()
+    data object ThemeKeyStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeToolbarStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeCandidateStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeAnimation : SettingsRoute()
+
+    @Serializable
+    data object ThemeMode : SettingsRoute()
+
+    @Serializable
+    data object ThemeOtherStyle : SettingsRoute()
 
     @Serializable
     data object VirtualKeyboard : SettingsRoute()
@@ -264,8 +284,23 @@ sealed class SettingsRoute : Parcelable {
             fragment<ThemeFragment, ThemeList> {
                 label = ctx.getString(R.string.theme)
             }
-            fragment<ThemeSettingsFragment, ThemeConfig> {
-                label = ctx.getString(R.string.configure)
+            fragment<ThemeKeyStyleFragment, ThemeKeyStyle> {
+                label = ctx.getString(R.string.theme_category_key_style)
+            }
+            fragment<ThemeToolbarStyleFragment, ThemeToolbarStyle> {
+                label = ctx.getString(R.string.theme_category_toolbar_style)
+            }
+            fragment<ThemeCandidateStyleFragment, ThemeCandidateStyle> {
+                label = ctx.getString(R.string.theme_category_candidate_style)
+            }
+            fragment<ThemeAnimationFragment, ThemeAnimation> {
+                label = ctx.getString(R.string.theme_category_animation)
+            }
+            fragment<ThemeModeFragment, ThemeMode> {
+                label = ctx.getString(R.string.theme_category_theme_mode)
+            }
+            fragment<ThemeOtherStyleFragment, ThemeOtherStyle> {
+                label = ctx.getString(R.string.theme_category_other_style)
             }
             fragment<KeyboardSettingsHomeFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)

@@ -18,10 +18,10 @@ class ThemeSettingsOrganizationTest {
                 "key_border",
                 "key_border_stroke",
                 "key_ripple_effect",
+                "gboard_style_side_keys",
                 "key_radius",
                 "key_horizontal_margin",
                 "key_vertical_margin",
-                "gboard_style_side_keys",
                 "punctuation_position",
                 "uppercase_position"
             ),
@@ -31,11 +31,16 @@ class ThemeSettingsOrganizationTest {
             listOf(
                 "navbar_border",
                 "toolbar_height",
-                "navbar_radius",
+                "navbar_radius"
+            ),
+            ThemeSettingsSupport.toolbarStyleKeys
+        )
+        assertEquals(
+            listOf(
                 "text_editing_button_radius",
                 "clipboard_entry_radius"
             ),
-            ThemeSettingsSupport.toolbarStyleKeys
+            ThemeSettingsSupport.otherStyleKeys
         )
         assertEquals(
             listOf("hide_unsupported_emojis", "default_emoji_skin_tone"),
@@ -75,7 +80,8 @@ class ThemeSettingsOrganizationTest {
         val themeGroups = listOf(
             ThemeSettingsSupport.keyStyleKeys,
             ThemeSettingsSupport.toolbarStyleKeys,
-            ThemeSettingsSupport.themeModeKeys
+            ThemeSettingsSupport.themeModeKeys,
+            ThemeSettingsSupport.otherStyleKeys
         )
         val themeKeys = themeGroups.flatten()
         assertEquals(themeKeys.size, themeKeys.toSet().size)
@@ -84,10 +90,10 @@ class ThemeSettingsOrganizationTest {
                 "key_border",
                 "key_border_stroke",
                 "key_ripple_effect",
+                "gboard_style_side_keys",
                 "key_radius",
                 "key_horizontal_margin",
                 "key_vertical_margin",
-                "gboard_style_side_keys",
                 "punctuation_position",
                 "uppercase_position",
                 "navbar_border",
@@ -109,7 +115,8 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.candidateStyleKeys.any {
                 it in ThemeSettingsSupport.keyStyleKeys ||
                     it in ThemeSettingsSupport.toolbarStyleKeys ||
-                    it in ThemeSettingsSupport.themeModeKeys
+                    it in ThemeSettingsSupport.themeModeKeys ||
+                    it in ThemeSettingsSupport.otherStyleKeys
             }
         )
     }

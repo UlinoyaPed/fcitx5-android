@@ -36,10 +36,34 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
             }
         )
         screen.addPreference(
-            R.string.configure,
-            getString(R.string.theme_config_summary)
+            R.string.theme_category_key_style
         ) {
-            navigateWithAnim(SettingsRoute.ThemeConfig)
+            navigateWithAnim(SettingsRoute.ThemeKeyStyle)
+        }
+        screen.addPreference(
+            R.string.theme_category_toolbar_style
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeToolbarStyle)
+        }
+        screen.addPreference(
+            R.string.theme_category_candidate_style
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeCandidateStyle)
+        }
+        screen.addPreference(
+            R.string.theme_category_animation
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeAnimation)
+        }
+        screen.addPreference(
+            R.string.theme_category_theme_mode
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeMode)
+        }
+        screen.addPreference(
+            R.string.theme_category_other_style
+        ) {
+            navigateWithAnim(SettingsRoute.ThemeOtherStyle)
         }
     }
 

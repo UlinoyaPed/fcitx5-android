@@ -814,12 +814,12 @@
     <string name="clipboard_entry_file">ファイル</string>
     <string name="clipboard_entry_file_named">ファイル · %1$s</string>
     <string name="theme_appearance">テーマの外観</string>
-    <string name="theme_config_summary">キー、ツールバー、候補、アニメーション、テーマモード</string>
     <string name="theme_category_key_style">キーのスタイル</string>
     <string name="theme_category_toolbar_style">ツールバーのスタイル</string>
     <string name="theme_category_candidate_style">候補のスタイル</string>
     <string name="theme_category_animation">アニメーション効果</string>
     <string name="theme_category_theme_mode">テーマモード</string>
+    <string name="theme_category_other_style">その他のスタイル</string>
     <string name="toggle_day_night_theme">テーマ切替</string>
     <string name="gboard_light_main_key_tone">メインキーの不透明度</string>
     <string name="gboard_light_other_key_tone">サブキーの不透明度</string>

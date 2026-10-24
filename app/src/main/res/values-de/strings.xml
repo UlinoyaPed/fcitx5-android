@@ -812,12 +812,12 @@
     <string name="clipboard_entry_file">Datei</string>
     <string name="clipboard_entry_file_named">Datei · %1$s</string>
     <string name="theme_appearance">Erscheinungsbild</string>
-    <string name="theme_config_summary">Tasten, Symbolleiste, Kandidaten, Animation und Themenmodus</string>
     <string name="theme_category_key_style">Tastenstil</string>
     <string name="theme_category_toolbar_style">Symbolleistenstil</string>
     <string name="theme_category_candidate_style">Kandidatenstil</string>
     <string name="theme_category_animation">Animationseffekte</string>
     <string name="theme_category_theme_mode">Themenmodus</string>
+    <string name="theme_category_other_style">Weitere Stile</string>
     <string name="toggle_day_night_theme">Themenwechsel</string>
     <string name="gboard_light_main_key_tone">Deckkraft der Haupttasten</string>
     <string name="gboard_light_other_key_tone">Deckkraft der Nebentasten</string>
