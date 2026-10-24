@@ -41,10 +41,7 @@ internal object KeyboardSettingsSupport {
         "inline_suggestions",
         "auto_close_brackets",
         "insert_space_between_chinese_and_english",
-        "expand_keypress_area"
-    )
-
-    val toolbarAndInputKeys = listOf(
+        "expand_keypress_area",
         "preferred_voice_input"
     )
 

@@ -39,11 +39,25 @@ abstract class ThemeGroupFragment(
 
 class ThemeKeyStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.keyStyleThemeKeys)
+        addThemePreferences(
+            screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.keyStyleThemeSwitchKeys
+        )
         addThemePreferences(
             screen,
             AppPrefs.getInstance().keyboard,
-            ThemeSettingsSupport.keyStyleKeyboardKeys
+            ThemeSettingsSupport.keyStyleKeyboardSwitchKeys
+        )
+        addThemePreferences(
+            screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.keyStyleThemeNonSwitchKeys
+        )
+        addThemePreferences(
+            screen,
+            AppPrefs.getInstance().keyboard,
+            ThemeSettingsSupport.keyStyleKeyboardNonSwitchKeys
         )
     }
 }
@@ -53,12 +67,17 @@ class ThemeToolbarStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
         addThemePreferences(
             screen,
             ThemeManager.prefs,
-            ThemeSettingsSupport.toolbarStyleThemeKeys
+            ThemeSettingsSupport.toolbarStyleThemeSwitchKeys
         )
         addThemePreferences(
             screen,
             AppPrefs.getInstance().keyboard,
-            ThemeSettingsSupport.toolbarStyleKeyboardKeys
+            ThemeSettingsSupport.toolbarStyleKeyboardSwitchKeys
+        )
+        addThemePreferences(
+            screen,
+            ThemeManager.prefs,
+            ThemeSettingsSupport.toolbarStyleThemeNonSwitchKeys
         )
     }
 }

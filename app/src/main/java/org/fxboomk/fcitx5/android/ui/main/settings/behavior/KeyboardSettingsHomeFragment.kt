@@ -4,7 +4,6 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
-import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
@@ -34,17 +33,6 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
                 R.string.keyboard_settings_touch_and_sound,
                 buildTouchAndSoundSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardTouchAndSound
-            )
-            screen.addPreference(
-                Preference(requireContext()).apply {
-                    setTitle(R.string.keyboard_settings_toolbar_and_voice)
-                    isIconSpaceReserved = false
-                    isSingleLineTitle = false
-                    setOnPreferenceClickListener {
-                        navigateWithAnim(SettingsRoute.VirtualKeyboardToolbarAndInput)
-                        true
-                    }
-                }
             )
             screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,

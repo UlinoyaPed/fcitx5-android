@@ -26,7 +26,6 @@ class KeyboardCandidateSettingsOrganizationTest {
         )
         assertEquals(
             listOf(
-                "candidates_window_orientation",
                 "virtual_keyboard_candidates_position",
                 "candidates_window_padding",
                 "candidates_window_radius",
@@ -35,7 +34,10 @@ class KeyboardCandidateSettingsOrganizationTest {
             ThemeSettingsSupport.candidateWindowKeys
         )
         assertEquals(
-            listOf("candidates_item_padding_vertical"),
+            listOf(
+                "candidates_window_orientation",
+                "candidates_item_padding_vertical"
+            ),
             ThemeSettingsSupport.candidateItemKeys
         )
         assertFalse(
@@ -85,7 +87,17 @@ class KeyboardCandidateSettingsOrganizationTest {
             "show_voice_input_button"
         )) {
             assertTrue("$key should be in theme toolbar style", key in ThemeSettingsSupport.toolbarStyleKeyboardKeys)
-            assertFalse("$key should not be in toolbar and input", key in KeyboardSettingsSupport.toolbarAndInputKeys)
+            assertFalse("$key should not be in basic behavior", key in KeyboardSettingsSupport.basicBehaviorKeys)
+            assertFalse("$key should not be in key and gesture", key in KeyboardSettingsSupport.keyAndGestureKeys)
+            assertFalse("$key should not be in layout", key in KeyboardSettingsSupport.layoutKeys)
         }
+    }
+
+    @Test
+    fun preferredVoiceInputLivesInBasicBehavior() {
+        assertEquals(
+            "preferred_voice_input",
+            KeyboardSettingsSupport.basicBehaviorKeys.last()
+        )
     }
 }

@@ -11,11 +11,14 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 
 internal object ThemeSettingsSupport {
 
-    val keyStyleThemeKeys = listOf(
+    val keyStyleThemeSwitchKeys = listOf(
         "key_border",
         "key_border_stroke",
         "key_ripple_effect",
-        "gboard_style_side_keys",
+        "gboard_style_side_keys"
+    )
+
+    val keyStyleThemeNonSwitchKeys = listOf(
         "key_radius",
         "key_horizontal_margin",
         "key_vertical_margin",
@@ -23,32 +26,54 @@ internal object ThemeSettingsSupport {
         "uppercase_position"
     )
 
-    val keyStyleKeyboardKeys = listOf(
+    val keyStyleKeyboardSwitchKeys = listOf(
         "keep_keyboard_letters_uppercase",
         "show_lang_switch_key",
-        "popup_on_key_press",
+        "popup_on_key_press"
+    )
+
+    val keyStyleKeyboardNonSwitchKeys = listOf(
         "space_key_label_mode",
         "keyboard_height_percent",
         "keyboard_side_padding",
         "keyboard_bottom_padding"
     )
 
-    val keyStyleKeys = keyStyleThemeKeys + keyStyleKeyboardKeys
+    val keyStyleThemeKeys = keyStyleThemeSwitchKeys + keyStyleThemeNonSwitchKeys
 
-    val toolbarStyleThemeKeys = listOf(
-        "navbar_border",
+    val keyStyleKeyboardKeys = keyStyleKeyboardSwitchKeys + keyStyleKeyboardNonSwitchKeys
+
+    val keyStyleSwitchKeys = keyStyleThemeSwitchKeys + keyStyleKeyboardSwitchKeys
+
+    val keyStyleNonSwitchKeys = keyStyleThemeNonSwitchKeys + keyStyleKeyboardNonSwitchKeys
+
+    val keyStyleKeys = keyStyleSwitchKeys + keyStyleNonSwitchKeys
+
+    val toolbarStyleThemeSwitchKeys = listOf(
+        "navbar_border"
+    )
+
+    val toolbarStyleThemeNonSwitchKeys = listOf(
         "toolbar_height",
         "navbar_radius"
     )
 
-    val toolbarStyleKeyboardKeys = listOf(
+    val toolbarStyleKeyboardSwitchKeys = listOf(
         "toolbar_dynamic_height",
         "toolbar_num_row_on_password",
         "physical_keyboard_horizontal_candidate_bar",
         "show_voice_input_button"
     )
 
-    val toolbarStyleKeys = toolbarStyleThemeKeys + toolbarStyleKeyboardKeys
+    val toolbarStyleThemeKeys = toolbarStyleThemeSwitchKeys + toolbarStyleThemeNonSwitchKeys
+
+    val toolbarStyleKeyboardKeys = toolbarStyleKeyboardSwitchKeys
+
+    val toolbarStyleSwitchKeys = toolbarStyleThemeSwitchKeys + toolbarStyleKeyboardSwitchKeys
+
+    val toolbarStyleNonSwitchKeys = toolbarStyleThemeNonSwitchKeys
+
+    val toolbarStyleKeys = toolbarStyleSwitchKeys + toolbarStyleNonSwitchKeys
 
     val otherStyleKeys = listOf(
         "text_editing_button_radius",
@@ -79,7 +104,6 @@ internal object ThemeSettingsSupport {
         candidateHorizontalKeysAfterAppearance
 
     val candidateWindowKeys = listOf(
-        "candidates_window_orientation",
         "virtual_keyboard_candidates_position",
         "candidates_window_padding",
         "candidates_window_radius",
@@ -87,6 +111,7 @@ internal object ThemeSettingsSupport {
     )
 
     val candidateItemKeys = listOf(
+        "candidates_window_orientation",
         "candidates_item_padding_vertical"
     )
 

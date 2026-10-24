@@ -41,7 +41,24 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.keyStyleKeyboardKeys
         )
         assertEquals(
-            ThemeSettingsSupport.keyStyleThemeKeys + ThemeSettingsSupport.keyStyleKeyboardKeys,
+            listOf(
+                "key_border",
+                "key_border_stroke",
+                "key_ripple_effect",
+                "gboard_style_side_keys",
+                "keep_keyboard_letters_uppercase",
+                "show_lang_switch_key",
+                "popup_on_key_press",
+                "key_radius",
+                "key_horizontal_margin",
+                "key_vertical_margin",
+                "punctuation_position",
+                "uppercase_position",
+                "space_key_label_mode",
+                "keyboard_height_percent",
+                "keyboard_side_padding",
+                "keyboard_bottom_padding"
+            ),
             ThemeSettingsSupport.keyStyleKeys
         )
         assertEquals(
@@ -62,8 +79,15 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.toolbarStyleKeyboardKeys
         )
         assertEquals(
-            ThemeSettingsSupport.toolbarStyleThemeKeys +
-                ThemeSettingsSupport.toolbarStyleKeyboardKeys,
+            listOf(
+                "navbar_border",
+                "toolbar_dynamic_height",
+                "toolbar_num_row_on_password",
+                "physical_keyboard_horizontal_candidate_bar",
+                "show_voice_input_button",
+                "toolbar_height",
+                "navbar_radius"
+            ),
             ThemeSettingsSupport.toolbarStyleKeys
         )
         assertEquals(
@@ -108,7 +132,6 @@ class ThemeSettingsOrganizationTest {
         )
         assertEquals(
             listOf(
-                "candidates_window_orientation",
                 "virtual_keyboard_candidates_position",
                 "candidates_window_padding",
                 "candidates_window_radius",
@@ -117,7 +140,10 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.candidateWindowKeys
         )
         assertEquals(
-            listOf("candidates_item_padding_vertical"),
+            listOf(
+                "candidates_window_orientation",
+                "candidates_item_padding_vertical"
+            ),
             ThemeSettingsSupport.candidateItemKeys
         )
         assertEquals(

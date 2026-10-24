@@ -39,14 +39,6 @@ class KeyboardTouchAndSoundSettingsFragment : KeyboardSectionFragment() {
     }
 }
 
-class KeyboardToolbarAndInputSettingsFragment : KeyboardSectionFragment() {
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        KeyboardSettingsSupport.run {
-            addKeyboardSection(screen, R.string.keyboard_settings_toolbar_and_voice, toolbarAndInputKeys)
-        }
-    }
-}
-
 class KeyboardKeyAndGestureSettingsFragment : KeyboardSectionFragment() {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         KeyboardSettingsSupport.run {
@@ -100,9 +92,6 @@ class KeyboardAdvancedCustomizationFragment : KeyboardSectionFragment() {
 
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         screen.addCategory(R.string.keyboard_settings_advanced_customization) {
-            addPreference(R.string.edit_fontset, R.string.edit_fontset_summary) {
-                startActivity(Intent(requireContext(), FontsetEditorActivity::class.java))
-            }
             addPreference(R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary) {
                 startActivity(Intent(requireContext(), SwipeSymbolMappingEditorActivity::class.java))
             }

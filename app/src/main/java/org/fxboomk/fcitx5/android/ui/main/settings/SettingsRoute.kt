@@ -32,7 +32,6 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardBasicSetting
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardKeyAndGestureSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardLayoutAndSplitSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardToolbarAndInputSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardTouchAndSoundSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmAdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmSettingsFragment
@@ -115,9 +114,6 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object VirtualKeyboardTouchAndSound : SettingsRoute()
-
-    @Serializable
-    data object VirtualKeyboardToolbarAndInput : SettingsRoute()
 
     @Serializable
     data object VirtualKeyboardKeyAndGesture : SettingsRoute()
@@ -303,9 +299,6 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<KeyboardTouchAndSoundSettingsFragment, VirtualKeyboardTouchAndSound> {
                 label = ctx.getString(R.string.keyboard_settings_touch_and_sound)
-            }
-            fragment<KeyboardToolbarAndInputSettingsFragment, VirtualKeyboardToolbarAndInput> {
-                label = ctx.getString(R.string.keyboard_settings_toolbar_and_voice)
             }
             fragment<KeyboardKeyAndGestureSettingsFragment, VirtualKeyboardKeyAndGesture> {
                 label = ctx.getString(R.string.keyboard_settings_key_and_gesture)

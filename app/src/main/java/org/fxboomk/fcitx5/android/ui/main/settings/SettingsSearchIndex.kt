@@ -435,6 +435,14 @@ object SettingsSearchIndex {
         ).forEach { (title, route) ->
             add(SettingsSearchResult(context.getString(title), pagePath, route))
         }
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.edit_fontset),
+                path = pagePath,
+                route = SettingsRoute.Theme,
+                summary = context.getString(R.string.edit_fontset_summary)
+            )
+        )
         addThemeSection(
             context,
             ThemeManager.prefs,
@@ -593,13 +601,6 @@ object SettingsSearchIndex {
         addKeyboardSection(
             context,
             keyboardPrefs,
-            R.string.keyboard_settings_toolbar_and_voice,
-            SettingsRoute.VirtualKeyboardToolbarAndInput,
-            KeyboardSettingsSupport.toolbarAndInputKeys
-        )
-        addKeyboardSection(
-            context,
-            keyboardPrefs,
             R.string.keyboard_settings_key_and_gesture,
             SettingsRoute.VirtualKeyboardKeyAndGesture,
             KeyboardSettingsSupport.keyAndGestureKeys
@@ -623,7 +624,6 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
-        addAdvancedKeyboardItem(context, R.string.edit_fontset, R.string.edit_fontset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary)
         addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_text_keyboard_layout, R.string.edit_text_keyboard_layout_summary)
