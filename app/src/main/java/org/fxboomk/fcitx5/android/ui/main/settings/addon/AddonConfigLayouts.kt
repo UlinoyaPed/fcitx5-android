@@ -44,6 +44,9 @@ object AddonConfigLayouts {
     internal fun fuzzyMappingOptionOrder(): List<String> =
         PinyinConfigLayout.fuzzyMappingOptionOrder()
 
+    internal fun fuzzyOptions(mapping: Boolean): List<String> =
+        PinyinConfigLayout.fuzzyOptions(mapping)
+
     fun getFuzzyTab(context: Context, uniqueName: String, mapping: Boolean): ConfigLayout? {
         val base = getForInputMethod(context, uniqueName) ?: return null
         return ConfigLayout(

@@ -26,7 +26,9 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
         sectionIndex: Int
     ): SettingsRoute? = AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
         ?.let { layout ->
-            val sectionTitle = layout.sectionTitle(context, sectionIndex) ?: return@let null
+            val sectionTitle = layout.sectionTitle(context, sectionIndex)
+                ?: layout.fallbackSectionTitle?.let(context::getString)
+                ?: return@let null
             if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
                 SettingsRoute.FuzzyConfig(args.name, args.uniqueName, false, sectionTitle)
             } else SettingsRoute.ConfigSection(

@@ -87,8 +87,22 @@ class FuzzyConfigTabFragment : FcitxPreferenceFragment() {
         if (isAddon) fcitx.getAddonConfig(uniqueName) else fcitx.getImConfig(uniqueName)
 
     override suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig) {
-        if (isAddon) fcitx.setAddonConfig(uniqueName, newConfig)
-        else fcitx.setImConfig(uniqueName, newConfig)
+        val latest = if (isAddon) {
+            fcitx.getAddonConfig(uniqueName)
+        } else {
+            fcitx.getImConfig(uniqueName)
+        }
+        val latestConfig = latest.findByName("cfg") ?: latest
+        val mergedConfig = mergeFuzzyOptions(
+            latestConfig,
+            newConfig,
+            AddonConfigLayouts.fuzzyOptions(mappings).toSet()
+        )
+        if (isAddon) {
+            fcitx.setAddonConfig(uniqueName, latest.withConfig(mergedConfig))
+        } else {
+            fcitx.setImConfig(uniqueName, latest.withConfig(mergedConfig))
+        }
     }
 
     companion object {
@@ -112,3 +126,31 @@ class FuzzyConfigTabFragment : FcitxPreferenceFragment() {
         }
     }
 }
+
+/** Merge only the options rendered by one fuzzy tab into the latest config snapshot. */
+internal fun mergeFuzzyOptions(
+    latestConfig: RawConfig,
+    editedConfig: RawConfig,
+    optionNames: Set<String>
+): RawConfig {
+    val latestFuzzy = latestConfig.findByName("Fuzzy") ?: return latestConfig
+    val editedFuzzy = editedConfig.findByName("Fuzzy") ?: return latestConfig
+    val editedByName = editedFuzzy.subItems.orEmpty().associateBy { it.name }
+    val mergedFuzzy = latestFuzzy.copy(
+        subItems = latestFuzzy.subItems?.map { option ->
+            if (option.name in optionNames) editedByName[option.name] ?: option else option
+        }?.toTypedArray()
+    )
+    return latestConfig.copy(
+        subItems = latestConfig.subItems?.map { option ->
+            if (option.name == "Fuzzy") mergedFuzzy else option
+        }?.toTypedArray()
+    )
+}
+
+private fun RawConfig.withConfig(config: RawConfig): RawConfig =
+    copy(
+        subItems = subItems?.map { item ->
+            if (item.name == "cfg") config else item
+        }?.toTypedArray()
+    )

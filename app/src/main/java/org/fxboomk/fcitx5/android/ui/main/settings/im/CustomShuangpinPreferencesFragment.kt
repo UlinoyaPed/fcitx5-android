@@ -36,7 +36,9 @@ class CustomShuangpinPreferencesFragment : FcitxPreferenceFragment() {
     ): SettingsRoute? {
         val uniqueName = CustomShuangpinSchemeStore.currentUniqueName()
         val layout = AddonConfigLayouts.getForInputMethod(context, uniqueName) ?: return null
-        val sectionTitle = layout.sectionTitle(context, sectionIndex) ?: return null
+        val sectionTitle = layout.sectionTitle(context, sectionIndex)
+            ?: layout.fallbackSectionTitle?.let(context::getString)
+            ?: return null
         return if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
             SettingsRoute.FuzzyConfig(
                 getString(R.string.custom_shuangpin_tab_preferences), uniqueName, false, sectionTitle
