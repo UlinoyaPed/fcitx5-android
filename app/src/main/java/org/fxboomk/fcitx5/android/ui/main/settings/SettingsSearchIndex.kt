@@ -20,6 +20,8 @@ import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonDisplayNames
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
@@ -365,16 +367,18 @@ object SettingsSearchIndex {
                 )
             }
             fcitx.addons()
-                .filter { it.enabled && it.isConfigurable && it.uniqueName != "pinyinhelper" }
+                .filter { it.enabled && it.isConfigurable }
                 .forEach { addon ->
                     val raw = fcitx.getAddonConfig(addon.uniqueName)
                     if (PreferenceScreenFactory.hasVisibleOptions(raw)) {
+                        val addonName = AddonDisplayNames.of(context, addon)
                         addAll(
                             rawConfigItems(
                                 context,
-                                addon.displayName,
-                                SettingsRoute.AddonConfig(addon.displayName, addon.uniqueName),
-                                raw
+                                addonName,
+                                SettingsRoute.AddonConfig(addonName, addon.uniqueName),
+                                raw,
+                                layout = AddonConfigLayouts.get(context, addon.uniqueName)
                             )
                         )
                     }
@@ -775,12 +779,15 @@ object SettingsSearchIndex {
         route: SettingsRoute,
         raw: RawConfig,
         tab: Int? = null,
-        extraPath: List<String> = emptyList()
+        extraPath: List<String> = emptyList(),
+        layout: ConfigLayout? = null
     ): List<SettingsSearchResult> {
         val desc = raw.findByName("desc") ?: return emptyList()
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { return emptyList() }
         val path = (listOf(pageTitle) + extraPath + listOf(topLevelDesc.name)).distinct()
-        return topLevelDesc.values.flatMap { descriptorItems(context, route, path, it, tab) }
+        return topLevelDesc.values.flatMap {
+            descriptorItems(context, route, path, it, tab, layout)
+        }
     }
 
     private fun descriptorItems(
@@ -788,20 +795,24 @@ object SettingsSearchIndex {
         route: SettingsRoute,
         path: List<String>,
         descriptor: ConfigDescriptor<*, *>,
-        tab: Int? = null
+        tab: Int? = null,
+        layout: ConfigLayout? = null
     ): List<SettingsSearchResult> {
         if (hideKeyConfig && ConfigType.pretty(descriptor.ty).contains("Key")) {
             return emptyList()
         }
         return if (descriptor is ConfigCustom) {
-            val section = descriptor.description ?: descriptor.name
+            val section = layout?.titleOverride(context, descriptor.name)
+                ?: descriptor.description ?: descriptor.name
+            val childLayout = layout?.children?.get(descriptor.name)
             descriptor.customTypeDef?.values.orEmpty().flatMap {
-                descriptorItems(context, route, path + section, it, tab)
+                descriptorItems(context, route, path + section, it, tab, childLayout)
             }
         } else {
             listOf(
                 SettingsSearchResult(
-                    title = descriptorTitle(context, descriptor),
+                    title = layout?.titleOverride(context, descriptor.name)
+                        ?: descriptorTitle(context, descriptor),
                     path = path,
                     route = route,
                     preferenceKey = descriptor.name,

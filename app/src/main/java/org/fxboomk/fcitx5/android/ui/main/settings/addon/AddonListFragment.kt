@@ -27,7 +27,6 @@ import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 
 class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
     companion object {
-        private val hiddenAddons = setOf("pinyinhelper")
         private val preferredOrder = listOf(
             "pinyin",
             "spell",
@@ -35,7 +34,12 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
             "rime",
             "clipboard",
             "quickphrase",
-            "unicode"
+            "androidkeyboard",
+            "chttrans",
+            // Keep the character-related addons together.
+            "fullwidth",
+            "unicode",
+            "pinyinhelper"
         ).withIndex().associate { it.value to it.index }
     }
 
@@ -47,7 +51,8 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
 
     private var restartPending = false
 
-    private fun displayNameOf(addon: AddonInfo): String = addon.displayName
+    private fun displayNameOf(addon: AddonInfo): String =
+        AddonDisplayNames.of(requireContext(), addon)
 
     private suspend fun FcitxAPI.hasVisibleConfigOptions(addon: String): Boolean =
         PreferenceScreenFactory.hasVisibleOptions(getAddonConfig(addon))
@@ -100,7 +105,7 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
 
             if (depStr != null || optDepStr != null) {
                 val msg = buildString {
-                    appendLine(getString(R.string.disable_addon_warn_name, entry.displayName))
+                    appendLine(getString(R.string.disable_addon_warn_name, displayNameOf(entry)))
                     depStr?.let {
                         append("- ")
                         appendLine(it)
@@ -159,7 +164,7 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
         visibleConfigAddons += fcitx.runOnReady {
             buildSet {
                 addons()
-                    .filter { it.enabled && it.isConfigurable && it.uniqueName !in hiddenAddons }
+                    .filter { it.enabled && it.isConfigurable }
                     .forEach { addon ->
                         if (hasVisibleConfigOptions(addon.uniqueName)) {
                             add(addon.uniqueName)
@@ -170,7 +175,6 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
         ui = requireContext().CheckBoxListUi(
             initialEntries = fcitx.runOnReady {
                 addons()
-                    .filter { it.uniqueName !in hiddenAddons }
                     .sortedWith(
                         compareBy<AddonInfo> {
                             when (it.uniqueName) {
@@ -210,7 +214,7 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
                         navigateWithAnim(SettingsRoute.Clipboard)
                     } else {
                         navigateWithAnim(
-                            SettingsRoute.AddonConfig(entry.displayName, entry.uniqueName)
+                            SettingsRoute.AddonConfig(displayNameOf(entry), entry.uniqueName)
                         )
                     }
                 }

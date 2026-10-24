@@ -1010,4 +1010,58 @@
     <string name="custom_shuangpin_syllable_count">%1$d 条覆盖</string>
     <string name="custom_shuangpin_syllables_hint">每行一条：完整拼音=双键；多个双键可用逗号分隔。</string>
     <string name="custom_shuangpin_syllables_invalid">音节覆盖格式无效。示例：ju=jv 或 shi=ui,is。</string>
+    <!-- 拼音附加组件配置布局 -->
+    <string name="pinyin_config_section_input">输入</string>
+    <string name="pinyin_config_section_candidates">候选</string>
+    <string name="pinyin_config_section_prediction">联想</string>
+    <string name="pinyin_config_section_keys">按键</string>
+    <string name="pinyin_config_section_lexicon">词库与短语</string>
+    <string name="pinyin_config_section_text">标点与转换</string>
+    <string name="pinyin_config_section_cloud">云拼音</string>
+    <string name="pinyin_config_section_other">其他</string>
+    <string name="pinyin_config_cursor_at_start">光标置首</string>
+    <string name="pinyin_config_full_pinyin">显示完整拼音</string>
+    <string name="pinyin_config_show_shuangpin_mode">显示双拼状态</string>
+    <string name="pinyin_config_preedit_mode">预编辑模式</string>
+    <string name="pinyin_config_shuangpin_profile">双拼方案</string>
+    <string name="pinyin_config_english_candidates">英文候选</string>
+    <string name="pinyin_config_symbol_candidates">符号候选</string>
+    <string name="pinyin_config_chaizi_candidates">拆字候选</string>
+    <string name="pinyin_config_stroke_candidates">笔画候选</string>
+    <string name="pinyin_config_extension_b">扩展 B 字集</string>
+    <string name="pinyin_config_page_size">每页候选数</string>
+    <string name="pinyin_config_phrase_limit">词组候选数</string>
+    <string name="pinyin_config_sentence_count">句子数量</string>
+    <string name="pinyin_config_long_word_hint">长词提示长度</string>
+    <string name="pinyin_config_prediction">启用联想</string>
+    <string name="pinyin_config_keep_context">保留上下文</string>
+    <string name="pinyin_config_learning">学习</string>
+    <string name="pinyin_config_prediction_count">联想数量</string>
+    <string name="pinyin_config_backspace_behavior">退格键行为</string>
+    <string name="pinyin_config_switch_ime_behavior">切换输入法行为</string>
+    <string name="pinyin_config_keypad_selection">小键盘选词</string>
+    <string name="pinyin_config_backspace_unselect">退格取消选词</string>
+    <string name="pinyin_config_v_quickphrase">V 键快速输入</string>
+    <string name="pinyin_config_manage_dictionaries">管理词库</string>
+    <string name="pinyin_config_custom_phrases">自定义词组</string>
+    <string name="pinyin_config_quickphrase">快速输入</string>
+    <string name="pinyin_config_punctuation">标点</string>
+    <string name="pinyin_config_script_conversion">简繁转换</string>
+    <string name="pinyin_config_quickphrase_regex">快速输入正则</string>
+    <string name="pinyin_config_fuzzy">模糊拼音</string>
+    <string name="pinyin_config_cloud_enabled">云拼音</string>
+    <string name="pinyin_config_cloud_animation">云加载动画</string>
+    <string name="pinyin_config_cloud_placeholder">保留云占位符</string>
+    <string name="pinyin_config_cloud_index">云候选顺序</string>
+    <string name="pinyin_config_cloud_config">云拼音设置</string>
+    <string name="pinyin_config_fuzzy_common_typo">常见错误</string>
+    <string name="pinyin_config_fuzzy_inner">音节内分割</string>
+    <string name="pinyin_config_fuzzy_inner_short">短拼音分割</string>
+    <string name="pinyin_config_fuzzy_lowercase">小写匹配</string>
+    <string name="pinyin_config_fuzzy_partial_final">匹配不完整韵母</string>
+    <string name="pinyin_config_fuzzy_partial_sp">部分双拼匹配</string>
+    <string name="pinyin_config_fuzzy_correction">邻键纠错</string>
+    <string name="pinyin_config_commit_preedit">提交预编辑</string>
+    <!-- 附加组件显示名称 -->
+    <string name="addon_unicode_name">字符集扩展</string>
 </resources>

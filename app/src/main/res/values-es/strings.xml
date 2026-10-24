@@ -1009,4 +1009,15 @@
     <string name="swipe_action_timing_no_code_candidates">Sin código, con candidatos</string>
     <string name="swipe_action_timing_all">Todos</string>
     <string name="text_keyboard_layout_compose_override_description">El estado de composición significa que el método de entrada está introduciendo un código de entrada.</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">Entrada</string>
+    <string name="pinyin_config_section_candidates">Candidatos</string>
+    <string name="pinyin_config_section_prediction">Predicción</string>
+    <string name="pinyin_config_section_keys">Teclas</string>
+    <string name="pinyin_config_section_lexicon">Diccionario y frases</string>
+    <string name="pinyin_config_section_text">Puntuación y conversión</string>
+    <string name="pinyin_config_section_cloud">Pinyin en la nube</string>
+    <string name="pinyin_config_section_other">Otros</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">Extensiones de conjuntos de caracteres</string>
 </resources>

@@ -1009,4 +1009,15 @@
     <string name="swipe_action_timing_no_code_candidates">Нет кода, есть кандидаты</string>
     <string name="swipe_action_timing_all">Все</string>
     <string name="text_keyboard_layout_compose_override_description">Состояние набора означает, что метод ввода в данный момент вводит код.</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">Ввод</string>
+    <string name="pinyin_config_section_candidates">Кандидаты</string>
+    <string name="pinyin_config_section_prediction">Предсказание</string>
+    <string name="pinyin_config_section_keys">Клавиши</string>
+    <string name="pinyin_config_section_lexicon">Словари и фразы</string>
+    <string name="pinyin_config_section_text">Пунктуация и преобразование</string>
+    <string name="pinyin_config_section_cloud">Облачный пиньинь</string>
+    <string name="pinyin_config_section_other">Другое</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">Расширения набора символов</string>
 </resources>

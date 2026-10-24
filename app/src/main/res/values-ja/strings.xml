@@ -1009,4 +1009,15 @@
     <string name="swipe_action_timing_no_code_candidates">コードなし、候補あり</string>
     <string name="swipe_action_timing_all">すべて</string>
     <string name="text_keyboard_layout_compose_override_description">入力中状態とは、入力メソッドが入力コードを入力している途中であることを意味します。</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">入力</string>
+    <string name="pinyin_config_section_candidates">候補</string>
+    <string name="pinyin_config_section_prediction">予測</string>
+    <string name="pinyin_config_section_keys">キー</string>
+    <string name="pinyin_config_section_lexicon">辞書とフレーズ</string>
+    <string name="pinyin_config_section_text">句読点と変換</string>
+    <string name="pinyin_config_section_cloud">クラウド拼音</string>
+    <string name="pinyin_config_section_other">その他</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">文字セット拡張</string>
 </resources>

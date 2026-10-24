@@ -1009,4 +1009,15 @@
     <string name="swipe_action_timing_no_code_candidates">코드 없음, 후보 있음</string>
     <string name="swipe_action_timing_all">모두</string>
     <string name="text_keyboard_layout_compose_override_description">조합 상태는 입력기가 입력 코드를 입력하는 중임을 의미합니다.</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">입력</string>
+    <string name="pinyin_config_section_candidates">후보</string>
+    <string name="pinyin_config_section_prediction">예측</string>
+    <string name="pinyin_config_section_keys">키</string>
+    <string name="pinyin_config_section_lexicon">사전 및 구문</string>
+    <string name="pinyin_config_section_text">문장 부호 및 변환</string>
+    <string name="pinyin_config_section_cloud">클라우드 병음</string>
+    <string name="pinyin_config_section_other">기타</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">문자 집합 확장</string>
 </resources>

@@ -1147,4 +1147,58 @@
     <string name="custom_shuangpin_syllable_count">%1$d override(s)</string>
     <string name="custom_shuangpin_syllables_hint">One mapping per line: full pinyin=two-key. Multiple keys can be separated by commas.</string>
     <string name="custom_shuangpin_syllables_invalid">Invalid syllable override. Use lines like ju=jv or shi=ui,is.</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">Input</string>
+    <string name="pinyin_config_section_candidates">Candidates</string>
+    <string name="pinyin_config_section_prediction">Prediction</string>
+    <string name="pinyin_config_section_keys">Keys</string>
+    <string name="pinyin_config_section_lexicon">Dictionaries &amp; phrases</string>
+    <string name="pinyin_config_section_text">Punctuation &amp; conversion</string>
+    <string name="pinyin_config_section_cloud">Cloud Pinyin</string>
+    <string name="pinyin_config_section_other">Other</string>
+    <string name="pinyin_config_cursor_at_start">Cursor at start</string>
+    <string name="pinyin_config_full_pinyin">Show full pinyin</string>
+    <string name="pinyin_config_show_shuangpin_mode">Show shuangpin mode</string>
+    <string name="pinyin_config_preedit_mode">Preedit mode</string>
+    <string name="pinyin_config_shuangpin_profile">Shuangpin profile</string>
+    <string name="pinyin_config_english_candidates">English candidates</string>
+    <string name="pinyin_config_symbol_candidates">Symbol candidates</string>
+    <string name="pinyin_config_chaizi_candidates">Chaizi candidates</string>
+    <string name="pinyin_config_stroke_candidates">Stroke candidates</string>
+    <string name="pinyin_config_extension_b">Extension B set</string>
+    <string name="pinyin_config_page_size">Page size</string>
+    <string name="pinyin_config_phrase_limit">Phrase limit</string>
+    <string name="pinyin_config_sentence_count">Sentence count</string>
+    <string name="pinyin_config_long_word_hint">Long word threshold</string>
+    <string name="pinyin_config_prediction">Enable prediction</string>
+    <string name="pinyin_config_keep_context">Keep context</string>
+    <string name="pinyin_config_learning">Learning</string>
+    <string name="pinyin_config_prediction_count">Prediction count</string>
+    <string name="pinyin_config_backspace_behavior">Backspace behavior</string>
+    <string name="pinyin_config_switch_ime_behavior">Switch IME behavior</string>
+    <string name="pinyin_config_keypad_selection">Keypad selection</string>
+    <string name="pinyin_config_backspace_unselect">Backspace to unselect</string>
+    <string name="pinyin_config_v_quickphrase">V for quick phrase</string>
+    <string name="pinyin_config_manage_dictionaries">Manage dictionaries</string>
+    <string name="pinyin_config_custom_phrases">Custom phrases</string>
+    <string name="pinyin_config_quickphrase">Quick phrases</string>
+    <string name="pinyin_config_punctuation">Punctuation</string>
+    <string name="pinyin_config_script_conversion">Script conversion</string>
+    <string name="pinyin_config_quickphrase_regex">Quick phrase regex</string>
+    <string name="pinyin_config_fuzzy">Fuzzy pinyin</string>
+    <string name="pinyin_config_cloud_enabled">Cloud Pinyin</string>
+    <string name="pinyin_config_cloud_animation">Cloud loading animation</string>
+    <string name="pinyin_config_cloud_placeholder">Keep cloud placeholder</string>
+    <string name="pinyin_config_cloud_index">Cloud candidate order</string>
+    <string name="pinyin_config_cloud_config">Cloud Pinyin settings</string>
+    <string name="pinyin_config_fuzzy_common_typo">Common typos</string>
+    <string name="pinyin_config_fuzzy_inner">Inner segment</string>
+    <string name="pinyin_config_fuzzy_inner_short">Short inner segment</string>
+    <string name="pinyin_config_fuzzy_lowercase">Lowercase match</string>
+    <string name="pinyin_config_fuzzy_partial_final">Match partial finals</string>
+    <string name="pinyin_config_fuzzy_partial_sp">Partial shuangpin match</string>
+    <string name="pinyin_config_fuzzy_correction">Neighbor-key correction</string>
+    <string name="pinyin_config_commit_preedit">Commit preedit</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">Character set extensions</string>
 </resources>

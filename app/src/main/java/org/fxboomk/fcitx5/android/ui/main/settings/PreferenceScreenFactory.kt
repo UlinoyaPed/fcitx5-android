@@ -15,6 +15,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.Preference.SummaryProvider
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
@@ -45,6 +46,7 @@ import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 import org.fxboomk.fcitx5.android.utils.parcelableArray
 import org.fxboomk.fcitx5.android.utils.toast
 import timber.log.Timber
+import java.util.LinkedHashMap
 
 object PreferenceScreenFactory {
 
@@ -60,20 +62,106 @@ object PreferenceScreenFactory {
         preferenceManager: PreferenceManager,
         fragmentManager: FragmentManager,
         raw: RawConfig,
-        save: () -> Unit
+        save: () -> Unit,
+        layout: ConfigLayout? = null
     ): PreferenceScreen {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
         val cfg = raw["cfg"]
         val desc = raw["desc"]
-        val store = FcitxRawConfigStore(cfg)
+        val store = FcitxRawConfigStore(cfg, layout.booleanAliases())
         // TODO: needs some error handling
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { throw it }
         screen.title = topLevelDesc.name
-        topLevelDesc.values.forEach {
-            general(context, fragmentManager, cfg.findByName(it.name), screen, it, store, save)
+        if (layout == null) {
+            topLevelDesc.values.forEach {
+                general(context, fragmentManager, cfg.findByName(it.name), screen, it, store, save)
+            }
+        } else {
+            renderSections(
+                context,
+                fragmentManager,
+                cfg,
+                screen,
+                topLevelDesc.values,
+                layout,
+                store,
+                save
+            )
         }
         return screen
+    }
+
+    private fun ConfigLayout?.booleanAliases(): Map<String, Pair<String, String>> =
+        this?.enumSwitches?.mapValues { it.value.onValue to it.value.offValue } ?: emptyMap()
+
+    private fun renderSections(
+        context: Context,
+        fragmentManager: FragmentManager,
+        cfg: RawConfig,
+        screen: PreferenceScreen,
+        descriptors: List<ConfigDescriptor<*, *>>,
+        layout: ConfigLayout,
+        store: PreferenceDataStore,
+        save: () -> Unit
+    ) {
+        val remaining = LinkedHashMap<String, ConfigDescriptor<*, *>>()
+        descriptors.forEach { remaining[it.name] = it }
+
+        for (section in layout.sections) {
+            // A section without a title (e.g. the fuzzy pinyin block) is rendered
+            // directly into the screen instead of creating a header-less category.
+            val parent: PreferenceGroup = if (section.title == null) {
+                screen
+            } else {
+                PreferenceCategory(context).apply {
+                    setTitle(section.title)
+                    isIconSpaceReserved = false
+                    isSingleLineTitle = false
+                }.also { screen.addPreference(it) }
+            }
+            for (name in section.options) {
+                val descriptor = remaining.remove(name) ?: continue
+                general(
+                    context,
+                    fragmentManager,
+                    cfg.findByName(name),
+                    parent,
+                    descriptor,
+                    store,
+                    save,
+                    layout
+                )
+            }
+            // Every option in this section was hidden (e.g. key configs).
+            if (parent is PreferenceCategory && parent.preferenceCount == 0) {
+                screen.removePreference(parent)
+            }
+        }
+
+        if (remaining.isNotEmpty()) {
+            val category = PreferenceCategory(context).apply {
+                layout.fallbackSectionTitle?.let { setTitle(it) }
+                isIconSpaceReserved = false
+                isSingleLineTitle = false
+            }
+            screen.addPreference(category)
+            for (descriptor in remaining.values) {
+                general(
+                    context,
+                    fragmentManager,
+                    cfg.findByName(descriptor.name),
+                    category,
+                    descriptor,
+                    store,
+                    save,
+                    layout
+                )
+            }
+            if (category.preferenceCount == 0) {
+                screen.removePreference(category)
+            }
+        }
     }
 
     private fun general(
@@ -83,7 +171,8 @@ object PreferenceScreenFactory {
         parent: PreferenceGroup,
         descriptor: ConfigDescriptor<*, *>,
         store: PreferenceDataStore,
-        save: () -> Unit
+        save: () -> Unit,
+        layout: ConfigLayout? = null
     ) {
 
         // Hide key related configs
@@ -92,7 +181,7 @@ object PreferenceScreenFactory {
         }
 
         if (descriptor is ConfigCustom) {
-            custom(context, fragmentManager, cfg, parent, descriptor, save)
+            custom(context, fragmentManager, cfg, parent, descriptor, save, layout)
             return
         }
 
@@ -188,11 +277,9 @@ object PreferenceScreenFactory {
             }
         }
 
-        fun addonConfigPreference(addon: String) = Preference(context).apply {
+        fun addonConfigPreference(title: String, addon: String) = Preference(context).apply {
             setOnPreferenceClickListener {
-                navigate(
-                    SettingsRoute.AddonConfig(descriptor.description ?: descriptor.name, addon)
-                )
+                navigate(SettingsRoute.AddonConfig(title, addon))
             }
         }
 
@@ -219,27 +306,44 @@ object PreferenceScreenFactory {
             }
         }
 
+        val titleText = layout?.titleOverride(context, descriptor.name) ?: displayTitle()
+
         when (descriptor) {
             is ConfigBool -> MySwitchPreference(context).apply {
                 summary = descriptor.tooltip
                 setDefaultValue(descriptor.defaultValue)
             }
-            is ConfigEnum -> ListPreference(context).apply {
-                entries = (descriptor.entriesI18n ?: descriptor.entries).toTypedArray()
-                entryValues = descriptor.entries.toTypedArray()
-                summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
-                setDefaultValue(descriptor.defaultValue)
+            is ConfigEnum -> {
+                val enumSwitch = layout?.enumSwitches?.get(descriptor.name)
+                if (enumSwitch != null) {
+                    MySwitchPreference(context).apply {
+                        summary = descriptor.tooltip
+                        setDefaultValue(descriptor.defaultValue == enumSwitch.onValue)
+                    }
+                } else {
+                    ListPreference(context).apply {
+                        entries = (descriptor.entriesI18n ?: descriptor.entries)
+                            .mapIndexed { index, label ->
+                                val value = descriptor.entries.getOrNull(index) ?: label
+                                layout?.entryTitleOverride(context, descriptor.name, value)
+                                    ?: label
+                            }.toTypedArray()
+                        entryValues = descriptor.entries.toTypedArray()
+                        summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+                        setDefaultValue(descriptor.defaultValue)
+                    }
+                }
             }
             is ConfigEnumList -> listPreference(ConfigType.TyEnum)
             is ConfigExternal -> when (descriptor.knownType) {
                 ConfigExternal.ETy.PinyinDict -> pinyinDictionary()
                 ConfigExternal.ETy.Punctuation -> punctuationEditor(
-                    descriptor.description ?: descriptor.name,
+                    titleText,
                     // fcitx://config/addon/punctuation/punctuationmap/zh_CN
                     descriptor.uri?.substringAfterLast('/')
                 )
                 ConfigExternal.ETy.QuickPhrase -> quickPhraseEditor()
-                ConfigExternal.ETy.Chttrans -> addonConfigPreference("chttrans")
+                ConfigExternal.ETy.Chttrans -> addonConfigPreference(titleText, "chttrans")
                 ConfigExternal.ETy.PinyinCustomPhrase -> pinyinCustomPhrase()
                 ConfigExternal.ETy.MultiSelect -> Preference(context).apply {
                     setOnPreferenceClickListener {
@@ -253,9 +357,7 @@ object PreferenceScreenFactory {
                         navigate(parsed)
                     }
                 }
-                ConfigExternal.ETy.RimeUserDataDir -> rimeUserDataDir(
-                    descriptor.description ?: descriptor.name
-                )
+                ConfigExternal.ETy.RimeUserDataDir -> rimeUserDataDir(titleText)
                 else -> stubPreference()
             }
             is ConfigInt -> {
@@ -292,7 +394,7 @@ object PreferenceScreenFactory {
             is ConfigCustom -> throw IllegalAccessException("Impossible!")
         }.apply {
             key = descriptor.name
-            title = displayTitle()
+            title = titleText
             isSingleLineTitle = false
             isIconSpaceReserved = false
             preferenceDataStore = store
@@ -328,19 +430,58 @@ object PreferenceScreenFactory {
         cfg: RawConfig?,
         parent: PreferenceGroup,
         descriptor: ConfigCustom,
-        save: () -> Unit
+        save: () -> Unit,
+        layout: ConfigLayout?
     ) {
-        val subStore = FcitxRawConfigStore(cfg ?: RawConfig())
+        val childLayout = layout?.children?.get(descriptor.name)
+        val subStore = FcitxRawConfigStore(cfg ?: RawConfig(), childLayout.booleanAliases())
+        val customTitle = layout?.titleOverride(context, descriptor.name)
+            ?: descriptor.description ?: descriptor.name
         val subPref = CollapsiblePreferenceCategory(
             context,
             stateKey = "${rootTitle(parent)}:${descriptor.name}"
         ).apply {
             key = descriptor.name
-            setCollapsibleTitle(descriptor.description ?: descriptor.name)
+            setCollapsibleTitle(customTitle)
         }
         parent.addPreference(subPref)
-        descriptor.customTypeDef?.values?.forEach {
-            general(context, fragmentManager, cfg?.findByName(it.name), subPref, it, subStore, save)
+
+        val children = descriptor.customTypeDef?.values.orEmpty()
+        if (childLayout == null) {
+            children.forEach {
+                general(context, fragmentManager, cfg?.findByName(it.name), subPref, it, subStore, save)
+            }
+            return
+        }
+
+        val remaining = LinkedHashMap<String, ConfigDescriptor<*, *>>()
+        children.forEach { remaining[it.name] = it }
+        for (section in childLayout.sections) {
+            for (name in section.options) {
+                val child = remaining.remove(name) ?: continue
+                general(
+                    context,
+                    fragmentManager,
+                    cfg?.findByName(name),
+                    subPref,
+                    child,
+                    subStore,
+                    save,
+                    childLayout
+                )
+            }
+        }
+        for (child in remaining.values) {
+            general(
+                context,
+                fragmentManager,
+                cfg?.findByName(child.name),
+                subPref,
+                child,
+                subStore,
+                save,
+                childLayout
+            )
         }
     }
 

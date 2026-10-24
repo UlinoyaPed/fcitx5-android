@@ -4,6 +4,7 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -37,6 +38,12 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
 
     protected open val preferenceFragmentManager: FragmentManager
         get() = parentFragmentManager
+
+    /**
+     * Optional presentation layout for the generated preference screen.
+     */
+    protected open fun getConfigLayout(context: Context): ConfigLayout? = null
+
     abstract suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig
     abstract suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig)
 
@@ -108,7 +115,11 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             configLoaded = raw.findByName("cfg") != null && raw.findByName("desc") != null
             preferenceScreen = if (configLoaded) {
                 PreferenceScreenFactory.create(
-                    preferenceManager, preferenceFragmentManager, raw, ::save
+                    preferenceManager,
+                    preferenceFragmentManager,
+                    raw,
+                    ::save,
+                    getConfigLayout(context)
                 ).apply {
                     if (isEmpty()) {
                         addPreference(R.string.no_config_options)

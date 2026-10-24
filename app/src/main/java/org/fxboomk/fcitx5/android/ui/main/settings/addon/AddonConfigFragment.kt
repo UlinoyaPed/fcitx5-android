@@ -4,101 +4,27 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.addon
 
-import org.fxboomk.fcitx5.android.R
+import android.content.Context
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
+import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.lazyRoute
 
 class AddonConfigFragment : FcitxPreferenceFragment() {
-    companion object {
-        private const val pinyinAddon = "pinyin"
-        private const val pinyinHelperAddon = "pinyinhelper"
-        private const val androidPinyinHelperOption = "AndroidPinyinHelper"
-    }
 
     private val args by lazyRoute<SettingsRoute.AddonConfig>()
 
-    private fun RawConfig.appendIfMissing(option: RawConfig) {
-        if (findByName(option.name) == null) {
-            subItems = (subItems ?: emptyArray()) + option
-        }
-    }
-
-    private fun RawConfig.appendToTopLevelDescriptionIfMissing(option: RawConfig) {
-        val topLevel = subItems?.firstOrNull() ?: return
-        if (topLevel.findByName(option.name) == null) {
-            topLevel.subItems = (topLevel.subItems ?: emptyArray()) + option
-        }
-    }
-
     override fun getPageTitle(): String = args.name
 
-    override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
-        val addon = args.uniqueName
-        val raw = fcitx.getAddonConfig(addon)
-        if (addon == pinyinAddon) {
-            val enabled = fcitx.addons().firstOrNull { it.uniqueName == pinyinHelperAddon }?.enabled ?: false
-            raw.findByName("cfg")?.appendIfMissing(RawConfig(androidPinyinHelperOption, enabled))
-            raw.findByName("desc")?.appendToTopLevelDescriptionIfMissing(
-                RawConfig(
-                    androidPinyinHelperOption, subItems = arrayOf(
-                        RawConfig("Type", "Boolean"),
-                        RawConfig(
-                            "Description",
-                            fcitx.translate("Extra Pinyin functionality", "fcitx5-chinese-addons")
-                        )
-                    )
-                )
-            )
-        }
-        return raw
-    }
+    override fun getConfigLayout(context: Context): ConfigLayout? =
+        AddonConfigLayouts.get(context, args.uniqueName)
+
+    override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
+        fcitx.getAddonConfig(args.uniqueName)
 
     override suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig) {
-        if (args.uniqueName == pinyinAddon) {
-            val cfg = newConfig.findByName("cfg")
-            val pinyinHelperEnabled = cfg?.findByName(androidPinyinHelperOption)?.value?.toBoolean() ?: false
-            val config = newConfig.copy(
-                subItems = newConfig.subItems?.map { item ->
-                    when (item.name) {
-                        "cfg" -> item.copy(
-                            subItems = item.subItems
-                                ?.filterNot { it.name == androidPinyinHelperOption }
-                                ?.toTypedArray()
-                        )
-                        "desc" -> item.copy(
-                            subItems = item.subItems?.mapIndexed { index, descItem ->
-                                if (index == 0) {
-                                    descItem.copy(
-                                        subItems = descItem.subItems
-                                            ?.filterNot { it.name == androidPinyinHelperOption }
-                                            ?.toTypedArray()
-                                    )
-                                } else {
-                                    descItem
-                                }
-                            }?.toTypedArray()
-                        )
-                        else -> item
-                    }
-                }?.toTypedArray()
-            )
-            fcitx.setAddonConfig(args.uniqueName, config)
-
-            val requiredDependents = if (!pinyinHelperEnabled) {
-                fcitx.getAddonReverseDependencies(pinyinHelperAddon)
-                    .filter { it.second == FcitxAPI.AddonDep.Required }
-                    .map { it.first }
-            } else {
-                emptyList()
-            }
-            val addonNames = arrayOf(pinyinHelperAddon, *requiredDependents.toTypedArray())
-            val addonStates = BooleanArray(addonNames.size) { pinyinHelperEnabled }
-            fcitx.setAddonState(addonNames, addonStates)
-            return
-        }
         fcitx.setAddonConfig(args.uniqueName, newConfig)
     }
 }

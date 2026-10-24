@@ -1007,4 +1007,15 @@
     <string name="swipe_action_timing_no_code_candidates">Kein Code, Kandidaten vorhanden</string>
     <string name="swipe_action_timing_all">Alle</string>
     <string name="text_keyboard_layout_compose_override_description">Der Eingabezustand bedeutet, dass die Eingabemethode gerade einen Eingabecode eingibt.</string>
+    <!-- Pinyin addon configuration layout -->
+    <string name="pinyin_config_section_input">Eingabe</string>
+    <string name="pinyin_config_section_candidates">Kandidaten</string>
+    <string name="pinyin_config_section_prediction">Vorhersage</string>
+    <string name="pinyin_config_section_keys">Tasten</string>
+    <string name="pinyin_config_section_lexicon">Wörterbuch &amp; Phrasen</string>
+    <string name="pinyin_config_section_text">Zeichensetzung &amp; Konvertierung</string>
+    <string name="pinyin_config_section_cloud">Cloud-Pinyin</string>
+    <string name="pinyin_config_section_other">Sonstiges</string>
+    <!-- Addon display names -->
+    <string name="addon_unicode_name">Zeichensatzerweiterungen</string>
 </resources>
