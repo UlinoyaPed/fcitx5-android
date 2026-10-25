@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">白鳥入力法</string>
     <string name="app_name_release">白鳥入力法</string>
     <string name="app_name_debug">白鳥入力法 (デバッグ)</string>
     <string name="save">保存</string>
     <string name="input_methods">インプットメソッド</string>
     <string name="addons">アドオン</string>
-    <string name="conf">設定</string>
     <string name="global_options">全般オプション</string>
     <string name="advanced">高度な設定</string>
     <string name="ignore_sys_cursor">システムカーソル位置を無視する</string>
@@ -44,7 +43,6 @@
     <string name="synced">同期完了!</string>
     <string name="loading">ロード中</string>
     <string name="clipboard_listening">クリップボード履歴を記録</string>
-    <string name="clipboard_limit">クリップボード履歴の制限</string>
     <string name="clipboard_enable">クリップボードを有効にする</string>
     <string name="expanded_candidate_style">拡張された候補スタイル</string>
     <string name="expanded_candidate_style_grid">グリッド</string>
@@ -158,7 +156,6 @@
     <string name="remove_from_theme_pool">テーマプールから削除</string>
     <string name="exception_theme_name_clash">テーマ名がビルトインテーマと衝突します</string>
     <string name="exception_theme_src_image">選択した画像をテーマの背景として保存できません</string>
-    <string name="exception_theme_cropped_image">切り取った画像をテーマの背景として保存できません</string>
     <string name="exception_theme_parse">テーマファイルを解析できませんでした</string>
     <string name="follow_system_day_night_theme">システムのテーマに従う</string>
     <string name="follow_system_day_night_theme_summary">有効にすると、システムのモードに基づいて選択した明暗テーマからランダムに選択</string>
@@ -218,11 +215,8 @@
     <string name="space_behavior_voice_input">音声入力に切り替える</string>
     <string name="space_behavior_switch_to_english">中国語入力と英語入力を切り替える</string>
     <string name="show_lang_switch_key">言語切り替えキーを表示する</string>
-    <string name="keyboard_settings_sections">セクション</string>
-    <string name="keyboard_settings_basic_section">基本</string>
     <string name="keyboard_settings_basic_behavior">基本動作</string>
     <string name="keyboard_settings_touch_and_sound">触覚とサウンド</string>
-    <string name="keyboard_settings_toolbar_and_voice">ツールバーと音声</string>
     <string name="keyboard_settings_key_and_gesture">キーとジェスチャー</string>
     <string name="keyboard_settings_layout_and_split">レイアウトと分割キーボード</string>
     <string name="keyboard_settings_candidates">候補表示</string>
@@ -233,13 +227,6 @@
     <string name="focus_change_reset_disabled_summary">フォーカス変更時も現在のパネルを維持</string>
     <string name="inline_suggestions_enabled_summary">インライン自動入力候補を表示</string>
     <string name="inline_suggestions_disabled_summary">インライン自動入力候補を表示しない</string>
-    <string name="voice_input_button_visible_summary">音声入力ボタンを表示</string>
-    <string name="voice_input_hidden_summary">音声入力ボタンを表示しない</string>
-    <string name="popup_preview_visible_summary">キー押下時にポップアップ文字を表示</string>
-    <string name="popup_preview_hidden_summary">キー押下時にポップアップ文字を表示しない</string>
-    <string name="space_swipe_move_cursor_enabled_summary">スペースキーのスワイプでカーソル移動</string>
-    <string name="space_swipe_move_cursor_disabled_summary">スペースキーのスワイプでカーソルは移動しない</string>
-    <string name="keyboard_height_summary_compact">%1$d%% / %2$d%%</string>
     <string name="split_keyboard_enabled_summary_short">自動分割が有効</string>
     <string name="split_keyboard_disabled_summary">自動分割が無効</string>
     <string name="horizontal_candidate_style">水平候補スタイル</string>
@@ -313,16 +300,11 @@
     <string name="status_area_section">Status Area（メニュー）</string>
     <string name="more_menu_items">その他のメニュー項目</string>
     <string name="available_buttons_section">利用可能なボタン</string>
-    <string name="button_icon_code_point">Iconfont Unicode コードポイント</string>
-    <string name="button_icon_code_point_hint">例: E141</string>
-    <string name="button_icon_code_point_summary">設定されたボタンアイコンフォントを使用し、未設定の場合は内蔵の iconfont.ttf を使用します。空欄にすると既定のアイコンを使用します。</string>
-    <string name="button_icon_code_point_invalid">4～6 桁の 16 進数を入力してください</string>
     <string name="button_icon_code">アイコンコードまたは SVG</string>
     <string name="button_icon_code_hint">Glyph の Unicode コードポイントまたは &lt;svg&gt;&#8230;</string>
     <string name="button_icon_code_summary">Iconfont glyph のコードポイントまたは SVG コードを入力します。編集中は SVG と glyph の両方をプレビューできます。空欄にすると既定のアイコンに戻ります。</string>
     <string name="button_icon_code_invalid">有効なコードポイント、または path を含む SVG コードを入力してください</string>
     <string name="language_switch">言語切替</string>
-    <string name="all_buttons_added">利用可能なボタンはすべて追加済みです</string>
     <string name="add_button_to_section_title">セクションに追加</string>
     <string name="custom_label_hint">カスタムラベル（オプション）</string>
     <string name="floating_keyboard">フローティングキーボード</string>
@@ -343,13 +325,11 @@
     <string name="popup_editor_add_candidate_button">追加</string>
     <string name="popup_editor_candidate_input_hint">候補値を入力</string>
     <string name="popup_editor_qr_export">設定をQRコードで共有</string>
-    <string name="edit_text_playground">EditText プレイグラウンド</string>
     <string name="edit_text_keyboard_layout">キーボードレイアウト設定</string>
     <string name="font_size">フォントサイズ</string>
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - フォントサイズ</string>
     <string name="font_size_editor_hint">ドラッグしてフォントサイズを調整 (%1$d–%2$d sp)</string>
-    <string name="text_keyboard_layout_preview">プレビュー</string>
     <string name="text_keyboard_layout_row_editor_title">行プロパティを編集</string>
     <string name="text_keyboard_layout_row_editor_subtitle">%1$d 行目</string>
     <string name="text_keyboard_layout_row_height_multiplier">高さ倍率</string>
@@ -359,7 +339,6 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">キー幅倍率は有限で 0 より大きい数値である必要があります</string>
     <string name="text_keyboard_layout_row_sub_label_position">副文字の位置</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">副文字 1 の位置</string>
-    <string name="text_keyboard_layout_row_sub_label_top_bottom">上下</string>
     <string name="text_keyboard_layout_row_sub_label_top">上部</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">右上</string>
     <string name="text_keyboard_layout_row_sub_label_bottom">下部</string>
@@ -375,7 +354,6 @@
     <string name="cancel">キャンセル</string>
     <string name="saved">保存済み</string>
     <string name="save_failed">保存に失敗しました</string>
-    <string name="text_keyboard_layout_add_layout">レイアウトを追加</string>
     <string name="text_keyboard_layout_add_row">行を追加</string>
     <string name="text_keyboard_layout_move_row_up">行を上へ移動</string>
     <string name="text_keyboard_layout_add_key">キーを追加</string>
@@ -385,7 +363,6 @@
     <string name="text_keyboard_layout_key_alt_one">代替文字 1</string>
     <string name="text_keyboard_layout_key_display_text">表示テキスト</string>
     <string name="text_keyboard_layout_key_label">ラベル</string>
-    <string name="text_keyboard_layout_key_sub_label">サブラベル</string>
     <string name="text_keyboard_layout_key_weight">キー幅倍率</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">空欄は行または既定の幅を継承します。1.0 は通常の文字キー幅で、個別設定は行倍率より優先されます。</string>
     <string name="text_keyboard_layout_key_text_color">文字色</string>
@@ -401,20 +378,12 @@
     <string name="text_keyboard_layout_key_color_mode_monet">Monet（%1$s）</string>
     <string name="text_keyboard_layout_key_color_mode_monet_pick">Monet の動的色</string>
     <string name="text_keyboard_layout_key_color_monet_unavailable">Monet の動的色は利用できません</string>
-    <string name="text_keyboard_layout_layout_name">レイアウト名</string>
-    <string name="text_keyboard_layout_layout_name_hint">例：rime、pinyin</string>
-    <string name="text_keyboard_layout_copy_from">既存レイアウトからコピー</string>
-    <string name="text_keyboard_layout_name_empty">レイアウト名は空にできません</string>
     <string name="text_keyboard_layout_delete_key_confirm">このキーを削除しますか？</string>
     <string name="text_keyboard_layout_delete_row_confirm">%1$d 行目を削除しますか？</string>
-    <string name="text_keyboard_layout_select_input_method_to_add">追加する入力メソッドを選択：</string>
-    <string name="text_keyboard_layout_no_additional_input_methods">追加できる入力メソッドはありません</string>
-    <string name="text_keyboard_layout_layout_exists_for_input_method">この入力メソッドのレイアウトは既に存在します</string>
     <string name="text_keyboard_layout_preview_error">プレビューエラー：%1$s</string>
     <string name="text_keyboard_layout_add_mode">モードを追加</string>
     <string name="text_keyboard_layout_mode_name_hint">モード名</string>
     <string name="text_keyboard_layout_macro_tap_event">タップイベント</string>
-    <string name="text_keyboard_layout_macro_swipe_event">スワイプイベント</string>
     <string name="text_keyboard_layout_macro_swipe_event_up">スワイプイベント(上)</string>
     <string name="text_keyboard_layout_macro_swipe_event_down">スワイプイベント(下)</string>
     <string name="text_keyboard_layout_macro_longpress_event">長押しイベント</string>
@@ -425,7 +394,6 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (全 %2$d ステップ)</string>
     <string name="text_keyboard_layout_alt_label">代替ラベル</string>
     <string name="text_keyboard_layout_alt_label_one">代替ラベル 1</string>
-    <string name="text_keyboard_layout_swipe_label">スワイプラベル</string>
     <string name="text_keyboard_layout_swipe_up_label">上スワイプラベル</string>
     <string name="text_keyboard_layout_swipe_down_label">下スワイプラベル</string>
     <string name="text_keyboard_layout_display_value_hint">表示値</string>
@@ -479,7 +447,6 @@
     <string name="text_keyboard_layout_manage_share">共有</string>
     <string name="text_keyboard_layout_manage_new">新規</string>
     <string name="text_keyboard_layout_manage_edit">内容を編集</string>
-    <string name="text_keyboard_layout_manage_moved">上へ移動しました：%1$s</string>
     <string name="text_keyboard_layout_manage_sub_reset">サブモードレイアウトをリセットしました：%1$s</string>
     <string name="text_keyboard_layout_manage_save_failed">レイアウトの変更を保存できませんでした</string>
     <string name="text_keyboard_layout_manage_rename_profile">プロファイルを編集</string>
@@ -499,13 +466,8 @@
     <string name="text_keyboard_layout_file_name_invalid">無効なプロファイル名です</string>
     <string name="text_keyboard_layout_file_copy_current">現在のファイル内容をコピー</string>
     <string name="text_keyboard_layout_file_already_exists">レイアウトファイルは既に存在します</string>
-    <string name="text_keyboard_layout_switch_file_discard_message">未保存の編集があります。レイアウトファイルを切り替えると現在の変更は破棄されます。</string>
-    <string name="text_keyboard_layout_create_file_discard_message">未保存の編集があります。今新しいレイアウトファイルを作成すると現在の変更は破棄されます。</string>
-    <string name="text_keyboard_layout_delete_file_discard_message">未保存の編集があります。今レイアウトファイルを削除すると現在の変更は破棄されます。</string>
     <string name="text_keyboard_layout_file_renamed">プロファイル名を変更しました: %1$s → %2$s</string>
     <string name="text_keyboard_layout_file_rename_failed">レイアウトファイル名の変更に失敗しました</string>
-    <string name="text_keyboard_layout_file_switched">切り替え先：%1$s</string>
-
     <!-- Split keyboard calibration -->
     <string name="split_keyboard_device_info">📱 デバイス情報</string>
     <string name="split_keyboard_threshold_label">分割閾値 (dp)</string>
@@ -539,9 +501,7 @@
     <string name="split_keyboard_recommend_reason_phone">標準スマホ推奨値</string>
     <string name="split_keyboard_auto_calibrate_toast">適用済み：%1$ddp、間隙 %2$d%% (%3$s)</string>
     <string name="split_keyboard_reset_toast">デフォルト値にリセットしました</string>
-    <string name="text_keyboard_layout_submode_already_exists">サブモード "%1$s" の専用レイアウトが既に存在します</string>
     <string name="text_keyboard_layout_editing_submode">サブモード "%1$s" の専用レイアウトを編集中</string>
-    <string name="text_keyboard_layout_height_target_submode">サブモード "%1$s" のキーボードの高さ</string>
     <string name="text_keyboard_layout_editing_default">"%1$s" のデフォルトレイアウトを編集中</string>
     <string name="candidates_orientation">候補リストの向き</string>
     <string name="automatic">自動</string>
@@ -612,7 +572,6 @@
     <string name="macro_editor_select_modifier_title">修飾キーを選択</string>
     <string name="macro_editor_all_modifiers_added">すべての修飾キーが追加されました</string>
     <string name="macro_editor_app_picker_title">アプリ操作を選択</string>
-    <string name="macro_editor_app_action_more">詳細メニュー</string>
     <string name="macro_editor_app_action_status_area_menu">ステータスエリアメニュー</string>
     <string name="macro_editor_app_action_clipboard_settings">クリップボード設定</string>
     <string name="macro_editor_app_action_advanced_settings">詳細設定</string>
@@ -631,7 +590,6 @@
     <string name="fontset_sample_preedit">プリエディットテキスト</string>
     <string name="picker_category_fullwidth">全角</string>
     <string name="macro_editor_key_event_unmatched">キーイベントの不一致：%1$s の押下と解放の回数が一致しません</string>
-    <string name="text_keyboard_layout_qr_export">QR画像で共有</string>
     <string name="text_keyboard_layout_qr_import_scan">QRをスキャンしてインポート</string>
     <string name="text_keyboard_layout_qr_import_image">QR画像からインポート</string>
     <string name="text_keyboard_layout_qr_share_title">レイアウトQR画像を共有</string>
@@ -652,7 +610,6 @@
     <string name="qr_payload_type_layout">レイアウト</string>
     <string name="qr_payload_type_popup">ポップアップ</string>
     <string name="qr_payload_type_unknown">不明</string>
-    <string name="theme_share_active">現在の有効テーマを共有</string>
     <string name="theme_import_qr_scan">QRスキャンでテーマをインポート</string>
     <string name="theme_import_qr_image">QR画像からテーマをインポート</string>
     <string name="theme_share_has_background_zip_tip">このテーマには背景画像リソースが含まれます。既存のテーマエクスポートZIP形式で共有します。</string>
@@ -667,16 +624,9 @@
 
     <!-- Monet Theme Editor -->
     <string name="monet_editor_select_color_resource">カラーリソースを選択</string>
-    <string name="monet_editor_select">選択</string>
     <string name="monet_editor_color_mapping_title">カラーマッピング</string>
     <string name="monet_editor_description">各テーマカラーを Material You ダイナミックカラーリソースにマッピングします。変更は自動的に保存され適用されます。</string>
     <string name="edit_monet_theme">Monet テーマを編集</string>
-
-    <string name="text_keyboard_layout_add_submode">サブモードレイアウトを追加</string>
-    <string name="text_keyboard_layout_add_submode_confirm">サブモード「%1$s」用の専用レイアウトを追加しますか？</string>
-    <string name="text_keyboard_layout_delete_submode">サブモードレイアウトを削除</string>
-    <string name="text_keyboard_layout_submode_added">サブモードレイアウトを追加しました: %1$s</string>
-    <string name="text_keyboard_layout_no_submode_selected">サブモードが選択されていません</string>
     <string name="text_keyboard_layout_save_failed">レイアウトの保存に失敗しました。詳細は logcat を確認してください。</string>
 
     <!-- Auto-completed missing strings (fallback to zh-CN/en) -->
@@ -702,7 +652,7 @@
     <string name="edit_text_keyboard_layout_summary">汎用キーボードレイアウトを編集（GeneralKeyboardLayout.json）</string>
     <string name="emoji_and_symbols">絵文字と記号</string>
     <string name="emoji_skin_tone_none">なし</string>
-    <string name="emoji_skin_tone_type_1_2">🏻 明るい肌色（タイプ1-2）</string>
+    <string name="emoji_skin_tone_type_1_2">🏻 明るい肌色（タイプ1–2）</string>
     <string name="emoji_skin_tone_type_3">🏼 やや明るい肌色（タイプ3）</string>
     <string name="emoji_skin_tone_type_4">🏽 中間の肌色（タイプ4）</string>
     <string name="emoji_skin_tone_type_5">🏾 やや濃い肌色（タイプ5）</string>
@@ -716,7 +666,6 @@
     <string name="fontset_entry_key_main">キーのメインフォント</string>
     <string name="fontset_entry_popup_key">ポップアップキーのフォント</string>
     <string name="fontset_entry_preedit">プリエディットフォント</string>
-    <string name="fontset_saved">fontset.json を保存しました</string>
     <string name="fontset_saved_at">fontset.json を %1$s に保存しました</string>
     <string name="no_fonts_found">fonts/ にフォントファイルが見つかりません</string>
     <string name="popup_preset_saved_at">popuppreset.json を %1$s に保存しました</string>
@@ -724,14 +673,12 @@
     <string name="private_mode">プライベートモード（タップしてステータス領域を開く）</string>
     <string name="punctuation_pos_none">なし</string>
     <string name="reset_keyboard_on_focus_change">フォーカス変更時にキーボードにリセット</string>
-    <string name="copy">コピー</string>
+    <string name="copy" tools:override="true">コピー</string>
     <string name="share">共有</string>
-    <string name="space_swipe_move_cursor">スペースキーをスワイプしてカーソル移動</string>
     <string name="split_keyboard_calibration_summary">分割キーボードの設定を視覚的にプレビューおよび調整、自動推奨と折りたたみ画面対応をサポート</string>
     <string name="split_keyboard_calibration_title">分割キーボードのキャリブレーション</string>
     <string name="split_keyboard_enabled">自動分割キーボードを有効化</string>
     <string name="split_keyboard_enabled_summary">キーボード幅に基づいて分割キーボードを自動的に有効化します。無効にした場合は常にフルキーボードを使用します。</string>
-    <string name="split_keyboard_threshold">分割キーボードのしきい値</string>
     <string name="split_keyboard_use_landscape_layout">分割キーボード時に横向きレイアウトパラメータを使用</string>
     <string name="split_keyboard_use_landscape_layout_summary">有効化後、分割キーボードが有効な場合に横向きレイアウトパラメータ（高さ、余白など）を使用します。自動分割キーボードが有効な場合のみ利用可能です。</string>
     <string name="status_area">ステータス領域</string>
@@ -741,14 +688,10 @@
     <string name="switch_to_voice_input">音声入力に切り替え</string>
     <string name="toggle_number_keyboard">数字キーボードを切り替え</string>
     <string name="text_editing_button_radius">テキスト編集ボタンの角丸半径</string>
-    <string name="text_keyboard_layout_file_delete">レイアウトを削除</string>
     <string name="text_keyboard_layout_file_delete_confirm">レイアウトファイル設定「%1$s」とそのバックアップを削除してもよろしいですか？</string>
     <string name="text_keyboard_layout_file_delete_failed">レイアウトファイルの削除に失敗しました</string>
     <string name="text_keyboard_layout_file_deleted">設定を削除しました：%1$s</string>
     <string name="text_keyboard_layout_file_saved">保存済み：%1$s</string>
-    <string name="text_keyboard_layout_import_discard_and_continue">破棄してインポート</string>
-    <string name="text_keyboard_layout_import_save_and_continue">保存してインポート</string>
-    <string name="text_keyboard_layout_import_unsaved_changes_message">現在の設定に未保存の変更があります。インポートする前に保存しますか？</string>
     <string name="text_keyboard_layout_qr_import_confirm_message_with_profile">%1$d 件のレイアウトデータを検出しました。設定「%2$s」にインポートして現在の編集中のデータを置き換えますか？</string>
     <string name="text_keyboard_layout_qr_import_success_new_profile">QR レイアウトをインポートし、新しい設定「%1$s」を作成しました。保存をクリックしてファイルに書き込んでください。</string>
     <string name="text_keyboard_layout_qr_import_success_profile">QR レイアウトを設定「%1$s」にインポートしました。保存をクリックしてファイルに書き込んでください。</string>
@@ -768,11 +711,9 @@
     <string name="open_input_method_settings">输入法設定を開く</string>
     <string name="open_rime_user_data_dir">アプリのデータディレクトリを開きます。RIME ユーザーデータディレクトリは「data/rime」にあります。</string>
     <string name="please_wait">しばらくお待ちください…</string>
-    <string name="text_keyboard_layout_compose_override_title">変換中オーバーライド</string>
     <string name="text_keyboard_layout_compose_override_not_configured">変換中はデフォルトのキー動作を使用</string>
     <string name="text_keyboard_layout_compose_override_configured">変換中のキー動作が設定されています</string>
     <string name="text_keyboard_layout_compose_override_edit_button">変換中キーを編集</string>
-    <string name="text_keyboard_layout_compose_override_clear_button">クリア</string>
     <string name="text_keyboard_layout_compose_override_editor_title">変換中キーを編集</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">独立キー色</string>
     <string name="tokenized_clipboard">キーワード分割</string>
@@ -788,18 +729,13 @@
     <string name="clipboard_limit_local">ローカル履歴の上限</string>
     <string name="clipboard_limit_remote">他のデバイスの履歴上限</string>
     <string name="clipboard_limit_media">画像とファイルの履歴上限</string>
-    <string name="check_for_updates">更新を確認</string>
-    <string name="checking_for_updates">更新を確認中</string>
     <string name="install_update">更新をインストール</string>
     <string name="upgrade_latest">最新版へ更新</string>
     <string name="update_download_background">バックグラウンド</string>
     <string name="update_download_background_running">バックグラウンドで更新中…</string>
     <string name="update_mirror_accelerate">ミラーで高速化</string>
     <string name="download_progress_percent">%1$d%%</string>
-    <string name="already_latest_version">現在、最新の安定版です</string>
-    <string name="update_canceled">更新をキャンセルしました</string>
     <string name="enable_unknown_apps_install">まずこのアプリに不明な提供元のアプリのインストールを許可してから、もう一度お試しください</string>
-    <string name="no_compatible_update_package">この端末またはアプリ種別に対応する安定版パッケージが見つかりませんでした</string>
     <string name="update_check_failed">更新の確認または最新安定版パッケージのダウンロードに失敗しました</string>
     <string name="update_package_missing">ダウンロード済みの更新パッケージを利用できません。もう一度更新を確認してください</string>
     <string name="update_download_ready">%1$s をダウンロードしました。インストールの準備ができています</string>
@@ -808,9 +744,6 @@
     <string name="clipboard_category_local">この端末</string>
     <string name="clipboard_category_media">画像・ファイル</string>
     <string name="clipboard_category_remote">他のデバイス</string>
-    <string name="clipboard_entry_image">画像</string>
-    <string name="clipboard_entry_image_named">画像 · %1$s</string>
-    <string name="clipboard_entry_image_loading">画像（読み込み中…）</string>
     <string name="clipboard_entry_file">ファイル</string>
     <string name="clipboard_entry_file_named">ファイル · %1$s</string>
     <string name="theme_appearance">テーマの外観</string>
@@ -840,13 +773,10 @@
     <string name="manage_plugins">プラグインを管理</string>
     <string name="manage_plugins_hint">1つ以上のプラグインを選択し、下の管理操作を選んでください。</string>
     <string name="uninstall_plugin">プラグインを削除</string>
-    <string name="upgrade_plugin">プラグインを更新</string>
     <string name="uninstall_plugin_confirm">%1$s を削除しますか？</string>
     <string name="uninstall_selected_plugins">選択項目を削除</string>
     <string name="upgrade_selected_plugins">選択項目を更新</string>
     <string name="uninstall_plugins_confirm">次のプラグインを削除しますか？\n%1$s</string>
-    <string name="toggle_plugin_loading">読み込み状態を切り替え</string>
-    <string name="unbind_plugin">バインド解除</string>
     <string name="plugin_blocked">ブロック済み</string>
     <string name="plugin_blocked_summary">手動で読み込みをブロックしています</string>
     <string name="upgrading_plugins">プラグインを更新中</string>
@@ -856,7 +786,6 @@
     <string name="no_plugin_updates_available">選択したプラグインに利用可能な新しいバージョンはありません</string>
     <string name="rime_schema_selector_title">スキーマメニュー</string>
     <string name="fontset_entry_button_icon">ボタンアイコン用フォント</string>
-    <string name="delete_entries_and_files">はい、ファイルも削除します</string>
     <string name="view_image">表示</string>
     <string name="open_link">開く</string>
     <string name="search">検索</string>
@@ -920,7 +849,6 @@
     <string name="llm_model_status_remote_ready">状態: リモートモデル利用可能</string>
     <string name="llm_model_status_remote_unavailable">状態: リモートモデル利用不可</string>
     <string name="llm_model_status_remote_missing_name">状態: モデル名未入力</string>
-    <string name="llm_api_key_set">設定済み、%1$s</string>
     <string name="preedit_style">入力中の表示スタイル</string>
     <string name="preedit_style_default">標準</string>
     <string name="preedit_style_inline_candidate_bar">インライン候補バー</string>
@@ -973,7 +901,6 @@
     <string name="swipe_symbol_picker_title">記号スワイプのマッピングから選択</string>
     <string name="swipe_symbol_picker_empty">記号スワイプのマッピングが空です</string>
     <string name="macro_editor_swipe_timing_hint">各カードは 1 つ以上のタイミングを持ちます。同じタイミングを複数のカードには置けません。一致したタイミングは「すべて」を置き換えます。タイミングのない状態は「すべて」を使います。タイミング未選択のカードは効果がありません。</string>
-    <string name="macro_editor_add_timing_action">+ タイミングと動作を追加</string>
     <string name="macro_editor_choose_timings_title">タイミングを選択</string>
     <string name="macro_editor_choose_at_least_one">タイミングを 1 つ以上選択してください</string>
     <string name="macro_editor_no_timings_available">すべてのタイミングが他のカードで使われています</string>
@@ -1003,7 +930,6 @@
     <string name="custom_shuangpin_syllable_count">%1$d 件の上書き</string>
     <string name="custom_shuangpin_syllables_hint">1 行に 1 件：完全なピンイン=2 キー。複数のキーはカンマで区切れます。</string>
     <string name="custom_shuangpin_syllables_invalid">音節上書きの形式が正しくありません。例：ju=jv または shi=ui,is。</string>
-    <string name="macro_editor_swipe_timing">動作タイミング</string>
     <string name="swipe_action_timing_no_code_no_candidates">コードなし、候補なし</string>
     <string name="swipe_action_timing_code_and_candidates">コードあり、候補あり</string>
     <string name="swipe_action_timing_no_code_candidates">コードなし、候補あり</string>
@@ -1018,6 +944,59 @@
     <string name="pinyin_config_section_text">句読点と変換</string>
     <string name="pinyin_config_section_cloud">クラウド拼音</string>
     <string name="pinyin_config_section_other">その他</string>
+    <!-- Pinyin addon configuration options -->
+    <string name="pinyin_config_cursor_at_start">カーソルを先頭に置く</string>
+    <string name="pinyin_config_full_pinyin">完全なピンインを表示</string>
+    <string name="pinyin_config_show_shuangpin_mode">双拼モードを表示</string>
+    <string name="pinyin_config_preedit_mode">未確定入力モード</string>
+    <string name="pinyin_config_shuangpin_profile">双拼プロファイル</string>
+    <string name="pinyin_config_english_candidates">英語候補</string>
+    <string name="pinyin_config_symbol_candidates">記号候補</string>
+    <string name="pinyin_config_chaizi_candidates">拆字候補</string>
+    <string name="pinyin_config_stroke_candidates">筆画候補</string>
+    <string name="pinyin_config_extension_b">拡張 B セット</string>
+    <string name="pinyin_config_page_size">ページサイズ</string>
+    <string name="pinyin_config_phrase_limit">フレーズ数の上限</string>
+    <string name="pinyin_config_sentence_count">文の数</string>
+    <string name="pinyin_config_long_word_hint">長い単語のしきい値</string>
+    <string name="pinyin_config_prediction">予測を有効にする</string>
+    <string name="pinyin_config_keep_context">コンテキストを保持</string>
+    <string name="pinyin_config_learning">学習</string>
+    <string name="pinyin_config_prediction_count">予測候補数</string>
+    <string name="pinyin_config_backspace_behavior">バックスペースの動作</string>
+    <string name="pinyin_config_switch_ime_behavior">入力メソッド切替時の動作</string>
+    <string name="pinyin_config_keypad_selection">キーパッド選択</string>
+    <string name="pinyin_config_backspace_unselect">バックスペースで選択解除</string>
+    <string name="pinyin_config_v_quickphrase">V でクイックフレーズ</string>
+    <string name="pinyin_config_manage_dictionaries">辞書を管理</string>
+    <string name="pinyin_config_custom_phrases">カスタムフレーズ</string>
+    <string name="pinyin_config_quickphrase">クイックフレーズ</string>
+    <string name="pinyin_config_punctuation">句読点</string>
+    <string name="pinyin_config_script_conversion">文字種変換</string>
+    <string name="pinyin_config_quickphrase_regex">クイックフレーズ正規表現</string>
+    <string name="pinyin_config_fuzzy">あいまい音</string>
+    <string name="pinyin_config_fuzzy_settings">設定</string>
+    <string name="pinyin_config_fuzzy_mappings">音節マッピング</string>
+    <string name="pinyin_config_cloud_enabled">クラウド拼音</string>
+    <string name="pinyin_config_cloud_animation">クラウド読み込みアニメーション</string>
+    <string name="pinyin_config_cloud_placeholder">クラウドのプレースホルダーを保持</string>
+    <string name="pinyin_config_cloud_index">クラウド候補の順序</string>
+    <string name="pinyin_config_cloud_config">クラウド拼音の設定</string>
+    <string name="pinyin_config_fuzzy_common_typo">よくある誤入力</string>
+    <string name="pinyin_config_fuzzy_inner">内部セグメント</string>
+    <string name="pinyin_config_fuzzy_inner_short">短い内部セグメント</string>
+    <string name="pinyin_config_fuzzy_lowercase">小文字の一致</string>
+    <string name="pinyin_config_fuzzy_partial_final">韻母の一部に一致</string>
+    <string name="pinyin_config_fuzzy_partial_sp">双拼の一部に一致</string>
+    <string name="pinyin_config_fuzzy_correction">隣接キー補正</string>
+    <string name="pinyin_config_fuzzy_correction_summary">キーボード配列を使って近くのキーの誤入力を補正します。</string>
+    <string name="pinyin_config_fuzzy_common_typo_summary">よくあるピンインの誤入力との一致を試みます。</string>
+    <string name="pinyin_config_fuzzy_inner_summary">xian → xi’an のように、1 つのピンイン音節を 2 つに分割できます。</string>
+    <string name="pinyin_config_fuzzy_inner_short_summary">qie → qi’e のように、短いピンインでも分割できます。</string>
+    <string name="pinyin_config_fuzzy_lowercase_summary">1 つの小文字をピンインの一致として扱います。</string>
+    <string name="pinyin_config_fuzzy_partial_final_summary">e から en、eng、ei のように、短い韻母を長い韻母に一致させます。</string>
+    <string name="pinyin_config_fuzzy_partial_sp_summary">入力が 4 文字以上の場合に双拼の部分一致を許可します。</string>
+    <string name="pinyin_config_commit_preedit">未確定入力を確定</string>
     <!-- Addon display names -->
     <string name="addon_unicode_name">文字セット拡張</string>
 </resources>

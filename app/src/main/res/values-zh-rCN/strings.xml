@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">天鹅输入法</string>
     <string name="app_name_release">天鹅输入法</string>
     <string name="app_name_debug">天鹅输入法 (调试)</string>
     <string name="save">保存</string>
     <string name="input_methods">输入法</string>
     <string name="addons">附加组件</string>
-    <string name="conf">配置</string>
     <string name="global_options">全局选项</string>
     <string name="advanced">高级</string>
     <string name="ignore_sys_cursor">忽略系统光标位置</string>
@@ -45,7 +44,6 @@
     <string name="synced">已同步！</string>
     <string name="loading">加载中</string>
     <string name="clipboard_listening">记录剪贴板历史</string>
-    <string name="clipboard_limit">剪贴板历史记录上限</string>
     <string name="clipboard_limit_local">本机历史记录上限</string>
     <string name="clipboard_limit_remote">其他设备历史记录上限</string>
     <string name="clipboard_limit_media">图片文件历史记录上限</string>
@@ -58,18 +56,13 @@
     <string name="about">关于</string>
     <string name="faq">常见问题</string>
     <string name="current_version">当前版本</string>
-    <string name="check_for_updates">检查更新</string>
-    <string name="checking_for_updates">检查更新中</string>
     <string name="install_update">安装更新</string>
     <string name="upgrade_latest">升级最新</string>
     <string name="update_download_background">后台</string>
     <string name="update_download_background_running">后台更新中……</string>
     <string name="update_mirror_accelerate">镜像加速</string>
     <string name="download_progress_percent">%1$d%%</string>
-    <string name="already_latest_version">当前已是最新正式版本</string>
-    <string name="update_canceled">已取消更新</string>
     <string name="enable_unknown_apps_install">请先允许本应用安装未知来源应用，然后再重试</string>
-    <string name="no_compatible_update_package">未找到适用于当前设备或当前应用变体的正式安装包</string>
     <string name="update_check_failed">检查更新或下载最新正式包失败</string>
     <string name="update_package_missing">已下载的更新包不可用，请重新检查更新</string>
     <string name="update_download_ready">已下载 %1$s，准备安装</string>
@@ -101,9 +94,6 @@
     <string name="clipboard_category_local">本机</string>
     <string name="clipboard_category_media">图文</string>
     <string name="clipboard_category_remote">其他设备</string>
-    <string name="clipboard_entry_image">图片</string>
-    <string name="clipboard_entry_image_named">图片 · %1$s</string>
-    <string name="clipboard_entry_image_loading">图片（加载中…）</string>
     <string name="clipboard_entry_file">文件</string>
     <string name="clipboard_entry_file_named">文件 · %1$s</string>
     <string name="keyboard_height">键盘高度</string>
@@ -211,7 +201,6 @@
     <string name="remove_from_theme_pool">从主题池中移除</string>
     <string name="exception_theme_name_clash">主题名称与内置主题冲突</string>
     <string name="exception_theme_src_image">无法保存主题背景原图片</string>
-    <string name="exception_theme_cropped_image">无法保存裁切后的主题背景图片</string>
     <string name="exception_theme_parse">主题文件解析失败</string>
     <string name="follow_system_day_night_theme">跟随系统明暗模式</string>
     <string name="follow_system_day_night_theme_summary">开启后，根据系统明暗模式随机选择已勾选的明暗主题</string>
@@ -249,8 +238,6 @@
     <!-- Split keyboard settings (refactored) -->
     <string name="split_keyboard_enabled">启用自动分体键盘</string>
     <string name="split_keyboard_enabled_summary">根据键盘宽度自动启用分体键盘。关闭后始终使用完整键盘。</string>
-    <string name="split_keyboard_threshold">分体键盘阈值</string>
-
     <!-- Split keyboard calibration -->
     <string name="split_keyboard_calibration_title">分体键盘校准</string>
     <string name="split_keyboard_calibration_summary">可视化预览和调节分体键盘设置，支持自动推荐和折叠屏适配</string>
@@ -259,11 +246,8 @@
     <string name="split_keyboard_gap_label">中缝间隙 (%)</string>
     <string name="split_keyboard_auto_calibrate">自动校准</string>
     <string name="split_keyboard_reset">重置</string>
-    <string name="keyboard_settings_sections">设置分组</string>
-    <string name="keyboard_settings_basic_section">基础</string>
     <string name="keyboard_settings_basic_behavior">基础行为</string>
     <string name="keyboard_settings_touch_and_sound">触感与声音</string>
-    <string name="keyboard_settings_toolbar_and_voice">工具栏与语音</string>
     <string name="keyboard_settings_key_and_gesture">按键与手势</string>
     <string name="keyboard_settings_layout_and_split">布局与分体</string>
     <string name="keyboard_settings_candidates">编码与候选词</string>
@@ -277,13 +261,6 @@
     <string name="focus_change_reset_disabled_summary">焦点变化后保持当前面板</string>
     <string name="inline_suggestions_enabled_summary">显示内嵌自动填充建议</string>
     <string name="inline_suggestions_disabled_summary">不显示内嵌自动填充建议</string>
-    <string name="voice_input_button_visible_summary">显示语音输入按钮</string>
-    <string name="voice_input_hidden_summary">不显示语音输入按钮</string>
-    <string name="popup_preview_visible_summary">按键时显示弹出字符</string>
-    <string name="popup_preview_hidden_summary">按键时不显示弹出字符</string>
-    <string name="space_swipe_move_cursor_enabled_summary">空格键划动可移动光标</string>
-    <string name="space_swipe_move_cursor_disabled_summary">空格键划动不移动光标</string>
-    <string name="keyboard_height_summary_compact">%1$d%% / %2$d%%</string>
     <string name="split_keyboard_enabled_summary_short">自动分体已开启</string>
     <string name="split_keyboard_disabled_summary">自动分体已关闭</string>
     <string name="split_keyboard_preview_load_failed">预览加载失败：%1$s</string>
@@ -375,13 +352,10 @@
     <string name="manage_plugins">管理插件</string>
     <string name="manage_plugins_hint">选择一个或多个插件，然后直接执行下方管理操作。</string>
     <string name="uninstall_plugin">卸载插件</string>
-    <string name="upgrade_plugin">升级插件</string>
     <string name="uninstall_plugin_confirm">确定要卸载 %1$s 吗？</string>
     <string name="uninstall_selected_plugins">卸载所选</string>
     <string name="upgrade_selected_plugins">升级所选</string>
     <string name="uninstall_plugins_confirm">确定要卸载以下插件吗？\n%1$s</string>
-    <string name="toggle_plugin_loading">切换加载状态</string>
-    <string name="unbind_plugin">卸载绑定</string>
     <string name="plugin_blocked">已阻止</string>
     <string name="plugin_blocked_summary">已手动阻止加载</string>
     <string name="upgrading_plugins">升级插件中</string>
@@ -432,16 +406,11 @@
     <string name="status_area_section">Status Area（菜单）</string>
     <string name="more_menu_items">更多菜单项</string>
     <string name="available_buttons_section">可添加按钮</string>
-    <string name="button_icon_code_point">Iconfont Unicode 码点</string>
-    <string name="button_icon_code_point_hint">例如：E141</string>
-    <string name="button_icon_code_point_summary">优先使用已设定的按钮图标字体，否则使用内置 iconfont.ttf；留空则恢复默认图标。</string>
-    <string name="button_icon_code_point_invalid">请输入 4 至 6 位十六进制码点</string>
     <string name="button_icon_code">图标代码或 SVG</string>
     <string name="button_icon_code_hint">Glyph Unicode 码点或 &lt;svg&gt;&#8230;</string>
     <string name="button_icon_code_summary">支持 Iconfont glyph 码点或 SVG 代码，编辑时均可实时预览；留空可恢复默认图标。</string>
     <string name="button_icon_code_invalid">请输入有效的码点，或包含 path 的 SVG 代码</string>
     <string name="language_switch">语言切换</string>
-    <string name="all_buttons_added">所有可用按钮已添加</string>
     <string name="add_button_to_section_title">添加到区域</string>
     <string name="custom_label_hint">自定义标签（可选）</string>
     <string name="floating_keyboard">浮动键盘</string>
@@ -466,7 +435,6 @@
     <string name="popup_preset_saved_at">popuppreset.json 已保存到：%1$s</string>
     <string name="fontset_editor_hint">点击每一项可从 fonts 目录选择一个或多个字体。多个字体将按顺序作为回退字体使用。</string>
     <string name="no_fonts_found">在 fonts/ 中未找到字体文件</string>
-    <string name="fontset_saved">fontset.json 已保存</string>
     <string name="fontset_saved_at">fontset.json 已保存到：%1$s</string>
     <string name="fontset_entry_font">基础字体</string>
     <string name="fontset_entry_key_main">按键主字体</string>
@@ -515,7 +483,6 @@
     <string name="clipboard_mask_sensitive">隐藏敏感信息（如密码）</string>
     <string name="open_rime_user_data_dir">即将打开应用数据目录。 RIME 用户数据目录位于“data/rime”。</string>
     <string name="generic_multiselect_min">至少需要选择 %1$d 项。</string>
-    <string name="space_swipe_move_cursor">划动空格键以移动光标</string>
     <string name="please_wait">请稍候…</string>
     <string name="rotate">旋转</string>
     <string name="flip">翻转</string>
@@ -575,8 +542,7 @@
     <string name="move_cursor_to_end">把光标移动到结尾</string>
     <string name="open_input_method_settings">打开输入法设置</string>
     <string name="delete_all">全部删除</string>
-    <string name="delete_entries_and_files">确定，同时删除文件</string>
-    <string name="copy">复制</string>
+    <string name="copy" tools:override="true">复制</string>
     <string name="share">分享</string>
     <string name="view_image">查看</string>
     <string name="open_link">打开</string>
@@ -601,8 +567,8 @@
     <string name="split_words">拆词</string>
     <string name="default_emoji_skin_tone">默认表情肤色</string>
     <string name="emoji_skin_tone_none">无</string>
-    <string name="emoji_skin_tone_type_1_2">🏻 浅肤色 (Type-1-2)</string>
-    <string name="emoji_skin_tone_type_3">🏼 中等浅肤色 (Type-3)</string>
+    <string name="emoji_skin_tone_type_1_2">🏻 浅肤色 (Type 1–2)</string>
+    <string name="emoji_skin_tone_type_3">🏼 中等浅肤色 (Type 3)</string>
     <string name="emoji_skin_tone_type_4">🏽 中等肤色 (Type-4)</string>
     <string name="emoji_skin_tone_type_5">🏾 中等深肤色 (Type-5)</string>
     <string name="emoji_skin_tone_type_6">🏿 深肤色 (Type-6)</string>
@@ -610,7 +576,6 @@
     <string name="key_border_stroke">启用按键边框描边</string>
 
     <!-- Text Keyboard Layout Editor -->
-    <string name="edit_text_playground">文本输入框 (EditText) 演练场</string>
     <string name="edit_text_keyboard_layout">键盘布局设定</string>
     <string name="edit_text_keyboard_layout_summary">编辑通用键盘布局（GeneralKeyboardLayout.json）</string>
     <string name="edit_text_keyboard_layout_summary_with_file">编辑通用键盘布局（%1$s）</string>
@@ -639,7 +604,6 @@
     <string name="text_keyboard_layout_manage_share">分享</string>
     <string name="text_keyboard_layout_manage_new">新建</string>
     <string name="text_keyboard_layout_manage_edit">编辑内容</string>
-    <string name="text_keyboard_layout_manage_moved">已上移：%1$s</string>
     <string name="text_keyboard_layout_manage_sub_reset">已复位子布局：%1$s</string>
     <string name="text_keyboard_layout_manage_save_failed">保存布局更改失败</string>
     <string name="text_keyboard_layout_manage_rename_profile">修改配置</string>
@@ -650,7 +614,6 @@
     <string name="text_keyboard_layout_file_switch">切换布局</string>
     <string name="text_keyboard_layout_file_create">新建布局</string>
     <string name="text_keyboard_layout_file_rename">修改布局</string>
-    <string name="text_keyboard_layout_file_delete">删除布局</string>
     <string name="text_keyboard_layout_file_renamed">已重命名配置：%1$s → %2$s</string>
     <string name="text_keyboard_layout_file_rename_failed">重命名布局文件失败</string>
     <string name="text_keyboard_layout_file_delete_confirm">确认删除布局文件配置“%1$s”及其备份？</string>
@@ -661,16 +624,10 @@
     <string name="text_keyboard_layout_file_name_invalid">文件配置名无效（不能包含 \\ / : * ? " &lt; &gt; |）</string>
     <string name="text_keyboard_layout_file_copy_current">复制当前文件内容</string>
     <string name="text_keyboard_layout_file_already_exists">布局文件已存在</string>
-    <string name="text_keyboard_layout_switch_file_discard_message">当前有未保存编辑，切换布局文件将丢失这些更改。</string>
-    <string name="text_keyboard_layout_create_file_discard_message">当前有未保存编辑，立即新建布局文件将丢失这些更改。</string>
-    <string name="text_keyboard_layout_delete_file_discard_message">当前有未保存编辑，立即删除布局文件将丢失这些更改。</string>
-    <string name="text_keyboard_layout_file_switched">已切换到：%1$s</string>
-    <string name="text_keyboard_layout_preview">预览</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="saved">已保存</string>
     <string name="save_failed">保存失败</string>
-    <string name="text_keyboard_layout_add_layout">添加布局</string>
     <string name="text_keyboard_layout_add_row">添加行</string>
     <string name="text_keyboard_layout_move_row_up">上移此行</string>
     <string name="text_keyboard_layout_add_key">添加按键</string>
@@ -680,7 +637,6 @@
     <string name="text_keyboard_layout_key_alt_one">副字符一</string>
     <string name="text_keyboard_layout_key_display_text">显示文本</string>
     <string name="text_keyboard_layout_key_label">标签</string>
-    <string name="text_keyboard_layout_key_sub_label">子标签</string>
     <string name="text_keyboard_layout_key_weight">宽度倍比</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">留空继承行或默认宽度；1.0 表示普通字母键宽度。单键设置优先于行倍比。</string>
     <string name="text_keyboard_layout_key_text_color">文字颜色</string>
@@ -696,15 +652,8 @@
     <string name="text_keyboard_layout_key_color_mode_monet">Monet（%1$s）</string>
     <string name="text_keyboard_layout_key_color_mode_monet_pick">Monet 动态颜色</string>
     <string name="text_keyboard_layout_key_color_monet_unavailable">当前设备不支持 Monet 动态颜色</string>
-    <string name="text_keyboard_layout_layout_name">布局名称</string>
-    <string name="text_keyboard_layout_layout_name_hint">例如：rime、pinyin</string>
-    <string name="text_keyboard_layout_copy_from">从现有布局复制</string>
-    <string name="text_keyboard_layout_name_empty">布局名称不能为空</string>
     <string name="text_keyboard_layout_delete_key_confirm">删除这个按键？</string>
     <string name="text_keyboard_layout_delete_row_confirm">删除第 %1$d 行？</string>
-    <string name="text_keyboard_layout_select_input_method_to_add">选择要添加的输入法：</string>
-    <string name="text_keyboard_layout_no_additional_input_methods">没有可添加的输入法</string>
-    <string name="text_keyboard_layout_layout_exists_for_input_method">该输入法的布局已存在</string>
     <string name="text_keyboard_layout_preview_error">预览错误：%1$s</string>
     <string name="text_keyboard_layout_add_mode">添加模式</string>
     <string name="text_keyboard_layout_mode_name_hint">模式名称</string>
@@ -712,18 +661,11 @@
     <string name="text_keyboard_layout_key_label_caps">Caps</string>
 
     <!-- Submode Layout Support -->
-    <string name="text_keyboard_layout_add_submode">添加子模式布局</string>
-    <string name="text_keyboard_layout_add_submode_confirm">为子模式"%1$s"添加专用布局？</string>
-    <string name="text_keyboard_layout_delete_submode">删除子模式布局</string>
-    <string name="text_keyboard_layout_submode_added">已添加子模式布局：%1$s</string>
-    <string name="text_keyboard_layout_submode_already_exists">子模式"%1$s"已有专用布局</string>
     <string name="text_keyboard_layout_manage_more_customize">更多定制</string>
     <string name="text_keyboard_layout_editor_menu_manage">管理布局</string>
     <string name="text_keyboard_layout_customize_title">编辑布局</string>
     <string name="text_keyboard_layout_customize_preview">预览</string>
-    <string name="text_keyboard_layout_no_submode_selected">未选择子模式</string>
     <string name="text_keyboard_layout_editing_submode">正在编辑子模式"%1$s"的专用布局</string>
-    <string name="text_keyboard_layout_height_target_submode">子模式"%1$s"的键盘高度</string>
     <string name="text_keyboard_layout_editing_default">正在编辑"%1$s"的默认布局</string>
     <string name="text_keyboard_layout_key_label_lang">Lang</string>
     <string name="text_keyboard_layout_key_label_space">Space</string>
@@ -734,7 +676,6 @@
     <string name="text_keyboard_layout_alphabet_key_alt_length_invalid">副字符必须是单个字符</string>
     <string name="text_keyboard_layout_macro_key_label_required">标签不能为空</string>
     <string name="text_keyboard_layout_macro_tap_event">点击事件</string>
-    <string name="text_keyboard_layout_macro_swipe_event">划动事件</string>
     <string name="text_keyboard_layout_macro_swipe_event_up">划动事件(上划)</string>
     <string name="text_keyboard_layout_macro_swipe_event_down">划动事件(下划)</string>
     <string name="text_keyboard_layout_macro_longpress_event">长按事件</string>
@@ -746,7 +687,6 @@
     <string name="text_keyboard_layout_macro_timing_preview">%1$s：%2$s</string>
     <string name="text_keyboard_layout_alt_label">副标签</string>
     <string name="text_keyboard_layout_alt_label_one">副标签一</string>
-    <string name="text_keyboard_layout_swipe_label">划动标签</string>
     <string name="text_keyboard_layout_swipe_up_label">上划标签</string>
     <string name="text_keyboard_layout_swipe_down_label">下划标签</string>
     <string name="text_keyboard_layout_row_editor_title">编辑整行属性</string>
@@ -758,7 +698,6 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">单键宽度倍比必须是有限且大于 0 的数字</string>
     <string name="text_keyboard_layout_row_sub_label_position">副字符位置</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">副字符一位置</string>
-    <string name="text_keyboard_layout_row_sub_label_top_bottom">顶底</string>
     <string name="text_keyboard_layout_row_sub_label_top">顶部</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">右上</string>
     <string name="text_keyboard_layout_row_sub_label_bottom">底部</string>
@@ -775,13 +714,11 @@
     <!-- Macro Editor -->
     <string name="macro_editor_title">编辑 %1$s</string>
     <string name="macro_editor_add_step">+ 添加步骤</string>
-    <string name="macro_editor_swipe_timing">动作时机</string>
     <string name="macro_editor_swipe_timing_hint">每个卡片对应一组动作时机，同一时机只能出现在一个卡片中。匹配到的时机替代「所有」；未单独设置时机的状态使用「所有」。没有选中时机的卡片不会生效。</string>
     <string name="macro_editor_swipe_timing_item_configured">%1$s（%2$d）</string>
     <string name="swipe_action_timing_no_code_no_candidates">无编码无候选</string>
     <string name="swipe_action_timing_code_and_candidates">有编码有候选</string>
     <string name="swipe_action_timing_no_code_candidates">无编码有候选</string>
-    <string name="macro_editor_add_timing_action">+ 新增时机-动作</string>
     <string name="macro_editor_choose_timings_title">选择动作时机</string>
     <string name="macro_editor_choose_at_least_one">请至少选择一个时机</string>
     <string name="macro_editor_no_timings_available">所有时机都已被其它卡片使用</string>
@@ -826,7 +763,6 @@
     <string name="macro_editor_select_modifier_title">选择修饰键</string>
     <string name="macro_editor_all_modifiers_added">已添加所有修饰键</string>
     <string name="macro_editor_app_picker_title">选择应用动作</string>
-    <string name="macro_editor_app_action_more">高级菜单</string>
     <string name="macro_editor_app_action_status_area_menu">状态区菜单</string>
     <string name="macro_editor_app_action_clipboard_settings">剪贴板设置</string>
     <string name="macro_editor_app_action_advanced_settings">高级设置</string>
@@ -857,7 +793,6 @@
     <string name="fontset_save_failed_permission_error">保存字体集失败：权限被拒绝</string>
     <string name="fontset_save_failed_unknown_error">保存字体集失败：%1$s</string>
     <string name="macro_editor_key_event_unmatched">按键事件不匹配：%1$s 的按下和释放次数不等</string>
-    <string name="text_keyboard_layout_qr_export">分享布局为二维码</string>
     <string name="text_keyboard_layout_qr_import_scan">扫二维码导入</string>
     <string name="text_keyboard_layout_qr_import_image">从二维码图片导入</string>
     <string name="text_keyboard_layout_qr_share_title">分享布局二维码图片</string>
@@ -876,15 +811,11 @@
     <string name="text_keyboard_layout_qr_import_success_profile">二维码布局已导入到配置“%1$s”，点击保存即可写入文件。</string>
     <string name="text_keyboard_layout_qr_import_success_new_profile">二维码布局已导入，并新建配置“%1$s”。点击保存即可写入文件。</string>
     <string name="text_keyboard_layout_qr_import_failed">导入二维码载荷失败：%1$s</string>
-    <string name="text_keyboard_layout_import_unsaved_changes_message">当前配置有未保存编辑，导入前是否先保存？</string>
-    <string name="text_keyboard_layout_import_save_and_continue">保存后导入</string>
-    <string name="text_keyboard_layout_import_discard_and_continue">放弃后导入</string>
     <string name="text_keyboard_layout_qr_type_mismatch">二维码类型不匹配。期望 %1$s，实际为 %2$s。</string>
     <string name="qr_payload_type_theme">主题</string>
     <string name="qr_payload_type_layout">布局</string>
     <string name="qr_payload_type_popup">Popup</string>
     <string name="qr_payload_type_unknown">未知</string>
-    <string name="theme_share_active">分享当前激活主题</string>
     <string name="theme_import_qr_scan">扫二维码导入主题</string>
     <string name="theme_import_qr_image">从二维码图片导入主题</string>
     <string name="theme_share_has_background_zip_tip">该主题包含背景图片资源，将沿用现有主题导出压缩包格式进行分享。</string>
@@ -920,24 +851,20 @@
 
     <!-- Monet Theme Editor -->
     <string name="monet_editor_select_color_resource">选择颜色资源</string>
-    <string name="monet_editor_select">选择</string>
     <string name="monet_editor_color_mapping_title">颜色映射</string>
     <string name="monet_editor_description">为每个主题颜色映射一个 Material You 动态颜色资源。更改将自动保存并应用。</string>
     <string name="edit_monet_theme">编辑 Monet 主题</string>
 
     <string name="text_keyboard_layout_save_failed">保存布局失败。请查看 logcat 获取详细信息。</string>
-    <string name="text_keyboard_layout_compose_override_title">组码态覆盖</string>
     <string name="text_keyboard_layout_compose_override_not_configured">组码态使用默认按键行为</string>
     <string name="text_keyboard_layout_compose_override_configured">已配置组码态的按键行为</string>
     <string name="text_keyboard_layout_compose_override_edit_button">编辑组码态按键</string>
     <string name="text_keyboard_layout_compose_override_description">组码态，即为输入法正处在输入编码的过程。</string>
-    <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
     <string name="text_keyboard_layout_compose_override_editor_title">编辑组码态按键</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">独立按键颜色</string>
     <string name="llm_model_status_remote_ready">状态：远端模型可用</string>
     <string name="llm_model_status_remote_unavailable">状态：远端模型不可用</string>
     <string name="llm_model_status_remote_missing_name">状态：未填写模型名称</string>
-    <string name="llm_api_key_set">已配置，%1$s</string>
     <string name="voice_status_connecting">正在连接…</string>
     <string name="voice_status_loading">正在加载…</string>
     <string name="voice_error_no_permission">未授予 RECORD_AUDIO 权限</string>

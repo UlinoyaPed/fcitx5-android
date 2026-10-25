@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">백조 입력기</string>
     <string name="app_name_release">백조 입력기</string>
     <string name="app_name_debug">백조 입력기 (디버그)</string>
     <string name="save">저장</string>
     <string name="input_methods">입력기</string>
     <string name="addons">애드온</string>
-    <string name="conf">구성</string>
     <string name="global_options">전역 옵션</string>
     <string name="advanced">고급</string>
     <string name="ignore_sys_cursor">시스템 커서 위치 무시</string>
@@ -42,7 +41,6 @@
     <string name="synced">동기화되었습니다!</string>
     <string name="loading">불러오는 중</string>
     <string name="clipboard_listening">클립보드 기록 저장</string>
-    <string name="clipboard_limit">클립보드 기록 제한</string>
     <string name="clipboard_enable">클립보드 활성화</string>
     <string name="expanded_candidate_style">확장된 후보 스타일</string>
     <string name="expanded_candidate_style_grid">격자</string>
@@ -121,16 +119,11 @@
     <string name="status_area_section">Status Area (메뉴)</string>
     <string name="more_menu_items">추가 메뉴 항목</string>
     <string name="available_buttons_section">사용 가능한 버튼</string>
-    <string name="button_icon_code_point">Iconfont 유니코드 코드 포인트</string>
-    <string name="button_icon_code_point_hint">예: E141</string>
-    <string name="button_icon_code_point_summary">설정된 버튼 아이콘 글꼴을 사용하며, 설정하지 않은 경우 내장된 iconfont.ttf를 사용합니다. 비워 두면 기본 아이콘을 사용합니다.</string>
-    <string name="button_icon_code_point_invalid">4~6자리 16진수를 입력하세요</string>
     <string name="button_icon_code">아이콘 코드 또는 SVG</string>
     <string name="button_icon_code_hint">Glyph 유니코드 코드 포인트 또는 &lt;svg&gt;&#8230;</string>
     <string name="button_icon_code_summary">Iconfont glyph 코드 포인트 또는 SVG 코드를 입력하세요. 편집 중 SVG와 glyph를 모두 미리 볼 수 있으며, 비워 두면 기본 아이콘으로 복원됩니다.</string>
     <string name="button_icon_code_invalid">유효한 코드 포인트 또는 path가 포함된 SVG 코드를 입력하세요</string>
     <string name="language_switch">언어 전환</string>
-    <string name="all_buttons_added">사용 가능한 모든 버튼이 추가되었습니다</string>
     <string name="add_button_to_section_title">섹션에 추가</string>
     <string name="custom_label_hint">사용자 정의 라벨 (선택 사항)</string>
     <string name="floating_keyboard">플로팅 키보드</string>
@@ -151,9 +144,7 @@
     <string name="popup_editor_add_candidate_button">추가</string>
     <string name="popup_editor_candidate_input_hint">후보 값 입력</string>
     <string name="popup_editor_qr_export">구성을 QR 코드로 공유</string>
-    <string name="edit_text_playground">EditText 테스트 공간</string>
     <string name="edit_text_keyboard_layout">키보드 레이아웃 설정</string>
-    <string name="text_keyboard_layout_preview">미리보기</string>
     <string name="text_keyboard_layout_row_editor_title">행 속성 편집</string>
     <string name="text_keyboard_layout_row_editor_subtitle">%1$d번째 행</string>
     <string name="text_keyboard_layout_row_height_multiplier">행 높이 배수</string>
@@ -163,7 +154,6 @@
     <string name="text_keyboard_layout_row_key_width_multiplier_invalid">키 너비 배수는 유한하고 0보다 큰 숫자여야 합니다</string>
     <string name="text_keyboard_layout_row_sub_label_position">보조 문자 위치</string>
     <string name="text_keyboard_layout_row_sub_label_one_position">보조 문자 1 위치</string>
-    <string name="text_keyboard_layout_row_sub_label_top_bottom">상단 및 하단</string>
     <string name="text_keyboard_layout_row_sub_label_top">상단</string>
     <string name="text_keyboard_layout_row_sub_label_top_right">오른쪽 위</string>
     <string name="text_keyboard_layout_row_sub_label_bottom">하단</string>
@@ -179,7 +169,6 @@
     <string name="cancel">취소</string>
     <string name="saved">저장됨</string>
     <string name="save_failed">저장 실패</string>
-    <string name="text_keyboard_layout_add_layout">레이아웃 추가</string>
     <string name="text_keyboard_layout_add_row">행 추가</string>
     <string name="text_keyboard_layout_move_row_up">행 위로 이동</string>
     <string name="text_keyboard_layout_add_key">키 추가</string>
@@ -189,7 +178,6 @@
     <string name="text_keyboard_layout_key_alt_one">보조 문자 1</string>
     <string name="text_keyboard_layout_key_display_text">표시 텍스트</string>
     <string name="text_keyboard_layout_key_label">레이블</string>
-    <string name="text_keyboard_layout_key_sub_label">하위 레이블</string>
     <string name="text_keyboard_layout_key_weight">키 너비 배율</string>
     <string name="text_keyboard_layout_key_width_multiplier_hint">비워 두면 행 또는 기본 너비를 상속합니다. 1.0은 일반 문자 키 너비이며 개별 설정이 행 배율보다 우선합니다.</string>
     <string name="text_keyboard_layout_key_text_color">글자 색상</string>
@@ -205,15 +193,8 @@
     <string name="text_keyboard_layout_key_color_mode_monet">Monet (%1$s)</string>
     <string name="text_keyboard_layout_key_color_mode_monet_pick">Monet 동적 색상</string>
     <string name="text_keyboard_layout_key_color_monet_unavailable">Monet 동적 색상을 사용할 수 없습니다</string>
-    <string name="text_keyboard_layout_layout_name">레이아웃 이름</string>
-    <string name="text_keyboard_layout_layout_name_hint">예: rime, pinyin</string>
-    <string name="text_keyboard_layout_copy_from">기존 레이아웃에서 복사</string>
-    <string name="text_keyboard_layout_name_empty">레이아웃 이름은 비워둘 수 없습니다</string>
     <string name="text_keyboard_layout_delete_key_confirm">이 키를 삭제하시겠습니까?</string>
     <string name="text_keyboard_layout_delete_row_confirm">%1$d번째 행을 삭제하시겠습니까?</string>
-    <string name="text_keyboard_layout_select_input_method_to_add">추가할 입력기를 선택하세요:</string>
-    <string name="text_keyboard_layout_no_additional_input_methods">추가할 입력기가 없습니다</string>
-    <string name="text_keyboard_layout_layout_exists_for_input_method">이 입력기의 레이아웃이 이미 존재합니다</string>
     <string name="text_keyboard_layout_preview_error">미리보기 오류: %1$s</string>
     <string name="text_keyboard_layout_add_mode">모드 추가</string>
     <string name="text_keyboard_layout_mode_name_hint">모드 이름</string>
@@ -267,7 +248,6 @@
     <string name="text_keyboard_layout_manage_share">공유</string>
     <string name="text_keyboard_layout_manage_new">새로 만들기</string>
     <string name="text_keyboard_layout_manage_edit">내용 수정</string>
-    <string name="text_keyboard_layout_manage_moved">위로 이동됨: %1$s</string>
     <string name="text_keyboard_layout_manage_sub_reset">서브모드 레이아웃 재설정됨: %1$s</string>
     <string name="text_keyboard_layout_manage_save_failed">레이아웃 변경사항을 저장하지 못했습니다</string>
     <string name="text_keyboard_layout_manage_rename_profile">프로필 수정</string>
@@ -287,12 +267,8 @@
     <string name="text_keyboard_layout_file_name_invalid">유효하지 않은 프로필 이름입니다</string>
     <string name="text_keyboard_layout_file_copy_current">현재 파일 내용 복사</string>
     <string name="text_keyboard_layout_file_already_exists">레이아웃 파일이 이미 존재합니다</string>
-    <string name="text_keyboard_layout_switch_file_discard_message">저장되지 않은 편집이 있습니다. 레이아웃 파일을 전환하면 현재 변경사항이 삭제됩니다.</string>
-    <string name="text_keyboard_layout_create_file_discard_message">저장되지 않은 편집이 있습니다. 지금 새 레이아웃 파일을 만들면 현재 변경사항이 삭제됩니다.</string>
-    <string name="text_keyboard_layout_delete_file_discard_message">저장되지 않은 편집이 있습니다. 지금 레이아웃 파일을 삭제하면 현재 변경사항이 삭제됩니다.</string>
     <string name="text_keyboard_layout_file_renamed">프로필 이름 변경됨: %1$s → %2$s</string>
     <string name="text_keyboard_layout_file_rename_failed">레이아웃 파일 이름 변경 실패</string>
-    <string name="text_keyboard_layout_file_switched">%1$s(으)로 전환됨</string>
     <string name="text_keyboard_layout_switch_submode_failed">서브 모드"%1$s"(으) 로 전환 실패</string>
     <string name="text_keyboard_layout_discard_changes_title">저장되지 않은 레이아웃 변경 사항을 버릴까요?</string>
     <string name="text_keyboard_layout_discard_changes_message">저장되지 않은 편집 내용이 있습니다. 지금 나가면 사라집니다.</string>
@@ -339,9 +315,7 @@
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - 글꼴 크기</string>
     <string name="font_size_editor_hint">드래그하여 글꼴 크기 조정 (%1$d–%2$d sp)</string>
-    <string name="text_keyboard_layout_submode_already_exists">서브모드 "%1$s" 의 전용 레이아웃이 이미 존재합니다</string>
     <string name="text_keyboard_layout_editing_submode">서브모드 "%1$s" 의 전용 레이아웃 편집 중</string>
-    <string name="text_keyboard_layout_height_target_submode">서브모드 "%1$s" 의 키보드 높이</string>
     <string name="text_keyboard_layout_editing_default">"%1$s" 의 기본 레이아웃 편집 중</string>
     <string name="candidates_orientation">후보 목록 방향</string>
     <string name="automatic">자동</string>
@@ -367,7 +341,6 @@
     <!-- KeyEditorDialog -->
     <string name="text_keyboard_layout_macro_key_label_required">레이블은 비어 있을 수 없습니다</string>
     <string name="text_keyboard_layout_macro_tap_event">탭 이벤트</string>
-    <string name="text_keyboard_layout_macro_swipe_event">스와이프 이벤트</string>
     <string name="text_keyboard_layout_macro_swipe_event_up">스와이프 이벤트(위로)</string>
     <string name="text_keyboard_layout_macro_swipe_event_down">스와이프 이벤트(아래로)</string>
     <string name="text_keyboard_layout_macro_longpress_event">길게 누르기 이벤트</string>
@@ -378,7 +351,6 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (총 %2$d 단계)</string>
     <string name="text_keyboard_layout_alt_label">대체 레이블</string>
     <string name="text_keyboard_layout_alt_label_one">대체 레이블 1</string>
-    <string name="text_keyboard_layout_swipe_label">스와이프 레이블</string>
     <string name="text_keyboard_layout_swipe_up_label">위로 스와이프 레이블</string>
     <string name="text_keyboard_layout_swipe_down_label">아래로 스와이프 레이블</string>
 
@@ -420,7 +392,6 @@
     <string name="macro_editor_select_modifier_title">수정 키 선택</string>
     <string name="macro_editor_all_modifiers_added">모든 수정 키가 추가되었습니다</string>
     <string name="macro_editor_app_picker_title">앱 동작 선택</string>
-    <string name="macro_editor_app_action_more">고급 메뉴</string>
     <string name="macro_editor_app_action_status_area_menu">상태 영역 메뉴</string>
     <string name="macro_editor_app_action_clipboard_settings">클립보드 설정</string>
     <string name="macro_editor_app_action_advanced_settings">고급 설정</string>
@@ -439,7 +410,6 @@
     <string name="fontset_sample_preedit">미리 편집 텍스트</string>
     <string name="picker_category_fullwidth">전각</string>
     <string name="macro_editor_key_event_unmatched">키 이벤트 불일치: %1$s의 누름과 뗌 이벤트 수가 일치하지 않습니다</string>
-    <string name="text_keyboard_layout_qr_export">QR 이미지로 공유</string>
     <string name="text_keyboard_layout_qr_import_scan">QR 스캔으로 가져오기</string>
     <string name="text_keyboard_layout_qr_import_image">QR 이미지에서 가져오기</string>
     <string name="text_keyboard_layout_qr_share_title">레이아웃 QR 이미지 공유</string>
@@ -460,7 +430,6 @@
     <string name="qr_payload_type_layout">레이아웃</string>
     <string name="qr_payload_type_popup">팝업</string>
     <string name="qr_payload_type_unknown">알 수 없음</string>
-    <string name="theme_share_active">현재 활성 테마 공유</string>
     <string name="theme_import_qr_scan">QR 스캔으로 테마 가져오기</string>
     <string name="theme_import_qr_image">QR 이미지에서 테마 가져오기</string>
     <string name="theme_share_has_background_zip_tip">이 테마에는 배경 이미지 리소스가 포함되어 있습니다. 기존 테마 ZIP 내보내기 형식으로 공유됩니다.</string>
@@ -475,16 +444,9 @@
 
     <!-- Monet Theme Editor -->
     <string name="monet_editor_select_color_resource">색상 리소스 선택</string>
-    <string name="monet_editor_select">선택</string>
     <string name="monet_editor_color_mapping_title">색상 매핑</string>
     <string name="monet_editor_description">각 테마 색상을 Material You 동적 색상 리소스에 매핑합니다. 변경 사항은 자동으로 저장되고 적용됩니다.</string>
     <string name="edit_monet_theme">Monet 테마 편집</string>
-
-    <string name="text_keyboard_layout_add_submode">서브모드 레이아웃 추가</string>
-    <string name="text_keyboard_layout_add_submode_confirm">서브모드 "%1$s" 전용 레이아웃을 추가하시겠습니까?</string>
-    <string name="text_keyboard_layout_delete_submode">서브모드 레이아웃 삭제</string>
-    <string name="text_keyboard_layout_submode_added">서브모드 레이아웃 추가됨: %1$s</string>
-    <string name="text_keyboard_layout_no_submode_selected">선택된 서브모드가 없습니다</string>
     <string name="text_keyboard_layout_save_failed">레이아웃 저장에 실패했습니다. 자세한 내용은 logcat을 확인하세요.</string>
     <string name="edit_color">색상 편집</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
@@ -550,8 +512,8 @@
     <string name="editor_info_inspector">EditorInfo 검사기</string>
     <string name="emoji_and_symbols">이모지 및 기호</string>
     <string name="emoji_skin_tone_none">수정자 없음</string>
-    <string name="emoji_skin_tone_type_1_2">🏻 타입-1-2</string>
-    <string name="emoji_skin_tone_type_3">🏼 타입-3</string>
+    <string name="emoji_skin_tone_type_1_2">🏻 타입 1–2</string>
+    <string name="emoji_skin_tone_type_3">🏼 타입 3</string>
     <string name="emoji_skin_tone_type_4">🏽 타입-4</string>
     <string name="emoji_skin_tone_type_5">🏾 타입-5</string>
     <string name="emoji_skin_tone_type_6">🏿 타입-6</string>
@@ -563,7 +525,6 @@
     <string name="exception_quickphrase_parse">빠른 구문 줄을 해석하지 못했습니다: %1$s</string>
     <string name="exception_sougou_dict_filename">%1$s 파일 확장자는 sogou 사전 파일이 아닙니다</string>
     <string name="exception_text_dict_filename">%1$s 파일 확장자는 텍스트 사전 파일이 아닙니다</string>
-    <string name="exception_theme_cropped_image">테마 배경의 잘린 이미지를 저장할 수 없습니다</string>
     <string name="exception_theme_filename">%1$s 파일 확장자는 테마 파일이 아닙니다</string>
     <string name="exception_theme_json">테마 JSON을 찾을 수 없습니다</string>
     <string name="exception_theme_json_requires_zip">이 테마는 배경 이미지를 참조하므로 JSON 파일만으로는 이미지를 포함할 수 없습니다. 테마를 ZIP으로 내보낸 후 해당 ZIP을 가져오세요</string>
@@ -595,7 +556,6 @@
     <string name="fontset_entry_key_main">주 키 글꼴</string>
     <string name="fontset_entry_popup_key">팝업 키 글꼴</string>
     <string name="fontset_entry_preedit">조합 글꼴</string>
-    <string name="fontset_saved">fontset.json 저장됨</string>
     <string name="fontset_saved_at">fontset.json 저장 위치: %1$s</string>
     <string name="grant_permission">권한 부여</string>
     <string name="hide_candidates_list">후보 목록 숨기기</string>
@@ -683,14 +643,11 @@
     <string name="restarting_fcitx">Fcitx 재시작 중</string>
     <string name="rotate">회전</string>
     <string name="saving">저장 중</string>
-    <string name="copy">복사</string>
+    <string name="copy" tools:override="true">복사</string>
     <string name="share">공유</string>
     <string name="show_lang_switch_key">언어 전환 키 표시</string>
-    <string name="keyboard_settings_sections">설정 그룹</string>
-    <string name="keyboard_settings_basic_section">기본</string>
     <string name="keyboard_settings_basic_behavior">기본 동작</string>
     <string name="keyboard_settings_touch_and_sound">촉감 및 소리</string>
-    <string name="keyboard_settings_toolbar_and_voice">도구 모음 및 음성</string>
     <string name="keyboard_settings_key_and_gesture">키 및 제스처</string>
     <string name="keyboard_settings_layout_and_split">레이아웃 및 분할 키보드</string>
     <string name="keyboard_settings_candidates">후보 표시</string>
@@ -702,13 +659,6 @@
     <string name="inline_suggestions_enabled_summary">인라인 자동 완성 제안 표시</string>
     <string name="inline_suggestions_disabled_summary">인라인 자동 완성 제안 숨기기</string>
     <string name="return_to_toolbar">도구 모음으로 돌아가기</string>
-    <string name="voice_input_button_visible_summary">음성 입력 버튼 표시</string>
-    <string name="voice_input_hidden_summary">음성 입력 버튼 숨기기</string>
-    <string name="popup_preview_visible_summary">키를 누를 때 팝업 문자 표시</string>
-    <string name="popup_preview_hidden_summary">키를 누를 때 팝업 문자 숨기기</string>
-    <string name="space_swipe_move_cursor_enabled_summary">스페이스 키 스와이프로 커서 이동</string>
-    <string name="space_swipe_move_cursor_disabled_summary">스페이스 키 스와이프로 커서가 이동하지 않음</string>
-    <string name="keyboard_height_summary_compact">%1$d%% / %2$d%%</string>
     <string name="split_keyboard_enabled_summary_short">자동 분할 켜짐</string>
     <string name="split_keyboard_disabled_summary">자동 분할 꺼짐</string>
     <string name="show_voice_input_button">음성 입력 버튼 표시</string>
@@ -720,12 +670,10 @@
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
     <string name="space_behavior_switch_to_english">중국어와 영어 입력 방식 간 전환</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>
-    <string name="space_swipe_move_cursor">스페이스 키를 밀어서 커서 이동</string>
     <string name="split_keyboard_calibration_summary">실시간 미리보기와 자동 추천으로 분할 키보드 설정을 시각적으로 조정</string>
     <string name="split_keyboard_calibration_title">분할 키보드 보정</string>
     <string name="split_keyboard_enabled">자동 분할 키보드 사용</string>
     <string name="split_keyboard_enabled_summary">키보드 너비에 따라 분할 키보드를 자동으로 활성화합니다. 비활성화하면 항상 전체 키보드를 사용합니다.</string>
-    <string name="split_keyboard_threshold">분할 키보드 임계값</string>
     <string name="split_keyboard_use_landscape_layout">분할 키보드 활성 시 가로 레이아웃 사용</string>
     <string name="split_keyboard_use_landscape_layout_summary">활성화되고 분할 키보드가 켜져 있으면 가로 레이아웃 매개변수(높이, 여백 등)를 사용합니다. 이 옵션은 자동 분할 키보드가 켜져 있을 때만 사용할 수 있습니다.</string>
     <string name="status_area">상태 영역</string>
@@ -742,14 +690,10 @@
     <string name="toggle_number_keyboard">숫자 키보드 전환</string>
     <string name="system_default">시스템 기본값</string>
     <string name="text_editing_button_radius">텍스트 편집 버튼 반경</string>
-    <string name="text_keyboard_layout_file_delete">레이아웃 삭제</string>
     <string name="text_keyboard_layout_file_delete_confirm">레이아웃 파일 프로필 "%1$s"와 백업을 삭제할까요?</string>
     <string name="text_keyboard_layout_file_delete_failed">레이아웃 파일 삭제 실패</string>
     <string name="text_keyboard_layout_file_deleted">삭제된 프로필: %1$s</string>
     <string name="text_keyboard_layout_file_saved">저장됨: %1$s</string>
-    <string name="text_keyboard_layout_import_discard_and_continue">버리고 가져오기</string>
-    <string name="text_keyboard_layout_import_save_and_continue">저장하고 가져오기</string>
-    <string name="text_keyboard_layout_import_unsaved_changes_message">현재 프로필에 저장되지 않은 편집이 있습니다. QR 가져오기 전에 저장할까요?</string>
     <string name="text_keyboard_layout_qr_import_confirm_message_with_profile">%1$d개의 레이아웃 항목이 감지되었습니다. 프로필 "%2$s"로 가져오고 현재 편집 데이터를 대체할까요?</string>
     <string name="text_keyboard_layout_qr_import_success_new_profile">QR 레이아웃을 가져왔습니다. 새 프로필 "%1$s"가 생성되었습니다. 저장하면 변경 사항이 유지됩니다.</string>
     <string name="text_keyboard_layout_qr_import_success_profile">QR 레이아웃을 프로필 "%1$s"로 가져왔습니다. 저장하면 변경 사항이 유지됩니다.</string>
@@ -766,11 +710,9 @@
     <string name="user_data_imported">%1$s의 사용자 데이터를 가져왔습니다. 재시작 중…</string>
     <string name="vivo_keypress_workaround">Vivo 키 입력 문제 수정</string>
     <string name="whether_reset_switch_preference">이 설정을 기본값으로 초기화하시겠습니까?</string>
-    <string name="text_keyboard_layout_compose_override_title">조합 중 오버라이드</string>
     <string name="text_keyboard_layout_compose_override_not_configured">조합 중에는 기본 키 동작 사용</string>
     <string name="text_keyboard_layout_compose_override_configured">조합 중 키 동작이 설정됨</string>
     <string name="text_keyboard_layout_compose_override_edit_button">조합 중 키 편집</string>
-    <string name="text_keyboard_layout_compose_override_clear_button">지우기</string>
     <string name="text_keyboard_layout_compose_override_editor_title">조합 중 키 편집</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">기본 키 색상 따르기</string>
     <string name="tokenized_clipboard">키워드 분할</string>
@@ -786,18 +728,13 @@
     <string name="clipboard_limit_local">로컬 기록 제한</string>
     <string name="clipboard_limit_remote">다른 기기 기록 제한</string>
     <string name="clipboard_limit_media">이미지 및 파일 기록 제한</string>
-    <string name="check_for_updates">업데이트 확인</string>
-    <string name="checking_for_updates">업데이트 확인 중</string>
     <string name="install_update">업데이트 설치</string>
     <string name="upgrade_latest">최신 버전으로 업그레이드</string>
     <string name="update_download_background">백그라운드</string>
     <string name="update_download_background_running">백그라운드에서 업데이트 중…</string>
     <string name="update_mirror_accelerate">미러 가속</string>
     <string name="download_progress_percent">%1$d%%</string>
-    <string name="already_latest_version">현재 최신 안정 버전입니다</string>
-    <string name="update_canceled">업데이트가 취소되었습니다</string>
     <string name="enable_unknown_apps_install">먼저 이 앱이 출처를 알 수 없는 앱을 설치하도록 허용한 뒤 다시 시도하세요</string>
-    <string name="no_compatible_update_package">현재 기기 또는 앱 변형에 맞는 안정 버전 설치 패키지를 찾을 수 없습니다</string>
     <string name="update_check_failed">업데이트 확인 또는 최신 안정 패키지 다운로드에 실패했습니다</string>
     <string name="update_package_missing">다운로드한 업데이트 패키지를 사용할 수 없습니다. 다시 업데이트를 확인하세요</string>
     <string name="update_download_ready">%1$s 다운로드 완료, 설치할 준비가 되었습니다</string>
@@ -806,9 +743,6 @@
     <string name="clipboard_category_local">로컬</string>
     <string name="clipboard_category_media">이미지 및 파일</string>
     <string name="clipboard_category_remote">다른 기기</string>
-    <string name="clipboard_entry_image">이미지</string>
-    <string name="clipboard_entry_image_named">이미지 · %1$s</string>
-    <string name="clipboard_entry_image_loading">이미지(불러오는 중…)</string>
     <string name="clipboard_entry_file">파일</string>
     <string name="clipboard_entry_file_named">파일 · %1$s</string>
     <string name="theme_appearance">테마 모양</string>
@@ -840,13 +774,10 @@
     <string name="manage_plugins">플러그인 관리</string>
     <string name="manage_plugins_hint">하나 이상의 플러그인을 선택한 다음 아래 관리 작업을 선택하세요.</string>
     <string name="uninstall_plugin">플러그인 제거</string>
-    <string name="upgrade_plugin">플러그인 업그레이드</string>
     <string name="uninstall_plugin_confirm">%1$s을(를) 제거하시겠습니까?</string>
     <string name="uninstall_selected_plugins">선택 항목 제거</string>
     <string name="upgrade_selected_plugins">선택 항목 업그레이드</string>
     <string name="uninstall_plugins_confirm">다음 플러그인을 제거하시겠습니까?\n%1$s</string>
-    <string name="toggle_plugin_loading">로드 상태 전환</string>
-    <string name="unbind_plugin">바인딩 해제</string>
     <string name="plugin_blocked">차단됨</string>
     <string name="plugin_blocked_summary">수동으로 로드를 차단함</string>
     <string name="upgrading_plugins">플러그인 업그레이드 중</string>
@@ -856,7 +787,6 @@
     <string name="no_plugin_updates_available">선택한 플러그인에 사용할 수 있는 새 버전이 없습니다</string>
     <string name="rime_schema_selector_title">스키마 메뉴</string>
     <string name="fontset_entry_button_icon">버튼 아이콘 글꼴</string>
-    <string name="delete_entries_and_files">예, 파일도 함께 삭제</string>
     <string name="view_image">보기</string>
     <string name="open_link">열기</string>
     <string name="search">검색</string>
@@ -920,7 +850,6 @@
     <string name="llm_model_status_remote_ready">상태: 원격 모델 사용 가능</string>
     <string name="llm_model_status_remote_unavailable">상태: 원격 모델 사용 불가</string>
     <string name="llm_model_status_remote_missing_name">상태: 모델 이름 미입력</string>
-    <string name="llm_api_key_set">구성됨, %1$s</string>
     <string name="preedit_style">조합 영역 스타일</string>
     <string name="preedit_style_default">기본값</string>
     <string name="preedit_style_inline_candidate_bar">인라인 후보 표시줄</string>
@@ -973,7 +902,6 @@
     <string name="swipe_symbol_picker_title">기호 스와이프 매핑에서 선택</string>
     <string name="swipe_symbol_picker_empty">기호 스와이프 매핑이 비어 있습니다</string>
     <string name="macro_editor_swipe_timing_hint">각 카드는 하나 이상의 타이밍을 가집니다. 같은 타이밍은 한 카드에만 넣을 수 있습니다. 일치하는 타이밍은 「모두」를 대체하며, 타이밍이 없는 상태는 「모두」를 사용합니다. 타이밍이 선택되지 않은 카드는 적용되지 않습니다.</string>
-    <string name="macro_editor_add_timing_action">+ 타이밍/동작 추가</string>
     <string name="macro_editor_choose_timings_title">동작 타이밍 선택</string>
     <string name="macro_editor_choose_at_least_one">타이밍을 하나 이상 선택하세요</string>
     <string name="macro_editor_no_timings_available">모든 타이밍이 다른 카드에서 사용 중입니다</string>
@@ -1003,7 +931,6 @@
     <string name="custom_shuangpin_syllable_count">%1$d개 재정의</string>
     <string name="custom_shuangpin_syllables_hint">한 줄에 하나씩: 전체 병음=두 키. 여러 키는 쉼표로 구분할 수 있습니다.</string>
     <string name="custom_shuangpin_syllables_invalid">음절 재정의 형식이 올바르지 않습니다. 예: ju=jv 또는 shi=ui,is.</string>
-    <string name="macro_editor_swipe_timing">동작 타이밍</string>
     <string name="swipe_action_timing_no_code_no_candidates">코드 없음, 후보 없음</string>
     <string name="swipe_action_timing_code_and_candidates">코드 있음, 후보 있음</string>
     <string name="swipe_action_timing_no_code_candidates">코드 없음, 후보 있음</string>
@@ -1018,6 +945,59 @@
     <string name="pinyin_config_section_text">문장 부호 및 변환</string>
     <string name="pinyin_config_section_cloud">클라우드 병음</string>
     <string name="pinyin_config_section_other">기타</string>
+    <!-- Pinyin addon configuration options -->
+    <string name="pinyin_config_cursor_at_start">커서를 시작 위치에 두기</string>
+    <string name="pinyin_config_full_pinyin">전체 병음 표시</string>
+    <string name="pinyin_config_show_shuangpin_mode">쌍핀 모드 표시</string>
+    <string name="pinyin_config_preedit_mode">사전 편집 모드</string>
+    <string name="pinyin_config_shuangpin_profile">쌍핀 프로필</string>
+    <string name="pinyin_config_english_candidates">영어 후보</string>
+    <string name="pinyin_config_symbol_candidates">기호 후보</string>
+    <string name="pinyin_config_chaizi_candidates">자이 후보</string>
+    <string name="pinyin_config_stroke_candidates">필획 후보</string>
+    <string name="pinyin_config_extension_b">확장 B 집합</string>
+    <string name="pinyin_config_page_size">페이지 크기</string>
+    <string name="pinyin_config_phrase_limit">구문 제한</string>
+    <string name="pinyin_config_sentence_count">문장 수</string>
+    <string name="pinyin_config_long_word_hint">긴 단어 기준</string>
+    <string name="pinyin_config_prediction">예측 사용</string>
+    <string name="pinyin_config_keep_context">문맥 유지</string>
+    <string name="pinyin_config_learning">학습</string>
+    <string name="pinyin_config_prediction_count">예측 수</string>
+    <string name="pinyin_config_backspace_behavior">백스페이스 동작</string>
+    <string name="pinyin_config_switch_ime_behavior">입력기 전환 동작</string>
+    <string name="pinyin_config_keypad_selection">키패드 선택</string>
+    <string name="pinyin_config_backspace_unselect">백스페이스로 선택 해제</string>
+    <string name="pinyin_config_v_quickphrase">빠른 구문에 V 사용</string>
+    <string name="pinyin_config_manage_dictionaries">사전 관리</string>
+    <string name="pinyin_config_custom_phrases">사용자 지정 구문</string>
+    <string name="pinyin_config_quickphrase">빠른 구문</string>
+    <string name="pinyin_config_punctuation">문장 부호</string>
+    <string name="pinyin_config_script_conversion">문자 변환</string>
+    <string name="pinyin_config_quickphrase_regex">빠른 구문 정규식</string>
+    <string name="pinyin_config_fuzzy">유사 발음</string>
+    <string name="pinyin_config_fuzzy_settings">설정</string>
+    <string name="pinyin_config_fuzzy_mappings">음절 매핑</string>
+    <string name="pinyin_config_cloud_enabled">클라우드 병음</string>
+    <string name="pinyin_config_cloud_animation">클라우드 로딩 애니메이션</string>
+    <string name="pinyin_config_cloud_placeholder">클라우드 자리 표시자 유지</string>
+    <string name="pinyin_config_cloud_index">클라우드 후보 순서</string>
+    <string name="pinyin_config_cloud_config">클라우드 병음 설정</string>
+    <string name="pinyin_config_fuzzy_common_typo">일반적인 오타</string>
+    <string name="pinyin_config_fuzzy_inner">내부 구간</string>
+    <string name="pinyin_config_fuzzy_inner_short">짧은 내부 구간</string>
+    <string name="pinyin_config_fuzzy_lowercase">소문자 일치</string>
+    <string name="pinyin_config_fuzzy_partial_final">부분 운모 일치</string>
+    <string name="pinyin_config_fuzzy_partial_sp">부분 쌍핀 일치</string>
+    <string name="pinyin_config_fuzzy_correction">인접 키 보정</string>
+    <string name="pinyin_config_fuzzy_correction_summary">키보드 배열을 사용해 인접 키 오타를 수정합니다.</string>
+    <string name="pinyin_config_fuzzy_common_typo_summary">일반적인 병음 오타와의 일치를 시도합니다.</string>
+    <string name="pinyin_config_fuzzy_inner_summary">xian → xi’an처럼 한 병음 음절을 두 개로 나눌 수 있습니다.</string>
+    <string name="pinyin_config_fuzzy_inner_short_summary">qie → qi’e처럼 짧은 병음도 나눌 수 있습니다.</string>
+    <string name="pinyin_config_fuzzy_lowercase_summary">소문자 한 글자를 병음 일치로 처리합니다.</string>
+    <string name="pinyin_config_fuzzy_partial_final_summary">e를 en, eng, ei처럼 더 긴 운모와 일치시킬 수 있습니다.</string>
+    <string name="pinyin_config_fuzzy_partial_sp_summary">입력이 4자 이상이면 쌍핀 부분 일치를 허용합니다.</string>
+    <string name="pinyin_config_commit_preedit">사전 편집 확정</string>
     <!-- Addon display names -->
     <string name="addon_unicode_name">문자 집합 확장</string>
 </resources>
