@@ -293,8 +293,8 @@
     <string name="crop">切り取り</string>
     <string name="edit_popup_preset">ポップアップキーマッピング</string>
     <string name="edit_popup_preset_summary">ポップアップキーマッピングを編集 (キー -&gt; ポップアップ候補)</string>
-    <string name="edit_buttons">ツールバーボタンのスタイル</string>
-    <string name="edit_buttons_summary">Kawaii Bar と Status Area のボタンをカスタマイズ</string>
+    <string name="edit_buttons">ボタンとアイコン</string>
+    <string name="edit_buttons_summary">ツールバーのボタンとキーボードアイコンをカスタマイズ</string>
     <string name="buttons_customizer_hint">表示中のボタンをタップするとアイコンのスタイルを編集できます。長押しして「利用可能なボタン」へドラッグすると非表示にでき、Kawaii Bar（上段）と Status Area（メニュー）間も移動できます。そこにあるボタンをタップして移動先を選択します。</string>
     <string name="kawaii_bar_section">Kawaii Bar（上段）</string>
     <string name="status_area_section">Status Area（メニュー）</string>

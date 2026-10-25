@@ -133,8 +133,8 @@
     <string name="disable_it">Desactivarlo</string>
     <string name="edit_popup_preset">Asignación de teclas emergentes</string>
     <string name="edit_popup_preset_summary">Editar asignación de teclas de popup (tecla -&gt; candidatos de popup)</string>
-    <string name="edit_buttons">Estilo de los botones de la barra de herramientas</string>
-    <string name="edit_buttons_summary">Personalizar botones en Kawaii Bar y área de estado</string>
+    <string name="edit_buttons">Botones e iconos</string>
+    <string name="edit_buttons_summary">Personalizar botones e iconos del teclado</string>
     <string name="buttons_customizer_hint">Toque un botón visible para editar el estilo de su icono. Manténgalo pulsado y arrástrelo a «Botones disponibles» para ocultarlo, o entre Kawaii Bar (fila superior) y el área de estado (menú). Toque allí un botón para elegir su sección de destino.</string>
     <string name="kawaii_bar_section">Kawaii Bar (fila superior)</string>
     <string name="status_area_section">Área de estado (menu)</string>

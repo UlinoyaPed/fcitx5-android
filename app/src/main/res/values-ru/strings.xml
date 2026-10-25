@@ -369,8 +369,8 @@
     <string name="key_border_stroke">Включить обводку для границы клавиши</string>
     <string name="edit_popup_preset">Сопоставление клавиш всплывающих окон</string>
     <string name="edit_popup_preset_summary">Редактировать сопоставление клавиш всплывающих окон (клавиша -&gt; кандидаты всплывающих окон)</string>
-    <string name="edit_buttons">Стиль кнопок панели инструментов</string>
-    <string name="edit_buttons_summary">Настройка кнопок в Kawaii Bar и Status Area</string>
+    <string name="edit_buttons">Кнопки и значки</string>
+    <string name="edit_buttons_summary">Настройка кнопок панели и значков клавиатуры</string>
     <string name="buttons_customizer_hint">Нажмите видимую кнопку, чтобы изменить стиль значка. Удерживайте и перетащите кнопку в «Доступные кнопки», чтобы скрыть её, или переместите между Kawaii Bar (верхняя строка) и Status Area (меню). Нажмите кнопку в «Доступных кнопках», чтобы выбрать целевой раздел.</string>
     <string name="kawaii_bar_section">Kawaii Bar (верхняя строка)</string>
     <string name="status_area_section">Status Area (меню)</string>

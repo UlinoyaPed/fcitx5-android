@@ -112,8 +112,8 @@
     <string name="redo">다시 실행</string>
     <string name="edit_popup_preset">팝업 키 매핑</string>
     <string name="edit_popup_preset_summary">팝업 키 매핑 편집 (키 -&gt; 팝업 후보)</string>
-    <string name="edit_buttons">도구 모음 버튼 스타일</string>
-    <string name="edit_buttons_summary">Kawaii Bar 및 Status Area 의 버튼 사용자 정의</string>
+    <string name="edit_buttons">버튼 및 아이콘</string>
+    <string name="edit_buttons_summary">툴바 버튼과 키보드 아이콘 사용자 정의</string>
     <string name="buttons_customizer_hint">표시된 버튼을 탭하여 아이콘 스타일을 편집할 수 있습니다. 길게 누른 후 ‘사용 가능한 버튼’으로 드래그하면 숨길 수 있으며, Kawaii Bar(상단 행)와 Status Area(메뉴) 사이로 이동할 수도 있습니다. 해당 영역의 버튼을 탭하여 대상 섹션을 선택하세요.</string>
     <string name="kawaii_bar_section">Kawaii Bar (상단 행)</string>
     <string name="status_area_section">Status Area (메뉴)</string>

@@ -199,8 +199,8 @@
     <string name="button_sound_volume">Ton Tastendruck Lautstärke</string>
     <string name="edit_popup_preset">Popup-Tastenzuordnung</string>
     <string name="edit_popup_preset_summary">Popup-Tastenzuordnung bearbeiten (Taste -&gt; Popup-Kandidaten)</string>
-    <string name="edit_buttons">Werkzeugleisten-Schaltflächenstil</string>
-    <string name="edit_buttons_summary">Schaltflächen in Kawaii Bar und Status Area anpassen</string>
+    <string name="edit_buttons">Schaltflächen &amp; Symbole</string>
+    <string name="edit_buttons_summary">Schaltflächen und Tastatursymbole anpassen</string>
     <string name="buttons_customizer_hint">Tippen Sie auf eine sichtbare Schaltfläche, um ihren Symbolstil zu bearbeiten. Halten und ziehen Sie eine Schaltfläche zu „Verfügbare Schaltflächen“, um sie auszublenden, oder zwischen Kawaii Bar (obere Zeile) und Status Area (Menü). Tippen Sie dort auf eine Schaltfläche, um den Zielbereich auszuwählen.</string>
     <string name="kawaii_bar_section">Kawaii Bar (obere Zeile)</string>
     <string name="status_area_section">Status Area (Menü)</string>
