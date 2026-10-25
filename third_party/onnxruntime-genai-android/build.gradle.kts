@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.fxboomk.fcitx5.android.thirdparty"
-version = "0.15.0"
+version = "0.17.0"
 
 fun Project.githubPackagesRepositoryUrl(): String {
     val explicit = providers.gradleProperty("githubPackagesRepository").orNull?.trim().orEmpty()
@@ -39,7 +39,7 @@ fun isFileBackedRepository(url: String): Boolean = url.startsWith("file:", ignor
 
 val artifactName = "onnxruntime-genai-android"
 val artifactFileName = "$artifactName-$version.aar"
-val artifactSha256 = "a4aeadcd4d70b877c56a74ece7778324a5ee4686f395ef29e4d2a83908b83a6c"
+val artifactSha256 = "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50"
 val artifactUrl =
     "https://github.com/microsoft/onnxruntime-genai/releases/download/v$version/$artifactFileName"
 val downloadedArtifact = layout.buildDirectory.file("downloads/$artifactFileName")
