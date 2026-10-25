@@ -569,7 +569,7 @@
     <string name="swipe_symbol_picker_title">Pick from symbol swipe mapping</string>
     <string name="swipe_symbol_picker_empty">The symbol swipe mapping is empty</string>
     <string name="edit_buttons">Buttons &amp; Icons</string>
-    <string name="edit_buttons_summary">Customize toolbar buttons and virtual keyboard icons</string>
+    <string name="edit_buttons_summary">Button theme: %1$s ・ Icon theme: %2$s</string>
     <string name="toolbar_buttons_tab">Toolbar Buttons</string>
     <string name="keyboard_icons_tab">Key Icons</string>
     <string name="keyboard_icons_title">Virtual keyboard key icons</string>

@@ -1036,9 +1036,14 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             .setView(dialogView)
             .setPositiveButton(R.string.ok, null)
             .setNegativeButton(R.string.cancel, null)
+            .setNeutralButton(R.string.clear, null)
             .create()
 
         dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                iconInput.text?.clear()
+                iconInput.error = null
+            }
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val iconValue = iconInput.text?.toString()?.trim().orEmpty()
                 val customIcon = if (iconValue.isBlank()) {

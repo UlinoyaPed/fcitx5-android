@@ -201,7 +201,7 @@
     <string name="edit_popup_preset">Popup-Tastenzuordnung</string>
     <string name="edit_popup_preset_summary">Popup-Tastenzuordnung bearbeiten (Taste -&gt; Popup-Kandidaten)</string>
     <string name="edit_buttons">Schaltflächen &amp; Symbole</string>
-    <string name="edit_buttons_summary">Schaltflächen und Tastatursymbole anpassen</string>
+    <string name="edit_buttons_summary">Button-Design: %1$s ・ Icon-Design: %2$s</string>
     <string name="toolbar_buttons_tab">Werkzeugleisten-Schaltflächen</string>
     <string name="keyboard_icons_tab">Tastensymbole</string>
     <string name="keyboard_icons_title">Symbole der virtuellen Tastatur</string>

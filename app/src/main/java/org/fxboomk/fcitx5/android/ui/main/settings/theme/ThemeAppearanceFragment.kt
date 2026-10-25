@@ -13,6 +13,8 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutThemeStore
+import org.fxboomk.fcitx5.android.input.config.KeyIconStore
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
@@ -98,7 +100,7 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
                 key = BUTTON_STYLE_ENTRY_KEY
                 setup(
                     ctx.getString(R.string.edit_buttons),
-                    ctx.getString(R.string.edit_buttons_summary)
+                    buildButtonStyleSummary()
                 ) {
                     startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java))
                 }
@@ -152,11 +154,18 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         findPreference<Preference>(KEY_STYLE_ENTRY_KEY)?.summary = buildKeyStyleSummary(ctx)
         findPreference<Preference>(TOOLBAR_STYLE_ENTRY_KEY)?.summary =
             buildToolbarStyleSummary(ctx)
+        findPreference<Preference>(BUTTON_STYLE_ENTRY_KEY)?.summary = buildButtonStyleSummary()
         findPreference<Preference>(CANDIDATE_STYLE_ENTRY_KEY)?.summary =
             buildCandidateStyleSummary(ctx)
         findPreference<Preference>(ANIMATION_ENTRY_KEY)?.summary = buildAnimationSummary(ctx)
         findPreference<Preference>(OTHER_STYLE_ENTRY_KEY)?.summary = buildOtherStyleSummary(ctx)
     }
+
+    private fun buildButtonStyleSummary(): String = requireContext().getString(
+        R.string.edit_buttons_summary,
+        ButtonsLayoutThemeStore.activeTheme().name,
+        KeyIconStore.activeTheme().name
+    )
 
     private fun buildThemeModeSummary(ctx: Context): String {
         val prefs = ThemeManager.prefs
