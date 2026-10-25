@@ -28,6 +28,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
+import androidx.appcompat.content.res.AppCompatResources
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.SystemColorResourceId
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
@@ -569,7 +570,10 @@ class RowEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(0, dp(8), 0, dp(8))
-            background = resources.getDrawable(android.R.drawable.list_selector_background, theme)
+            background = AppCompatResources.getDrawable(
+                this@RowEditorActivity,
+                android.R.drawable.list_selector_background
+            )
             setOnClickListener { onClick() }
 
             addView(

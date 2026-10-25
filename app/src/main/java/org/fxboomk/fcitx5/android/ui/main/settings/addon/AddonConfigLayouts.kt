@@ -312,12 +312,7 @@ private object PinyinConfigLayout {
      * English resource strings.
      */
     private fun useShortTitles(context: Context): Boolean {
-        val language = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.resources.configuration.locales[0].language
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.configuration.locale.language
-        }
+        val language = context.resources.configuration.locales[0].language
         return language == Locale.ENGLISH.language || language == Locale.CHINESE.language
     }
 }

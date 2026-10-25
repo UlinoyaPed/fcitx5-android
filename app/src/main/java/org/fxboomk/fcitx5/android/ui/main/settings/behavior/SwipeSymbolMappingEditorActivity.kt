@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.os.Bundle

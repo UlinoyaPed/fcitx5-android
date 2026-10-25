@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged", "SetTextI18n")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
+
+import timber.log.Timber
 
 import android.Manifest
 import android.content.Intent
@@ -241,7 +244,7 @@ class PopupEditorActivity : AppCompatActivity() {
         val getterValue = runCatching {
             holderClass.getDeclaredMethod("getPopupPreset").invoke(null)
         }.onFailure { e ->
-            android.util.Log.w("PopupEditor", "Failed to invoke getPopupPreset method", e)
+            Timber.tag("PopupEditor").w(e, "Failed to invoke getPopupPreset method")
         }.getOrNull()
         
         // Fallback to field reflection
@@ -250,31 +253,31 @@ class PopupEditorActivity : AppCompatActivity() {
                 isAccessible = true 
             }.get(null)
         }.onFailure { e ->
-            android.util.Log.w("PopupEditor", "Failed to access PopupPreset field", e)
+            Timber.tag("PopupEditor").w(e, "Failed to access PopupPreset field")
         }.getOrNull()
 
         val rawMap = (getterValue ?: fieldValue) as? Map<*, *> ?: run {
-            android.util.Log.w("PopupEditor", "PopupPreset returned null or is not a Map")
+            Timber.tag("PopupEditor").w("PopupPreset returned null or is not a Map")
             return@runCatching emptyMap()
         }
         
         rawMap.mapNotNull { (key, value) ->
             val mappedKey = key as? String ?: run {
-                android.util.Log.w("PopupEditor", "Invalid key type: ${key?.javaClass?.simpleName}, skipping")
+                Timber.tag("PopupEditor").w("Invalid key type: ${key?.javaClass?.simpleName}, skipping")
                 return@mapNotNull null
             }
             val mappedValues = when (value) {
                 is Array<*> -> value.mapNotNull { it?.toString()?.trim() }.filter { it.isNotEmpty() }
                 is List<*> -> value.mapNotNull { it?.toString()?.trim() }.filter { it.isNotEmpty() }
                 else -> {
-                    android.util.Log.w("PopupEditor", "Invalid value type for key '$mappedKey': ${value?.javaClass?.simpleName}, expected Array or List")
+                    Timber.tag("PopupEditor").w("Invalid value type for key '$mappedKey': ${value?.javaClass?.simpleName}, expected Array or List")
                     emptyList()
                 }
             }
             mappedKey to mappedValues
         }.toMap()
     }.onFailure { e ->
-        android.util.Log.e("PopupEditor", "Failed to read default popup preset", e)
+        Timber.tag("PopupEditor").e(e, "Failed to read default popup preset")
     }.getOrDefault(emptyMap())
 
     private fun setupRecyclerView() {

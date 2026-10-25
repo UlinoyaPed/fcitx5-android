@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview
 
+import timber.log.Timber
+
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -180,7 +182,7 @@ class KeyboardPreviewManager(
         try {
             createKeyboardPreview(layoutName, previewSubModeLabel, fcitxConnection)
         } catch (e: Exception) {
-            android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
+            Timber.tag("KeyboardPreview").e(e, "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel")
             showError(e.message ?: "Unknown error")
         } finally {
             // Restore the real layout provider after the preview has been built.

@@ -30,9 +30,7 @@ abstract class ThemeGroupFragment(
     protected abstract fun onBuildPreferenceScreen(screen: PreferenceScreen)
 
     override fun onStop() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ThemeManager.syncToDeviceEncryptedStorage()
-        }
+        ThemeManager.syncToDeviceEncryptedStorage()
         super.onStop()
     }
 }

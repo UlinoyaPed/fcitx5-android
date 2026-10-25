@@ -4,7 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils
 
-import android.util.Log
+import timber.log.Timber
+
 import kotlinx.serialization.json.*
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
@@ -451,7 +452,7 @@ object LayoutJsonUtils {
         for (i in rowsArray.indices) {
             val rowElement = rowsArray[i]
             val rowArray = keyArrayFromRowElement(rowElement) ?: run {
-                Log.w(TAG, "Skipping invalid row element at row $i: ${rowElement::class.simpleName}")
+                Timber.tag(TAG).w("Skipping invalid row element at row $i: ${rowElement::class.simpleName}")
                 continue
             }
             val row = mutableListOf<Map<String, Any?>>()
@@ -463,7 +464,7 @@ object LayoutJsonUtils {
                 val keyElement = rowArray[j]
                 if (keyElement is JsonNull) continue
                 if (keyElement !is JsonObject) {
-                    Log.w(TAG, "Skipping invalid key element at row $i, col $j: ${keyElement::class.simpleName}")
+                    Timber.tag(TAG).w("Skipping invalid key element at row $i, col $j: ${keyElement::class.simpleName}")
                     continue
                 }
 

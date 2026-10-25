@@ -320,9 +320,7 @@ class ThemeFragment : Fragment() {
         ThemeManager.prefs.lightModeThemes.sharedPreferences
             .unregisterOnSharedPreferenceChangeListener(onCarouselPrefsChange)
         ThemeManager.removeOnThemeListChangedListener(onThemeListChangeListener)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ThemeManager.syncToDeviceEncryptedStorage()
-        }
+        ThemeManager.syncToDeviceEncryptedStorage()
         super.onStop()
     }
 

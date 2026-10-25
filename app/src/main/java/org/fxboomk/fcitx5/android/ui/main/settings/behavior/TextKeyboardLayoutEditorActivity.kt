@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
+
+import timber.log.Timber
 
 import android.content.Intent
 import android.graphics.Color
@@ -878,7 +881,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     // Rollback state on failure
                     previewSubModeLabel = oldSubModeLabel
                     lastEditingTarget = oldLastEditingTarget
-                    android.util.Log.e("TextKeyboardLayoutEditor", "Failed to switch submode to: $selected", e)
+                    Timber.tag("TextKeyboardLayoutEditor").e(e, "Failed to switch submode to: $selected")
                     showToast(getString(R.string.text_keyboard_layout_switch_submode_failed, selected))
                 }
             }
@@ -958,7 +961,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 run { val name = currentLayout ?: return@run; previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection) }
                 updateSaveButtonState()
             } else {
-                android.util.Log.e("TextKeyboardEditor", "No valid layout found in entries")
+                Timber.tag("TextKeyboardEditor").e("No valid layout found in entries")
             }
             return
         }

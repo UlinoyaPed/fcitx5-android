@@ -1,3 +1,4 @@
+@file:Suppress("ClickableViewAccessibility")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.content.Context
@@ -235,6 +236,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (ev.actionMasked == MotionEvent.ACTION_UP) performClick()
                 if (isDraggingInternal) {
                     lastTouchRawX = ev.rawX
                     lastTouchRawY = ev.rawY
@@ -245,6 +247,11 @@ open class DraggableFlowLayout @JvmOverloads constructor(
             }
         }
 
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
         return true
     }
     

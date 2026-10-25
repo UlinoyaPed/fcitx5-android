@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
+
+import timber.log.Timber
 
 import android.os.Build
 import android.os.Bundle
@@ -605,18 +608,18 @@ class MacroEditorActivity : AppCompatActivity() {
         // Receive macro data
         val initialSteps = intent.serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
         originalSteps = initialSteps
-        android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
+        Timber.tag("MacroEditor").d("Received initialSteps: $originalSteps")
         if (swipeMode) {
             initTimingCards(initialSteps.orEmpty())
         } else if (originalSteps != null) {
             steps.clear()
             steps.addAll(originalSteps!!.map {
                 val parsed = parseStep(it)
-                android.util.Log.d("MacroEditor", "Parsed step: type=${parsed.type}, keys=${parsed.keys}")
+                Timber.tag("MacroEditor").d("Parsed step: type=${parsed.type}, keys=${parsed.keys}")
                 parsed
             })
         } else {
-            android.util.Log.d("MacroEditor", "No initialSteps, adding default tap step")
+            Timber.tag("MacroEditor").d("No initialSteps, adding default tap step")
             // Add a default tap step
             steps.add(MacroStepData())
         }

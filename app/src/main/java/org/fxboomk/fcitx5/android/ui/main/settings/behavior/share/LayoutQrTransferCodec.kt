@@ -4,7 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.share
 
-import android.util.Log
+import timber.log.Timber
+
 import android.util.Base64
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -176,10 +177,10 @@ object LayoutQrTransferCodec {
                 }
             } catch (oom: OutOfMemoryError) {
                 lastError = oom
-                Log.w(TAG, "LZMA2 preset $preset OOM, retry with lower preset")
+                Timber.tag(TAG).w("LZMA2 preset $preset OOM, retry with lower preset")
             } catch (t: Throwable) {
                 lastError = t
-                Log.w(TAG, "LZMA2 preset $preset failed: ${t.message}")
+                Timber.tag(TAG).w("LZMA2 preset $preset failed: ${t.message}")
             }
         }
         throw IllegalStateException("LZMA2 compression failed", lastError)

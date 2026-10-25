@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.data
 
+import timber.log.Timber
+
 import android.content.Context
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
@@ -86,7 +88,7 @@ class LayoutDataManager(private val context: Context) {
         layoutHeightPercentOverrides.clear()
         
         DirectionalSwipeMigration.migrateFile(file, ThemeManager.prefs.punctuationPosition.getValue())
-            .onFailure { android.util.Log.e("LayoutDataManager", "Swipe migration failed", it) }
+            .onFailure { Timber.tag("LayoutDataManager").e(it, "Swipe migration failed") }
         val parsed = if (file?.exists() == true && file.length() > 0) {
             parseJsonText(file.readText(), file.name)
         } else {
@@ -118,7 +120,7 @@ class LayoutDataManager(private val context: Context) {
             runCatching {
                 migrationManager.migrateAllDisplayTextToSubmodeStructure()
             }.onFailure { e ->
-                android.util.Log.e("LayoutDataManager", "Migration failed", e)
+                Timber.tag("LayoutDataManager").e(e, "Migration failed")
                 migrationManager.restoreFromBackup(file)
                 // 迁移失败恢复备份后，重新加载数据确保内存与文件一致
                 entries.clear()
@@ -224,22 +226,22 @@ class LayoutDataManager(private val context: Context) {
                             }
                         }
                         else -> {
-                            android.util.Log.w("LayoutDataManager", "Skipping invalid layout value for: $layoutName, type: ${layoutValue::class.simpleName}")
+                            Timber.tag("LayoutDataManager").w("Skipping invalid layout value for: $layoutName, type: ${layoutValue::class.simpleName}")
                         }
                     }
                 } catch (e: Exception) {
-                    android.util.Log.e("LayoutDataManager", "Failed to parse layout: $layoutName", e)
+                    Timber.tag("LayoutDataManager").e(e, "Failed to parse layout: $layoutName")
                 }
             }
             lastParsedLayoutHeightPercentOverrides = LinkedHashMap(parsedLayoutHeightOverrides)
             
             if (result.isEmpty()) {
-                android.util.Log.w("LayoutDataManager", "No valid layouts found in JSON file")
+                Timber.tag("LayoutDataManager").w("No valid layouts found in JSON file")
             }
             
             result
         }.onFailure { e ->
-            android.util.Log.e("LayoutDataManager", "Failed to parse JSON from: $sourceName", e)
+            Timber.tag("LayoutDataManager").e(e, "Failed to parse JSON from: $sourceName")
         }.getOrNull() ?: if (fallbackToDefault) loadDefaultPreset() else emptyMap()
     }
 
@@ -333,7 +335,7 @@ class LayoutDataManager(private val context: Context) {
             
             true
         }.getOrElse { e ->
-            android.util.Log.e("LayoutDataManager", "Save failed", e)
+            Timber.tag("LayoutDataManager").e(e, "Save failed")
             false
         }
     }

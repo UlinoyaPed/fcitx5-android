@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged", "SetTextI18n")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.graphics.Typeface
@@ -695,7 +696,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             val deleteButton = TextView(this).apply {
                 text = getString(R.string.delete)
                 textSize = 14f
-                setTextColor(styledColor(android.R.attr.colorError))
+                setTextColor(styledColor(androidx.appcompat.R.attr.colorError))
                 setPadding(0, dp(16), 0, 0)
                 setOnClickListener {
                     AlertDialog.Builder(this@ButtonsCustomizerActivity)
