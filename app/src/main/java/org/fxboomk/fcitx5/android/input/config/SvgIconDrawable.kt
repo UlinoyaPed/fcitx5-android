@@ -244,6 +244,7 @@ internal fun parseTransform(raw: String?): FloatArray? {
     return acc
 }
 
+@ConsistentCopyVisibility
 internal data class SvgShape internal constructor(
     internal val path: Path,
     internal val affine: FloatArray,
