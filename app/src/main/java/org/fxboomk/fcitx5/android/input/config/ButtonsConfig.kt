@@ -53,11 +53,15 @@ data class ConfigurableButton(
 
 /** Shared parsing rules for drawable names and iconfont code points. */
 object ButtonIconSpec {
-    private val codePointPattern = Regex("(?:font:)?([0-9A-Fa-f]{4,6})")
+    private val explicitCodePointPattern = Regex("(?i)(?:font:|u\\+|0x|&#x)([0-9a-f]{1,6});?")
+    private val bareCodePointPattern = Regex("[0-9A-Fa-f]{4,6}")
 
     fun codePoint(value: String?): Int? {
-        val match = value?.trim()?.let(codePointPattern::matchEntire) ?: return null
-        return match.groupValues[1].toIntOrNull(16)?.takeIf {
+        val raw = value?.trim() ?: return null
+        val digits = explicitCodePointPattern.matchEntire(raw)?.groupValues?.getOrNull(1)
+            ?: raw.takeIf { bareCodePointPattern.matches(it) }
+            ?: return null
+        return digits.toIntOrNull(16)?.takeIf {
             it in 0..0x10FFFF && it !in 0xD800..0xDFFF
         }
     }
@@ -120,10 +124,20 @@ data class ButtonsLayoutConfig(
 
     /** Buttons hidden from both visible toolbar sections. */
     @SerialName("optionalButtons")
-    val optionalButtons: List<ConfigurableButton> = emptyList()
+    val optionalButtons: List<ConfigurableButton> = emptyList(),
+
+    /** Fixed button rendered at the end of the top toolbar row. */
+    @SerialName("hideKeyboardButton")
+    val hideKeyboardButton: ConfigurableButton = defaultHideKeyboardButton()
 ) {
     companion object {
         private const val DEFAULT_MORE_ICON = "font:E141"
+        private const val DEFAULT_HIDE_KEYBOARD_ICON = "ic_keyboard_hide_24"
+
+        fun defaultHideKeyboardButton(): ConfigurableButton = ConfigurableButton(
+            id = "hide_keyboard",
+            icon = DEFAULT_HIDE_KEYBOARD_ICON
+        )
 
         fun defaultMoreButton(): ConfigurableButton = ConfigurableButton(
             id = "more",
@@ -155,9 +169,17 @@ data class ButtonsLayoutConfig(
                 ConfigurableButton("virtual_keyboard"),
                 ConfigurableButton("one_handed_keyboard")
             ),
-            optionalButtons = listOf(ConfigurableButton("search"))
+            optionalButtons = listOf(ConfigurableButton("search")),
+            hideKeyboardButton = defaultHideKeyboardButton()
         )
     }
+
+    fun resolvedHideKeyboardButton(): ConfigurableButton =
+        if (hideKeyboardButton.id == "hide_keyboard") {
+            hideKeyboardButton.copy(icon = hideKeyboardButton.icon ?: DEFAULT_HIDE_KEYBOARD_ICON)
+        } else {
+            defaultHideKeyboardButton()
+        }
 }
 
 /**

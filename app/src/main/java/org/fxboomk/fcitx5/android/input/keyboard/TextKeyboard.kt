@@ -21,6 +21,8 @@ import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.popup.PopupAction
+import org.fxboomk.fcitx5.android.input.config.KeyIconIds
+import org.fxboomk.fcitx5.android.input.config.KeyIconThemeStore
 import splitties.views.imageResource
 import kotlinx.serialization.json.*
 import kotlinx.serialization.Serializable
@@ -61,6 +63,7 @@ class TextKeyboard private constructor(
         private var lastModified = 0L
         internal var ime: InputMethodEntry? = null
         private var listenerRegistered = false
+        private var iconListenerRegistered = false
         private val attachedKeyboards = mutableListOf<WeakReference<TextKeyboard>>()
 
         @Synchronized
@@ -70,6 +73,15 @@ class TextKeyboard private constructor(
                 onTextLayoutFileChanged()
             }
             listenerRegistered = true
+            if (!iconListenerRegistered) {
+                KeyIconThemeStore.addOnChangedListener {
+                    attachedKeyboards.mapNotNull { it.get() }.forEach {
+                        it.refreshStyle()
+                        it.refreshCapsPresentation()
+                    }
+                }
+                iconListenerRegistered = true
+            }
         }
 
         @Synchronized
@@ -756,10 +768,18 @@ class TextKeyboard private constructor(
         val displayLock = isDisplayCapsOn()
         specialKeyViews.caps.forEach { cap ->
             cap.img.apply {
-                imageResource = when (capsState) {
+                val fallback = when (capsState) {
                     CapsState.None -> if (displayLock) R.drawable.ic_capslock_lock else R.drawable.ic_capslock_none
                     CapsState.Once -> R.drawable.ic_capslock_once
                     CapsState.Lock -> R.drawable.ic_capslock_lock
+                }
+                val id = when (capsState) {
+                    CapsState.None -> if (displayLock) KeyIconIds.CAPS_LOCK else KeyIconIds.CAPS_NONE
+                    CapsState.Once -> KeyIconIds.CAPS_ONCE
+                    CapsState.Lock -> KeyIconIds.CAPS_LOCK
+                }
+                KeyIconThemeStore.resolveDrawableObject(context, id, fallback)?.let {
+                    setImageDrawable(it)
                 }
             }
         }
