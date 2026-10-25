@@ -25,6 +25,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonDisplayNames
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.Const
@@ -314,7 +315,10 @@ object SettingsSearchIndex {
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
             addAll(
                 managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced)
-                    .filterNot { it.preferenceKey in ThemeSettingsSupport.advancedMovedKeys }
+                    .filterNot {
+                        it.preferenceKey in ThemeSettingsSupport.advancedMovedKeys ||
+                            it.preferenceKey == prefs.advanced.allowOriginalPlugins.key
+                    }
             )
             addAll(advancedExtraItems(context))
             addAll(llmItems(context))
@@ -440,13 +444,22 @@ object SettingsSearchIndex {
         listOf(
             R.string.theme_category_theme_mode to SettingsRoute.ThemeMode,
             R.string.theme_category_key_style to SettingsRoute.ThemeKeyStyle,
-            R.string.theme_category_toolbar_style to SettingsRoute.ThemeToolbarStyle,
             R.string.theme_category_candidate_style to SettingsRoute.ThemeCandidateStyle,
+            R.string.theme_category_toolbar_style to SettingsRoute.ThemeToolbarStyle,
             R.string.theme_category_animation to SettingsRoute.ThemeAnimation,
             R.string.theme_category_other_style to SettingsRoute.ThemeOtherStyle
         ).forEach { (title, route) ->
             add(SettingsSearchResult(context.getString(title), pagePath, route))
         }
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.edit_buttons),
+                path = pagePath,
+                route = SettingsRoute.Theme,
+                preferenceKey = ThemeAppearanceFragment.BUTTON_STYLE_ENTRY_KEY,
+                summary = context.getString(R.string.edit_buttons_summary)
+            )
+        )
         add(
             SettingsSearchResult(
                 title = context.getString(R.string.edit_fontset),
@@ -659,7 +672,6 @@ object SettingsSearchIndex {
             context,
             R.string.text_keyboard_layout_manage_title
         )
-        addAdvancedKeyboardItem(context, R.string.edit_buttons, R.string.edit_buttons_summary)
     }
 
     private fun MutableList<SettingsSearchResult>.addKeyboardSection(

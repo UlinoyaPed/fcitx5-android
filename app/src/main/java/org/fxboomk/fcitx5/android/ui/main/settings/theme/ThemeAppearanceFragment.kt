@@ -15,6 +15,7 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fxboomk.fcitx5.android.utils.SingleLineSummaryPreference
 import org.fxboomk.fcitx5.android.utils.addPreference
@@ -28,6 +29,7 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         private const val THEME_MODE_ENTRY_KEY = "theme_mode_entry"
         private const val KEY_STYLE_ENTRY_KEY = "theme_key_style_entry"
         private const val TOOLBAR_STYLE_ENTRY_KEY = "theme_toolbar_style_entry"
+        internal const val BUTTON_STYLE_ENTRY_KEY = "theme_button_style_entry"
         private const val CANDIDATE_STYLE_ENTRY_KEY = "theme_candidate_style_entry"
         private const val ANIMATION_ENTRY_KEY = "theme_animation_entry"
         private const val OTHER_STYLE_ENTRY_KEY = "theme_other_style_entry"
@@ -78,18 +80,29 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         addSummaryDestination(
             screen,
             ctx,
+            CANDIDATE_STYLE_ENTRY_KEY,
+            R.string.theme_category_candidate_style,
+            buildCandidateStyleSummary(ctx),
+            SettingsRoute.ThemeCandidateStyle
+        )
+        addSummaryDestination(
+            screen,
+            ctx,
             TOOLBAR_STYLE_ENTRY_KEY,
             R.string.theme_category_toolbar_style,
             buildToolbarStyleSummary(ctx),
             SettingsRoute.ThemeToolbarStyle
         )
-        addSummaryDestination(
-            screen,
-            ctx,
-            CANDIDATE_STYLE_ENTRY_KEY,
-            R.string.theme_category_candidate_style,
-            buildCandidateStyleSummary(ctx),
-            SettingsRoute.ThemeCandidateStyle
+        screen.addPreference(
+            SingleLineSummaryPreference(ctx).apply {
+                key = BUTTON_STYLE_ENTRY_KEY
+                setup(
+                    ctx.getString(R.string.edit_buttons),
+                    ctx.getString(R.string.edit_buttons_summary)
+                ) {
+                    startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java))
+                }
+            }
         )
         addSummaryDestination(
             screen,

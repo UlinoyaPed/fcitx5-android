@@ -120,9 +120,6 @@ class KeyboardAdvancedCustomizationFragment : KeyboardSectionFragment() {
                     true
                 }
             })
-            addPreference(R.string.edit_buttons, R.string.edit_buttons_summary) {
-                startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java))
-            }
         }
     }
 }

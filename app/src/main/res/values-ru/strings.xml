@@ -383,7 +383,7 @@
     <string name="key_border_stroke">Включить обводку для границы клавиши</string>
     <string name="edit_popup_preset">Сопоставление клавиш всплывающих окон</string>
     <string name="edit_popup_preset_summary">Редактировать сопоставление клавиш всплывающих окон (клавиша -&gt; кандидаты всплывающих окон)</string>
-    <string name="edit_buttons">Настройки кнопок панели инструментов</string>
+    <string name="edit_buttons">Стиль кнопок панели инструментов</string>
     <string name="edit_buttons_summary">Настройка кнопок в Kawaii Bar и Status Area</string>
     <string name="buttons_customizer_hint">Нажмите видимую кнопку, чтобы изменить стиль значка. Удерживайте и перетащите кнопку в «Доступные кнопки», чтобы скрыть её, или переместите между Kawaii Bar (верхняя строка) и Status Area (меню). Нажмите кнопку в «Доступных кнопках», чтобы выбрать целевой раздел.</string>
     <string name="kawaii_bar_section">Kawaii Bar (верхняя строка)</string>
@@ -817,7 +817,7 @@
     <string name="theme_category_key_style">Стиль клавиш</string>
     <string name="theme_category_toolbar_style">Стиль панели инструментов</string>
     <string name="theme_category_candidate_style">Стиль кандидатов</string>
-    <string name="theme_category_animation">Эффекты анимации</string>
+    <string name="theme_category_animation">Анимация и эффекты</string>
     <string name="theme_category_theme_mode">Режим темы</string>
     <string name="theme_category_other_style">Другие стили</string>
     <string name="theme_mode_summary_follow_system">Как в системе · %1$d светлая / %2$d тёмная</string>

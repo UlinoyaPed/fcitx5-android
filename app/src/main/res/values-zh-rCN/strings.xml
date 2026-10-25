@@ -154,7 +154,7 @@
     <string name="theme_category_key_style">按键样式</string>
     <string name="theme_category_toolbar_style">工具栏样式</string>
     <string name="theme_category_candidate_style">候选词样式</string>
-    <string name="theme_category_animation">动画特效</string>
+    <string name="theme_category_animation">动画与特效</string>
     <string name="theme_category_theme_mode">主题模式</string>
     <string name="theme_category_other_style">其他样式</string>
     <string name="theme_mode_summary_follow_system">跟随系统 · 亮色 %1$d / 暗色 %2$d</string>
@@ -425,7 +425,7 @@
     <string name="cannot_resolve_swipe_symbol_mapping">无法解析符号划动映射文件路径</string>
     <string name="swipe_symbol_picker_title">从符号划动映射选择</string>
     <string name="swipe_symbol_picker_empty">符号划动映射为空</string>
-    <string name="edit_buttons">工具栏按钮设定</string>
+    <string name="edit_buttons">工具栏按钮样式</string>
     <string name="edit_buttons_summary">自定义 Kawaii Bar 和 Status Area 中的按钮</string>
     <string name="buttons_customizer_hint">点击可见按钮可编辑图标样式；长按并拖动按钮到“可添加按钮”即可隐藏，也可在 Kawaii Bar（顶行）和 Status Area（菜单）之间移动。点击“可添加按钮”中的按钮可选择目标分组。</string>
     <string name="kawaii_bar_section">Kawaii Bar（顶行）</string>

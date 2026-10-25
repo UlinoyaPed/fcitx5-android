@@ -104,6 +104,8 @@ class AdvancedSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance(
         ThemeSettingsSupport.advancedMovedKeys.forEach { key ->
             screen.findPreference<Preference>(key)?.let { screen.removePreference(it) }
         }
+        screen.findPreference<Preference>(AppPrefs.getInstance().advanced.allowOriginalPlugins.key)
+            ?.let { screen.removePreference(it) }
 
         screen.addPreference(
             R.string.browse_user_data_dir,

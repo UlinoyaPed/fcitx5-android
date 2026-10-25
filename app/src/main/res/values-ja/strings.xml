@@ -306,7 +306,7 @@
     <string name="crop">切り取り</string>
     <string name="edit_popup_preset">ポップアップキーマッピング</string>
     <string name="edit_popup_preset_summary">ポップアップキーマッピングを編集 (キー -&gt; ポップアップ候補)</string>
-    <string name="edit_buttons">ツールバーボタン設定</string>
+    <string name="edit_buttons">ツールバーボタンのスタイル</string>
     <string name="edit_buttons_summary">Kawaii Bar と Status Area のボタンをカスタマイズ</string>
     <string name="buttons_customizer_hint">表示中のボタンをタップするとアイコンのスタイルを編集できます。長押しして「利用可能なボタン」へドラッグすると非表示にでき、Kawaii Bar（上段）と Status Area（メニュー）間も移動できます。そこにあるボタンをタップして移動先を選択します。</string>
     <string name="kawaii_bar_section">Kawaii Bar（上段）</string>
@@ -817,7 +817,7 @@
     <string name="theme_category_key_style">キーのスタイル</string>
     <string name="theme_category_toolbar_style">ツールバーのスタイル</string>
     <string name="theme_category_candidate_style">候補のスタイル</string>
-    <string name="theme_category_animation">アニメーション効果</string>
+    <string name="theme_category_animation">アニメーションと効果</string>
     <string name="theme_category_theme_mode">テーマモード</string>
     <string name="theme_category_other_style">その他のスタイル</string>
     <string name="theme_mode_summary_follow_system">システムに従う · ライト %1$d / ダーク %2$d</string>

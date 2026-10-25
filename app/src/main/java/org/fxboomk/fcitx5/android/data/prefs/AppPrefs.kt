@@ -87,7 +87,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val allowOriginalPlugins = switch(
             R.string.allow_original_plugins,
             "allow_original_plugins",
-            false
+            true
         )
         val hideKeyConfig = switch(R.string.hide_key_config, "hide_key_config", true)
         val blockedPluginPackages = ManagedPreference.PStringSet(

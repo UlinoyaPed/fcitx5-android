@@ -156,7 +156,7 @@
     <string name="theme_category_key_style">Key style</string>
     <string name="theme_category_toolbar_style">Toolbar style</string>
     <string name="theme_category_candidate_style">Candidate style</string>
-    <string name="theme_category_animation">Animation effects</string>
+    <string name="theme_category_animation">Animation and effects</string>
     <string name="theme_category_theme_mode">Theme mode</string>
     <string name="theme_category_other_style">Other styles</string>
     <string name="theme_mode_summary_follow_system">Following system · %1$d light / %2$d dark</string>
@@ -610,7 +610,7 @@
     <string name="cannot_resolve_swipe_symbol_mapping">Cannot resolve the symbol swipe mapping file path</string>
     <string name="swipe_symbol_picker_title">Pick from symbol swipe mapping</string>
     <string name="swipe_symbol_picker_empty">The symbol swipe mapping is empty</string>
-    <string name="edit_buttons">Toolbar Button Settings</string>
+    <string name="edit_buttons">Toolbar Button Style</string>
     <string name="edit_buttons_summary">Customize buttons on Kawaii Bar and Status Area</string>
     <string name="buttons_customizer_hint">Tap a visible button to edit its icon style. Long press and drag a button into Available Buttons to hide it, or between Kawaii Bar (top row) and Status Area (menu). Tap a button in Available Buttons to choose its target section.</string>
     <string name="kawaii_bar_section">Kawaii Bar (Top Row)</string>
