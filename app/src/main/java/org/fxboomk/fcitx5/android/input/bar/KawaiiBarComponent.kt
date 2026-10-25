@@ -419,8 +419,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     // Load buttons config from file or use default
     private fun loadButtonsConfig(): List<ConfigurableButton> {
-        val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
-        val config = snapshot?.value ?: ButtonsLayoutConfig.default()
+        val config = loadButtonsLayoutConfig()
 
         // The more button is fixed at the left edge and is rendered by IdleUi.
         // Keep it in the loaded config so its icon can be customized.
@@ -430,6 +429,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
     }
 
+    private fun loadButtonsLayoutConfig(): ButtonsLayoutConfig =
+        ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+            ?: ButtonsLayoutConfig.default()
+
     private var _idleUi: IdleUi? = null
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
 
@@ -437,7 +440,14 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         get() {
             if (_idleUi == null) {
                 currentButtonsConfig = loadButtonsConfig()
-                _idleUi = IdleUi(context, theme, popup, commonKeyActionListener, currentButtonsConfig)
+                _idleUi = IdleUi(
+                    context,
+                    theme,
+                    popup,
+                    commonKeyActionListener,
+                    currentButtonsConfig,
+                    loadButtonsLayoutConfig().resolvedHideKeyboardButton()
+                )
                 setupIdleUiCallbacks(_idleUi!!)
             }
             return _idleUi!!
@@ -626,6 +636,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             currentButtonsConfig = newConfig
             // Update the existing IdleUi with new config
             _idleUi?.updateConfig(newConfig)
+            _idleUi?.updateHideKeyboardConfig(loadButtonsLayoutConfig().resolvedHideKeyboardButton())
             updateButtonsState()
         }
     }

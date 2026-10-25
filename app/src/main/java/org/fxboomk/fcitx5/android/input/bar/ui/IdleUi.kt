@@ -26,6 +26,8 @@ import org.fxboomk.fcitx5.android.input.bar.ui.idle.NumberRow
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
+import org.fxboomk.fcitx5.android.input.config.KeyIconIds
+import org.fxboomk.fcitx5.android.input.config.KeyIconThemeStore
 import org.fxboomk.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fxboomk.fcitx5.android.input.popup.PopupComponent
 import splitties.dimensions.dp
@@ -50,7 +52,8 @@ class IdleUi(
     private val theme: Theme,
     private val popup: PopupComponent,
     private val commonKeyActionListener: CommonKeyActionListener,
-    private val buttonsConfig: List<ConfigurableButton> = ButtonsLayoutConfig.default().kawaiiBarButtons
+    private val buttonsConfig: List<ConfigurableButton> = ButtonsLayoutConfig.default().kawaiiBarButtons,
+    private var hideKeyboardConfig: ConfigurableButton = ButtonsLayoutConfig.defaultHideKeyboardButton()
 ) : Ui {
 
     enum class State {
@@ -101,10 +104,47 @@ class IdleUi(
 
     val inlineSuggestionsBar = InlineSuggestionsUi(ctx)
 
+    init {
+        KeyIconThemeStore.addOnChangedListener {
+            hideKeyboardButton.post {
+                if (hideKeyboardButton.contentDescription == ctx.getString(R.string.switch_to_voice_input)) {
+                    applyVoiceInputIcon()
+                }
+            }
+        }
+    }
+
     fun updateConfig(newButtons: List<ConfigurableButton>) {
         menuButtonConfig = newButtons.firstOrNull { it.id == "more" }
         buttonsUi.updateConfig(newButtons)
         updateMenuButtonIcon()
+    }
+
+    fun updateHideKeyboardConfig(newConfig: ConfigurableButton) {
+        hideKeyboardConfig = newConfig
+        if (hideKeyboardButton.contentDescription == ctx.getString(R.string.hide_keyboard)) {
+            applyHideKeyboardIcon()
+        }
+    }
+
+    private fun applyHideKeyboardIcon() {
+        val icon = hideKeyboardConfig.icon
+        when {
+            ButtonIconSpec.glyph(icon) != null -> hideKeyboardButton.setIconText(ButtonIconSpec.glyph(icon)!!)
+            ButtonIconSpec.svg(icon) != null -> ButtonIconSpec.drawable(ctx, icon, R.drawable.ic_keyboard_hide_24)
+                ?.let(hideKeyboardButton::setIconDrawable)
+            else -> hideKeyboardButton.setIcon(
+                ButtonIconSpec.drawableResource(ctx, icon, R.drawable.ic_keyboard_hide_24)
+            )
+        }
+    }
+
+    private fun applyVoiceInputIcon() {
+        KeyIconThemeStore.resolveDrawableObject(
+            ctx,
+            KeyIconIds.VOICE_INPUT,
+            R.drawable.ic_baseline_keyboard_voice_24
+        )?.let(hideKeyboardButton::setIconDrawable)
     }
 
     private val animator = ViewAnimator(ctx).apply {
@@ -213,10 +253,10 @@ class IdleUi(
 
     fun setHideKeyboardIsVoiceInput(isVoiceInput: Boolean, callback: View.OnClickListener) {
         if (isVoiceInput) {
-            hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
+            applyVoiceInputIcon()
             hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
         } else {
-            hideKeyboardButton.setIcon(R.drawable.ic_keyboard_hide_24)
+            applyHideKeyboardIcon()
             hideKeyboardButton.contentDescription = ctx.getString(R.string.hide_keyboard)
         }
         hideKeyboardButton.setOnClickListener(callback)

@@ -81,6 +81,11 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
 
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
 
+    private val onButtonsLayoutChangeListener: ConfigChangeListener = {
+        currentButtonsConfig = loadButtonsConfig()
+        renderCurrentPage()
+    }
+
     /**
      * Pages of the status area grid: Main shows the app-configurable buttons
      * (plus non-Rime fcitx actions when the Rime engine is not active), Rime
@@ -504,6 +509,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
 
     override fun onAttached() {
         // Load config when attached and start from the Main page
+        ConfigProviders.addButtonsLayoutListener(onButtonsLayoutChangeListener)
         currentPage = StatusPage.Main
         refreshRimeEngineState()
         currentButtonsConfig = loadButtonsConfig()
@@ -516,6 +522,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     override fun onDetached() {
+        ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
         popupMenu?.dismiss()
         popupMenu = null
     }
