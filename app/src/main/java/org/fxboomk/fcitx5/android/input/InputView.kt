@@ -3187,6 +3187,7 @@ class InputView(
         blurUpdateScope.cancel()
         aiSuggestionStrip.close()
         clipboardSearchOverlay.close()
+        kawaiiBar.dispose()
         // clear DynamicScope, implies that InputView should not be attached again after detached.
         scope.clear()
         super.onDetachedFromWindow()

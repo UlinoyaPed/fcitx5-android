@@ -104,14 +104,20 @@ class IdleUi(
 
     val inlineSuggestionsBar = InlineSuggestionsUi(ctx)
 
-    init {
-        KeyIconThemeStore.addOnChangedListener {
-            hideKeyboardButton.post {
-                if (hideKeyboardButton.contentDescription == ctx.getString(R.string.switch_to_voice_input)) {
-                    applyVoiceInputIcon()
-                }
+    private val onKeyIconThemeChanged: () -> Unit = {
+        hideKeyboardButton.post {
+            if (hideKeyboardButton.contentDescription == ctx.getString(R.string.switch_to_voice_input)) {
+                applyVoiceInputIcon()
             }
         }
+    }
+
+    init {
+        KeyIconThemeStore.addOnChangedListener(onKeyIconThemeChanged)
+    }
+
+    fun dispose() {
+        KeyIconThemeStore.removeOnChangedListener(onKeyIconThemeChanged)
     }
 
     fun updateConfig(newButtons: List<ConfigurableButton>) {

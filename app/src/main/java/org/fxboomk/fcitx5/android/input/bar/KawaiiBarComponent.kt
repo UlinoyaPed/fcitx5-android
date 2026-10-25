@@ -1019,6 +1019,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         _idleUi?.buttonsUi?.updateButtonsState(service)
     }
 
+    fun dispose() {
+        _idleUi?.dispose()
+    }
+
     fun onKeyboardLayoutSwitched(isNumber: Boolean) {
         isKeyboardLayoutNumber = isNumber
         evalIdleUiState()

@@ -107,7 +107,9 @@ object ButtonsLayoutThemeStore {
             kawaiiBarButtons = current.kawaiiBarButtons.map(::merge),
             statusAreaButtons = current.statusAreaButtons.map(::merge),
             optionalButtons = current.optionalButtons.map(::merge),
-            hideKeyboardButton = merge(current.hideKeyboardButton)
+            hideKeyboardButton = themed.hideKeyboardButton.icon?.let {
+                current.hideKeyboardButton.copy(icon = it)
+            } ?: current.hideKeyboardButton
         )
     }
 }

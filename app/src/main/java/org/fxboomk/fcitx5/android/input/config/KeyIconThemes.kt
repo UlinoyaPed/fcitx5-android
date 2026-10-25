@@ -98,6 +98,8 @@ object KeyIconThemeStore {
 
     @Synchronized fun addOnChangedListener(listener: () -> Unit) { listeners += listener }
 
+    @Synchronized fun removeOnChangedListener(listener: () -> Unit) { listeners -= listener }
+
     @Synchronized private fun notifyChanged() = listeners.toList().forEach { it() }
 
     @Synchronized fun read(): KeyIconThemesConfig {
@@ -201,6 +203,7 @@ object KeyIconStore {
         KeyIconThemeStore.updateIcon(themeName, id, value, activate)
     fun previousIcon(themeName: String, id: String): String? = KeyIconThemeStore.previousIcon(themeName, id)
     fun addOnChangedListener(listener: () -> Unit) = KeyIconThemeStore.addOnChangedListener(listener)
+    fun removeOnChangedListener(listener: () -> Unit) = KeyIconThemeStore.removeOnChangedListener(listener)
     fun definitions(): List<KeyIconDefinition> = KeyIconCatalog.definitions()
     fun resolveDrawable(context: Context, id: String, @DrawableRes fallback: Int): Int =
         KeyIconThemeStore.resolveDrawable(context, id, fallback)
