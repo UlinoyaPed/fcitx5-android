@@ -116,6 +116,7 @@
     <string name="reload_config">設定の再読み込み</string>
     <string name="input_method_options">インプットメソッドのオプション</string>
     <string name="theme">テーマ</string>
+    <string name="keyboard_theme">キーボードテーマ</string>
     <string name="key_ripple_effect">キーの波紋効果を有効にする</string>
     <string name="key_border">キーの枠を有効にする</string>
     <string name="brightness">明るさ</string>
@@ -173,7 +174,7 @@
     <string name="caps_key_behavior">大文字切り替えキーの動作</string>
     <string name="caps_key_behavior_default">デフォルトの動作を維持</string>
     <string name="caps_key_behavior_single_tap_lock">1回タップで大文字を固定</string>
-    <string name="keep_keyboard_letters_uppercase">キーボードの文字を大文字にする</string>
+    <string name="keep_keyboard_letters_uppercase">文字キーを大文字で表示</string>
     <string name="choose_input_method">インプットメゾッドを選択</string>
     <string name="edit_clipboard">クリップボードを編集</string>
     <string name="clipboard_edit_text_hint">クリップボードのコンテンツ</string>
@@ -747,7 +748,7 @@
     <string name="clipboard_entry_file">ファイル</string>
     <string name="clipboard_entry_file_named">ファイル · %1$s</string>
     <string name="theme_appearance">テーマの外観</string>
-    <string name="theme_category_key_style">キーのスタイル</string>
+    <string name="theme_category_key_style">キー設定</string>
     <string name="theme_category_toolbar_style">ツールバーのスタイル</string>
     <string name="theme_category_candidate_style">候補のスタイル</string>
     <string name="theme_category_animation">アニメーションと効果</string>
@@ -755,6 +756,7 @@
     <string name="theme_category_other_style">その他のスタイル</string>
     <string name="theme_mode_summary_follow_system">システムに従う · ライト %1$d / ダーク %2$d</string>
     <string name="theme_mode_summary_manual">手動 · ライト %1$d / ダーク %2$d</string>
+    <string name="theme_mode_selected_summary">%1$d 個のテーマを選択済み。切り替え時に順番に使用</string>
     <string name="theme_key_style_summary">枠線 %1$s · 角丸 %2$d dp</string>
     <string name="theme_toolbar_style_summary">枠線 %1$s · 動的高さ %2$s · 高さ %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · ハイライト角丸 %2$d dp</string>

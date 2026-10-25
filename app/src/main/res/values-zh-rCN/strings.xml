@@ -137,11 +137,12 @@
     <string name="reload_config">重载配置</string>
     <string name="input_method_options">输入法设置</string>
     <string name="theme">主题</string>
+    <string name="keyboard_theme">键盘主题</string>
     <string name="theme_appearance">主题外观</string>
     <string name="theme_preview_previous">上一个主题</string>
     <string name="theme_preview_next">下一个主题</string>
     <string name="theme_preview_in_use">当前使用</string>
-    <string name="theme_category_key_style">按键样式</string>
+    <string name="theme_category_key_style">按键设定</string>
     <string name="theme_category_toolbar_style">工具栏样式</string>
     <string name="theme_category_candidate_style">候选词样式</string>
     <string name="theme_category_animation">动画与特效</string>
@@ -149,6 +150,7 @@
     <string name="theme_category_other_style">其他样式</string>
     <string name="theme_mode_summary_follow_system">跟随系统 · 亮色 %1$d / 暗色 %2$d</string>
     <string name="theme_mode_summary_manual">手动 · 亮色 %1$d / 暗色 %2$d</string>
+    <string name="theme_mode_selected_summary">已选择 %1$d 个主题，切换时轮询</string>
     <string name="theme_key_style_summary">边框 %1$s · 圆角 %2$d dp</string>
     <string name="theme_toolbar_style_summary">边框 %1$s · 动态高度 %2$s · 高度 %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · 高亮圆角 %2$d dp</string>
@@ -223,7 +225,7 @@
     <string name="caps_key_behavior">大写切换键行为</string>
     <string name="caps_key_behavior_default">保持默认</string>
     <string name="caps_key_behavior_single_tap_lock">单击锁定</string>
-    <string name="keep_keyboard_letters_uppercase">键盘字母保持大写</string>
+    <string name="keep_keyboard_letters_uppercase">字母按键大写显示</string>
     <string name="choose_input_method">选择输入法</string>
     <string name="edit_clipboard">编辑剪贴板</string>
     <string name="clipboard_edit_text_hint">剪贴板内容</string>

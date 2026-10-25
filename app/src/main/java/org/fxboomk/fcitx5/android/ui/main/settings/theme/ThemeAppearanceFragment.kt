@@ -41,7 +41,7 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         screen.addPreference(
             SingleLineSummaryPreference(ctx).apply {
                 key = THEME_ENTRY_KEY
-                setTitle(R.string.theme)
+                setTitle(R.string.keyboard_theme)
                 setSummary(ThemeManager.activeTheme.name)
                 isIconSpaceReserved = false
                 isSingleLineTitle = false

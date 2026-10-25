@@ -29,8 +29,8 @@ class ThemeSettingsOrganizationTest {
         )
         assertEquals(
             listOf(
-                "keep_keyboard_letters_uppercase",
                 "show_lang_switch_key",
+                "keep_keyboard_letters_uppercase",
                 "popup_on_key_press",
                 "space_key_label_mode",
                 "keyboard_height_percent",
@@ -44,8 +44,8 @@ class ThemeSettingsOrganizationTest {
                 "key_border",
                 "key_border_stroke",
                 "gboard_style_side_keys",
-                "keep_keyboard_letters_uppercase",
                 "show_lang_switch_key",
+                "keep_keyboard_letters_uppercase",
                 "popup_on_key_press",
                 "key_radius",
                 "key_horizontal_margin",
@@ -58,6 +58,26 @@ class ThemeSettingsOrganizationTest {
                 "keyboard_bottom_padding"
             ),
             ThemeSettingsSupport.keyStyleKeys
+        )
+        assertEquals(
+            listOf(
+                "key_border",
+                "key_border_stroke",
+                "show_lang_switch_key",
+                "keep_keyboard_letters_uppercase",
+                "popup_on_key_press",
+                "gboard_style_side_keys",
+                "key_radius",
+                "key_horizontal_margin",
+                "key_vertical_margin",
+                "punctuation_position",
+                "uppercase_position",
+                "keyboard_height_percent",
+                "keyboard_side_padding",
+                "keyboard_bottom_padding",
+                "space_key_label_mode"
+            ),
+            ThemeSettingsSupport.keyStyleDisplayKeys
         )
         assertEquals(
             listOf(

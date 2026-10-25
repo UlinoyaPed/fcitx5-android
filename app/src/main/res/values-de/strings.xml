@@ -107,6 +107,7 @@
     <string name="reload_config">Konfiguration neu laden</string>
     <string name="input_method_options">Optionen der Eingabemethode</string>
     <string name="theme">Thema</string>
+    <string name="keyboard_theme">Tastaturthema</string>
     <string name="brightness">Helligkeit</string>
     <string name="key_radius">Tastenradius</string>
     <string name="navbar_radius">Eckenradius der Werkzeugleiste</string>
@@ -138,7 +139,7 @@
     <string name="caps_key_behavior">Verhalten der Feststelltaste</string>
     <string name="caps_key_behavior_default">Standardverhalten beibehalten</string>
     <string name="caps_key_behavior_single_tap_lock">Einmaliges Tippen aktiviert die Großschreibung dauerhaft</string>
-    <string name="keep_keyboard_letters_uppercase">Großbuchstaben</string>
+    <string name="keep_keyboard_letters_uppercase">Buchstabentasten in Großbuchstaben anzeigen</string>
     <string name="choose_input_method">Eingabemethode auswählen</string>
     <string name="edit_clipboard">Zwischenablage bearbeiten</string>
     <string name="clipboard_edit_text_hint">Inhalt der Zwischenablage</string>
@@ -745,7 +746,7 @@
     <string name="clipboard_entry_file">Datei</string>
     <string name="clipboard_entry_file_named">Datei · %1$s</string>
     <string name="theme_appearance">Erscheinungsbild</string>
-    <string name="theme_category_key_style">Tastenstil</string>
+    <string name="theme_category_key_style">Tasteneinstellungen</string>
     <string name="theme_category_toolbar_style">Symbolleistenstil</string>
     <string name="theme_category_candidate_style">Kandidatenstil</string>
     <string name="theme_category_animation">Animation und Effekte</string>
@@ -753,6 +754,7 @@
     <string name="theme_category_other_style">Weitere Stile</string>
     <string name="theme_mode_summary_follow_system">System folgen · %1$d hell / %2$d dunkel</string>
     <string name="theme_mode_summary_manual">Manuell · %1$d hell / %2$d dunkel</string>
+    <string name="theme_mode_selected_summary">%1$d Themen ausgewählt; beim Wechsel werden sie der Reihe nach verwendet</string>
     <string name="theme_key_style_summary">Rahmen %1$s · Radius %2$d dp</string>
     <string name="theme_toolbar_style_summary">Rahmen %1$s · Dynamische Höhe %2$s · Höhe %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · Hervorhebungsradius %2$d dp</string>

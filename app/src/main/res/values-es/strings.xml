@@ -69,6 +69,7 @@
     <string name="reload_config">Recargar configuración</string>
     <string name="input_method_options">Opciones de método de entrada</string>
     <string name="theme">Tema</string>
+    <string name="keyboard_theme">Tema del teclado</string>
     <string name="brightness">Brillo</string>
     <string name="configure">Configurar</string>
     <string name="choose_image">Elegir imagen…</string>
@@ -585,7 +586,7 @@
     <string name="caps_key_behavior">Comportamiento de la tecla de mayúsculas</string>
     <string name="caps_key_behavior_default">Mantener el comportamiento predeterminado</string>
     <string name="caps_key_behavior_single_tap_lock">Un toque bloquea las mayúsculas</string>
-    <string name="keep_keyboard_letters_uppercase">Mantener mayusculas en letras del teclado</string>
+    <string name="keep_keyboard_letters_uppercase">Mostrar las letras de las teclas en mayúsculas</string>
     <string name="key_border">Habilitar borde de tecla</string>
     <string name="key_border_stroke">Habilitar contorno del borde de tecla</string>
     <string name="key_horizontal_margin">Margen horizontal de tecla</string>
@@ -747,7 +748,7 @@
     <string name="clipboard_entry_file">Archivo</string>
     <string name="clipboard_entry_file_named">Archivo · %1$s</string>
     <string name="theme_appearance">Apariencia del tema</string>
-    <string name="theme_category_key_style">Estilo de teclas</string>
+    <string name="theme_category_key_style">Ajustes de teclas</string>
     <string name="theme_category_toolbar_style">Estilo de barra de herramientas</string>
     <string name="theme_category_candidate_style">Estilo de candidatos</string>
     <string name="theme_category_animation">Animación y efectos</string>
@@ -755,6 +756,7 @@
     <string name="theme_category_other_style">Otros estilos</string>
     <string name="theme_mode_summary_follow_system">Siguiendo el sistema · %1$d claro / %2$d oscuro</string>
     <string name="theme_mode_summary_manual">Manual · %1$d claro / %2$d oscuro</string>
+    <string name="theme_mode_selected_summary">%1$d temas seleccionados; se alternan al cambiar</string>
     <string name="theme_key_style_summary">Borde %1$s · Radio %2$d dp</string>
     <string name="theme_toolbar_style_summary">Borde %1$s · Altura dinámica %2$s · Altura %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · Radio de resaltado %2$d dp</string>

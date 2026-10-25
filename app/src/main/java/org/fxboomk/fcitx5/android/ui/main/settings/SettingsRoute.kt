@@ -291,7 +291,7 @@ sealed class SettingsRoute : Parcelable {
                 label = ctx.getString(R.string.theme_appearance)
             }
             fragment<ThemeFragment, ThemeList> {
-                label = ctx.getString(R.string.theme)
+                label = ctx.getString(R.string.keyboard_theme)
             }
             fragment<ThemeKeyStyleFragment, ThemeKeyStyle> {
                 label = ctx.getString(R.string.theme_category_key_style)

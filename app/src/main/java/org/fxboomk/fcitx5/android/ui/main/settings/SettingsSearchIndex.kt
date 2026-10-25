@@ -435,7 +435,7 @@ object SettingsSearchIndex {
         val candidatePath = pagePath + context.getString(R.string.theme_category_candidate_style)
         add(
             SettingsSearchResult(
-                title = context.getString(R.string.theme),
+                title = context.getString(R.string.keyboard_theme),
                 path = pagePath,
                 route = SettingsRoute.ThemeList,
                 summary = ThemeManager.activeTheme.name

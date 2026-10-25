@@ -117,6 +117,7 @@
     <string name="reload_config">Перезагрузить конфигурацию</string>
     <string name="input_method_options">Параметры метода ввода</string>
     <string name="theme">Тема</string>
+    <string name="keyboard_theme">Тема клавиатуры</string>
     <string name="key_ripple_effect">Включить эффект пульсации клавиш</string>
     <string name="key_border">Включить границы клавиш</string>
     <string name="brightness">Яркость</string>
@@ -177,7 +178,7 @@
     <string name="caps_key_behavior">Поведение клавиши верхнего регистра</string>
     <string name="caps_key_behavior_default">Сохранить поведение по умолчанию</string>
     <string name="caps_key_behavior_single_tap_lock">Одно нажатие фиксирует верхний регистр</string>
-    <string name="keep_keyboard_letters_uppercase">Сохранять буквы клавиатуры прописными</string>
+    <string name="keep_keyboard_letters_uppercase">Отображать буквы клавиш заглавными</string>
     <string name="choose_input_method">Выбор метода ввода</string>
     <string name="edit_clipboard">Редактировать буфер обмена</string>
     <string name="clipboard_edit_text_hint">Содержимое буфера обмена</string>
@@ -747,7 +748,7 @@
     <string name="clipboard_entry_file">Файл</string>
     <string name="clipboard_entry_file_named">Файл · %1$s</string>
     <string name="theme_appearance">Внешний вид темы</string>
-    <string name="theme_category_key_style">Стиль клавиш</string>
+    <string name="theme_category_key_style">Настройки клавиш</string>
     <string name="theme_category_toolbar_style">Стиль панели инструментов</string>
     <string name="theme_category_candidate_style">Стиль кандидатов</string>
     <string name="theme_category_animation">Анимация и эффекты</string>
@@ -755,6 +756,7 @@
     <string name="theme_category_other_style">Другие стили</string>
     <string name="theme_mode_summary_follow_system">Как в системе · %1$d светлая / %2$d тёмная</string>
     <string name="theme_mode_summary_manual">Вручную · %1$d светлая / %2$d тёмная</string>
+    <string name="theme_mode_selected_summary">Выбрано тем: %1$d; при переключении они сменяются по очереди</string>
     <string name="theme_key_style_summary">Рамка %1$s · Радиус %2$d dp</string>
     <string name="theme_toolbar_style_summary">Рамка %1$s · Динамическая высота %2$s · Высота %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · Радиус подсветки %2$d dp</string>

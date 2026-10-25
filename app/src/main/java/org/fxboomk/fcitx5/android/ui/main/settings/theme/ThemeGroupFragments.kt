@@ -6,6 +6,7 @@ package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.os.Build
 import androidx.preference.PreferenceCategory
+import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreference
 import org.fxboomk.fcitx5.android.R
@@ -37,26 +38,12 @@ abstract class ThemeGroupFragment(
 
 class ThemeKeyStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        addThemePreferences(
-            screen,
-            ThemeManager.prefs,
-            ThemeSettingsSupport.keyStyleThemeSwitchKeys
-        )
-        addThemePreferences(
-            screen,
-            AppPrefs.getInstance().keyboard,
-            ThemeSettingsSupport.keyStyleKeyboardSwitchKeys
-        )
-        addThemePreferences(
-            screen,
-            ThemeManager.prefs,
-            ThemeSettingsSupport.keyStyleThemeNonSwitchKeys
-        )
-        addThemePreferences(
-            screen,
-            AppPrefs.getInstance().keyboard,
-            ThemeSettingsSupport.keyStyleKeyboardNonSwitchKeys
-        )
+        val keyboard = AppPrefs.getInstance().keyboard
+        val keyboardKeys = ThemeSettingsSupport.keyStyleKeyboardKeys.toSet()
+        ThemeSettingsSupport.keyStyleDisplayKeys.forEachIndexed { index, key ->
+            val provider = if (key in keyboardKeys) keyboard else ThemeManager.prefs
+            addManagedPreference(screen, provider, key)?.order = index
+        }
     }
 }
 
@@ -190,15 +177,38 @@ class ThemeAnimationFragment : ThemeGroupFragment(ThemeManager.prefs) {
 class ThemeModeFragment : ThemeGroupFragment(ThemeManager.prefs) {
 
     private val followSystemDayNightTheme = ThemeManager.prefs.followSystemDayNightTheme
+    private val themeSelectionChangeListener =
+        org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider.OnChangeListener { key ->
+            if (key == ThemeManager.prefs.lightModeThemes.key ||
+                key == ThemeManager.prefs.darkModeThemes.key
+            ) {
+                updateThemeSelectionSummaries()
+            }
+        }
 
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         addThemePreferences(screen, ThemeManager.prefs, ThemeSettingsSupport.themeModeKeys)
+        ThemeManager.prefs.registerOnChangeListener(themeSelectionChangeListener)
     }
 
     override fun onResume() {
         super.onResume()
         findPreference<SwitchPreference>(followSystemDayNightTheme.key)?.isChecked =
             followSystemDayNightTheme.getValue()
+        updateThemeSelectionSummaries()
+    }
+
+    private fun updateThemeSelectionSummaries() {
+        val prefs = ThemeManager.prefs
+        findPreference<Preference>(prefs.lightModeThemes.key)?.summary =
+            getString(R.string.theme_mode_selected_summary, prefs.lightModeThemes.getThemes().size)
+        findPreference<Preference>(prefs.darkModeThemes.key)?.summary =
+            getString(R.string.theme_mode_selected_summary, prefs.darkModeThemes.getThemes().size)
+    }
+
+    override fun onDestroy() {
+        ThemeManager.prefs.unregisterOnChangeListener(themeSelectionChangeListener)
+        super.onDestroy()
     }
 }
 

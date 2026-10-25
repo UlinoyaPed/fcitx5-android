@@ -139,11 +139,12 @@
     <string name="reload_config">Reload Config</string>
     <string name="input_method_options">Input Method Options</string>
     <string name="theme">Theme</string>
+    <string name="keyboard_theme">Keyboard theme</string>
     <string name="theme_appearance">Theme &amp; Appearance</string>
     <string name="theme_preview_previous">Previous theme</string>
     <string name="theme_preview_next">Next theme</string>
     <string name="theme_preview_in_use">In use</string>
-    <string name="theme_category_key_style">Key style</string>
+    <string name="theme_category_key_style">Key settings</string>
     <string name="theme_category_toolbar_style">Toolbar style</string>
     <string name="theme_category_candidate_style">Candidate style</string>
     <string name="theme_category_animation">Animation and effects</string>
@@ -151,6 +152,7 @@
     <string name="theme_category_other_style">Other styles</string>
     <string name="theme_mode_summary_follow_system">Following system · %1$d light / %2$d dark</string>
     <string name="theme_mode_summary_manual">Manual · %1$d light / %2$d dark</string>
+    <string name="theme_mode_selected_summary">%1$d themes selected; switching cycles through them</string>
     <string name="theme_key_style_summary">Border %1$s · Radius %2$d dp</string>
     <string name="theme_toolbar_style_summary">Border %1$s · Dynamic height %2$s · Height %3$d dp</string>
     <string name="theme_candidate_style_summary">%1$s · Highlight radius %2$d dp</string>
