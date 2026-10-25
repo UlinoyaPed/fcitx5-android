@@ -1,6 +1,7 @@
 package org.fxboomk.fcitx5.android.input.predict
 
-import android.util.Log
+import timber.log.Timber
+
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.InputStream
@@ -101,7 +102,7 @@ internal class LlmClient(
                 normalizeTranslationCandidate(request.beforeCursor, it).isNotBlank()
             }
         ) {
-            Log.w(TAG, "translation response echoed the source; retrying with correction prompt")
+            Timber.tag(TAG).w("translation response echoed the source; retrying with correction prompt")
             val retryRequest = request.copy(translationCorrectionAttempt = true)
             when (retryRequest.config.backend) {
                 LlmPrefs.Backend.ChatCompletions -> predictChat(retryRequest, onPartialText)
@@ -145,7 +146,7 @@ internal class LlmClient(
         suppressTranslationEcho: Boolean = false,
         onPartialText: ((String) -> Unit)? = null,
     ): PredictionResponse {
-        Log.d(TAG, "POST $endpoint beforeCursor='${beforeCursor.take(60)}'")
+        Timber.tag(TAG).d("POST $endpoint beforeCursor='${beforeCursor.take(60)}'")
         val streaming = payload.optBoolean("stream", false)
         val connection = openConnection(endpoint, apiKey, streaming)
         try {
@@ -178,7 +179,7 @@ internal class LlmClient(
                 }
             }.orEmpty()
 
-            Log.d(TAG, "response code=$responseCode bodyLength=${responseBody.length}")
+            Timber.tag(TAG).d("response code=$responseCode bodyLength=${responseBody.length}")
             if (responseCode !in 200..299) {
                 throw HttpRequestFailure(responseCode, responseBody)
             }
@@ -199,7 +200,7 @@ internal class LlmClient(
             if (rawContent.isBlank() || suggestions.isEmpty()) {
                 throw LlmPredictionFailure.invalidResponse()
             }
-            Log.d(TAG, "parsed suggestions=$suggestions rawContent=${rawContent.take(240)}")
+            Timber.tag(TAG).d("parsed suggestions=$suggestions rawContent=${rawContent.take(240)}")
             return PredictionResponse(
                 suggestions = suggestions,
                 rawContent = rawContent,
@@ -370,7 +371,7 @@ internal class LlmClient(
 
         for ((index, plan) in plans.withIndex()) {
             try {
-                Log.d(TAG, "predict$mode protocol=${plan.protocol} endpoint=${plan.endpoint}")
+                Timber.tag(TAG).d("predict$mode protocol=${plan.protocol} endpoint=${plan.endpoint}")
                 return execute(
                     endpoint = plan.endpoint,
                     apiKey = apiKey,
@@ -400,10 +401,7 @@ internal class LlmClient(
                 } else {
                     shouldFallbackToNextPlan(failure)
                 }
-                Log.w(
-                    TAG,
-                    "$mode protocol=${plan.protocol} failed status=${failure.statusCode} fallback=$canFallback"
-                )
+                Timber.tag(TAG).w("$mode protocol=${plan.protocol} failed status=${failure.statusCode} fallback=$canFallback")
                 if (!canFallback) throw failure.classifiedFailure
             } catch (failure: IOException) {
                 throw LlmPredictionFailure.fromNetwork(failure)

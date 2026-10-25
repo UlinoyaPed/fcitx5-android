@@ -3,6 +3,7 @@
  * SPDX-FileCopyrightText: Copyright 2024-2026 Fcitx5 for Android Contributors
  */
 
+@file:Suppress("ClickableViewAccessibility")
 package org.fxboomk.fcitx5.android.input
 
 import android.view.MotionEvent

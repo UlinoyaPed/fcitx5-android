@@ -3,6 +3,7 @@
  * SPDX-FileCopyrightText: Copyright 2021-2025 Fcitx5 for Android Contributors
  */
 
+@file:Suppress("ClickableViewAccessibility")
 package org.fxboomk.fcitx5.android.input
 
 import android.annotation.SuppressLint
@@ -2231,7 +2232,13 @@ class InputView(
     val keyboardView: View
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.actionMasked == MotionEvent.ACTION_UP) performClick()
         return super.onTouchEvent(event)
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
     }
 
     init {

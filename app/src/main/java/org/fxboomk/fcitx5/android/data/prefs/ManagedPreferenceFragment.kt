@@ -54,10 +54,8 @@ abstract class ManagedPreferenceFragment(private val preferenceProvider: Managed
     }
 
     override fun onStop() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                AppPrefs.getInstance().syncToDeviceEncryptedStorage()
-            }
+        lifecycleScope.launch(Dispatchers.IO) {
+            AppPrefs.getInstance().syncToDeviceEncryptedStorage()
         }
         super.onStop()
     }

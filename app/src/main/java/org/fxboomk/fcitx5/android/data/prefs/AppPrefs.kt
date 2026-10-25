@@ -7,7 +7,6 @@ package org.fxboomk.fcitx5.android.data.prefs
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.Keep
-import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import org.fxboomk.fcitx5.android.R
@@ -663,7 +662,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             }
         }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun syncToDeviceEncryptedStorage() {
         val ctx = appContext.createDeviceProtectedStorageContext()
         val sp = PreferenceManager.getDefaultSharedPreferences(ctx)

@@ -3,6 +3,7 @@
  * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
 
+@file:Suppress("SetTextI18n")
 package org.fxboomk.fcitx5.android.input.candidates
 
 import android.content.Context

@@ -242,7 +242,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // Ensure views have valid dimensions
         if (contentView.width <= 0 || contentView.height <= 0 || 
             keyboardView.width <= 0 || keyboardView.height <= 0) {
-            android.util.Log.d("CandidatesPos", "Views not ready: contentView=${contentView.width}x${contentView.height}, keyboardView=${keyboardView.width}x${keyboardView.height}")
+            Timber.tag("CandidatesPos").d("Views not ready: contentView=${contentView.width}x${contentView.height}, keyboardView=${keyboardView.width}x${keyboardView.height}")
             return
         }
         
@@ -263,7 +263,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // Check if virtual keyboard is visible
         val isKeyboardVisible = inputDeviceManager.isVirtualKeyboard
 
-        android.util.Log.d("CandidatesPos", "updateKeyboardBounds: keyboard=($keyboardLeft,$keyboardTop,$keyboardRight,$keyboardBottom), cursorY=$cursorY, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
+        Timber.tag("CandidatesPos").d("updateKeyboardBounds: keyboard=($keyboardLeft,$keyboardTop,$keyboardRight,$keyboardBottom), cursorY=$cursorY, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
 
         cv.updateKeyboardBounds(
             floatArrayOf(keyboardLeft, keyboardTop, keyboardRight, keyboardBottom),
@@ -280,11 +280,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
         val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
         
-        android.util.Log.d("FloatingCandidates", "updateCandidatesViewPagingAndBounds: mode=$floatingMode")
+        Timber.tag("FloatingCandidates").d("updateCandidatesViewPagingAndBounds: mode=$floatingMode")
         
         // Enable candidate paging mode for "Always" floating mode
         if (useFloatingAlways) {
-            android.util.Log.d("FloatingCandidates", "setCandidatePagingMode: 1")
+            Timber.tag("FloatingCandidates").d("setCandidatePagingMode: 1")
             requestCandidatePagingMode(1)
         }
         
@@ -329,7 +329,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             cursorTop = keyboardTop
         }
 
-        android.util.Log.d("CandidatesPos", "updateCursorAnchorForFloatingCandidates: cursorTop=$cursorTop, cursorBottom=$cursorBottom, keyboardTop=$keyboardTop, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
+        Timber.tag("CandidatesPos").d("updateCursorAnchorForFloatingCandidates: cursorTop=$cursorTop, cursorBottom=$cursorBottom, keyboardTop=$keyboardTop, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
 
         // Pass keyboard top as additional reference for positioning
         cv.updateCursorAnchorForFloating(
@@ -1107,11 +1107,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (before > 0) {
             selection.predictOffset(-before)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ic.deleteSurroundingTextInCodePoints(before, after)
-        } else {
-            ic.deleteSurroundingText(before, after)
-        }
+        ic.deleteSurroundingTextInCodePoints(before, after)
         refreshInputViewSelectionAfterEdit()
     }
 
@@ -1150,11 +1146,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 refreshInputViewSelectionAfterEdit()
                 return
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ic.deleteSurroundingTextInCodePoints(1, 0)
-            } else {
-                ic.deleteSurroundingText(1, 0)
-            }
+            ic.deleteSurroundingTextInCodePoints(1, 0)
         } else {
             ic.commitText("", 0)
         }
@@ -1186,11 +1178,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (before.isEmpty() || after.isEmpty()) return false
         if (!AutoCloseBracket.isPair(before[0], after[0])) return false
         selection.predictOffset(-1)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ic.deleteSurroundingTextInCodePoints(1, 1)
-        } else {
-            ic.deleteSurroundingText(1, 1)
-        }
+        ic.deleteSurroundingTextInCodePoints(1, 1)
         return true
     }
 

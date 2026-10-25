@@ -205,7 +205,7 @@ object ClipboardUriStore {
         if (uri.authority != rootUri.authority) return false
         val childId = runCatching { DocumentsContract.getDocumentId(uri) }.getOrNull() ?: return false
         val rootId = runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DocumentsContract.isTreeUri(rootUri)) {
+            if (DocumentsContract.isTreeUri(rootUri)) {
                 DocumentsContract.getTreeDocumentId(rootUri)
             } else {
                 DocumentsContract.getDocumentId(rootUri)

@@ -1,5 +1,6 @@
 package org.fxboomk.fcitx5.android.input.predict
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.text.TextUtils
@@ -9,6 +10,7 @@ import android.widget.TextView
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import splitties.dimensions.dp
 
+@SuppressLint("ViewConstructor")
 class AiSuggestionBubbleUi(
     context: Context,
     theme: Theme,

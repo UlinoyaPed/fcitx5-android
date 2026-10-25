@@ -1,9 +1,10 @@
 package org.fxboomk.fcitx5.android.input.predict
 
+import timber.log.Timber
+
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
@@ -462,7 +463,7 @@ class AiSuggestionStripComponent(
                 dispatchPresentationChanged()
             },
             onError = { error ->
-                Log.e(TAG, "long-form predict failed: ${error.message}", error)
+                Timber.tag(TAG).e(error, "long-form predict failed: ${error.message}")
                 errorMessage = predictionErrorMessage(error)
                 activeSuggestions = emptyList()
                 panelVisible = true
@@ -560,7 +561,7 @@ class AiSuggestionStripComponent(
     private fun suppressPredictionUntilNextCommit(reason: String) {
         predictionSuppressed = true
         suppressionUntilCommitRevision = commitRevision
-        Log.d(TAG, "suppress prediction reason=$reason untilCommitRevision=$suppressionUntilCommitRevision")
+        Timber.tag(TAG).d("suppress prediction reason=$reason untilCommitRevision=$suppressionUntilCommitRevision")
         clearSuggestions(resetRequestState = true)
     }
 
@@ -572,7 +573,7 @@ class AiSuggestionStripComponent(
         val isAutomatic = trigger == PredictionTrigger.Automatic
         val keepSingleTextPanelVisible = shouldKeepSingleTextPanelVisible()
         if (!allowPrediction || (!keepSingleTextPanelVisible && (hasClientPreedit || hasInputPanelPreedit)) || !selectionCollapsed) {
-            Log.d(TAG, "skip request allow=$allowPrediction clientPreedit=$hasClientPreedit inputPanelPreedit=$hasInputPanelPreedit selectionCollapsed=$selectionCollapsed")
+            Timber.tag(TAG).d("skip request allow=$allowPrediction clientPreedit=$hasClientPreedit inputPanelPreedit=$hasInputPanelPreedit selectionCollapsed=$selectionCollapsed")
             clearSuggestions(resetRequestState = true)
             return
         }
@@ -583,7 +584,7 @@ class AiSuggestionStripComponent(
             return
         }
         if (isAutomatic && !config.autoPredictEnabled) {
-            Log.d(TAG, "skip request auto prediction disabled")
+            Timber.tag(TAG).d("skip request auto prediction disabled")
             clearSuggestions(resetRequestState = true)
             return
         }
@@ -604,12 +605,12 @@ class AiSuggestionStripComponent(
         val fetchedBeforeCursor = fetchBeforeCursor(config)
         val beforeCursor = fetchedBeforeCursor.takeLast(config.maxContextChars)
         if (beforeCursor.isBlank()) {
-            Log.d(TAG, "skip request blank beforeCursor")
+            Timber.tag(TAG).d("skip request blank beforeCursor")
             clearSuggestions(resetRequestState = true)
             return
         }
         if (!LlmRequestGate.shouldRequestPrediction(beforeCursor)) {
-            Log.d(TAG, "skip request no predictive chars beforeCursor='${beforeCursor.take(40)}'")
+            Timber.tag(TAG).d("skip request no predictive chars beforeCursor='${beforeCursor.take(40)}'")
             clearSuggestions(resetRequestState = true)
             return
         }
@@ -617,7 +618,7 @@ class AiSuggestionStripComponent(
         if (isAutomatic &&
             LlmRequestGate.shouldThrottlePureLongDigitInput(beforeCursor, lastPureLongDigitRequestAtMs, nowMs)
         ) {
-            Log.d(TAG, "skip request throttled pure long digits beforeCursor='${beforeCursor.take(40)}'")
+            Timber.tag(TAG).d("skip request throttled pure long digits beforeCursor='${beforeCursor.take(40)}'")
             clearSuggestions(resetRequestState = false)
             return
         }
@@ -627,16 +628,16 @@ class AiSuggestionStripComponent(
                 predictionSuppressed = false
                 suppressionUntilCommitRevision = -1
             } else {
-                Log.d(TAG, "skip request suppressed by commit revision=$commitRevision target=$suppressionUntilCommitRevision")
+                Timber.tag(TAG).d("skip request suppressed by commit revision=$commitRevision target=$suppressionUntilCommitRevision")
                 clearSuggestions(resetRequestState = false)
                 return
             }
         }
         if (isAutomatic && beforeCursor == lastRequestedBeforeCursor) {
-            Log.d(TAG, "skip request unchanged beforeCursor='${beforeCursor.take(40)}'")
+            Timber.tag(TAG).d("skip request unchanged beforeCursor='${beforeCursor.take(40)}'")
             return
         }
-        Log.d(TAG, "request beforeCursor='${beforeCursor.take(60)}'")
+        Timber.tag(TAG).d("request beforeCursor='${beforeCursor.take(60)}'")
 
         if (panelVisible && shouldUseSingleTextPanel()) {
             requestPanelTextContent(beforeCursor, config, trigger)
@@ -668,7 +669,7 @@ class AiSuggestionStripComponent(
             ),
             onResult = { suggestions ->
                 if (isAutomatic && predictionSuppressed) {
-                    Log.d(TAG, "drop result while suppressed values=$suggestions")
+                    Timber.tag(TAG).d("drop result while suppressed values=$suggestions")
                     return@request
                 }
                 val latestBeforeCursor = fetchBeforeCursor(config).takeLast(config.maxContextChars)
@@ -706,7 +707,7 @@ class AiSuggestionStripComponent(
                 renderSuggestions(normalized)
             },
             onError = { error ->
-                Log.e(TAG, "predict failed: ${error.message}", error)
+                Timber.tag(TAG).e(error, "predict failed: ${error.message}")
                 errorMessage = predictionErrorMessage(error)
                 activeSuggestions = emptyList()
                 panelVisible = shouldShowQuestionAnswerPanel
@@ -720,7 +721,7 @@ class AiSuggestionStripComponent(
         cancelPseudoStreaming()
         activeSuggestions = suggestions.take(currentSuggestionLimit())
         if (activeSuggestions.isEmpty()) {
-            Log.d(TAG, "hide ai suggestion bubble: empty suggestions")
+            Timber.tag(TAG).d("hide ai suggestion bubble: empty suggestions")
             panelVisible = false
             resetPanelContentState()
             dispatchPresentationChanged()
@@ -1191,7 +1192,7 @@ class AiSuggestionStripComponent(
                 dispatchPresentationChanged()
             },
             onError = { error ->
-                Log.e(TAG, "translate predict failed: ${error.message}", error)
+                Timber.tag(TAG).e(error, "translate predict failed: ${error.message}")
                 errorMessage = predictionErrorMessage(error)
                 activeSuggestions = emptyList()
                 panelVisible = true
@@ -1292,7 +1293,7 @@ class AiSuggestionStripComponent(
                 }
             },
             onError = { error ->
-                Log.e(TAG, "question-answer predict failed: ${error.message}", error)
+                Timber.tag(TAG).e(error, "question-answer predict failed: ${error.message}")
                 errorMessage = predictionErrorMessage(error)
                 activeSuggestions = emptyList()
                 panelVisible = true

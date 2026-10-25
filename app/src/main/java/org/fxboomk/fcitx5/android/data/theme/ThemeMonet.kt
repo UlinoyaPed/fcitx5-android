@@ -2,7 +2,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2025 Fcitx5 for Android Contributors
  */
+@file:Suppress("DiscouragedApi")
+
 package org.fxboomk.fcitx5.android.data.theme
+
+import timber.log.Timber
 
 import android.content.Context
 import android.os.Build
@@ -116,12 +120,7 @@ object ThemeMonet {
             return try {
                 val colorResId = context.resources.getIdentifier(resourceId.resourceId, "color", "android")
                 if (colorResId != 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        context.getColor(colorResId)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        context.resources.getColor(colorResId)
-                    }
+                    context.getColor(colorResId)
                 } else {
                     // Fallback to default mapping
                     val defaultMapping = MonetThemeMapping.createDefault(isDark)
@@ -151,16 +150,11 @@ object ThemeMonet {
                     }
                     val fallbackResId = context.resources.getIdentifier(defaultResource.resourceId, "color", "android")
                     if (fallbackResId != 0) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            context.getColor(fallbackResId)
-                        } else {
-                            @Suppress("DEPRECATION")
-                            context.resources.getColor(fallbackResId)
-                        }
+                        context.getColor(fallbackResId)
                     } else {
                         // If the system resource is not available on this device (older OEM ROMs),
                         // fall back to the static Monet palette instead of a uniform gray.
-                        android.util.Log.d("ThemeMonet", "system color missing: ${defaultResource.resourceId}, using static Monet fallback (isDark=$isDark)")
+                        Timber.tag("ThemeMonet").d("system color missing: ${defaultResource.resourceId}, using static Monet fallback (isDark=$isDark)")
                         val staticTheme = if (isDark) getDark() else getLight()
                         when (defaultResource) {
                             defaultMapping.backgroundColor -> staticTheme.backgroundColor

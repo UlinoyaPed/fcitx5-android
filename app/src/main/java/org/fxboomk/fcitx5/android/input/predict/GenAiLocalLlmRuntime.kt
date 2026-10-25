@@ -112,7 +112,7 @@ internal object GenAiLocalLlmRuntime : LocalLlmRuntime {
     @Volatile
     private var warmedBundleKey: String? = null
 
-    override fun isAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+    override fun isAvailable(): Boolean = true
 
     override fun predict(request: LocalLlmPredictionRequest): List<String> {
         return smoke(request).suggestions

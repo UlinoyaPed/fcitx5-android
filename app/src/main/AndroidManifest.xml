@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -266,7 +267,9 @@
 
         <service
             android:name=".FcitxRemoteService"
-            android:exported="true">
+            android:exported="true"
+            android:permission="${applicationId}.permission.IPC"
+            tools:ignore="SystemPermissionTypo">
             <intent-filter>
                 <action android:name="${applicationId}.IPC" />
             </intent-filter>

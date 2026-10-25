@@ -74,7 +74,7 @@ class FcitxApplication : Application() {
         private set
 
     val directBootAwareContext: Context
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isDirectBootMode) {
+        get() = if (isDirectBootMode) {
             createDeviceProtectedStorageContext()
         } else {
             applicationContext
@@ -82,14 +82,15 @@ class FcitxApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !userManager.isUserUnlocked) {
+        if (!userManager.isUserUnlocked) {
             isDirectBootMode = true
             registerReceiver(unlockReceiver, IntentFilter(Intent.ACTION_USER_UNLOCKED))
         }
         val ctx = directBootAwareContext
 
         if (!BuildConfig.DEBUG) {
-            Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            val existingHandler = Thread.getDefaultUncaughtExceptionHandler()
+            Thread.setDefaultUncaughtExceptionHandler { thread, e ->
                 val crashTime = System.currentTimeMillis()
                 val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx)
                 val lastCrashTimePrefKey = "last_crash_time"
@@ -114,6 +115,7 @@ class FcitxApplication : Application() {
                     }
                     putExtra(LogActivity.CRASH_STACK_TRACE, truncated)
                 }
+                existingHandler?.uncaughtException(thread, e)
                 exitProcess(10)
             }
         }
@@ -141,7 +143,7 @@ class FcitxApplication : Application() {
         FontProviders.preloadFontsAsync()
         Locales.onLocaleChange(resources.configuration)
         registerReceiver(shutdownReceiver, IntentFilter(Intent.ACTION_SHUTDOWN))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isDirectBootMode) {
+        if (!isDirectBootMode) {
             AppPrefs.getInstance().syncToDeviceEncryptedStorage()
             ThemeManager.syncToDeviceEncryptedStorage()
         }
