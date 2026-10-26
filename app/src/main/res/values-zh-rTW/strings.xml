@@ -275,7 +275,6 @@
     <string name="preedit_style_inline_candidate_bar">內嵌候選列</string>
     <string name="keyboard_settings_advanced_customization">進階自訂</string>
     <string name="keyboard_settings_split_tools_section">分體鍵盤工具</string>
-    <string name="keyboard_advanced_customization_summary">字型、按鍵彈出對應、佈局檔案與工具列按鈕</string>
     <string name="focus_change_reset_enabled_summary">焦點變化後恢復鍵盤</string>
     <string name="focus_change_reset_disabled_summary">焦點變化後保持目前面板</string>
     <string name="inline_suggestions_enabled_summary">顯示內嵌自動填充建議</string>
@@ -309,6 +308,9 @@
     <string name="show_voice_input_button">顯示語音輸入鍵</string>
     <string name="edit_fontset">字型設定</string>
     <string name="edit_fontset_summary">編輯 fonts/fontset.json 並預覽字型組合</string>
+    <string name="edit_fontset_summary_key_main">按鍵主字體：%1$s，字號 %2$s</string>
+    <string name="fontset_font_set">已設定</string>
+    <string name="fontset_font_not_set">未設定</string>
     <string name="edit_popup_preset">按鍵彈出對應</string>
     <string name="edit_popup_preset_summary">編輯按鍵彈出對應（key -&gt; 候選清單）</string>
     <string name="edit_swipe_symbol_mapping">符號劃動對應</string>

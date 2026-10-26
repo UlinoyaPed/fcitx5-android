@@ -4,7 +4,6 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
-import android.content.Intent
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
@@ -76,50 +75,5 @@ class KeyboardLayoutAndSplitSettingsFragment : KeyboardSectionFragment() {
     override fun onDestroy() {
         AppPrefs.getInstance().keyboard.unregisterOnChangeListener(onSplitEnabledChangeListener)
         super.onDestroy()
-    }
-}
-
-class KeyboardAdvancedCustomizationFragment : KeyboardSectionFragment() {
-
-    private var textLayoutFilePreference: Preference? = null
-    private var textLayoutFileSelectPreference: Preference? = null
-
-    override fun onResume() {
-        super.onResume()
-        textLayoutFilePreference?.summary = KeyboardSettingsSupport.buildTextLayoutSummary(this)
-        textLayoutFileSelectPreference?.summary = KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(this)
-    }
-
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        screen.addCategory(R.string.keyboard_settings_advanced_customization) {
-            addPreference(R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary) {
-                startActivity(Intent(requireContext(), SwipeSymbolMappingEditorActivity::class.java))
-            }
-            addPreference(R.string.edit_popup_preset, R.string.edit_popup_preset_summary) {
-                startActivity(Intent(requireContext(), PopupEditorActivity::class.java))
-            }
-            addPreference(Preference(requireContext()).apply {
-                setTitle(R.string.edit_text_keyboard_layout)
-                summary = KeyboardSettingsSupport.buildTextLayoutSummary(this@KeyboardAdvancedCustomizationFragment)
-                isSingleLineTitle = false
-                isIconSpaceReserved = false
-                textLayoutFilePreference = this
-                setOnPreferenceClickListener {
-                    startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java))
-                    true
-                }
-            })
-            addPreference(Preference(requireContext()).apply {
-                setTitle(R.string.text_keyboard_layout_manage_title)
-                summary = KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(this@KeyboardAdvancedCustomizationFragment)
-                isSingleLineTitle = false
-                isIconSpaceReserved = false
-                textLayoutFileSelectPreference = this
-                setOnPreferenceClickListener {
-                    startActivity(Intent(requireContext(), TextKeyboardLayoutProfileManagerActivity::class.java))
-                    true
-                }
-            })
-        }
     }
 }

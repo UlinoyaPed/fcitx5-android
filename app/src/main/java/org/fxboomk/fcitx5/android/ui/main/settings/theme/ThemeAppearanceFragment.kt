@@ -14,8 +14,10 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutThemeStore
+import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.KeyIconStore
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fxboomk.fcitx5.android.input.font.FontProviders
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
@@ -29,6 +31,9 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
     companion object {
         private const val THEME_ENTRY_KEY = "theme_list_entry"
         private const val THEME_MODE_ENTRY_KEY = "theme_mode_entry"
+        private const val FONTSET_ENTRY_KEY = "theme_fontset_entry"
+        private const val KEY_MAIN_FONT_KEY = "key_main_font"
+        private const val DEFAULT_KEY_MAIN_FONT_SIZE = 23f
         private const val KEY_STYLE_ENTRY_KEY = "theme_key_style_entry"
         private const val TOOLBAR_STYLE_ENTRY_KEY = "theme_toolbar_style_entry"
         internal const val BUTTON_STYLE_ENTRY_KEY = "theme_button_style_entry"
@@ -63,9 +68,10 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         )
         screen.addPreference(
             SingleLineSummaryPreference(ctx).apply {
+                key = FONTSET_ENTRY_KEY
                 setup(
                     ctx.getString(R.string.edit_fontset),
-                    ctx.getString(R.string.edit_fontset_summary)
+                    buildFontsetSummary(ctx)
                 ) {
                     startActivity(Intent(requireContext(), FontsetEditorActivity::class.java))
                 }
@@ -151,6 +157,7 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         val ctx = context ?: return
         findPreference<Preference>(THEME_ENTRY_KEY)?.summary = ThemeManager.activeTheme.name
         findPreference<Preference>(THEME_MODE_ENTRY_KEY)?.summary = buildThemeModeSummary(ctx)
+        findPreference<Preference>(FONTSET_ENTRY_KEY)?.summary = buildFontsetSummary(ctx)
         findPreference<Preference>(KEY_STYLE_ENTRY_KEY)?.summary = buildKeyStyleSummary(ctx)
         findPreference<Preference>(TOOLBAR_STYLE_ENTRY_KEY)?.summary =
             buildToolbarStyleSummary(ctx)
@@ -159,6 +166,19 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
             buildCandidateStyleSummary(ctx)
         findPreference<Preference>(ANIMATION_ENTRY_KEY)?.summary = buildAnimationSummary(ctx)
         findPreference<Preference>(OTHER_STYLE_ENTRY_KEY)?.summary = buildOtherStyleSummary(ctx)
+    }
+
+    private fun buildFontsetSummary(ctx: Context): String {
+        val fontset = ConfigProviders.readFontsetPathMapSnapshot().getOrNull()?.value
+        val keyMainSet = fontset?.get(KEY_MAIN_FONT_KEY)?.any { it.isNotBlank() } == true
+        val fontSize = FontProviders.getFontSize(KEY_MAIN_FONT_KEY, DEFAULT_KEY_MAIN_FONT_SIZE)
+        return ctx.getString(
+            R.string.edit_fontset_summary_key_main,
+            ctx.getString(
+                if (keyMainSet) R.string.fontset_font_set else R.string.fontset_font_not_set
+            ),
+            ctx.getString(R.string.font_size_value, fontSize.toInt())
+        )
     }
 
     private fun buildButtonStyleSummary(): String = requireContext().getString(

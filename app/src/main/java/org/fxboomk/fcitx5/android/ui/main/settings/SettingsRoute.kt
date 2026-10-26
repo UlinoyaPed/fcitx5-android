@@ -28,7 +28,6 @@ import org.fxboomk.fcitx5.android.ui.main.settings.addon.FuzzyConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardAdvancedCustomizationFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardBasicSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardKeyAndGestureSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardLayoutAndSplitSettingsFragment
@@ -138,9 +137,6 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object VirtualKeyboardLayoutAndSplit : SettingsRoute()
-
-    @Serializable
-    data object VirtualKeyboardAdvancedCustomization : SettingsRoute()
 
     @Serializable
     data object Clipboard : SettingsRoute()
@@ -325,9 +321,6 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<KeyboardLayoutAndSplitSettingsFragment, VirtualKeyboardLayoutAndSplit> {
                 label = ctx.getString(R.string.keyboard_settings_layout_and_split)
-            }
-            fragment<KeyboardAdvancedCustomizationFragment, VirtualKeyboardAdvancedCustomization> {
-                label = ctx.getString(R.string.keyboard_settings_advanced_customization)
             }
             fragment<ClipboardSettingsFragment, Clipboard> {
                 label = ctx.getString(R.string.clipboard)

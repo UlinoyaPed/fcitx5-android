@@ -538,6 +538,9 @@
     <string name="edit_clipboard">클립보드 편집</string>
     <string name="edit_fontset">글꼴 설정</string>
     <string name="edit_fontset_summary">fonts/fontset.json을 편집하고 글꼴 조합을 미리보기</string>
+    <string name="edit_fontset_summary_key_main">주 키 글꼴: %1$s, 크기 %2$s</string>
+    <string name="fontset_font_set">설정됨</string>
+    <string name="fontset_font_not_set">설정 안 됨</string>
     <string name="edit_text_keyboard_layout_summary">범용 키보드 레이아웃 편집 (GeneralKeyboardLayout.json)</string>
     <string name="edit_theme">테마 편집</string>
     <string name="editor_info_inspector">EditorInfo 검사기</string>
@@ -684,7 +687,6 @@
     <string name="keyboard_settings_candidates">후보 표시</string>
     <string name="keyboard_settings_advanced_customization">고급 사용자 지정</string>
     <string name="keyboard_settings_split_tools_section">분할 키보드 도구</string>
-    <string name="keyboard_advanced_customization_summary">글꼴, 팝업 키 매핑, 레이아웃 파일 및 도구 모음 버튼</string>
     <string name="focus_change_reset_enabled_summary">포커스가 바뀌면 키보드로 돌아가기</string>
     <string name="focus_change_reset_disabled_summary">포커스가 바뀌어도 현재 패널 유지</string>
     <string name="inline_suggestions_enabled_summary">인라인 자동 완성 제안 표시</string>

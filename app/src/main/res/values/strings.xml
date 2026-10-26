@@ -264,7 +264,6 @@
     <string name="preedit_style_inline_candidate_bar">Inline candidate bar</string>
     <string name="keyboard_settings_advanced_customization">Advanced customization</string>
     <string name="keyboard_settings_split_tools_section">Split keyboard tools</string>
-    <string name="keyboard_advanced_customization_summary">Fonts, popup key mappings, layout files, and toolbar buttons</string>
     <string name="focus_change_reset_enabled_summary">Return to keyboard when focus changes</string>
     <string name="focus_change_reset_disabled_summary">Keep the current panel on focus change</string>
     <string name="inline_suggestions_enabled_summary">Show inline autofill suggestions</string>
@@ -548,6 +547,9 @@
     <string name="show_voice_input_button">Show voice input button</string>
     <string name="edit_fontset">Font Settings</string>
     <string name="edit_fontset_summary">Edit fonts/fontset.json and preview font combinations</string>
+    <string name="edit_fontset_summary_key_main">Key main font: %1$s, size %2$s</string>
+    <string name="fontset_font_set">Configured</string>
+    <string name="fontset_font_not_set">Not configured</string>
     <string name="edit_popup_preset">Popup Key Mapping</string>
     <string name="edit_popup_preset_summary">Edit popup key mapping (key -&gt; popup candidates)</string>
     <string name="edit_swipe_symbol_mapping">Symbol Swipe Mapping</string>

@@ -515,13 +515,13 @@ class FontsetEditorActivity : AppCompatActivity() {
         
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(8))
+            setPadding(dp(16), dp(16), dp(16), 0)
         }
         
         val seekBar = android.widget.SeekBar(this).apply {
             max = (maxSize - minSize).toInt()
             progress = (currentSize - minSize).toInt().coerceIn(0, max)
-            setPadding(0, dp(16), 0, dp(8))
+            setPadding(0, dp(8), 0, dp(8))
         }
         
         val sizeDisplay = TextView(this).apply {
@@ -547,10 +547,10 @@ class FontsetEditorActivity : AppCompatActivity() {
             setPadding(0, dp(8), 0, 0)
         }
         
-        container.addView(seekBar)
         container.addView(sizeDisplay)
         container.addView(previewText)
         container.addView(hint)
+        container.addView(seekBar)
         
         seekBar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {

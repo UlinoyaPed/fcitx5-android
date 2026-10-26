@@ -180,7 +180,6 @@
     <string name="keyboard_settings_candidates">Kandidatenanzeige</string>
     <string name="keyboard_settings_advanced_customization">Erweiterte Anpassung</string>
     <string name="keyboard_settings_split_tools_section">Werkzeuge für geteilte Tastatur</string>
-    <string name="keyboard_advanced_customization_summary">Schriftarten, Popup-Tastenzuordnungen, Layoutdateien und Werkzeugleisten-Schaltflächen</string>
     <string name="focus_change_reset_enabled_summary">Bei Fokuswechsel zur Tastatur zurückkehren</string>
     <string name="focus_change_reset_disabled_summary">Aktuelles Panel bei Fokuswechsel beibehalten</string>
     <string name="inline_suggestions_enabled_summary">Inline-Autovervollständigung anzeigen</string>
@@ -589,6 +588,9 @@
     <string name="duplicate_builtin_theme">Integriertes Theme duplizieren…</string>
     <string name="edit_fontset">Schriftartensatz-Einstellungen</string>
     <string name="edit_fontset_summary">fonts/fontset.json bearbeiten und Schriftkombinationen in der Vorschau anzeigen</string>
+    <string name="edit_fontset_summary_key_main">Primäre Tastenschriftart: %1$s, Größe %2$s</string>
+    <string name="fontset_font_set">Festgelegt</string>
+    <string name="fontset_font_not_set">Nicht festgelegt</string>
     <string name="edit_text_keyboard_layout_summary">Allgemeines Tastaturlayout bearbeiten (GeneralKeyboardLayout.json)</string>
     <string name="edit_theme">Theme bearbeiten</string>
     <string name="editor_info_inspector">EditorInfo-Inspektor</string>

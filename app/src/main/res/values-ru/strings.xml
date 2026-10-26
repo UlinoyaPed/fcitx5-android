@@ -228,7 +228,6 @@
     <string name="keyboard_settings_candidates">Отображение кандидатов</string>
     <string name="keyboard_settings_advanced_customization">Расширенная настройка</string>
     <string name="keyboard_settings_split_tools_section">Инструменты разделенной клавиатуры</string>
-    <string name="keyboard_advanced_customization_summary">Шрифты, сопоставления клавиш всплывающих окон, файлы раскладки и кнопки панели</string>
     <string name="focus_change_reset_enabled_summary">Возвращаться к клавиатуре при смене фокуса</string>
     <string name="focus_change_reset_disabled_summary">Сохранять текущую панель при смене фокуса</string>
     <string name="inline_suggestions_enabled_summary">Показывать встроенные подсказки автозаполнения</string>
@@ -718,6 +717,9 @@
     <string name="cannot_resolve_popup_preset">Не удалось найти файл предустановки всплывающих окон</string>
     <string name="edit_fontset">Настройки шрифтов</string>
     <string name="edit_fontset_summary">Редактировать fonts/fontset.json и просмотреть комбинацию шрифтов</string>
+    <string name="edit_fontset_summary_key_main">Основной шрифт клавиш: %1$s, размер %2$s</string>
+    <string name="fontset_font_set">Задан</string>
+    <string name="fontset_font_not_set">Не задан</string>
     <string name="edit_text_keyboard_layout_summary">Редактировать общую раскладку клавиатуры (GeneralKeyboardLayout.json)</string>
     <string name="fontset_editor_hint">Нажмите на каждый элемент, чтобы выбрать один или несколько шрифтов из каталога fonts. Несколько шрифтов будут использоваться как резервные в указанном порядке.</string>
     <string name="fontset_entry_candidate">Шрифт кандидатов</string>

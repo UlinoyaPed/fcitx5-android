@@ -59,6 +59,7 @@ class ThemeFragment : Fragment() {
     }
 
     private lateinit var previewUi: KeyboardPreviewUi
+    private lateinit var previewWrapper: ConstraintLayout
 
     private lateinit var prevThemeButton: ImageView
     private lateinit var nextThemeButton: ImageView
@@ -135,6 +136,7 @@ class ThemeFragment : Fragment() {
         prevThemeButton.isVisible = carousel
         nextThemeButton.isVisible = carousel
         carouselFooter.isVisible = carousel
+        schedulePreviewWrapperHeightUpdate()
         if (!carousel) {
             displayedThemeName = active.name
             previewUi.setTheme(active)
@@ -160,6 +162,52 @@ class ThemeFragment : Fragment() {
         if (carouselThemes.size < 2) return
         val current = carouselThemes.indexOfFirst { it.name == displayedThemeName }.coerceAtLeast(0)
         showPoolTheme(carouselThemes[(current + step).mod(carouselThemes.size)])
+    }
+
+    private fun schedulePreviewWrapperHeightUpdate() {
+        if (::previewWrapper.isInitialized) {
+            previewWrapper.post { updatePreviewWrapperHeight() }
+        }
+    }
+
+    /**
+     * The preview is scaled from its top edge, but its unscaled layout height is
+     * still measured below the visible bitmap. Give the wrapper an explicit
+     * height so that the area below the footer does not keep that invisible
+     * overflow.
+     */
+    private fun updatePreviewWrapperHeight() {
+        if (!::previewWrapper.isInitialized || view == null) return
+        val previewHeight = previewUi.intrinsicHeight
+        if (previewHeight <= 0) return
+
+        // The preview is measured inside the wrapper, so an explicit wrapper
+        // height would otherwise clamp the preview to the visible height and
+        // make the scaled bitmap shrink again. Keep its full intrinsic height.
+        val preview = previewUi.root
+        val previewParams = preview.layoutParams
+        if (previewParams != null && previewParams.height != previewHeight) {
+            previewParams.height = previewHeight
+            preview.layoutParams = previewParams
+        }
+
+        val overflow = (previewHeight * (1f - PREVIEW_SCALE)).toInt()
+        val visibleBottom = previewHeight - overflow
+        val footerHeight = if (carouselFooter.isVisible) {
+            if (carouselFooter.height <= 0) return
+            carouselFooter.height
+        } else {
+            0
+        }
+        val footerGap = if (carouselFooter.isVisible) previewWrapper.context.dp(6) else 0
+        val bottomGap = previewWrapper.context.dp(2)
+        val desiredHeight = visibleBottom + footerGap + footerHeight + bottomGap
+
+        val params = previewWrapper.layoutParams ?: return
+        if (params.height != desiredHeight) {
+            params.height = desiredHeight
+            previewWrapper.layoutParams = params
+        }
     }
 
     override fun onCreateView(
@@ -232,29 +280,34 @@ class ThemeFragment : Fragment() {
         // so its layout bounds extend past the visible bitmap by (1 - scale) of
         // the height at the bottom. Pull the footer up to sit right under the
         // visible bitmap, and center the arrows on the visible keyboard.
-        preview.addOnLayoutChangeListener { view, left, top, right, bottom, _, _, _, _ ->
+        preview.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             // Keep horizontal scaling centered around the actual view width.
             view.pivotX = (right - left) / 2f
+            val sizeChanged = right - left != oldRight - oldLeft ||
+                bottom - top != oldBottom - oldTop
+            if (!sizeChanged) return@addOnLayoutChangeListener
             val overflow = ((bottom - top) * (1f - PREVIEW_SCALE)).toInt()
-            if (overflow <= 0) return@addOnLayoutChangeListener
-            val footerParams = carouselFooter.layoutParams as? ConstraintLayout.LayoutParams
-            if (footerParams != null) {
-                val topMargin = -(overflow - dp(6))
-                if (footerParams.topMargin != topMargin) {
-                    footerParams.topMargin = topMargin
-                    carouselFooter.layoutParams = footerParams
+            if (overflow > 0) {
+                val footerParams = carouselFooter.layoutParams as? ConstraintLayout.LayoutParams
+                if (footerParams != null) {
+                    val topMargin = -(overflow - dp(6))
+                    if (footerParams.topMargin != topMargin) {
+                        footerParams.topMargin = topMargin
+                        carouselFooter.layoutParams = footerParams
+                    }
+                }
+                listOf(prevThemeButton, nextThemeButton).forEach { button ->
+                    val params = button.layoutParams as? ConstraintLayout.LayoutParams
+                    if (params != null && params.bottomMargin != overflow) {
+                        params.bottomMargin = overflow
+                        button.layoutParams = params
+                    }
                 }
             }
-            listOf(prevThemeButton, nextThemeButton).forEach { button ->
-                val params = button.layoutParams as? ConstraintLayout.LayoutParams
-                if (params != null && params.bottomMargin != overflow) {
-                    params.bottomMargin = overflow
-                    button.layoutParams = params
-                }
-            }
+            view.post { updatePreviewWrapperHeight() }
         }
 
-        val previewWrapper = constraintLayout {
+        previewWrapper = constraintLayout {
             add(preview, lParams(wrapContent, wrapContent) {
                 topOfParent()
                 startOfParent()
@@ -278,6 +331,14 @@ class ThemeFragment : Fragment() {
             })
             backgroundColor = styledColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
+        }
+
+        carouselFooter.addOnLayoutChangeListener { footer, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            val sizeChanged = right - left != oldRight - oldLeft ||
+                bottom - top != oldBottom - oldTop
+            if (sizeChanged) {
+                footer.post { updatePreviewWrapperHeight() }
+            }
         }
 
         refreshPreview()

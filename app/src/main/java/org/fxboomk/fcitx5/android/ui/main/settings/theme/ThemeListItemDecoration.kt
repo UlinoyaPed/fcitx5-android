@@ -9,8 +9,10 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ThemeListItemDecoration(val itemWidth: Int) :
-    RecyclerView.ItemDecoration() {
+class ThemeListItemDecoration(
+    val itemWidth: Int,
+    private val firstRowTopOffset: Int = -1
+) : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
         view: View,
@@ -30,7 +32,11 @@ class ThemeListItemDecoration(val itemWidth: Int) :
         val lookup = grid.spanSizeLookup
         val row = lookup.getSpanGroupIndex(position, spanCount)
         val lastRow = lookup.getSpanGroupIndex(itemCount - 1, spanCount)
-        val top = if (row == 0) offset else halfOffset
+        val top = when {
+            row != 0 -> halfOffset
+            firstRowTopOffset >= 0 -> firstRowTopOffset
+            else -> offset
+        }
         val bottom = if (row == lastRow) offset else halfOffset
         if (lookup.getSpanSize(position) == spanCount) {
             outRect.set(offset, top, offset, bottom)

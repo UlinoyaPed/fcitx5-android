@@ -22,6 +22,7 @@ import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMo
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonDisplayNames
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
@@ -665,12 +666,29 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
-        addAdvancedKeyboardItem(context, R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary)
-        addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
-        addAdvancedKeyboardItem(context, R.string.edit_text_keyboard_layout, R.string.edit_text_keyboard_layout_summary)
         addAdvancedKeyboardItem(
             context,
-            R.string.text_keyboard_layout_manage_title
+            R.string.edit_swipe_symbol_mapping,
+            R.string.edit_swipe_symbol_mapping_summary,
+            KeyboardSettingsHomeFragment.SWIPE_SYMBOL_MAPPING_ENTRY_KEY
+        )
+        addAdvancedKeyboardItem(
+            context,
+            R.string.edit_popup_preset,
+            R.string.edit_popup_preset_summary,
+            KeyboardSettingsHomeFragment.POPUP_PRESET_ENTRY_KEY
+        )
+        addAdvancedKeyboardItem(
+            context,
+            R.string.edit_text_keyboard_layout,
+            R.string.edit_text_keyboard_layout_summary,
+            KeyboardSettingsHomeFragment.TEXT_LAYOUT_EDIT_ENTRY_KEY
+        )
+        addAdvancedKeyboardItem(
+            context,
+            R.string.text_keyboard_layout_manage_title,
+            null,
+            KeyboardSettingsHomeFragment.TEXT_LAYOUT_MANAGE_ENTRY_KEY
         )
     }
 
@@ -691,7 +709,8 @@ object SettingsSearchIndex {
     private fun MutableList<SettingsSearchResult>.addAdvancedKeyboardItem(
         context: Context,
         @StringRes title: Int,
-        @StringRes summary: Int? = null
+        @StringRes summary: Int?,
+        preferenceKey: String
     ) {
         add(
             SettingsSearchResult(
@@ -700,8 +719,9 @@ object SettingsSearchIndex {
                     context.getString(R.string.virtual_keyboard),
                     context.getString(R.string.keyboard_settings_advanced_customization)
                 ),
-                SettingsRoute.VirtualKeyboardAdvancedCustomization,
-                summary = summary?.let(context::getString)
+                SettingsRoute.VirtualKeyboard,
+                preferenceKey,
+                summary?.let(context::getString)
             )
         )
     }

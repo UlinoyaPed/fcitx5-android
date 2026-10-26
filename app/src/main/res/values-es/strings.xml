@@ -546,6 +546,9 @@
     <string name="duplicate_builtin_theme">Duplicar tema integrado…</string>
     <string name="edit_fontset">Configuración de fuentes</string>
     <string name="edit_fontset_summary">Editar fonts/fontset.json y previsualizar combinaciones de fuentes</string>
+    <string name="edit_fontset_summary_key_main">Fuente principal de tecla: %1$s, tamaño %2$s</string>
+    <string name="fontset_font_set">Establecida</string>
+    <string name="fontset_font_not_set">No establecida</string>
     <string name="edit_text_keyboard_layout_summary">Editar distribución general del teclado (GeneralKeyboardLayout.json)</string>
     <string name="edited_x">Se edito %1$s</string>
     <string name="editor_info_inspector">Inspector de EditorInfo</string>
@@ -694,7 +697,6 @@
     <string name="keyboard_settings_candidates">Visualizacion de candidatos</string>
     <string name="keyboard_settings_advanced_customization">Personalizacion avanzada</string>
     <string name="keyboard_settings_split_tools_section">Herramientas de teclado dividido</string>
-    <string name="keyboard_advanced_customization_summary">Fuentes, asignaciones de teclas emergentes, archivos de diseno y botones de la barra</string>
     <string name="focus_change_reset_enabled_summary">Volver al teclado al cambiar el foco</string>
     <string name="focus_change_reset_disabled_summary">Mantener el panel actual al cambiar el foco</string>
     <string name="inline_suggestions_enabled_summary">Mostrar sugerencias de autocompletado integradas</string>

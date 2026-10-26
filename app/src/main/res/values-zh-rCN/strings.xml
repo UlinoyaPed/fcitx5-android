@@ -258,7 +258,6 @@
     <string name="preedit_style_inline_candidate_bar">内嵌候选栏</string>
     <string name="keyboard_settings_advanced_customization">高级自定义</string>
     <string name="keyboard_settings_split_tools_section">分体键盘工具</string>
-    <string name="keyboard_advanced_customization_summary">字体、按键弹出映射、布局文件与工具栏按钮</string>
     <string name="focus_change_reset_enabled_summary">焦点变化后恢复键盘</string>
     <string name="focus_change_reset_disabled_summary">焦点变化后保持当前面板</string>
     <string name="inline_suggestions_enabled_summary">显示内嵌自动填充建议</string>
@@ -381,6 +380,9 @@
     <string name="show_voice_input_button">显示语音输入按钮</string>
     <string name="edit_fontset">字体设定</string>
     <string name="edit_fontset_summary">编辑 fonts/fontset.json 并预览字体组合</string>
+    <string name="edit_fontset_summary_key_main">按键主字体：%1$s，字号 %2$s</string>
+    <string name="fontset_font_set">已设定</string>
+    <string name="fontset_font_not_set">未设定</string>
     <string name="edit_popup_preset">按键弹出映射</string>
     <string name="edit_popup_preset_summary">编辑按键弹出映射（key -&gt; 候选列表）</string>
     <string name="edit_swipe_symbol_mapping">符号划动映射</string>

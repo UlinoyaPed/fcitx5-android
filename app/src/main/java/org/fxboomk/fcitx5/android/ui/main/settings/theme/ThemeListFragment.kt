@@ -31,6 +31,7 @@ import org.fxboomk.fcitx5.android.utils.isDarkMode
 import org.fxboomk.fcitx5.android.utils.parcelable
 import org.fxboomk.fcitx5.android.utils.queryFileName
 import org.fxboomk.fcitx5.android.utils.toast
+import splitties.dimensions.dp
 import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
 import java.util.UUID
@@ -214,7 +215,10 @@ class ThemeListFragment : Fragment() {
         ThemeManager.refreshThemes()
         themeListAdapter.setThemes(ThemeManager.getAllThemes())
         updateSelectedThemes()
-        return ResponsiveThemeListView(requireContext()).apply {
+        return ResponsiveThemeListView(
+            requireContext(),
+            firstRowTopOffset = requireContext().dp(12)
+        ).apply {
             adapter = themeListAdapter
             applyNavBarInsetsBottomPadding()
         }

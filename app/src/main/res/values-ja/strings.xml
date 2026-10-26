@@ -223,7 +223,6 @@
     <string name="keyboard_settings_candidates">候補表示</string>
     <string name="keyboard_settings_advanced_customization">高度なカスタマイズ</string>
     <string name="keyboard_settings_split_tools_section">分割キーボードツール</string>
-    <string name="keyboard_advanced_customization_summary">フォント、ポップアップキーマッピング、レイアウトファイル、ツールバーボタン</string>
     <string name="focus_change_reset_enabled_summary">フォーカス変更時にキーボードへ戻る</string>
     <string name="focus_change_reset_disabled_summary">フォーカス変更時も現在のパネルを維持</string>
     <string name="inline_suggestions_enabled_summary">インライン自動入力候補を表示</string>
@@ -681,6 +680,9 @@
     <string name="delete_all">すべて削除</string>
     <string name="edit_fontset">フォント設定</string>
     <string name="edit_fontset_summary">fonts/fontset.json を編集してフォントの組み合わせをプレビュー</string>
+    <string name="edit_fontset_summary_key_main">キーのメインフォント：%1$s、サイズ %2$s</string>
+    <string name="fontset_font_set">設定済み</string>
+    <string name="fontset_font_not_set">未設定</string>
     <string name="edit_text_keyboard_layout_summary">汎用キーボードレイアウトを編集（GeneralKeyboardLayout.json）</string>
     <string name="emoji_and_symbols">絵文字と記号</string>
     <string name="emoji_skin_tone_none">なし</string>
