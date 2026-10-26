@@ -428,4 +428,51 @@ class SameEdgeSubLabelLayoutTest {
             }
         }
     }
+
+    @Test
+    fun bottomSubLabelsTouchVisibleKeyFace() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        val density = context.resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).roundToInt()
+        instrumentation.runOnMainSync {
+            val prefs = ThemeManager.prefs
+            val oldPunctuation = prefs.punctuationPosition.getValue()
+            val oldUppercase = prefs.uppercasePosition.getValue()
+            try {
+                prefs.punctuationPosition.setValue(PunctuationPosition.Bottom)
+                prefs.uppercasePosition.setValue(UppercasePosition.None)
+                for (independent in listOf(false, true)) {
+                    val appearance = KeyDef.Appearance.AltText(
+                        displayText = "g",
+                        character = "g",
+                        altText = "?",
+                        altText1 = "!",
+                        textSize = 24f,
+                    ).apply {
+                        if (independent) {
+                            altTextPositionOverride = KeyDef.Appearance.AltTextPosition.Bottom
+                            altText1PositionOverride = KeyDef.Appearance.AltTextPosition.Bottom
+                        }
+                    }
+                    val key = AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+                    repeat(3) {
+                        key.refreshLayout()
+                        key.measure(
+                            View.MeasureSpec.makeMeasureSpec(dp(48), View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(dp(64), View.MeasureSpec.EXACTLY),
+                        )
+                        key.layout(0, 0, dp(48), dp(64))
+                    }
+                    val faceBottom = key.getChildAt(0).height - key.vMargin
+                    val case = "independent=$independent"
+                    assertEquals(case, faceBottom, inkBounds(key.altText).bottom)
+                    assertEquals(case, faceBottom, inkBounds(key.altText1).bottom)
+                }
+            } finally {
+                prefs.punctuationPosition.setValue(oldPunctuation)
+                prefs.uppercasePosition.setValue(oldUppercase)
+            }
+        }
+    }
 }

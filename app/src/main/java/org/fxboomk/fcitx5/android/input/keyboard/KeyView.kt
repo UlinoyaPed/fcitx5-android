@@ -943,7 +943,7 @@ class AltTextKeyView(
         }
 
         val topMargin = vMargin + cornerLabelTopSafeInset
-        val bottomMargin = vMargin + dp(2)
+        val bottomMargin = vMargin
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = wrapContent
@@ -968,7 +968,8 @@ class AltTextKeyView(
             rightMargin = if (primaryRight) hMargin else 0
         }
         altText.setPadding(0, 0, 0, 0)
-        altText.gravity = Gravity.CENTER
+        altText.useGlyphBounds = !top
+        altText.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
 
         secondLabel.visibility = View.VISIBLE
         secondLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -992,7 +993,8 @@ class AltTextKeyView(
             rightMargin = hMargin
         }
         secondLabel.setPadding(0, 0, 0, 0)
-        secondLabel.gravity = Gravity.CENTER
+        secondLabel.useGlyphBounds = !top
+        secondLabel.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun placeIndependentTopLabel(label: AutoScaleTextView, edge: Int) {
@@ -1009,6 +1011,7 @@ class AltTextKeyView(
             bottomMargin = 0
         }
         label.setPadding(0, 0, if (edge > 0) cornerLabelHorizontalSafeInset else 0, 0)
+        label.useGlyphBounds = false
         label.gravity = if (edge > 0) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER
     }
 
@@ -1023,10 +1026,11 @@ class AltTextKeyView(
             topToTop = unset
             topMargin = 0
             bottomToBottom = parentId
-            bottomMargin = vMargin + dp(2)
+            bottomMargin = vMargin
         }
         label.setPadding(0, 0, 0, 0)
-        label.gravity = Gravity.CENTER
+        label.useGlyphBounds = true
+        label.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun applyIndependentAltTextPosition() {
@@ -1147,6 +1151,7 @@ class AltTextKeyView(
             rightMargin = hMargin
         }
         applyBottomAltTextPadding()
+        altText.useGlyphBounds = false
         altText.gravity = Gravity.CENTER
         hideAltText1()
         hideUpperText()
@@ -1170,10 +1175,11 @@ class AltTextKeyView(
             // set
             leftToLeft = parentId
             rightToRight = parentId
-            bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
+            bottomToBottom = parentId; bottomMargin = vMargin
         }
         applyBottomAltTextPadding()
-        altText.gravity = Gravity.CENTER
+        altText.useGlyphBounds = true
+        altText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         hideAltText1()
         hideUpperText()
     }
@@ -1212,6 +1218,7 @@ class AltTextKeyView(
             rightMargin = hMargin
         }
         upperText.setPadding(hMargin, 0, hMargin, 0)
+        upperText.useGlyphBounds = false
         upperText.gravity = Gravity.CENTER
     }
 
@@ -1226,10 +1233,11 @@ class AltTextKeyView(
             rightToRight = parentId
             rightMargin = hMargin
             bottomToBottom = parentId
-            bottomMargin = vMargin + dp(2)
+            bottomMargin = vMargin
         }
         upperText.setPadding(hMargin, 0, hMargin, 0)
-        upperText.gravity = Gravity.CENTER
+        upperText.useGlyphBounds = true
+        upperText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun showUpperTextAtCorner(top: Boolean, left: Boolean) {
@@ -1245,7 +1253,7 @@ class AltTextKeyView(
                 topToTop = unset
                 topMargin = 0
                 bottomToBottom = parentId
-                bottomMargin = vMargin + dp(2)
+                bottomMargin = vMargin
             }
             if (left) {
                 leftToLeft = parentId
@@ -1260,7 +1268,8 @@ class AltTextKeyView(
             }
         }
         upperText.setPadding(0, 0, 0, 0)
-        upperText.gravity = Gravity.CENTER
+        upperText.useGlyphBounds = !top
+        upperText.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun applyUpperTopPosition() {
@@ -1777,6 +1786,20 @@ class AltTextKeyView(
         // Standalone previews can contain one key. BaseKeyboard repeats this once
         // for the complete row after every sibling has finished laying out.
         alignRemainingSpaceMainLabels(listOf(this))
+        if (mainText.text.length > 1) {
+            val visibleLabels = listOf(altText, altText1, upperText).filter {
+                it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
+            }
+            val topLabels = visibleLabels.filter { it.bottom <= height / 2 }
+            val bottomLabels = visibleLabels.filter { it.top >= height / 2 }
+            val top = topLabels.maxOfOrNull { it.bottom + (dp(2) - 1) }
+                ?: vMargin
+            val bottom = bottomLabels.minOfOrNull { it.top - (dp(2) - 1) }
+                ?: (height - vMargin)
+            mainText.centerGlyphsInBand(top, bottom, height / 2f)
+        } else if (mainText.glyphPlacement == null) {
+            mainText.constrainGlyphsVertically(vMargin, height - vMargin)
+        }
     }
 
     private fun mainLabelXHeight(): Rect {
@@ -1788,8 +1811,8 @@ class AltTextKeyView(
         internal fun alignRemainingSpaceMainLabels(keys: List<AltTextKeyView>) {
             val eligible = keys.filter { key ->
                 key.visibility == View.VISIBLE &&
-                    key.altDef.character.length == 1 && key.altDef.character[0].isLetter() &&
-                    key.mainText.width > 0 && key.mainText.height > 0
+                    key.mainText.text.isNotBlank() &&
+                    key.mainText.measuredWidth > 0 && key.mainText.measuredHeight > 0
             }
             val placements = eligible.mapNotNull { key ->
                 val text = key.mainText.text.toString()
@@ -1797,15 +1820,28 @@ class AltTextKeyView(
                 key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
                 if (bounds.isEmpty) return@mapNotNull null
 
-                val bandTop = if (key.remainingSpaceTopLabels.isNotEmpty()) {
-                    key.remainingSpaceTopLabels.maxOf { label ->
+                val visibleLabels = listOf(key.altText, key.altText1, key.upperText).filter {
+                    it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
+                }
+                val topLabels = key.remainingSpaceTopLabels.ifEmpty {
+                    visibleLabels.filter { label ->
+                        label.top + label.renderedGlyphBounds().centerY() < key.appearanceView.height / 2f
+                    }
+                }
+                val bottomLabels = key.remainingSpaceBottomLabels.ifEmpty {
+                    visibleLabels.filter { label ->
+                        label.top + label.renderedGlyphBounds().centerY() >= key.appearanceView.height / 2f
+                    }
+                }
+                val bandTop = if (topLabels.isNotEmpty()) {
+                    topLabels.maxOf { label ->
                         label.top + label.renderedGlyphBounds().bottom
                     }
                 } else {
                     key.vMargin.toFloat()
                 }
-                val bandBottom = if (key.remainingSpaceBottomLabels.isNotEmpty()) {
-                    key.remainingSpaceBottomLabels.minOf { label ->
+                val bandBottom = if (bottomLabels.isNotEmpty()) {
+                    bottomLabels.minOf { label ->
                         label.top + label.renderedGlyphBounds().top
                     }
                 } else {
@@ -1821,10 +1857,13 @@ class AltTextKeyView(
                     xHeightTop = xHeight.top.toFloat(),
                     xHeightBottom = xHeight.bottom.toFloat(),
                     minGap = (key.dp(2) - 1).toFloat(),
-                    centerOnFace = key.remainingSpaceTopLabels.isEmpty() ||
-                        key.remainingSpaceBottomLabels.isEmpty(),
+                    // A single edge label on a standalone key gets a balanced
+                    // ink band; rows and same-edge label pairs still use the
+                    // shared x-height centre for baseline consistency.
+                    centerOnFace = visibleLabels.size > 1 &&
+                        (topLabels.isEmpty() || bottomLabels.isEmpty()),
                 )
-                val availableWidth = (key.mainText.width - key.mainText.paddingLeft - key.mainText.paddingRight)
+                val availableWidth = (key.mainText.measuredWidth - key.mainText.paddingLeft - key.mainText.paddingRight)
                     .coerceAtLeast(0)
                 MainLabelPlacement(
                     key = key,
@@ -1832,12 +1871,68 @@ class AltTextKeyView(
                     inputs = inputs,
                 )
             }
-            val sharedScale = placements.minOfOrNull { it.inputs.geometry().scale } ?: return
-            placements.forEach { placement ->
-                val geometry = placement.inputs.geometry(scaleOverride = sharedScale)
+            // GlyphPlacement applies one scale to both axes. Use one final scale
+            // for the whole row so a wide glyph cannot receive a different Y
+            // scale from a narrow glyph after the shared geometry is computed.
+            if (placements.isEmpty()) return
+            val group = placements
+            val singleLetters = group.filter { placement ->
+                val text = placement.key.mainText.text.toString()
+                text.length == 1 && text[0].isLetter()
+            }
+            if (placements.size == 1 && singleLetters.size == 1) {
+                val placement = placements.first()
+                var scale = placement.inputs.geometry().scale
+                var baseline: Float? = null
+                if (placement.inputs.centerOnFace) {
+                    val centeredScale = placement.inputs.centeredInkScaleLimit()
+                    if (centeredScale > 0f) scale = min(scale, centeredScale)
+                    if (centeredScale > 0f) {
+                        val actualScale = placement.widthScale * scale
+                        baseline = placement.inputs.faceCenter -
+                            (placement.inputs.xHeightTop + placement.inputs.xHeightBottom) * actualScale / 2f
+                    }
+                }
+                val geometry = placement.inputs.geometry(scaleOverride = scale)
+                placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
+                    (baseline ?: geometry.baseline) - placement.key.mainText.top,
+                    placement.widthScale * scale,
+                )
+                return
+            }
+            val geometryGroup = singleLetters.ifEmpty { group }
+            val first = geometryGroup.first().inputs
+            val sharedInputs = MainLabelBandGeometryInputs(
+                    bandTop = geometryGroup.maxOf { it.inputs.bandTop },
+                    bandBottom = geometryGroup.minOf { it.inputs.bandBottom },
+                    faceCenter = first.faceCenter,
+                    inkTop = geometryGroup.minOf { it.inputs.inkTop },
+                    inkBottom = geometryGroup.maxOf { it.inputs.inkBottom },
+                    xHeightTop = geometryGroup.minOf { it.inputs.xHeightTop },
+                    xHeightBottom = geometryGroup.maxOf { it.inputs.xHeightBottom },
+                    minGap = geometryGroup.maxOf { it.inputs.minGap },
+                    centerOnFace = first.centerOnFace,
+            )
+            var sharedScale = geometryGroup.minOf { placement ->
+                min(placement.inputs.geometry().scale, placement.widthScale)
+            }
+            if (first.centerOnFace && geometryGroup.any {
+                    it.key.mainText.text.any { character -> character in 'a'..'z' }
+                }) {
+                val centeredScale = sharedInputs.centeredInkScaleLimit()
+                if (centeredScale > 0f) sharedScale = min(sharedScale, centeredScale)
+            }
+            val geometry = sharedInputs.geometry(scaleOverride = sharedScale)
+            group.forEach { placement ->
+                val isSingleLetter = singleLetters.isNotEmpty() &&
+                    placement.key.mainText.text.length == 1 &&
+                    placement.key.mainText.text[0].isLetter()
+                val ownScale = min(placement.inputs.geometry().scale, placement.widthScale)
+                val scale = if (isSingleLetter) sharedScale else ownScale
                 placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
                     geometry.baseline - placement.key.mainText.top,
-                    placement.widthScale * geometry.scale,
+                    if (singleLetters.isNotEmpty()) sharedScale else scale,
+                    if (singleLetters.isNotEmpty() && !isSingleLetter) ownScale else null,
                 )
             }
         }
@@ -1859,6 +1954,22 @@ class AltTextKeyView(
             val minGap: Float,
             val centerOnFace: Boolean,
         ) {
+            fun centeredInkScaleLimit(): Float {
+                val xHeightCenter = (xHeightTop + xHeightBottom) / 2f
+                val lower = bandTop + minGap
+                val upper = bandBottom - minGap
+                var limit = 1f
+                val topDelta = inkTop - xHeightCenter
+                if (topDelta < 0f) {
+                    limit = min(limit, (faceCenter - lower) / -topDelta)
+                }
+                val bottomDelta = inkBottom - xHeightCenter
+                if (bottomDelta > 0f) {
+                    limit = min(limit, (upper - faceCenter) / bottomDelta)
+                }
+                return limit.coerceIn(0.001f, 1f)
+            }
+
             fun geometry(scaleOverride: Float? = null) = computeMainLabelGeometry(
                 bandTop = bandTop,
                 bandBottom = bandBottom,
@@ -2050,6 +2161,7 @@ class ImageAltTextKeyView(
             rightMargin = hMargin
         }
         applyBottomAltTextPadding()
+        altText.useGlyphBounds = false
         altText.gravity = Gravity.CENTER
     }
 
@@ -2067,10 +2179,11 @@ class ImageAltTextKeyView(
             topToTop = unset; topMargin = 0
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
-            bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
+            bottomToBottom = parentId; bottomMargin = vMargin
         }
         applyBottomAltTextPadding()
-        altText.gravity = Gravity.CENTER
+        altText.useGlyphBounds = true
+        altText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun applyNoAltTextPosition() {
@@ -2118,14 +2231,14 @@ class ImageAltTextKeyView(
             topToTop = unset
             topMargin = 0
             bottomToBottom = parentId
-            bottomMargin = vMargin + dp(2)
+            bottomMargin = vMargin
             leftToLeft = parentId
             leftMargin = hMargin
             rightToRight = parentId
             rightMargin = hMargin
         }
         altText1.setPadding(0, 0, 0, 0)
-        altText1.gravity = Gravity.CENTER
+        altText1.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         val hasUpLabel = altText.visibility == View.VISIBLE
         val hasDownLabel = altText1.visibility == View.VISIBLE
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
