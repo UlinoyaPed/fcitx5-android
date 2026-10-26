@@ -83,6 +83,37 @@ class IndependentSubLabelPositionTest {
         )
     }
 
+    @Test
+    fun independentRowLabelsTopAndBottomAreCenteredAgainstKeyInsets() = withTheme(PunctuationPosition.Bottom) {
+        val topKey = createKey(AltTextPosition.Bottom, AltTextPosition.Top)
+        layoutKey(topKey, heightDp = 52)
+        val topInk = topKey.altText1.renderedGlyphBounds()
+        assertEquals(
+            topKey.vMargin.toFloat(),
+            topKey.altText1.top + topInk.top,
+            1f
+        )
+        assertEquals(
+            topKey.getChildAt(0).width / 2f,
+            topKey.altText1.left + topInk.centerX(),
+            1f
+        )
+
+        val bottomKey = createKey(AltTextPosition.Top, AltTextPosition.Bottom)
+        layoutKey(bottomKey, heightDp = 52)
+        val bottomInk = bottomKey.altText1.renderedGlyphBounds()
+        assertEquals(
+            bottomKey.getChildAt(0).height - bottomKey.vMargin.toFloat(),
+            bottomKey.altText1.top + bottomInk.bottom,
+            1f
+        )
+        assertEquals(
+            bottomKey.getChildAt(0).width / 2f,
+            bottomKey.altText1.left + bottomInk.centerX(),
+            1f
+        )
+    }
+
     private fun createKey(primary: AltTextPosition?, secondary: AltTextPosition, text: String = "?"): AltTextKeyView {
         val appearance = KeyDef.Appearance.AltText("q", text, "q", "!", textSize = 24f).apply {
             altTextPositionOverride = primary

@@ -997,7 +997,12 @@ class AltTextKeyView(
         secondLabel.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
-    private fun placeIndependentTopLabel(label: AutoScaleTextView, edge: Int) {
+    private fun placeIndependentTopLabel(
+        label: AutoScaleTextView,
+        edge: Int,
+        flushToEdge: Boolean = true
+    ) {
+        val centeredAtTop = edge == 0 && flushToEdge
         label.visibility = View.VISIBLE
         label.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
@@ -1006,13 +1011,17 @@ class AltTextKeyView(
             rightToRight = parentId
             rightMargin = hMargin
             topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
+            topMargin = if (centeredAtTop) vMargin else vMargin + cornerLabelTopSafeInset
             bottomToBottom = unset
             bottomMargin = 0
         }
         label.setPadding(0, 0, if (edge > 0) cornerLabelHorizontalSafeInset else 0, 0)
-        label.useGlyphBounds = false
-        label.gravity = if (edge > 0) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER
+        label.useGlyphBounds = centeredAtTop
+        label.gravity = when {
+            edge > 0 -> Gravity.END or Gravity.CENTER_VERTICAL
+            centeredAtTop -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            else -> Gravity.CENTER
+        }
     }
 
     private fun placeIndependentBottomLabel(label: AutoScaleTextView) {
@@ -1100,7 +1109,7 @@ class AltTextKeyView(
         if (altText.text.isNullOrBlank()) {
             altText.visibility = View.GONE
         } else {
-            placeIndependentTopLabel(altText, if (topRight) 1 else 0)
+            placeIndependentTopLabel(altText, if (topRight) 1 else 0, flushToEdge = false)
         }
         if (altText1.text.isNullOrBlank()) {
             hideAltText1()
