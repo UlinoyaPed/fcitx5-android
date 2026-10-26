@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-private const val DEFAULT_BUTTONS_THEME_NAME = "Default"
+const val DEFAULT_BUTTONS_THEME_NAME = "Default"
 
 @Serializable
 data class ButtonsLayoutTheme(
@@ -45,9 +45,50 @@ object ButtonsLayoutThemeStore {
     fun save(name: String, config: ButtonsLayoutConfig): ButtonsLayoutThemes {
         val normalized = name.trim().ifEmpty { DEFAULT_BUTTONS_THEME_NAME }
         val current = load()
-        val updated = current.themes.filterNot { it.name == normalized } +
-            ButtonsLayoutTheme(normalized, config)
+        val updated = current.themes.toMutableList().apply {
+            val index = indexOfFirst { it.name == normalized }
+            val theme = ButtonsLayoutTheme(normalized, config)
+            if (index >= 0) set(index, theme) else add(theme)
+        }
         return write(current.copy(activeTheme = normalized, themes = updated))
+    }
+
+    fun listThemes(): List<ButtonsLayoutTheme> = load().themes
+
+    @Synchronized
+    fun rename(oldName: String, newName: String): Result<Unit> = runCatching {
+        val source = oldName.trim()
+        val target = newName.trim()
+        require(source.isNotEmpty() && target.isNotEmpty()) { "Theme name cannot be empty" }
+        require(source != DEFAULT_BUTTONS_THEME_NAME) { "Default theme cannot be renamed" }
+        val current = load()
+        val index = current.themes.indexOfFirst { it.name == source }
+        require(index >= 0) { "Unknown theme: $source" }
+        if (source == target) return@runCatching
+        require(current.themes.none { it.name == target }) { "Theme already exists: $target" }
+        val themes = current.themes.toMutableList().apply {
+            set(index, get(index).copy(name = target))
+        }
+        val active = if (current.activeTheme == source) target else current.activeTheme
+        write(current.copy(activeTheme = active, themes = themes))
+        Unit
+    }
+
+    @Synchronized
+    fun moveUp(name: String): Result<Unit> = runCatching {
+        val current = load()
+        val index = current.themes.indexOfFirst { it.name == name }
+        require(index > 0) { "Theme is already at the top" }
+        require(current.themes[index - 1].name != DEFAULT_BUTTONS_THEME_NAME) {
+            "Default theme must remain first"
+        }
+        val themes = current.themes.toMutableList().apply {
+            val previous = this[index - 1]
+            this[index - 1] = this[index]
+            this[index] = previous
+        }
+        write(current.copy(themes = themes))
+        Unit
     }
 
     @Synchronized

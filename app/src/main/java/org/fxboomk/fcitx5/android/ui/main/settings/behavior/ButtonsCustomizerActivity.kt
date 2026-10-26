@@ -11,7 +11,10 @@ import android.graphics.drawable.shapes.OvalShape
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.style.RelativeSizeSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -21,7 +24,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.app.AlertDialog
@@ -50,7 +52,6 @@ import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import org.fxboomk.fcitx5.android.input.config.KeyIconDefinition
 import org.fxboomk.fcitx5.android.input.config.KeyIconStore
 import org.fxboomk.fcitx5.android.input.config.KeyIconTheme
-import org.fxboomk.fcitx5.android.input.config.ThemeTransferCodec
 import org.fxboomk.fcitx5.android.input.font.ButtonIconFont
 import org.fxboomk.fcitx5.android.input.font.TextIconDrawable
 import org.fxboomk.fcitx5.android.utils.saveIconTint
@@ -174,52 +175,23 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val keyIconValues = linkedMapOf<String, String>()
     private var originalKeyIconValues: Map<String, String> = emptyMap()
     private var keyIconThemeName = "Default"
-    private var pendingTransferKind = TransferKind.Toolbar
 
-    private enum class TransferKind { Toolbar, KeyIcons }
-
-    private val exportThemeLauncher = registerForActivityResult(
-        ActivityResultContracts.CreateDocument("application/json")
-    ) { uri ->
-        if (uri == null) return@registerForActivityResult
-        runCatching {
-            val payload = when (pendingTransferKind) {
-                TransferKind.Toolbar -> ThemeTransferCodec.encodeToolbar(ButtonsLayoutThemeStore.activeTheme())
-                TransferKind.KeyIcons -> ThemeTransferCodec.encodeKeyIcons(KeyIconStore.activeTheme())
-            }
-            contentResolver.openOutputStream(uri)?.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
-                ?: error("Cannot open destination")
-            Toast.makeText(this, R.string.theme_exported, Toast.LENGTH_SHORT).show()
-        }.onFailure {
-            Toast.makeText(this, getString(R.string.theme_export_failed, it.message ?: ""), Toast.LENGTH_LONG).show()
+    private val themeManagerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+        val data = result.data ?: return@registerForActivityResult
+        val toolbarChanged = data.getBooleanExtra(
+            ButtonsThemeManagerActivity.EXTRA_TOOLBAR_ACTIVE_CHANGED, false
+        )
+        val keyIconsChanged = data.getBooleanExtra(
+            ButtonsThemeManagerActivity.EXTRA_KEY_ICON_ACTIVE_CHANGED, false
+        )
+        if (toolbarChanged) {
+            loadState()
+            if (tabs.selectedTabPosition == 0) buildUi()
         }
-    }
-
-    private val importThemeLauncher = registerForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri == null) return@registerForActivityResult
-        runCatching {
-            val value = contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
-                ?: error("Cannot open source")
-            when (pendingTransferKind) {
-                TransferKind.Toolbar -> {
-                    val theme = ThemeTransferCodec.decodeToolbar(value)
-                    ButtonsLayoutThemeStore.save(theme.name, theme.config)
-                    applyToolbarConfig(theme.config)
-                    loadState()
-                    if (tabs.selectedTabPosition == 0) buildUi()
-                }
-                TransferKind.KeyIcons -> {
-                    val theme = ThemeTransferCodec.decodeKeyIcons(value)
-                    KeyIconStore.saveTheme(theme, activate = true).getOrThrow()
-                    if (tabs.selectedTabPosition == 1) openKeyboardIconsTab()
-                }
-            }
-            Toast.makeText(this, R.string.theme_imported, Toast.LENGTH_SHORT).show()
-        }.onFailure {
-            Toast.makeText(this, getString(R.string.theme_import_failed, it.message ?: ""), Toast.LENGTH_LONG).show()
-        }
+        if (keyIconsChanged && tabs.selectedTabPosition == 1) openKeyboardIconsTab()
     }
 
     // Available button definitions. input_method_options has a fixed position but an editable icon.
@@ -285,7 +257,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     saveMenuItem?.title = getString(R.string.save)
                     buildUi()
                 }
-                updateThemeTransferMenu()
+                updateSwitchThemeMenu()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) = Unit
@@ -312,10 +284,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         switchThemeMenuItem?.setIcon(R.drawable.ic_baseline_sync_24)
         switchThemeMenuItem?.icon?.mutate()?.setTint(styledColor(android.R.attr.colorControlNormal))
         switchThemeMenuItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(Menu.NONE, MENU_SAVE_THEME_ID, Menu.NONE, R.string.save_toolbar_theme)
-        menu.add(Menu.NONE, MENU_EXPORT_THEME_ID, Menu.NONE, R.string.export_toolbar_theme)
-        menu.add(Menu.NONE, MENU_IMPORT_THEME_ID, Menu.NONE, R.string.import_toolbar_theme)
-        updateThemeTransferMenu()
+        val manageThemes = menu.add(Menu.NONE, MENU_MANAGE_THEMES_ID, Menu.NONE, R.string.theme_manager_title)
+        manageThemes.setIcon(R.drawable.ic_baseline_palette_24)
+        manageThemes.icon?.mutate()?.setTint(styledColor(android.R.attr.colorControlNormal))
+        manageThemes.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        updateSwitchThemeMenu()
         updateSaveButtonState()
         return true
     }
@@ -327,11 +300,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         }
 
         MENU_SAVE_ID -> {
-            if (tabs.selectedTabPosition == 1) saveKeyIconThemeAs() else saveConfig()
-            true
-        }
-
-        MENU_SAVE_THEME_ID -> {
             if (tabs.selectedTabPosition == 1) saveKeyIconThemeAs() else saveToolbarThemeAs()
             true
         }
@@ -341,20 +309,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             true
         }
 
-        MENU_EXPORT_THEME_ID -> {
-            pendingTransferKind = if (tabs.selectedTabPosition == 1) TransferKind.KeyIcons else TransferKind.Toolbar
-            val name = if (pendingTransferKind == TransferKind.KeyIcons) {
-                "\${KeyIconStore.activeTheme().name}.fcitx-key-icons.json"
-            } else {
-                "\${ButtonsLayoutThemeStore.activeTheme().name}.fcitx-toolbar-buttons.json"
-            }
-            exportThemeLauncher.launch(name)
-            true
-        }
-
-        MENU_IMPORT_THEME_ID -> {
-            pendingTransferKind = if (tabs.selectedTabPosition == 1) TransferKind.KeyIcons else TransferKind.Toolbar
-            importThemeLauncher.launch(arrayOf("application/json", "text/plain"))
+        MENU_MANAGE_THEMES_ID -> {
+            themeManagerLauncher.launch(
+                android.content.Intent(this, ButtonsThemeManagerActivity::class.java)
+            )
             true
         }
 
@@ -523,25 +481,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             textSize = 13f
             setTextColor(styledColor(android.R.attr.textColorSecondary))
         })
-        val actions = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            val reset = Button(this@ButtonsCustomizerActivity).apply {
-                text = getString(R.string.reset_icon_theme)
-                setOnClickListener {
-                    keyIconValues.clear()
-                    renderKeyIconRows()
-                    updateSaveButtonState()
-                }
-            }
-            addView(reset, LinearLayout.LayoutParams(matchParent, wrapContent))
-        }
-        mainContainer.addView(actions)
         renderKeyIconRows()
         updateSaveButtonState()
     }
 
     private fun renderKeyIconRows() {
-        while (mainContainer.childCount > 3) mainContainer.removeViewAt(3)
+        while (mainContainer.childCount > 2) mainContainer.removeViewAt(2)
         KeyIconStore.definitions().forEach { definition ->
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -595,7 +540,14 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     private fun editKeyIcon(definition: KeyIconDefinition) {
         val input = EditText(this).apply {
-            hint = getString(R.string.icon_resource_hint)
+            hint = SpannableString(getString(R.string.key_icon_code_hint)).apply {
+                setSpan(
+                    RelativeSizeSpan(0.85f),
+                    0,
+                    length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
             setText(keyIconValues[definition.id].orEmpty())
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 1
@@ -608,8 +560,19 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val dialogContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(8), dp(16), 0)
+            addView(TextView(this@ButtonsCustomizerActivity).apply {
+                setText(R.string.key_icon_code)
+                textSize = 13f
+                setPadding(0, dp(8), 0, 0)
+            }, LinearLayout.LayoutParams(matchParent, wrapContent))
             addView(input, LinearLayout.LayoutParams(matchParent, wrapContent))
             addView(preview, LinearLayout.LayoutParams(matchParent, dp(72)))
+            addView(TextView(this@ButtonsCustomizerActivity).apply {
+                setText(R.string.key_icon_code_summary)
+                textSize = 12f
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(0, dp(8), 0, 0)
+            }, LinearLayout.LayoutParams(matchParent, wrapContent))
         }
         fun updatePreview() {
             preview.setImageDrawable(resolveKeyIconDrawable(input.text?.toString(), definition.defaultIcon))
@@ -635,8 +598,8 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             .create().also { dialog ->
                 dialog.setOnShowListener {
                     dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        input.setText(KeyIconStore.previousIcon(keyIconThemeName, definition.id).orEmpty())
-                        input.setSelection(input.text.length)
+                        input.text?.clear()
+                        input.error = null
                         updatePreview()
                     }
                 }
@@ -648,9 +611,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val input = EditText(this).apply {
             hint = getString(R.string.theme_name_hint)
             setText(keyIconThemeName)
+            setSelection(text.length)
         }
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.save_icon_theme)
+            .setMessage(R.string.theme_save_overwrite_hint)
             .setView(input)
             .setPositiveButton(R.string.save) { _, _ ->
                 val name = input.text.toString().trim().ifEmpty { keyIconThemeName }
@@ -664,7 +629,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     .onFailure { Toast.makeText(this, getString(R.string.save_failed), Toast.LENGTH_LONG).show() }
             }
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .create()
+        dialog.setOnShowListener {
+            dialog.findViewById<TextView>(android.R.id.message)?.textSize = 12f
+        }
+        dialog.show()
     }
 
     private fun switchKeyIconTheme() {
@@ -1076,40 +1045,21 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun saveConfig() {
-        // Extract buttons for each section
-        val kawaiiBarButtons = items.filterIsInstance<ListItem.ButtonItem>()
-            .filter { it.section == Section.KawaiiBar }
-            .filter { it.button.id != "hide_keyboard" }
-            .map { it.button }
-
-        val statusAreaButtons = items.filterIsInstance<ListItem.ButtonItem>()
-            .filter { it.section == Section.StatusArea }
-            .map { it.button }
-
-        val optionalButtons = items.filterIsInstance<ListItem.ButtonItem>()
-            .filter { it.section == Section.AddButtons }
-            .map { it.button }
-        val newHideKeyboardButton = items.firstOrNull {
-            it is ListItem.ButtonItem && it.section == Section.KawaiiBar && it.button.id == "hide_keyboard"
-        }?.let { (it as ListItem.ButtonItem).button } ?: hideKeyboardButton
+    private fun saveConfig(themeName: String) {
+        val config = currentButtonsLayoutConfig()
 
         // Save unified config
-        val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
-        if (buttonsLayoutFile != null) {
+        provider.buttonsLayoutConfigFile()?.let { file ->
             saveUnifiedConfigToFile(
-                buttonsLayoutFile,
-                kawaiiBarButtons,
-                statusAreaButtons,
-                optionalButtons,
-                newHideKeyboardButton
+                file,
+                config.kawaiiBarButtons,
+                config.statusAreaButtons,
+                config.optionalButtons,
+                config.hideKeyboardButton
             )
         }
-        hideKeyboardButton = newHideKeyboardButton
-        ButtonsLayoutThemeStore.save(
-            ButtonsLayoutThemeStore.load().activeTheme,
-            ButtonsLayoutConfig(kawaiiBarButtons, statusAreaButtons, optionalButtons, newHideKeyboardButton)
-        )
+        hideKeyboardButton = config.hideKeyboardButton
+        ButtonsLayoutThemeStore.save(themeName, config)
 
         originalItems = items.toList()
         updateSaveButtonState()
@@ -1133,19 +1083,33 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     }
 
     private fun saveToolbarThemeAs() {
+        val activeName = ButtonsLayoutThemeStore.load().activeTheme
         val input = EditText(this).apply {
             hint = getString(R.string.theme_name_hint)
-            setText(ButtonsLayoutThemeStore.load().activeTheme)
+            setText(activeName)
+            setSelection(text.length)
         }
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.save_toolbar_theme)
+            .setMessage(R.string.theme_save_overwrite_hint)
             .setView(input)
-            .setPositiveButton(R.string.save) { _, _ ->
-                ButtonsLayoutThemeStore.save(input.text.toString(), currentButtonsLayoutConfig())
-                Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
-            }
+            .setPositiveButton(R.string.save, null)
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .create()
+        dialog.setOnShowListener {
+            dialog.findViewById<TextView>(android.R.id.message)?.textSize = 12f
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val name = input.text.toString().trim()
+                if (name.isEmpty()) {
+                    input.error = getString(R.string.theme_name_empty)
+                    return@setOnClickListener
+                }
+                saveConfig(name)
+                Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
     }
 
     private fun switchToolbarTheme() {
@@ -1226,16 +1190,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private fun displayThemeName(name: String): String =
         if (name.equals("Default", ignoreCase = true)) getString(R.string.default_icon) else name
 
-    private fun updateThemeTransferMenu() {
+    private fun updateSwitchThemeMenu() {
         val iconTab = tabs.selectedTabPosition == 1
-        toolbar.menu.findItem(MENU_SAVE_THEME_ID)?.title =
-            getString(if (iconTab) R.string.save_icon_theme else R.string.save_toolbar_theme)
         switchThemeMenuItem?.title =
             getString(if (iconTab) R.string.switch_icon_theme else R.string.switch_toolbar_theme)
-        toolbar.menu.findItem(MENU_EXPORT_THEME_ID)?.title =
-            getString(if (iconTab) R.string.export_icon_theme else R.string.export_toolbar_theme)
-        toolbar.menu.findItem(MENU_IMPORT_THEME_ID)?.title =
-            getString(if (iconTab) R.string.import_icon_theme else R.string.import_toolbar_theme)
         switchThemeMenuItem?.icon?.mutate()?.setTint(styledColor(android.R.attr.colorControlNormal))
     }
 
@@ -1517,7 +1475,5 @@ class ButtonEntryUi(
 }
 
 private const val MENU_SAVE_ID = 3001
-private const val MENU_SAVE_THEME_ID = 3002
 private const val MENU_SWITCH_THEME_ID = 3003
-private const val MENU_EXPORT_THEME_ID = 3004
-private const val MENU_IMPORT_THEME_ID = 3005
+private const val MENU_MANAGE_THEMES_ID = 3004

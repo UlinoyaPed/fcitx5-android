@@ -135,8 +135,54 @@ object KeyIconThemeStore {
         val config = read()
         val previous = config.themes.firstOrNull { it.name == theme.name }?.icons.orEmpty()
         val saved = theme.copy(previousIcons = previous)
-        val themes = config.themes.filterNot { it.name == theme.name } + saved
+        val themes = config.themes.toMutableList().apply {
+            val index = indexOfFirst { it.name == theme.name }
+            if (index >= 0) set(index, saved) else add(saved)
+        }
         return write(config.copy(activeTheme = if (activate) theme.name else config.activeTheme, themes = themes))
+    }
+
+    fun rename(oldName: String, newName: String): Result<Unit> = runCatching {
+        val source = oldName.trim()
+        val target = newName.trim()
+        require(source.isNotEmpty() && target.isNotEmpty()) { "Theme name cannot be empty" }
+        require(source != KeyIconThemesConfig.DEFAULT_THEME_NAME) { "Default theme cannot be renamed" }
+        val config = read()
+        val index = config.themes.indexOfFirst { it.name == source }
+        require(index >= 0) { "Unknown theme: $source" }
+        if (source == target) return@runCatching
+        require(config.themes.none { it.name == target }) { "Theme already exists: $target" }
+        val themes = config.themes.toMutableList().apply {
+            set(index, get(index).copy(name = target))
+        }
+        val active = if (config.activeTheme == source) target else config.activeTheme
+        write(config.copy(activeTheme = active, themes = themes)).getOrThrow()
+    }
+
+    fun delete(name: String): Result<Unit> = runCatching {
+        require(name != KeyIconThemesConfig.DEFAULT_THEME_NAME) { "Default theme cannot be deleted" }
+        val config = read()
+        require(config.themes.any { it.name == name }) { "Unknown theme: $name" }
+        val themes = config.themes.filterNot { it.name == name }.ifEmpty {
+            listOf(KeyIconTheme(KeyIconThemesConfig.DEFAULT_THEME_NAME))
+        }
+        val active = if (config.activeTheme == name) themes.first().name else config.activeTheme
+        write(config.copy(activeTheme = active, themes = themes)).getOrThrow()
+    }
+
+    fun moveUp(name: String): Result<Unit> = runCatching {
+        val config = read()
+        val index = config.themes.indexOfFirst { it.name == name }
+        require(index > 0) { "Theme is already at the top" }
+        require(config.themes[index - 1].name != KeyIconThemesConfig.DEFAULT_THEME_NAME) {
+            "Default theme must remain first"
+        }
+        val themes = config.themes.toMutableList().apply {
+            val previous = this[index - 1]
+            this[index - 1] = this[index]
+            this[index] = previous
+        }
+        write(config.copy(themes = themes)).getOrThrow()
     }
 
     fun activate(name: String): Result<Unit> {
@@ -198,6 +244,10 @@ object KeyIconStore {
     fun listThemes(): List<KeyIconTheme> = KeyIconThemeStore.listThemes()
     fun saveTheme(theme: KeyIconTheme, activate: Boolean = false): Result<Unit> =
         KeyIconThemeStore.saveTheme(theme, activate)
+    fun rename(oldName: String, newName: String): Result<Unit> =
+        KeyIconThemeStore.rename(oldName, newName)
+    fun delete(name: String): Result<Unit> = KeyIconThemeStore.delete(name)
+    fun moveUp(name: String): Result<Unit> = KeyIconThemeStore.moveUp(name)
     fun activate(name: String): Result<Unit> = KeyIconThemeStore.activate(name)
     fun updateIcon(themeName: String, id: String, value: String?, activate: Boolean = false): Result<Unit> =
         KeyIconThemeStore.updateIcon(themeName, id, value, activate)
