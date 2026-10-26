@@ -1033,14 +1033,14 @@ class AltTextKeyView(
         label.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
-    private fun applyIndependentAltTextPosition() {
+    private fun applyIndependentAltTextPosition(keyHeight: Int) {
         // The second label is either a stored alt1 or the auto uppercase hint
         // (rendered via upperText). resolveUppercaseMode() already returns None when
         // a distinct real alt1 exists, so a non-None value means the hint is shown.
         val uppercase = resolveUppercaseMode() != UppercasePosition.None
         val secondLabel = if (uppercase) upperText else altText1
         val primary = independentPosition(def.altTextPositionOverride)
-        var secondary = independentAltText1Position()
+        var secondary = independentAltText1Position(keyHeight)
         // There is only one right-top corner. Keep the primary label there and
         // move the second label to the left-top corner for legacy/invalid data.
         if (primary == PunctuationPosition.TopRight && secondary == PunctuationPosition.TopRight) {
@@ -1352,9 +1352,25 @@ class AltTextKeyView(
         }
     }
 
-    private fun independentAltText1Position(): PunctuationPosition {
+    private fun independentAltText1Position(keyHeight: Int = appearanceView.height): PunctuationPosition {
         val override = def.altText1PositionOverride
-        if (override != null) return independentPosition(override)
+        if (override != null) {
+            if (override == KeyDef.Appearance.AltTextPosition.TopRight &&
+                isUppercaseAliasAlt1() &&
+                resolveUppercaseMode() == UppercasePosition.Top &&
+                keyHeight > 0
+            ) {
+                val contentHeight = keyHeight - vMargin * 2
+                val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
+                val upperHeight = upperText.paint.run { fontMetrics.bottom - fontMetrics.top }
+                if (contentHeight >= mainHeight + upperHeight + dp(1)) {
+                    // Once both labels fit, return the uppercase hint to the
+                    // centered top position used by the global preference.
+                    return PunctuationPosition.Top
+                }
+            }
+            return independentPosition(override)
+        }
         // No explicit 副字符一位置: the uppercase hint keeps following the global
         // uppercase position; other labels use the punctuation position for this key.
         if (resolveUppercaseMode() != UppercasePosition.None) {
@@ -1371,7 +1387,7 @@ class AltTextKeyView(
         if (keyHeight <= 0) return AltTextLayoutMode.Independent
         val contentHeight = keyHeight - vMargin * 2
         val primary = independentPosition(def.altTextPositionOverride)
-        val secondary = independentAltText1Position()
+        val secondary = independentAltText1Position(keyHeight)
         if (!altText.text.isNullOrBlank() &&
             (primary == PunctuationPosition.Top || primary == PunctuationPosition.TopRight) &&
             (secondary == PunctuationPosition.Top || secondary == PunctuationPosition.TopRight)
@@ -1614,7 +1630,7 @@ class AltTextKeyView(
             }
             AltTextLayoutMode.UpperTop -> applyUpperTopPosition()
             AltTextLayoutMode.UpperBottom -> applyUpperBottomPosition()
-            AltTextLayoutMode.Independent -> applyIndependentAltTextPosition()
+            AltTextLayoutMode.Independent -> applyIndependentAltTextPosition(keyHeight)
             AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalSwipeLabelPositions(topRight = false)
             AltTextLayoutMode.DirectionalTopRightBottom -> applyDirectionalSwipeLabelPositions(topRight = true)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()

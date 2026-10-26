@@ -4,6 +4,7 @@
  */
 package org.fxboomk.fcitx5.android.input.keyboard
 
+import android.view.Gravity
 import android.view.View
 import androidx.test.platform.app.InstrumentationRegistry
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
@@ -63,22 +64,60 @@ class IndependentSubLabelPositionTest {
             single.altText1.left + single.altText1.renderedGlyphBounds().centerX(), 1f)
     }
 
+    @Test
+    fun autoUppercaseAliasReturnsToCenteredTopWhenKeyHasRoom() = withTheme(PunctuationPosition.Bottom) {
+        ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Top)
+        val key = createUppercaseKey()
+
+        layoutKey(key, heightDp = 32)
+        assertEquals(View.VISIBLE, key.upperText.visibility)
+        assertEquals(Gravity.RIGHT, key.upperText.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+
+        layoutKey(key, heightDp = 64)
+        assertEquals(View.VISIBLE, key.upperText.visibility)
+        assertEquals(Gravity.CENTER_HORIZONTAL, key.upperText.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+        assertEquals(
+            key.getChildAt(0).width / 2f,
+            key.upperText.left + key.upperText.renderedGlyphBounds().centerX(),
+            1f
+        )
+    }
+
     private fun createKey(primary: AltTextPosition?, secondary: AltTextPosition, text: String = "?"): AltTextKeyView {
         val appearance = KeyDef.Appearance.AltText("q", text, "q", "!", textSize = 24f).apply {
             altTextPositionOverride = primary
             altText1PositionOverride = secondary
         }
         val key = AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+        layoutKey(key, 52)
+        return key
+    }
+
+    private fun createUppercaseKey(): AltTextKeyView {
+        val appearance = KeyDef.Appearance.AltText(
+            displayText = "q",
+            character = "q",
+            altText = "?",
+            altText1 = "Q",
+            supportsUppercaseHint = true,
+            textSize = 24f,
+        ).apply {
+            altTextPositionOverride = AltTextPosition.Bottom
+            altText1PositionOverride = AltTextPosition.TopRight
+        }
+        return AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+    }
+
+    private fun layoutKey(key: AltTextKeyView, heightDp: Int) {
         val density = context.resources.displayMetrics.density
         val width = (48 * density).roundToInt()
-        val height = (52 * density).roundToInt()
+        val height = (heightDp * density).roundToInt()
         repeat(3) {
             key.refreshLayout()
             key.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
             key.layout(0, 0, width, height)
         }
-        return key
     }
 
     private fun withTheme(position: PunctuationPosition, block: () -> Unit) {
