@@ -802,6 +802,7 @@
     <string name="monet_editor_description">為每個主題顏色對應一個 Material You 動態顏色資源。變更將自動儲存並套用。</string>
     <string name="edit_monet_theme">編輯 Monet 主題</string>
     <string name="text_keyboard_layout_save_failed">儲存佈局失敗。請查看 logcat 取得詳細資訊。</string>
+    <string name="text_keyboard_layout_height_save_failed">無法儲存調整後的鍵盤高度。</string>
     <string name="text_keyboard_layout_compose_override_not_configured">組字中使用預設按鍵行為</string>
     <string name="text_keyboard_layout_compose_override_configured">已設定組字中的按鍵行為</string>
     <string name="text_keyboard_layout_compose_override_edit_button">編輯組字中按鍵</string>

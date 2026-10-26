@@ -62,6 +62,7 @@ import org.fxboomk.fcitx5.android.utils.DarkenColorFilter
 import org.fxboomk.fcitx5.android.input.clipboard.ClipboardSearchOverlay
 import org.fxboomk.fcitx5.android.input.config.ConfigChangeListener
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
+import org.fxboomk.fcitx5.android.input.config.UserJsonConfigStore
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcaster
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fxboomk.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
@@ -83,10 +84,13 @@ import org.fxboomk.fcitx5.android.input.keyboard.BaseKeyboard
 import org.fxboomk.fcitx5.android.input.keyboard.KeyView
 import org.fxboomk.fcitx5.android.input.keyboard.KeyAction
 import org.fxboomk.fcitx5.android.input.keyboard.KeyboardWindow
+import org.fxboomk.fcitx5.android.input.keyboard.KeyboardHeightOverrideTarget
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
 import org.fxboomk.fcitx5.android.input.keyboard.fileLevelKeyboardHeightPercentOverride
+import org.fxboomk.fcitx5.android.input.keyboard.keyboardHeightOverrideTarget
 import org.fxboomk.fcitx5.android.input.keyboard.keyboardHeightPercentOverride
 import org.fxboomk.fcitx5.android.input.keyboard.resolveTextKeyboardLayout
+import org.fxboomk.fcitx5.android.input.keyboard.withKeyboardHeightPercentOverride
 import org.fxboomk.fcitx5.android.input.picker.PickerWindow
 import org.fxboomk.fcitx5.android.input.picker.emojiPicker
 import org.fxboomk.fcitx5.android.input.picker.emoticonPicker
@@ -99,6 +103,7 @@ import android.graphics.Rect
 import android.graphics.Region
 import android.view.MotionEvent
 import androidx.constraintlayout.widget.ConstraintLayout
+import java.io.File
 import org.fxboomk.fcitx5.android.input.wm.InputWindowManager
 import org.fxboomk.fcitx5.android.utils.unset
 import org.fxboomk.fcitx5.android.utils.windowManager
@@ -109,6 +114,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
 import timber.log.Timber
 import org.mechdancer.dependency.DynamicScope
 import org.mechdancer.dependency.manager.wrapToUniqueComponent
@@ -811,8 +817,19 @@ class InputView(
             if (!isAdjustingMode) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    // Store the current preference value and touch position
+                    // Store the effective height and touch position for this drag.
+                    val landscape = isLayoutLandscape
+                    if (landscape != adjustingKeyboardHeightLandscape) {
+                        adjustingKeyboardHeightPercent = null
+                    }
+                    adjustingKeyboardHeightLandscape = landscape
                     adjustingResizeStartHeight = resolveKeyboardHeightPercent()
+                    adjustingKeyboardHeightTarget = resolveCurrentLayoutHeightOverrideTarget(
+                        adjustingKeyboardHeightLandscape
+                    )
+                    adjustingKeyboardHeightFile = adjustingKeyboardHeightTarget?.let {
+                        ConfigProviders.provider.textKeyboardLayoutFile()?.absoluteFile
+                    }
                     lastAdjustingTouchY = event.rawY
                     // Also store the keyboard height at touch start for accurate calculation
                     adjustingStartKeyboardTop = keyboardView.top
@@ -835,10 +852,16 @@ class InputView(
                     val currentPercent = resolveKeyboardHeightPercent()
                     // Only update if value changed significantly
                     if (kotlin.math.abs(newPercent - currentPercent) >= 1) {
-                        if (isLayoutLandscape) {
-                            keyboardPrefs.keyboardHeightPercentLandscape.setValue(newPercent)
+                        if (adjustingKeyboardHeightTarget != null) {
+                            // Layout overrides take precedence over the global preference, so
+                            // keep the live drag value separately until the mode is exited.
+                            adjustingKeyboardHeightPercent = newPercent
                         } else {
-                            keyboardPrefs.keyboardHeightPercent.setValue(newPercent)
+                            if (adjustingKeyboardHeightLandscape) {
+                                keyboardPrefs.keyboardHeightPercentLandscape.setValue(newPercent)
+                            } else {
+                                keyboardPrefs.keyboardHeightPercent.setValue(newPercent)
+                            }
                         }
                         updateKeyboardSize()
                         keyboardView.post {
@@ -967,11 +990,18 @@ class InputView(
     private var adjustingResizeStartHeight = 0
     private var adjustingResizeStartSidePadding = 0
     private var adjustingResizeStartBottomPadding = 0
+    private var adjustingKeyboardHeightPercent: Int? = null
+    private var adjustingKeyboardHeightTarget: KeyboardHeightOverrideTarget? = null
+    private var adjustingKeyboardHeightFile: File? = null
+    private var adjustingKeyboardHeightLandscape = false
     private var lastAdjustingTouchX = 0f
     private var lastAdjustingTouchY = 0f
     private var adjustingStartKeyboardTop = 0
 
     private fun resolveKeyboardHeightPercent(): Int {
+        adjustingKeyboardHeightPercent
+            ?.takeIf { isAdjustingMode && isLayoutLandscape == adjustingKeyboardHeightLandscape }
+            ?.let { return it }
         return resolveCurrentLayoutHeightPercentOverride() ?: if (isLayoutLandscape) {
             keyboardPrefs.keyboardHeightPercentLandscape.getValue()
         } else {
@@ -990,6 +1020,48 @@ class InputView(
             subModeLabel = ime.subMode.label,
         )?.keyboardHeightPercentOverride(isLayoutLandscape)
             ?: json.fileLevelKeyboardHeightPercentOverride(isLayoutLandscape)
+    }
+
+    private fun resolveCurrentLayoutHeightOverrideTarget(landscape: Boolean): KeyboardHeightOverrideTarget? {
+        val ime = TextKeyboard.ime ?: return null
+        val json = TextKeyboard.textLayoutJson ?: return null
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = ime.uniqueName,
+            displayName = ime.displayName,
+            subModeLabel = ime.subMode.label,
+        )
+        return resolution?.keyboardHeightOverrideTarget(landscape)
+            ?: json.fileLevelKeyboardHeightPercentOverride(landscape)
+                ?.let { KeyboardHeightOverrideTarget.Profile }
+    }
+
+    private fun persistAdjustingKeyboardHeightOverride(): Boolean {
+        val target = adjustingKeyboardHeightTarget ?: return true
+        val percent = adjustingKeyboardHeightPercent ?: return true
+        val file = adjustingKeyboardHeightFile ?: return false
+        val json = UserJsonConfigStore.readJson<JsonObject>(file)?.value
+            ?: return false
+        val updatedJson = json.withKeyboardHeightPercentOverride(
+            target = target,
+            landscape = adjustingKeyboardHeightLandscape,
+            percent = percent,
+        ) ?: return false
+        if (updatedJson == json) return true
+
+        return runCatching {
+            file.parentFile?.mkdirs()
+            file.writeText(updatedJson.toString() + "\n")
+            // Refresh runtime state only if the captured profile is still active.
+            if (ConfigProviders.provider.textKeyboardLayoutFile()?.absoluteFile == file) {
+                TextKeyboard.cachedLayoutJsonMap = updatedJson
+                TextKeyboard.clearCachedKeyDefLayouts()
+            }
+            ConfigProviders.ensureWatching()
+            true
+        }.onFailure { error ->
+            Timber.tag("InputView").e(error, "Failed to save adjusted keyboard height")
+        }.getOrDefault(false)
     }
 
     private fun resolveKeyboardSidePadding(): Int {
@@ -1820,7 +1892,23 @@ class InputView(
 
     private fun toggleAdjustingMode() {
         popup.dismissAll()
+        if (isAdjustingMode) {
+            // Persist the live height before leaving the mode. While adjusting, layout
+            // metadata may still be the source of truth, so the drag value is transient.
+            if (!persistAdjustingKeyboardHeightOverride()) {
+                android.widget.Toast.makeText(
+                    context,
+                    R.string.text_keyboard_layout_height_save_failed,
+                    android.widget.Toast.LENGTH_LONG,
+                ).show()
+            }
+        }
         isAdjustingMode = !isAdjustingMode
+        if (!isAdjustingMode) {
+            adjustingKeyboardHeightPercent = null
+            adjustingKeyboardHeightTarget = null
+            adjustingKeyboardHeightFile = null
+        }
         // In adjusting mode, force non-floating state for better UX
         if (isAdjustingMode && isFloating) {
             saveFloatingPosition(
@@ -1834,6 +1922,9 @@ class InputView(
             isFloating = true
             kawaiiBar.setFloatingState(isEffectiveFloating)
             updateFloatingState()
+        }
+        if (!isAdjustingMode) {
+            updateKeyboardSize()
         }
         updateAdjustingModeUi()
         requestLayout()

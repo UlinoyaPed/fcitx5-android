@@ -659,6 +659,7 @@
     <string name="monet_editor_description">各テーマカラーを Material You ダイナミックカラーリソースにマッピングします。変更は自動的に保存され適用されます。</string>
     <string name="edit_monet_theme">Monet テーマを編集</string>
     <string name="text_keyboard_layout_save_failed">レイアウトの保存に失敗しました。詳細は logcat を確認してください。</string>
+    <string name="text_keyboard_layout_height_save_failed">調整したキーボードの高さを保存できませんでした。</string>
 
     <!-- Auto-completed missing strings (fallback to zh-CN/en) -->
     <string name="back_to_keyboard">キーボードに戻る</string>

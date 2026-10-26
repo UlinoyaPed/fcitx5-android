@@ -710,6 +710,7 @@
     <string name="monet_editor_description">Сопоставьте каждый цвет темы с ресурсом динамического цвета Material You. Изменения будут автоматически сохранены и применены.</string>
     <string name="edit_monet_theme">Редактировать тему Monet</string>
     <string name="text_keyboard_layout_save_failed">Не удалось сохранить раскладку. Подробности смотрите в logcat.</string>
+    <string name="text_keyboard_layout_height_save_failed">Не удалось сохранить изменённую высоту клавиатуры.</string>
     <string name="edit_color">Редактировать цвет</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
 

@@ -1001,6 +1001,7 @@
     <string name="cannot_resolve_text_keyboard_layout">Unable to resolve text keyboard layout file</string>
     <string name="text_keyboard_layout_file_saved">Saved: %1$s</string>
     <string name="text_keyboard_layout_save_failed">Failed to save layout. Check logcat for details.</string>
+    <string name="text_keyboard_layout_height_save_failed">Failed to save the adjusted keyboard height.</string>
     <string name="macro_editor_key_event_unmatched">Key event mismatch: The number of key down and up events for %1$s does not match</string>
     <string name="text_keyboard_layout_qr_import_scan">Import by scanning QR code</string>
     <string name="text_keyboard_layout_qr_import_image">Import from QR image</string>

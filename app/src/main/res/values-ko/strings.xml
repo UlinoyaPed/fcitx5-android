@@ -479,6 +479,7 @@
     <string name="monet_editor_description">각 테마 색상을 Material You 동적 색상 리소스에 매핑합니다. 변경 사항은 자동으로 저장되고 적용됩니다.</string>
     <string name="edit_monet_theme">Monet 테마 편집</string>
     <string name="text_keyboard_layout_save_failed">레이아웃 저장에 실패했습니다. 자세한 내용은 logcat을 확인하세요.</string>
+    <string name="text_keyboard_layout_height_save_failed">조정한 키보드 높이를 저장하지 못했습니다.</string>
     <string name="edit_color">색상 편집</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
 

@@ -500,6 +500,7 @@
     <string name="monet_editor_description">Asocie cada color del tema a un recurso de color dinámico de Material You. Los cambios se guardarán y aplicarán automáticamente.</string>
     <string name="edit_monet_theme">Editar tema Monet</string>
     <string name="text_keyboard_layout_save_failed">No se pudo guardar el diseño. Revisa logcat para más detalles.</string>
+    <string name="text_keyboard_layout_height_save_failed">No se pudo guardar la altura ajustada del teclado.</string>
     <string name="edit_color">Editar color</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
 
