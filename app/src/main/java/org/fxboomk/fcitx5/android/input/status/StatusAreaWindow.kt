@@ -121,13 +121,6 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
             // Check if button should be active
             val active = action.isActive(service)
 
-            // Check if button has long press action
-            val longPressAction = if (action.id == "floating_toggle") {
-                StatusAreaEntry.ActionEntry.LongPressActionType.EnterAdjustingMode
-            } else {
-                null
-            }
-
             StatusAreaEntry.ActionEntry(
                 buttonAction = action,
                 label = label,
@@ -135,10 +128,15 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 iconText = ButtonIconSpec.glyph(button.icon),
                 customIcon = ButtonIconSpec.drawable(context, button.icon, action.defaultIcon)
                     .takeIf { ButtonIconSpec.svg(button.icon) != null },
-                active = active,
-                longPressAction = longPressAction
+                active = active
             )
         }
+
+        val keyboardHeightAdjustmentEntry = StatusAreaEntry.Android(
+            label = context.getString(R.string.adjust_keyboard_height),
+            icon = R.drawable.ic_baseline_tune_24,
+            type = StatusAreaEntry.Android.Type.AdjustKeyboardHeight
+        )
 
         // Always add input_method_options at the end; its configured icon is still honored.
         val inputMethodOptionsAction = ButtonAction.allActions.find { it.id == "input_method_options" }!!
@@ -157,11 +155,10 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 inputMethodOptionsConfig?.icon,
                 inputMethodOptionsAction.defaultIcon
             ).takeIf { ButtonIconSpec.svg(inputMethodOptionsConfig?.icon) != null },
-            active = false,
-            longPressAction = null
+            active = false
         )
 
-        return (configurableEntries + inputMethodOptionsEntry).toTypedArray()
+        return (configurableEntries + keyboardHeightAdjustmentEntry + inputMethodOptionsEntry).toTypedArray()
     }
 
     private fun fcitxActionEntries(): Array<StatusAreaEntry> =
@@ -359,6 +356,17 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                             }
                         }
                         StatusAreaEntry.Android.Type.Keyboard -> AppUtil.launchMainToKeyboard(context)
+                        StatusAreaEntry.Android.Type.AdjustKeyboardHeight -> {
+                            service.inputView?.let { inputView ->
+                                inputView.enterAdjustingMode()
+                                windowManager.attachWindow(KeyboardWindow)
+                                Toast.makeText(
+                                    context,
+                                    R.string.keyboard_height_adjustment_hint,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
                         StatusAreaEntry.Android.Type.ThemeList -> AppUtil.launchMainToThemeList(context)
                         StatusAreaEntry.Android.Type.OneHandKeyboard -> {
                             service.toggleOneHandKeyboard()
@@ -388,21 +396,6 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                         if (entry.buttonAction.id != "floating_toggle" && !opensOwnWindow) {
                             windowManager.attachWindow(KeyboardWindow)
                         }
-                    }
-                }
-            }
-
-            override fun onItemLongClick(
-                view: View,
-                entry: StatusAreaEntry,
-                action: StatusAreaEntry.ActionEntry.LongPressActionType
-            ): Boolean {
-                return when (action) {
-                    StatusAreaEntry.ActionEntry.LongPressActionType.EnterAdjustingMode -> {
-                        service.inputView?.enterAdjustingMode()
-                        // Close Status Area window and return to text keyboard
-                        windowManager.attachWindow(KeyboardWindow)
-                        true
                     }
                 }
             }

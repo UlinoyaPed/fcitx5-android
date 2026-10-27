@@ -180,6 +180,16 @@
     <string name="add_button_to_section_title">Añadir a sección</string>
     <string name="custom_label_hint">Etiqueta personalizada (opcional)</string>
     <string name="floating_keyboard">Teclado flotante</string>
+    <string name="adjust_keyboard_height">Ajustar altura del teclado</string>
+    <string name="keyboard_height_adjustment_hint">Arrastra la flecha superior para cambiar la altura y el control de cuatro direcciones para el espacio inferior. Cancelar descarta los cambios; Listo los guarda.</string>
+    <string name="keyboard_height_adjustment_handle">Ajustar altura del teclado</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">Ajustar espacio inferior del teclado</string>
+    <string name="keyboard_height_adjustment_cancel">Cancelar</string>
+    <string name="keyboard_height_adjustment_only_layout_on">Solo este diseño: Sí</string>
+    <string name="keyboard_height_adjustment_only_layout_off">Solo este diseño: No</string>
+    <string name="keyboard_height_adjustment_global_override_notice">Este diseño tiene un ajuste de altura propio. La altura global solo se aplica a diseños sin ajuste propio.</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">No se puede guardar la altura de este diseño por separado.</string>
+    <string name="adjusting_mode_confirm">Listo</string>
     <string name="edit_button_title">Editar botón</string>
     <string name="delete_button_title">Eliminar botón</string>
     <string name="delete_button_confirm">¿Eliminar este botón?</string>

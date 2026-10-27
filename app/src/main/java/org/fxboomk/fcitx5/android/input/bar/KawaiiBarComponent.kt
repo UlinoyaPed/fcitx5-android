@@ -126,7 +126,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val popup: PopupComponent by manager.must()
 
     var onFloatingToggleListener: (() -> Unit)? = null
-    var onFloatingLongPressListener: (() -> Unit)? = null
 
     fun setFloatingState(isFloating: Boolean) {
         idleUi.buttonsUi.setFloatingState(isFloating)
@@ -538,22 +537,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 }
             }
 
-            // Special handling for floating_toggle long press
-            setOnLongClickListener("floating_toggle") {
-                restoreVirtualKeyboardMode()
-                if (onFloatingLongPressListener != null) {
-                    onFloatingLongPressListener?.invoke()
-                } else {
-                    ButtonAction.fromId("floating_toggle")?.onLongPress(
-                        context = context,
-                        service = service,
-                        fcitx = fcitx,
-                        windowManager = windowManager,
-                        view = ui.buttonsUi.root
-                    )
-                }
-                true
-            }
             setOnLongClickListener("theme_toggle") {
                 ButtonAction.fromId("theme_toggle")?.onLongPress(
                     context = context,

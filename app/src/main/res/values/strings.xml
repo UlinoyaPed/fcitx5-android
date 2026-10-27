@@ -616,6 +616,16 @@
     <string name="add_button_to_section_title">Add to Section</string>
     <string name="custom_label_hint">Custom label (optional)</string>
     <string name="floating_keyboard">Floating Keyboard</string>
+    <string name="adjust_keyboard_height">Adjust Keyboard Height</string>
+    <string name="keyboard_height_adjustment_hint">Drag the top arrow to change keyboard height. Drag the four-way handle to change bottom spacing. Cancel discards changes; Done saves them.</string>
+    <string name="keyboard_height_adjustment_handle">Adjust keyboard height</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">Adjust keyboard bottom spacing</string>
+    <string name="keyboard_height_adjustment_cancel">Cancel</string>
+    <string name="keyboard_height_adjustment_only_layout_on">Only this layout: On</string>
+    <string name="keyboard_height_adjustment_only_layout_off">Only this layout: Off</string>
+    <string name="keyboard_height_adjustment_global_override_notice">This layout has its own height setting. The global height applies only to layouts without an override.</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">The current layout cannot be saved separately.</string>
+    <string name="adjusting_mode_confirm">Done</string>
     <string name="edit_button_title">Edit Button</string>
     <string name="delete_button_title">Delete Button</string>
     <string name="delete_button_confirm">Remove this button?</string>

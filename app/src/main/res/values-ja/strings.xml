@@ -339,6 +339,16 @@
     <string name="add_button_to_section_title">セクションに追加</string>
     <string name="custom_label_hint">カスタムラベル（オプション）</string>
     <string name="floating_keyboard">フローティングキーボード</string>
+    <string name="adjust_keyboard_height">キーボードの高さを調整</string>
+    <string name="keyboard_height_adjustment_hint">上部の矢印を縦にドラッグして高さを、中央の四方向ハンドルを縦にドラッグして下部の余白を調整します。「キャンセル」で破棄し、「完了」で保存します。</string>
+    <string name="keyboard_height_adjustment_handle">キーボードの高さを調整</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">キーボード下部の余白を調整</string>
+    <string name="keyboard_height_adjustment_cancel">キャンセル</string>
+    <string name="keyboard_height_adjustment_only_layout_on">現在のレイアウトのみ：オン</string>
+    <string name="keyboard_height_adjustment_only_layout_off">現在のレイアウトのみ：オフ</string>
+    <string name="keyboard_height_adjustment_global_override_notice">このレイアウトには個別の高さ設定があります。全体の高さは個別設定のないレイアウトにのみ適用されます。</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">現在のレイアウトの高さを個別に保存できません。</string>
+    <string name="adjusting_mode_confirm">完了</string>
     <string name="edit_button_title">ボタンを編集</string>
     <string name="delete_button_title">ボタンを削除</string>
     <string name="delete_button_confirm">このボタンを削除しますか？</string>

@@ -415,6 +415,16 @@
     <string name="add_button_to_section_title">Добавить в раздел</string>
     <string name="custom_label_hint">Пользовательская метка (необязательно)</string>
     <string name="floating_keyboard">Плавающая клавиатура</string>
+    <string name="adjust_keyboard_height">Настроить высоту клавиатуры</string>
+    <string name="keyboard_height_adjustment_hint">Перетащите верхнюю стрелку, чтобы изменить высоту клавиатуры, а центральный маркер со стрелками — чтобы изменить нижний отступ. «Отмена» отменяет изменения, «Готово» сохраняет их.</string>
+    <string name="keyboard_height_adjustment_handle">Настроить высоту клавиатуры</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">Настроить нижний отступ клавиатуры</string>
+    <string name="keyboard_height_adjustment_cancel">Отмена</string>
+    <string name="keyboard_height_adjustment_only_layout_on">Только текущая раскладка: вкл.</string>
+    <string name="keyboard_height_adjustment_only_layout_off">Только текущая раскладка: выкл.</string>
+    <string name="keyboard_height_adjustment_global_override_notice">У этой раскладки задана собственная высота. Глобальная высота применяется только к раскладкам без отдельной настройки.</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">Не удалось сохранить высоту этой раскладки отдельно.</string>
+    <string name="adjusting_mode_confirm">Готово</string>
     <string name="edit_button_title">Редактировать кнопку</string>
     <string name="delete_button_title">Удалить кнопку</string>
     <string name="delete_button_confirm">Удалить эту кнопку?</string>

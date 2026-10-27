@@ -31,12 +31,15 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
+import android.view.Gravity
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsResponse
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.ListPopupWindow
 import android.widget.ListView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceManager
@@ -716,23 +719,26 @@ class InputView(
 
     private val adjustableHandle = view(::View) {
         visibility = GONE
+        isClickable = true
+        isFocusable = true
+        contentDescription = context.getString(R.string.keyboard_bottom_padding_adjustment_handle)
         setOnTouchListener { v, event ->
             // Check if we're in adjusting mode for bottom padding adjustment
             if (isAdjustingMode) {
-                // Handle bottom padding adjustment
-                v.parent?.requestDisallowInterceptTouchEvent(true)
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
                         adjustingResizeStartBottomPadding = resolveKeyboardBottomPadding()
                         lastAdjustingTouchY = event.rawY
+                        v.parent?.requestDisallowInterceptTouchEvent(true)
                         v.isPressed = true
                         true
                     }
 
                     MotionEvent.ACTION_MOVE -> {
-                        val delta = (lastAdjustingTouchY - event.rawY).toInt()
-                        // Scale: 100px drag = 20dp padding change
-                        val deltaPadding = (delta * 0.2f).toInt()
+                        // The setting is stored in dp, so convert the physical drag distance before
+                        // applying it. Dragging up grows the bottom spacer; dragging down shrinks it.
+                        val density = resources.displayMetrics.density.takeIf { it > 0f } ?: 1f
+                        val deltaPadding = ((lastAdjustingTouchY - event.rawY) / density).toInt()
                         val newPadding = (adjustingResizeStartBottomPadding + deltaPadding).coerceIn(0, 100)
                         val currentPadding = resolveKeyboardBottomPadding()
                         if (newPadding != currentPadding) {
@@ -750,6 +756,8 @@ class InputView(
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        updateKeyboardSize()
+                        keyboardView.post { updateAdjustingHandlePosition() }
                         v.parent?.requestDisallowInterceptTouchEvent(false)
                         v.isPressed = false
                         true
@@ -809,6 +817,7 @@ class InputView(
     // Adjusting mode handles
     private val adjustingHeightHandle = view(::View) {
         visibility = GONE
+        contentDescription = context.getString(R.string.keyboard_height_adjustment_handle)
         // Background set via updateAdjustingHandleAppearance
         // Larger touch area, visual handle is smaller and centered
         isClickable = true
@@ -820,13 +829,15 @@ class InputView(
                     // Store the effective height and touch position for this drag.
                     val landscape = isLayoutLandscape
                     if (landscape != adjustingKeyboardHeightLandscape) {
-                        adjustingKeyboardHeightPercent = null
+                        adjustingKeyboardHeightPercent = resolveKeyboardHeightPercent()
                     }
                     adjustingKeyboardHeightLandscape = landscape
                     adjustingResizeStartHeight = resolveKeyboardHeightPercent()
-                    adjustingKeyboardHeightTarget = resolveCurrentLayoutHeightOverrideTarget(
-                        adjustingKeyboardHeightLandscape
-                    )
+                    adjustingKeyboardHeightTarget = if (onlyCurrentLayoutAdjustment) {
+                        resolveCurrentLayoutSpecificHeightTarget()
+                    } else {
+                        null
+                    }
                     adjustingKeyboardHeightFile = adjustingKeyboardHeightTarget?.let {
                         ConfigProviders.provider.textKeyboardLayoutFile()?.absoluteFile
                     }
@@ -852,17 +863,9 @@ class InputView(
                     val currentPercent = resolveKeyboardHeightPercent()
                     // Only update if value changed significantly
                     if (kotlin.math.abs(newPercent - currentPercent) >= 1) {
-                        if (adjustingKeyboardHeightTarget != null) {
-                            // Layout overrides take precedence over the global preference, so
-                            // keep the live drag value separately until the mode is exited.
-                            adjustingKeyboardHeightPercent = newPercent
-                        } else {
-                            if (adjustingKeyboardHeightLandscape) {
-                                keyboardPrefs.keyboardHeightPercentLandscape.setValue(newPercent)
-                            } else {
-                                keyboardPrefs.keyboardHeightPercent.setValue(newPercent)
-                            }
-                        }
+                        // Keep the current value transient until Done so Cancel can discard it.
+                        adjustingKeyboardHeightPercent = newPercent
+                        adjustingHeightValueChanged = true
                         updateKeyboardSize()
                         keyboardView.post {
                             updateAdjustingHandlePosition()
@@ -975,15 +978,54 @@ class InputView(
     private val adjustingOverlay = view(::View) {
         visibility = GONE
         backgroundColor = android.graphics.Color.parseColor("#60000000") // Semi-transparent black
-        // Completely disable touch event handling for this view
-        isClickable = false
-        isFocusable = false
-        isFocusableInTouchMode = false
-        isDuplicateParentStateEnabled = false
-        // Important: let touch events pass through to views behind
-        filterTouchesWhenObscured = false
-        // Make sure this view doesn't consume touch events
-        setOnTouchListener { _, _ -> false }
+        isClickable = true
+        isFocusable = true
+        isFocusableInTouchMode = true
+        setOnTouchListener { _, _ -> true }
+    }
+
+    private val adjustingConfirmButton = view(::TextView) {
+        visibility = GONE
+        text = context.getString(R.string.adjusting_mode_confirm)
+        gravity = Gravity.CENTER
+        textSize = 13f
+        minWidth = dp(76)
+        minHeight = dp(48)
+        setPadding(dp(12), dp(4), dp(12), dp(4))
+        isSingleLine = true
+        ellipsize = android.text.TextUtils.TruncateAt.END
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { exitAdjustingMode() }
+    }
+
+    private val adjustingCancelButton = view(::TextView) {
+        visibility = GONE
+        text = context.getString(R.string.keyboard_height_adjustment_cancel)
+        gravity = Gravity.CENTER
+        textSize = 13f
+        minWidth = dp(76)
+        minHeight = dp(48)
+        setPadding(dp(12), dp(4), dp(12), dp(4))
+        isSingleLine = true
+        ellipsize = android.text.TextUtils.TruncateAt.END
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { cancelAdjustingMode() }
+    }
+
+    private val adjustingScopeButton = view(::TextView) {
+        visibility = GONE
+        gravity = Gravity.CENTER
+        textSize = 13f
+        minWidth = dp(76)
+        minHeight = dp(48)
+        isSingleLine = true
+        ellipsize = android.text.TextUtils.TruncateAt.END
+        setPadding(dp(12), dp(4), dp(12), dp(4))
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { setOnlyCurrentLayoutAdjustment(!onlyCurrentLayoutAdjustment) }
     }
 
     // Adjusting mode state variables
@@ -994,6 +1036,12 @@ class InputView(
     private var adjustingKeyboardHeightTarget: KeyboardHeightOverrideTarget? = null
     private var adjustingKeyboardHeightFile: File? = null
     private var adjustingKeyboardHeightLandscape = false
+    private var adjustingHeightValueChanged = false
+    private var onlyCurrentLayoutAdjustment = false
+    private var adjustingOriginalSidePaddingPortrait = 0
+    private var adjustingOriginalSidePaddingLandscape = 0
+    private var adjustingOriginalBottomPaddingPortrait = 0
+    private var adjustingOriginalBottomPaddingLandscape = 0
     private var lastAdjustingTouchX = 0f
     private var lastAdjustingTouchY = 0f
     private var adjustingStartKeyboardTop = 0
@@ -1037,14 +1085,32 @@ class InputView(
     }
 
     private fun persistAdjustingKeyboardHeightOverride(): Boolean {
-        val target = adjustingKeyboardHeightTarget ?: return true
+        if (!adjustingHeightValueChanged) return true
         val percent = adjustingKeyboardHeightPercent ?: return true
+        if (!onlyCurrentLayoutAdjustment) {
+            if (adjustingKeyboardHeightLandscape) {
+                keyboardPrefs.keyboardHeightPercentLandscape.setValue(percent)
+            } else {
+                keyboardPrefs.keyboardHeightPercent.setValue(percent)
+            }
+            return true
+        }
+        val target = adjustingKeyboardHeightTarget ?: return false
         val file = adjustingKeyboardHeightFile ?: return false
+        return persistKeyboardHeightOverride(file, target, percent, adjustingKeyboardHeightLandscape)
+    }
+
+    private fun persistKeyboardHeightOverride(
+        file: File,
+        target: KeyboardHeightOverrideTarget,
+        percent: Int,
+        landscape: Boolean,
+    ): Boolean {
         val json = UserJsonConfigStore.readJson<JsonObject>(file)?.value
             ?: return false
         val updatedJson = json.withKeyboardHeightPercentOverride(
             target = target,
-            landscape = adjustingKeyboardHeightLandscape,
+            landscape = landscape,
             percent = percent,
         ) ?: return false
         if (updatedJson == json) return true
@@ -1062,6 +1128,106 @@ class InputView(
         }.onFailure { error ->
             Timber.tag("InputView").e(error, "Failed to save adjusted keyboard height")
         }.getOrDefault(false)
+    }
+
+    private fun resolveCurrentLayoutSpecificHeightTarget(): KeyboardHeightOverrideTarget? {
+        val ime = TextKeyboard.ime ?: return null
+        val json = TextKeyboard.textLayoutJson ?: return null
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = ime.uniqueName,
+            displayName = ime.displayName,
+            subModeLabel = ime.subMode.label,
+        ) ?: return null
+        return if (resolution.subMode != null) {
+            KeyboardHeightOverrideTarget.SubMode(resolution.layoutKey, resolution.subModeLabel)
+        } else {
+            KeyboardHeightOverrideTarget.Layout(resolution.layoutKey)
+        }
+    }
+
+    private fun setOnlyCurrentLayoutAdjustment(enabled: Boolean) {
+        if (enabled == onlyCurrentLayoutAdjustment) return
+        val landscape = isLayoutLandscape
+        val layoutHeightOverride = resolveCurrentLayoutHeightPercentOverride()
+        val globalHeight = if (landscape) {
+            keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+        } else {
+            keyboardPrefs.keyboardHeightPercent.getValue()
+        }
+        val height = if (enabled) layoutHeightOverride ?: globalHeight else globalHeight
+        val target = if (enabled) resolveCurrentLayoutSpecificHeightTarget() else null
+        val file = if (enabled) ConfigProviders.provider.textKeyboardLayoutFile()?.absoluteFile else null
+        if (enabled && (target == null || file == null)) {
+            Toast.makeText(context, R.string.keyboard_height_adjustment_layout_unavailable, Toast.LENGTH_LONG).show()
+            return
+        }
+        if (!enabled && resolveCurrentLayoutHeightPercentOverride() != null) {
+            Toast.makeText(
+                context,
+                R.string.keyboard_height_adjustment_global_override_notice,
+                Toast.LENGTH_LONG,
+            ).show()
+        }
+
+        onlyCurrentLayoutAdjustment = enabled
+        adjustingKeyboardHeightLandscape = landscape
+        adjustingKeyboardHeightTarget = target
+        adjustingKeyboardHeightFile = file
+        adjustingKeyboardHeightPercent = height
+        updateAdjustingScopeButton()
+        updateKeyboardSize()
+        keyboardView.post { updateAdjustingHandlePosition() }
+    }
+
+    private fun updateAdjustingScopeButton() {
+        adjustingScopeButton.text = context.getString(
+            if (onlyCurrentLayoutAdjustment) {
+                R.string.keyboard_height_adjustment_only_layout_on
+            } else {
+                R.string.keyboard_height_adjustment_only_layout_off
+            }
+        )
+        val backgroundColor = if (onlyCurrentLayoutAdjustment) {
+            theme.accentKeyBackgroundColor
+        } else {
+            theme.altKeyBackgroundColor
+        }
+        val textColor = if (onlyCurrentLayoutAdjustment) theme.accentKeyTextColor else theme.altKeyTextColor
+        adjustingScopeButton.background = GradientDrawable().apply {
+            setColor(backgroundColor)
+            cornerRadius = dp(24).toFloat()
+        }
+        adjustingScopeButton.setTextColor(textColor)
+        adjustingScopeButton.contentDescription = adjustingScopeButton.text
+    }
+
+    private fun beginAdjustingModeSession() {
+        val landscape = isLayoutLandscape
+        val currentHeight = resolveKeyboardHeightPercent()
+        adjustingOriginalSidePaddingPortrait = keyboardPrefs.keyboardSidePadding.getValue()
+        adjustingOriginalSidePaddingLandscape = keyboardPrefs.keyboardSidePaddingLandscape.getValue()
+        adjustingOriginalBottomPaddingPortrait = keyboardPrefs.keyboardBottomPadding.getValue()
+        adjustingOriginalBottomPaddingLandscape = keyboardPrefs.keyboardBottomPaddingLandscape.getValue()
+
+        val layoutTarget = resolveCurrentLayoutSpecificHeightTarget()
+        val file = ConfigProviders.provider.textKeyboardLayoutFile()?.absoluteFile
+        onlyCurrentLayoutAdjustment = layoutTarget != null && file != null
+        adjustingKeyboardHeightLandscape = landscape
+        adjustingKeyboardHeightTarget = layoutTarget.takeIf { onlyCurrentLayoutAdjustment }
+        adjustingKeyboardHeightFile = file.takeIf { onlyCurrentLayoutAdjustment }
+        adjustingKeyboardHeightPercent = currentHeight
+        adjustingHeightValueChanged = false
+        updateAdjustingScopeButton()
+    }
+
+    internal fun cancelAdjustingMode() {
+        if (!isAdjustingMode) return
+        keyboardPrefs.keyboardSidePadding.setValue(adjustingOriginalSidePaddingPortrait)
+        keyboardPrefs.keyboardSidePaddingLandscape.setValue(adjustingOriginalSidePaddingLandscape)
+        keyboardPrefs.keyboardBottomPadding.setValue(adjustingOriginalBottomPaddingPortrait)
+        keyboardPrefs.keyboardBottomPaddingLandscape.setValue(adjustingOriginalBottomPaddingLandscape)
+        toggleAdjustingMode(persistAdjustments = false)
     }
 
     private fun resolveKeyboardSidePadding(): Int {
@@ -1657,12 +1823,18 @@ class InputView(
             adjustingLeftMarginHandle.visibility = VISIBLE
             adjustingRightMarginHandle.visibility = VISIBLE
             adjustingOverlay.visibility = VISIBLE
+            adjustingConfirmButton.visibility = VISIBLE
+            adjustingCancelButton.visibility = VISIBLE
+            adjustingScopeButton.visibility = VISIBLE
             return
         }
         adjustingHeightHandle.visibility = GONE
         adjustingLeftMarginHandle.visibility = GONE
         adjustingRightMarginHandle.visibility = GONE
         adjustingOverlay.visibility = GONE
+        adjustingConfirmButton.visibility = GONE
+        adjustingCancelButton.visibility = GONE
+        adjustingScopeButton.visibility = GONE
     }
 
     private fun updateAdjustingHandlePosition() {
@@ -1670,22 +1842,15 @@ class InputView(
         // Use keyboardView which is always available
         if (keyboardView.width <= 0 || keyboardView.height <= 0) return
 
-        val handleVisualWidth = dp(48)
-        val handleVisualHeight = dp(6)
-        val touchAreaWidth = dp(60)
-        val touchAreaHeight = dp(30)
+        val touchAreaSize = dp(56)
 
-        // Height handle - horizontal bar at top edge of keyboard
-        // Touch area extends above keyboard, visual handle centered in touch area
+        // Height handle - a downward arrow centered on the keyboard's top edge.
         adjustingHeightHandle.updateLayoutParams {
-            width = touchAreaWidth
-            height = touchAreaHeight
+            width = touchAreaSize
+            height = touchAreaSize
         }
-        // Position using absolute coordinates relative to parent
-        // Place touch area so its center is at keyboard top edge
-        // Visual handle (centered in touch area) will appear just above keyboard
-        adjustingHeightHandle.translationX = (keyboardView.left + keyboardView.width / 2f - touchAreaWidth / 2f)
-        adjustingHeightHandle.translationY = (keyboardView.top - touchAreaHeight / 2f)
+        adjustingHeightHandle.translationX = (keyboardView.left + keyboardView.width / 2f - touchAreaSize / 2f)
+        adjustingHeightHandle.translationY = (keyboardView.top - touchAreaSize / 2f)
 
         // Left/Right margin handles - positioned at the edges of visible keyboard content
         // The visible content is windowManager.view, constrained between padding spaces
@@ -1718,21 +1883,53 @@ class InputView(
         adjustingRightMarginHandle.translationY =
             (keyboardView.top + keyboardView.height / 2f - marginTouchAreaHeight / 2f)
 
-        // Position floatingMoveHandle (which also serves as bottom padding adjuster in adjusting mode) above kawaii bar
+        // Position the four-way handle in the center of the key area. It adjusts bottom padding.
         if (isAdjustingMode) {
-            val moveHandleSize = dp(24)
-            // Position above kawaii bar, centered horizontally
-            // kawaiiBar is inside keyboardView, so we need keyboardView.top + kawaiiBar.top
-            val kawaiiTopInParent = keyboardView.top + kawaiiBar.view.top
-            // Center the handle horizontally
-            adjustableHandle.translationX = (keyboardView.left + keyboardView.width / 2f - moveHandleSize / 2f)
-            // Position above kawaii bar with a gap
-            adjustableHandle.translationY = (kawaiiTopInParent - moveHandleSize - dp(8)).toFloat()
+            val moveHandleSize = dp(48)
+            val contentLeft = keyboardView.left + windowManager.view.left
+            val contentTop = keyboardView.top + windowManager.view.top
+            val contentWidth = windowManager.view.width.takeIf { it > 0 } ?: keyboardView.width
+            val contentHeight = windowManager.view.height.takeIf { it > 0 } ?: keyboardView.height
+            adjustableHandle.translationX = contentLeft + (contentWidth - moveHandleSize) / 2f
+            adjustableHandle.translationY = contentTop + (contentHeight - moveHandleSize) / 2f
 
             // Update layout params for adjusting mode
             adjustableHandle.updateLayoutParams {
                 width = moveHandleSize
                 height = moveHandleSize
+            }
+
+            val buttonHeight = dp(48)
+            val buttonGap = dp(8)
+            val buttonAreaWidth = (contentWidth - dp(16)).coerceAtLeast(0)
+            val buttonWidthBudget = (buttonAreaWidth - buttonGap * 2).coerceAtLeast(0)
+            val sideButtonMaxWidth = buttonWidthBudget / 4
+            val maxButtonWidths = listOf(
+                sideButtonMaxWidth,
+                buttonWidthBudget - sideButtonMaxWidth * 2,
+                sideButtonMaxWidth,
+            )
+            val buttons = listOf(adjustingCancelButton, adjustingScopeButton, adjustingConfirmButton)
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec(buttonHeight, View.MeasureSpec.EXACTLY)
+            val buttonWidths = buttons.zip(maxButtonWidths).map { (button, maxWidth) ->
+                button.maxWidth = maxWidth
+                button.minWidth = minOf(dp(48), maxWidth)
+                button.measure(widthSpec, heightSpec)
+                button.measuredWidth.coerceIn(button.minWidth, maxWidth)
+            }
+            val buttonGroupWidth = buttonWidths.sum() + buttonGap * (buttons.size - 1)
+            val buttonGroupStartX = contentLeft + (contentWidth - buttonGroupWidth) / 2f
+            val buttonsY = (contentTop + contentHeight - buttonHeight - dp(8)).toFloat()
+            var buttonX = buttonGroupStartX
+            buttons.zip(buttonWidths).forEach { (button, buttonWidth) ->
+                button.updateLayoutParams {
+                    width = buttonWidth
+                    height = buttonHeight
+                }
+                button.translationX = buttonX
+                button.translationY = buttonsY
+                buttonX += buttonWidth + buttonGap
             }
         } else if (isFloating) {
             // In floating mode, position according to original floating logic
@@ -1756,6 +1953,9 @@ class InputView(
         adjustingRightMarginHandle.bringToFront()
         // floatingMoveHandle now also serves as the bottom padding adjuster in adjusting mode
         adjustableHandle.bringToFront()
+        adjustingCancelButton.bringToFront()
+        adjustingScopeButton.bringToFront()
+        adjustingConfirmButton.bringToFront()
     }
 
     private fun updateAdjustingOverlayVisibility() {
@@ -1776,6 +1976,12 @@ class InputView(
         // Bring floating move handle to front to ensure it's visible above overlay when in adjusting mode
         if (isAdjustingMode) {
             adjustableHandle.bringToFront()
+            adjustingHeightHandle.bringToFront()
+            adjustingLeftMarginHandle.bringToFront()
+            adjustingRightMarginHandle.bringToFront()
+            adjustingCancelButton.bringToFront()
+            adjustingScopeButton.bringToFront()
+            adjustingConfirmButton.bringToFront()
         }
     }
 
@@ -1890,24 +2096,25 @@ class InputView(
         service.window.window?.decorView?.requestLayout()
     }
 
-    private fun toggleAdjustingMode() {
+    private fun toggleAdjustingMode(persistAdjustments: Boolean = true) {
         popup.dismissAll()
-        if (isAdjustingMode) {
-            // Persist the live height before leaving the mode. While adjusting, layout
-            // metadata may still be the source of truth, so the drag value is transient.
-            if (!persistAdjustingKeyboardHeightOverride()) {
-                android.widget.Toast.makeText(
-                    context,
-                    R.string.text_keyboard_layout_height_save_failed,
-                    android.widget.Toast.LENGTH_LONG,
-                ).show()
-            }
+        if (!isAdjustingMode) {
+            beginAdjustingModeSession()
+        } else if (persistAdjustments && !persistAdjustingKeyboardHeightOverride()) {
+            android.widget.Toast.makeText(
+                context,
+                R.string.text_keyboard_layout_height_save_failed,
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+            return
         }
         isAdjustingMode = !isAdjustingMode
         if (!isAdjustingMode) {
             adjustingKeyboardHeightPercent = null
             adjustingKeyboardHeightTarget = null
             adjustingKeyboardHeightFile = null
+            adjustingHeightValueChanged = false
+            onlyCurrentLayoutAdjustment = false
         }
         // In adjusting mode, force non-floating state for better UX
         if (isAdjustingMode && isFloating) {
@@ -1923,9 +2130,7 @@ class InputView(
             kawaiiBar.setFloatingState(isEffectiveFloating)
             updateFloatingState()
         }
-        if (!isAdjustingMode) {
-            updateKeyboardSize()
-        }
+        updateKeyboardSize()
         updateAdjustingModeUi()
         requestLayout()
     }
@@ -1944,27 +2149,27 @@ class InputView(
 
     private fun updateAdjustingHandleAppearance() {
         val handleColor = theme.accentKeyBackgroundColor
+        val handleIconColor = theme.accentKeyTextColor
 
-        // Visual dimensions for drawables
-        val handleVisualWidth = dp(48)
-        val handleVisualHeight = dp(6)
+        // The top handle is a circular down-arrow; the surrounding 56dp view is also its touch target.
+        val topHandleBackground = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(handleColor)
+        }
+        val topHandleIcon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_keyboard_arrow_down_24)
+            ?.mutate()
+            ?.apply { setTint(handleIconColor) }
+        adjustingHeightHandle.background = if (topHandleIcon != null) {
+            LayerDrawable(arrayOf(topHandleBackground, topHandleIcon)).apply {
+                val inset = dp(14)
+                setLayerInset(1, inset, inset, inset, inset)
+            }
+        } else {
+            topHandleBackground
+        }
+
         val marginVisualHeight = dp(48)  // Changed from 80 to 48 to match height handle length
         val marginVisualWidth = dp(6)
-
-        // Height handle - horizontal bar with rounded corners, centered in touch area
-        val heightBg = GradientDrawable().apply {
-            setColor(handleColor)
-            cornerRadius = dp(3).toFloat()
-            setSize(handleVisualWidth, handleVisualHeight)
-        }
-        // Use InsetDrawable to center visual handle in larger touch area
-        // InsetDrawable params: (drawable, left, top, right, bottom)
-        val hInset = (dp(60) - handleVisualWidth) / 2
-        val vInset = (dp(30) - handleVisualHeight) / 2
-        adjustingHeightHandle.background = android.graphics.drawable.InsetDrawable(
-            heightBg,
-            hInset, vInset, hInset, vInset
-        )
 
         // Margin handles - vertical bars with rounded corners
         val marginBg = GradientDrawable().apply {
@@ -1984,14 +2189,24 @@ class InputView(
             mHInset, mVInset, mHInset, mVInset
         )
 
+        adjustingCancelButton.background = GradientDrawable().apply {
+            setColor(theme.altKeyBackgroundColor)
+            cornerRadius = dp(24).toFloat()
+        }
+        adjustingCancelButton.setTextColor(theme.altKeyTextColor)
+        adjustingConfirmButton.background = GradientDrawable().apply {
+            setColor(theme.accentKeyBackgroundColor)
+            cornerRadius = dp(24).toFloat()
+        }
+        adjustingConfirmButton.setTextColor(theme.accentKeyTextColor)
+
         // floatingMoveHandle serves as bottom padding adjuster in adjusting mode
-        // Use the same appearance as in floating mode
-        val moveHandleSize = dp(24)
+        val moveHandleSize = dp(48)
         val moveBgDrawable = createHandleDrawable(moveHandleSize / 2f)
         val moveIconDrawable = ContextCompat.getDrawable(context, R.drawable.ic_move_handle_cross)?.mutate()
         val finalDrawable = if (moveIconDrawable != null) {
-            moveIconDrawable.setTint(theme.keyTextColor)
-            val inset = dp(4)
+            moveIconDrawable.setTint(handleIconColor)
+            val inset = dp(8)
             val ld = LayerDrawable(arrayOf(moveBgDrawable, moveIconDrawable))
             ld.setLayerInset(1, inset, inset, inset, inset)
             ld
@@ -2056,6 +2271,13 @@ class InputView(
                 val handleRect = Rect()
                 adjustableHandle.getHitRect(handleRect)
                 rect.union(handleRect)
+            }
+            listOf(adjustingCancelButton, adjustingScopeButton, adjustingConfirmButton).forEach { button ->
+                if (button.visibility == View.VISIBLE) {
+                    val buttonRect = Rect()
+                    button.getHitRect(buttonRect)
+                    rect.union(buttonRect)
+                }
             }
         }
 
@@ -2147,6 +2369,18 @@ class InputView(
                     handleLocation[1] + adjustableHandle.height
                 )
                 rect.union(handleRect)
+            }
+            listOf(adjustingCancelButton, adjustingScopeButton, adjustingConfirmButton).forEach { button ->
+                if (button.visibility == View.VISIBLE) {
+                    val buttonLocation = IntArray(2)
+                    button.getLocationInWindow(buttonLocation)
+                    rect.union(
+                        buttonLocation[0],
+                        buttonLocation[1],
+                        buttonLocation[0] + button.width,
+                        buttonLocation[1] + button.height
+                    )
+                }
             }
         }
 
@@ -2509,6 +2743,18 @@ class InputView(
             startToStart = ConstraintLayout.LayoutParams.PARENT_ID
             topToTop = ConstraintLayout.LayoutParams.PARENT_ID
         })
+        add(adjustingCancelButton, lParams(dp(76), dp(48)) {
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+        })
+        add(adjustingScopeButton, lParams(dp(128), dp(48)) {
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+        })
+        add(adjustingConfirmButton, lParams(dp(76), dp(48)) {
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+        })
         add(popup.root, lParams(matchParent, matchParent) {
             centerVertically()
             centerHorizontally()
@@ -2542,12 +2788,6 @@ class InputView(
                 toggleAdjustingMode()
             } else {
                 toggleFloatingMode()
-            }
-        }
-        kawaiiBar.onFloatingLongPressListener = {
-            // If not in floating mode and not in one-handed mode, allow entering adjusting mode
-            if (!isFloating && !isOneHanded) {
-                toggleAdjustingMode()
             }
         }
         kawaiiBar.onBarHeightChanged = {

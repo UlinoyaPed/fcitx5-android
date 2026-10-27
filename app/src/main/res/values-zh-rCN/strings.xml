@@ -449,6 +449,16 @@
     <string name="add_button_to_section_title">添加到区域</string>
     <string name="custom_label_hint">自定义标签（可选）</string>
     <string name="floating_keyboard">浮动键盘</string>
+    <string name="adjust_keyboard_height">键高调整</string>
+    <string name="keyboard_height_adjustment_hint">纵向拖动顶部按钮调整键盘高度，拖动中央四向按钮调整底部留白。点“取消”放弃更改，点“完成”保存。</string>
+    <string name="keyboard_height_adjustment_handle">调整键盘高度</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">调整键盘底部留白</string>
+    <string name="keyboard_height_adjustment_cancel">取消</string>
+    <string name="keyboard_height_adjustment_only_layout_on">仅当前布局：开</string>
+    <string name="keyboard_height_adjustment_only_layout_off">仅当前布局：关</string>
+    <string name="keyboard_height_adjustment_global_override_notice">当前布局已有独立键高设置；全局键高只对未单独设置的布局生效。</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">当前布局无法单独保存高度。</string>
+    <string name="adjusting_mode_confirm">完成</string>
     <string name="edit_button_title">编辑按钮</string>
     <string name="delete_button_title">删除按钮</string>
     <string name="delete_button_confirm">删除此按钮？</string>

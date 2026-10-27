@@ -245,6 +245,16 @@
     <string name="add_button_to_section_title">Zu Abschnitt hinzufügen</string>
     <string name="custom_label_hint">Benutzerdefiniertes Label (optional)</string>
     <string name="floating_keyboard">Schwebende Tastatur</string>
+    <string name="adjust_keyboard_height">Tastaturhöhe anpassen</string>
+    <string name="keyboard_height_adjustment_hint">Ziehe den oberen Pfeil, um die Tastaturhöhe anzupassen, und den Vier-Wege-Griff für den unteren Abstand. Abbrechen verwirft die Änderungen; Fertig speichert sie.</string>
+    <string name="keyboard_height_adjustment_handle">Tastaturhöhe anpassen</string>
+    <string name="keyboard_bottom_padding_adjustment_handle">Unteren Tastaturabstand anpassen</string>
+    <string name="keyboard_height_adjustment_cancel">Abbrechen</string>
+    <string name="keyboard_height_adjustment_only_layout_on">Nur dieses Layout: Ein</string>
+    <string name="keyboard_height_adjustment_only_layout_off">Nur dieses Layout: Aus</string>
+    <string name="keyboard_height_adjustment_global_override_notice">Dieses Layout hat eine eigene Höheneinstellung. Die globale Höhe gilt nur für Layouts ohne eigene Einstellung.</string>
+    <string name="keyboard_height_adjustment_layout_unavailable">Die Höhe dieses Layouts kann nicht separat gespeichert werden.</string>
+    <string name="adjusting_mode_confirm">Fertig</string>
     <string name="edit_button_title">Schaltfläche bearbeiten</string>
     <string name="delete_button_title">Schaltfläche löschen</string>
     <string name="delete_button_confirm">Diese Schaltfläche löschen?</string>
