@@ -21,6 +21,7 @@ import kotlin.math.roundToInt
 class IndependentSubLabelPositionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext
+    private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
     @Test
     fun hiddenPrimaryDoesNotRenderOrReceiveSwipe() = withTheme(PunctuationPosition.None) {
@@ -65,28 +66,70 @@ class IndependentSubLabelPositionTest {
     }
 
     @Test
-    fun autoUppercaseAliasReturnsToCenteredTopWhenKeyHasRoom() = withTheme(PunctuationPosition.Bottom) {
+    fun explicitUppercaseAliasPositionSurvivesHeightChanges() = withTheme(PunctuationPosition.Bottom) {
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Top)
         val key = createUppercaseKey()
 
         layoutKey(key, heightDp = 32)
-        assertEquals(View.VISIBLE, key.upperText.visibility)
-        assertEquals(Gravity.RIGHT, key.upperText.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+        assertEquals(View.VISIBLE, key.altText1.visibility)
+        assertEquals("Q", key.altText1.text.toString())
+        assertEquals(Gravity.RIGHT, key.altText1.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
 
         layoutKey(key, heightDp = 64)
-        assertEquals(View.VISIBLE, key.upperText.visibility)
-        assertEquals(Gravity.CENTER_HORIZONTAL, key.upperText.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+        assertEquals(View.VISIBLE, key.altText1.visibility)
+        assertEquals(Gravity.RIGHT, key.altText1.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
         assertEquals(
-            key.getChildAt(0).width / 2f,
-            key.upperText.left + key.upperText.renderedGlyphBounds().centerX(),
-            1f
+            (key.getChildAt(0).width - key.hMargin - dp(3)).toFloat(),
+            (key.altText1.left + key.altText1.renderedGlyphBounds().right).toFloat(),
+            1f,
         )
     }
 
     @Test
+    fun generatedUppercaseUsesSecondarySlotAndAutomaticallyReturnsToCenteredTop() =
+        withTheme(PunctuationPosition.Bottom) {
+            ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Top)
+            val appearance = KeyDef.Appearance.AltText(
+                displayText = "q",
+                character = "q",
+                altText = "?",
+                supportsUppercaseHint = true,
+                textSize = 24f,
+            )
+            val key = AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+
+            for (heightDp in listOf(30, 32, 40)) {
+                layoutKey(key, heightDp)
+                assertEquals("height=$heightDp", View.VISIBLE, key.altText1.visibility)
+                assertEquals("height=$heightDp", "Q", key.altText1.text.toString())
+                assertEquals(
+                    "height=$heightDp",
+                    Gravity.CENTER_HORIZONTAL,
+                    key.altText1.gravity and Gravity.HORIZONTAL_GRAVITY_MASK
+                )
+                assertEquals(
+                    "height=$heightDp",
+                    key.getChildAt(0).width / 2f,
+                    key.altText1.left + key.altText1.renderedGlyphBounds().centerX(),
+                    1f,
+                )
+            }
+
+            layoutKey(key, heightDp = 64)
+            assertEquals(View.VISIBLE, key.altText1.visibility)
+            assertEquals(Gravity.CENTER_HORIZONTAL, key.altText1.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+            assertEquals(
+                key.getChildAt(0).width / 2f,
+                key.altText1.left + key.altText1.renderedGlyphBounds().centerX(),
+                1f,
+            )
+        }
+
+    @Test
     fun independentRowLabelsTopAndBottomAreCenteredAgainstKeyInsets() = withTheme(PunctuationPosition.Bottom) {
         val topKey = createKey(AltTextPosition.Bottom, AltTextPosition.Top)
-        layoutKey(topKey, heightDp = 52)
+        layoutKey(topKey, heightDp = 32)
+        assertEquals(View.VISIBLE, topKey.altText1.visibility)
         val topInk = topKey.altText1.renderedGlyphBounds()
         assertEquals(
             topKey.vMargin.toFloat(),

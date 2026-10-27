@@ -6,6 +6,8 @@ package org.fxboomk.fcitx5.android.input.keyboard
 
 import android.graphics.Typeface
 import androidx.test.platform.app.InstrumentationRegistry
+import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.UppercasePosition
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.fxboomk.fcitx5.android.input.font.FontProviderApi
 import org.fxboomk.fcitx5.android.input.font.FontProviders
@@ -19,7 +21,10 @@ class UppercaseSubLabelTypefaceTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             val previousProvider = FontProviders.provider
+            val uppercasePosition = ThemeManager.prefs.uppercasePosition
+            val previousUppercasePosition = uppercasePosition.getValue()
             try {
+                uppercasePosition.setValue(UppercasePosition.Top)
                 FontProviders.provider = object : FontProviderApi {
                     override fun clearCache() = Unit
 
@@ -33,7 +38,6 @@ class UppercaseSubLabelTypefaceTest {
                     displayText = "q",
                     character = "q",
                     altText = "1",
-                    altText1 = "!",
                     supportsUppercaseHint = true,
                     textSize = 24f,
                     textStyle = Typeface.BOLD_ITALIC
@@ -44,9 +48,10 @@ class UppercaseSubLabelTypefaceTest {
                     appearance
                 )
 
+                key.refreshLayout()
+                assertEquals("Q", key.altText1.text.toString())
                 assertEquals(Typeface.NORMAL, key.altText.typeface.style)
                 assertEquals(Typeface.NORMAL, key.altText1.typeface.style)
-                assertEquals(Typeface.NORMAL, key.upperText.typeface.style)
 
                 val imageKey = ImageAltTextKeyView(
                     instrumentation.targetContext,
@@ -64,9 +69,8 @@ class UppercaseSubLabelTypefaceTest {
                 key.mainText.setFontTypeFace("key_main_font")
                 key.altText.setFontTypeFace("key_alt_font")
                 key.altText1.setFontTypeFace("key_alt_font")
-                key.upperText.setFontTypeFace("key_alt_font")
                 // Font loading itself must remove bold, even without a layout pass.
-                for (label in listOf(key.altText, key.altText1, key.upperText)) {
+                for (label in listOf(key.altText, key.altText1)) {
                     assertEquals(Typeface.ITALIC, label.typeface.style)
                     assertEquals(false, label.paint.isFakeBoldText)
                 }
@@ -75,17 +79,17 @@ class UppercaseSubLabelTypefaceTest {
                 assertEquals(Typeface.BOLD_ITALIC, key.mainText.typeface.style)
                 assertEquals(Typeface.ITALIC, key.altText.typeface.style)
                 assertEquals(Typeface.ITALIC, key.altText1.typeface.style)
-                assertEquals(Typeface.ITALIC, key.upperText.typeface.style)
 
                 FontProviders.fontTypefaceMap["key_alt_font"] =
                     Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                for (label in listOf(key.altText, key.altText1, key.upperText, imageKey.altText)) {
+                for (label in listOf(key.altText, key.altText1, imageKey.altText)) {
                     label.setFontTypeFace("key_alt_font")
                     assertEquals(Typeface.NORMAL, label.typeface.style)
                     assertEquals(false, label.paint.isFakeBoldText)
                 }
             } finally {
                 FontProviders.provider = previousProvider
+                uppercasePosition.setValue(previousUppercasePosition)
             }
         }
     }

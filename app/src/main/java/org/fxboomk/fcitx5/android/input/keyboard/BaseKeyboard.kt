@@ -206,7 +206,6 @@ abstract class BaseKeyboard(
                             keyView.mainText.setFontTypeFace("key_main_font")
                             keyView.altText.setFontTypeFace("key_alt_font")
                             keyView.altText1.setFontTypeFace("key_alt_font")
-                            keyView.upperText.setFontTypeFace("key_alt_font")
                         }
                         is TextKeyView -> keyView.mainText.setFontTypeFace("key_main_font")
                     }
@@ -927,7 +926,6 @@ abstract class BaseKeyboard(
                 newView.mainText.setFontTypeFace("key_main_font")
                 newView.altText.setFontTypeFace("key_alt_font")
                 newView.altText1.setFontTypeFace("key_alt_font")
-                newView.upperText.setFontTypeFace("key_alt_font")
             }
             is TextKeyView -> newView.mainText.setFontTypeFace("key_main_font")
         }
@@ -1809,7 +1807,7 @@ abstract class BaseKeyboard(
             AltTextSwipeTarget.Primary -> popup.alternative
             AltTextSwipeTarget.Secondary -> popup.alternative1 ?: popup.alternative
             AltTextSwipeTarget.Uppercase ->
-                (view as? AltTextKeyView)?.upperText?.text?.toString()
+                (view as? AltTextKeyView)?.altText1?.text?.toString()
                     ?.takeIf { it.isNotEmpty() }
                     ?: popup.content.uppercase()
             null -> popup.content

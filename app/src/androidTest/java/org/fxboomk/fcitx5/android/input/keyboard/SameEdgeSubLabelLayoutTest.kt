@@ -222,8 +222,25 @@ class SameEdgeSubLabelLayoutTest {
                             fun centerOffset() = (key.mainText.top + key.mainText.bottom - key.getChildAt(0).height) / 2f
                             layout()
                             val case = "independent=$independent, uppercase=$uppercase, right=$right"
+                            val secondLabel = key.altText1
+                            val horizontalInset = key.hMargin + dp(3)
+                            for (label in listOf(key.altText, secondLabel)) {
+                                val bounds = inkBounds(label)
+                                assertTrue(
+                                    "$case: top-corner labels need a vertical inset",
+                                    bounds.top >= key.vMargin + maxOf(1, dp(1) - 1)
+                                )
+                                assertTrue(
+                                    "$case: top-corner labels need a left inset",
+                                    bounds.left >= horizontalInset - 1
+                                )
+                                assertTrue(
+                                    "$case: top-corner labels need a right inset",
+                                    bounds.right <= key.getChildAt(0).width - horizontalInset + 1
+                                )
+                            }
                             val subBottom = maxOf(inkBounds(key.altText).bottom,
-                                inkBounds(if (uppercase) key.upperText else key.altText1).bottom)
+                                inkBounds(secondLabel).bottom)
                             val main = inkBounds(key.mainText)
                             val gapAbove = main.top - subBottom
                             val gapBelow = key.getChildAt(0).height - key.vMargin - main.bottom
@@ -430,7 +447,7 @@ class SameEdgeSubLabelLayoutTest {
     }
 
     @Test
-    fun bottomSubLabelsTouchVisibleKeyFace() {
+    fun bottomCornerSubLabelsKeepSafeInset() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val density = context.resources.displayMetrics.density
@@ -464,10 +481,24 @@ class SameEdgeSubLabelLayoutTest {
                         )
                         key.layout(0, 0, dp(48), dp(64))
                     }
-                    val faceBottom = key.getChildAt(0).height - key.vMargin
+                    val face = key.getChildAt(0)
+                    val faceBottom = face.height - key.vMargin
                     val case = "independent=$independent"
-                    assertEquals(case, faceBottom, inkBounds(key.altText).bottom)
-                    assertEquals(case, faceBottom, inkBounds(key.altText1).bottom)
+                    for (label in listOf(key.altText, key.altText1)) {
+                        val bounds = inkBounds(label)
+                        assertTrue(
+                            "$case: bottom-corner labels need a vertical inset",
+                            faceBottom - bounds.bottom >= maxOf(1, dp(1) - 1)
+                        )
+                        assertTrue(
+                            "$case: bottom-corner labels need a left inset",
+                            bounds.left >= key.hMargin + dp(3) - 1
+                        )
+                        assertTrue(
+                            "$case: bottom-corner labels need a right inset",
+                            bounds.right <= face.width - key.hMargin - dp(3) + 1
+                        )
+                    }
                 }
             } finally {
                 prefs.punctuationPosition.setValue(oldPunctuation)

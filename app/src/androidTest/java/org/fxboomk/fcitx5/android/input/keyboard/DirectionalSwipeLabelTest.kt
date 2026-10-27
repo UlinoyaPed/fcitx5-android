@@ -54,7 +54,14 @@ class DirectionalSwipeLabelTest {
                     assertEquals(View.VISIBLE, key.up.visibility)
                     assertEquals(View.VISIBLE, key.down.visibility)
                     assertTrue(key.up.bottom < key.down.top)
-                    assertEquals(Gravity.CENTER, key.up.gravity)
+                    assertEquals(
+                        ConstraintLayout.LayoutParams.PARENT_ID,
+                        (key.up.layoutParams as ConstraintLayout.LayoutParams).topToTop
+                    )
+                    assertEquals(
+                        ConstraintLayout.LayoutParams.PARENT_ID,
+                        (key.down.layoutParams as ConstraintLayout.LayoutParams).bottomToBottom
+                    )
                     assertEquals(AltTextSwipeTarget.Primary, key.hints.selectAltTextSwipeTarget(-20))
                     assertEquals(AltTextSwipeTarget.Secondary, key.hints.selectAltTextSwipeTarget(20))
                 }

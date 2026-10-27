@@ -141,7 +141,7 @@ abstract class KeyView(
     var isCircularSideKey: Boolean = false
         private set
     protected val cornerLabelHorizontalSafeInset: Int
-    protected val cornerLabelTopSafeInset: Int
+    protected val cornerLabelVerticalSafeInset: Int
 
     init {
         val prefs = ThemeManager.prefs
@@ -159,7 +159,7 @@ abstract class KeyView(
         hMargin = if (def.margin) dp(hMarginValue) else 0
         vMargin = if (def.margin) dp(vMarginPref.getValue()) else 0
         cornerLabelHorizontalSafeInset = dp(3)
-        cornerLabelTopSafeInset = dp(1)
+        cornerLabelVerticalSafeInset = dp(1)
     }
 
     private val cachedLocation = intArrayOf(0, 0)
@@ -657,33 +657,25 @@ class AltTextKeyView(
     horizontalGapScale: Float = 1f
 ) :
     TextKeyView(ctx, theme, def, horizontalGapScale), SwipeHintAwareKeyView {
-    private enum class AltTextLayoutMode {
-        TopBottom,
-        TopCorners,
-        BottomCorners,
+    private enum class LabelPosition {
+        Hidden,
         Top,
         TopRight,
-        Bottom,
-        UpperTopPunctBottom,
-        PunctTopUpperBottom,
-        PunctTopRightUpperBottom,
-        PunctUpperTopCorners,
-        PunctUpperBottomCorners,
-        PunctTopRightUpperTopLeft,
-        UpperTop,
-        UpperBottom,
-        Independent,
-        DirectionalTopBottom,
-        DirectionalTopRightBottom,
-        Hidden
+        Bottom
     }
+
+    private data class LabelLayout(
+        val primary: LabelPosition,
+        val secondary: LabelPosition
+    )
 
     private val baseAltTextSizeSp = org.fxboomk.fcitx5.android.input.font.FontProviders.getFontSize(
         "key_alt_font", 10.666667f
     )
-    private var lastLayoutMode: AltTextLayoutMode? = null
+    private var lastLayout: LabelLayout? = null
     private var lastLayoutHeight = -1
     private var lastDirectionalLabelMask = -1
+    private var uppercaseHintInSecondarySlot = false
     private var remainingSpaceTopLabels = emptyList<AutoScaleTextView>()
     private var remainingSpaceBottomLabels = emptyList<AutoScaleTextView>()
     private val xHeightBounds = Rect()
@@ -737,33 +729,10 @@ class AltTextKeyView(
         )
     }
 
-    val upperText = view(::AutoScaleTextView) {
-        isClickable = false
-        isFocusable = false
-        scaleMode = AutoScaleTextView.Mode.Proportional
-        gravity = Gravity.CENTER
-        setPadding(hMargin, 0, hMargin, 0)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
-        // Set font key for batch setting in BaseKeyboard.reloadLayout()
-        fontKey = "key_alt_font"
-        setTypeface(typeface, Typeface.NORMAL)
-        textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
-        visibility = View.GONE
-        setTextColor(
-            resolveAltTextColor(
-                when (def.variant) {
-                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
-                    Variant.Accent -> theme.accentKeyTextColor
-                }
-            )
-        )
-    }
-
     init {
         appearanceView.apply {
             add(altText, lParams(0, wrapContent))
             add(altText1, lParams(0, wrapContent))
-            add(upperText, lParams(0, wrapContent))
         }
         // 修复时序问题：使用 post 延后执行，确保获取到 layout 后的最终高度
         appearanceView.post {
@@ -775,11 +744,9 @@ class AltTextKeyView(
         super.setTextScale(scale)
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
         altText1.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
-        upperText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
         altText.requestLayout()
         altText1.requestLayout()
-        upperText.requestLayout()
-        lastLayoutMode = null
+        lastLayout = null
         applyLayout()
     }
 
@@ -790,18 +757,17 @@ class AltTextKeyView(
         val pref = ThemeManager.prefs.uppercasePosition.getValue()
         if (pref == UppercasePosition.None) return UppercasePosition.None
         if (!altDef.supportsUppercaseHint) return UppercasePosition.None
-        // Keys already showing two sublabels have no room for the uppercase hint,
-        // unless the second sublabel is the auto-filled uppercase alias
-        if (hasSecondAltText() && !isUppercaseAliasAlt1()) return UppercasePosition.None
+        // The hint uses the altText1 slot. Preserve a distinct configured label;
+        // an empty slot or its uppercase alias may be supplied by the preference.
+        if (!altDef.altText1.isNullOrBlank() && !isUppercaseAliasAlt1()) {
+            return UppercasePosition.None
+        }
         val character = altDef.character
         if (character.length != 1 || !character[0].isLetter()) return UppercasePosition.None
         return pref
     }
 
-    /**
-     * 大写提示是否在本键生效。生效时 altText1 槽位展示的是主字母大写提示，
-     * 而非真正的副字符一；此时不应把符号划动映射的大写套用到副字符一上。
-     */
+    /** True when the secondary slot is populated by the generated uppercase hint. */
     internal fun isUppercaseHintActive(): Boolean = resolveUppercaseMode() != UppercasePosition.None
 
     /**
@@ -823,178 +789,54 @@ class AltTextKeyView(
         return KeyAction.CommitAction(character.uppercase())
     }
 
-    private fun syncUppercaseText() {
-        val text = if (resolveUppercaseMode() == UppercasePosition.None) {
-            ""
-        } else {
-            altDef.character.uppercase()
+    private fun syncAltText1() {
+        val showUppercaseHint = resolveUppercaseMode() != UppercasePosition.None
+        if (showUppercaseHint || uppercaseHintInSecondarySlot) {
+            val text = if (showUppercaseHint) altDef.character.uppercase() else altDef.altText1.orEmpty()
+            if (altText1.text.toString() != text) {
+                altText1.text = text
+            }
         }
-        if (upperText.text.toString() != text) {
-            upperText.text = text
-        }
+        uppercaseHintInSecondarySlot = showUppercaseHint
     }
 
     private fun applyMainTextCenterPosition() {
-        mainText.gravity = Gravity.CENTER
         val params = mainText.layoutParams as ConstraintLayout.LayoutParams
-        if (params.topMargin == 0 && params.bottomMargin == 0 &&
-            params.bottomToTop == params.unset && params.topToTop == params.parentId &&
-            params.bottomToBottom == params.parentId
+        if (mainText.gravity == Gravity.CENTER && params.height == wrapContent &&
+            params.topMargin == 0 && params.bottomMargin == 0 &&
+            params.topToBottom == params.unset && params.bottomToTop == params.unset &&
+            params.topToTop == params.parentId && params.bottomToBottom == params.parentId
         ) return
+
+        mainText.gravity = Gravity.CENTER
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = wrapContent
             topMargin = 0
             bottomMargin = 0
+            topToBottom = unset
             bottomToTop = unset
             topToTop = parentId
             bottomToBottom = parentId
         }
     }
 
-    private fun applyMainTextAboveBottomAltPosition(anchor: View) {
-        mainText.gravity = Gravity.CENTER
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            bottomToBottom = unset
-            bottomMargin = 0
-            topToTop = parentId
-            topMargin = vMargin
-            bottomToTop = anchor.existingOrNewId
-        }
-    }
-
-    private fun applyTopRightAltTextPadding() {
-        altText.setPaddingRelative(0, 0, cornerLabelHorizontalSafeInset, 0)
-    }
-
-    private fun applyBottomAltTextPadding() {
-        altText.setPadding(hMargin, 0, hMargin, 0)
-    }
-
-    private fun applyBottomAltText1Padding() {
-        altText1.setPadding(hMargin, 0, hMargin, 0)
-    }
-
-    private fun hideAltText1() {
-        altText1.visibility = View.GONE
-        applyBottomAltText1Padding()
-        altText1.gravity = Gravity.CENTER
-    }
-
-    /**
-     * Place a pair of sublabels at the top and bottom key edges. Uppercase pairs
-     * additionally reserve a separate center region for the main label.
-     */
-    private fun applyVerticalPairAltTextPosition(topLabel: AutoScaleTextView, bottomLabel: AutoScaleTextView) {
-        applyMainTextCenterPosition()
-        val separateMainText = topLabel === upperText || bottomLabel === upperText
-        topLabel.visibility = View.VISIBLE
-        topLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
-            bottomToBottom = unset
-            bottomMargin = 0
-            topToTop = parentId
-            // A top/bottom pair is an edge-pinned layout, not a centered overlay.
-            topMargin = vMargin
-            leftToLeft = parentId
-            leftMargin = hMargin
-            rightToRight = parentId
-            rightMargin = hMargin
-        }
-        topLabel.setPadding(hMargin, 0, hMargin, 0)
-        topLabel.useGlyphBounds = true
-        topLabel.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-
-        bottomLabel.visibility = View.VISIBLE
-        bottomLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
-            topToTop = unset
-            topMargin = 0
-            leftToLeft = parentId
-            leftMargin = hMargin
-            rightToRight = parentId
-            rightMargin = hMargin
-            bottomToBottom = parentId
-            bottomMargin = vMargin
-        }
-        bottomLabel.setPadding(hMargin, 0, hMargin, 0)
-        bottomLabel.useGlyphBounds = true
-        bottomLabel.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-        if (separateMainText) {
-            mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                height = 0
-                topToTop = unset
-                bottomToBottom = unset
-                topToBottom = topLabel.existingOrNewId
-                bottomToTop = bottomLabel.existingOrNewId
-                topMargin = dp(2)
-                bottomMargin = dp(2)
-            }
-        }
-    }
-
-    private fun applyCornerPairAltTextPosition(
-        top: Boolean,
-        secondLabel: AutoScaleTextView = altText1,
-        primaryRight: Boolean = false
-    ) {
-        if (top) {
-            applyMainTextCenterPosition()
-        } else {
-            applyMainTextAboveBottomAltPosition(altText)
-        }
-
-        val topMargin = vMargin + cornerLabelTopSafeInset
-        val bottomMargin = vMargin
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = wrapContent
+    private fun resetLabelConstraints(label: AutoScaleTextView, width: Int) {
+        label.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            this.width = width
+            height = wrapContent
+            leftToLeft = unset
             leftToRight = unset
             rightToLeft = unset
             rightToRight = unset
+            topToTop = unset
+            topToBottom = unset
+            bottomToTop = unset
+            bottomToBottom = unset
+            leftMargin = 0
+            topMargin = 0
             rightMargin = 0
-            if (top) {
-                topToTop = parentId
-                this.topMargin = topMargin
-                bottomToBottom = unset
-                this.bottomMargin = 0
-            } else {
-                topToTop = unset
-                this.topMargin = 0
-                bottomToBottom = parentId
-                this.bottomMargin = bottomMargin
-            }
-            leftToLeft = if (primaryRight) unset else parentId
-            leftMargin = if (primaryRight) 0 else hMargin
-            rightToRight = if (primaryRight) parentId else unset
-            rightMargin = if (primaryRight) hMargin else 0
+            bottomMargin = 0
         }
-        altText.setPadding(0, 0, 0, 0)
-        altText.useGlyphBounds = !top
-        altText.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-
-        secondLabel.visibility = View.VISIBLE
-        secondLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = wrapContent
-            leftToLeft = if (primaryRight) parentId else unset
-            leftToRight = unset
-            leftMargin = if (primaryRight) hMargin else 0
-            rightToLeft = unset
-            if (top) {
-                topToTop = parentId
-                this.topMargin = topMargin
-                bottomToBottom = unset
-                this.bottomMargin = 0
-            } else {
-                topToTop = unset
-                this.topMargin = 0
-                bottomToBottom = parentId
-                this.bottomMargin = bottomMargin
-            }
-            rightToRight = if (primaryRight) unset else parentId
-            rightMargin = hMargin
-        }
-        secondLabel.setPadding(0, 0, 0, 0)
-        secondLabel.useGlyphBounds = !top
-        secondLabel.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun placeIndependentTopLabel(
@@ -1002,18 +844,16 @@ class AltTextKeyView(
         edge: Int,
         flushToEdge: Boolean = true
     ) {
+        resetLabelConstraints(label, 0)
         val centeredAtTop = edge == 0 && flushToEdge
         label.visibility = View.VISIBLE
         label.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
             leftToLeft = parentId
             leftMargin = hMargin
             rightToRight = parentId
             rightMargin = hMargin
             topToTop = parentId
-            topMargin = if (centeredAtTop) vMargin else vMargin + cornerLabelTopSafeInset
-            bottomToBottom = unset
-            bottomMargin = 0
+            topMargin = if (centeredAtTop) vMargin else vMargin + cornerLabelVerticalSafeInset
         }
         label.setPadding(0, 0, if (edge > 0) cornerLabelHorizontalSafeInset else 0, 0)
         label.useGlyphBounds = centeredAtTop
@@ -1025,15 +865,13 @@ class AltTextKeyView(
     }
 
     private fun placeIndependentBottomLabel(label: AutoScaleTextView) {
+        resetLabelConstraints(label, 0)
         label.visibility = View.VISIBLE
         label.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
             leftToLeft = parentId
             leftMargin = hMargin
             rightToRight = parentId
             rightMargin = hMargin
-            topToTop = unset
-            topMargin = 0
             bottomToBottom = parentId
             bottomMargin = vMargin
         }
@@ -1042,612 +880,227 @@ class AltTextKeyView(
         label.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
-    private fun applyIndependentAltTextPosition(keyHeight: Int) {
-        // The second label is either a stored alt1 or the auto uppercase hint
-        // (rendered via upperText). resolveUppercaseMode() already returns None when
-        // a distinct real alt1 exists, so a non-None value means the hint is shown.
-        val uppercase = resolveUppercaseMode() != UppercasePosition.None
-        val secondLabel = if (uppercase) upperText else altText1
-        val primary = independentPosition(def.altTextPositionOverride)
-        var secondary = independentAltText1Position(keyHeight)
-        // There is only one right-top corner. Keep the primary label there and
-        // move the second label to the left-top corner for legacy/invalid data.
-        if (primary == PunctuationPosition.TopRight && secondary == PunctuationPosition.TopRight) {
-            secondary = PunctuationPosition.Top
-        }
-
-        val primaryTop = primary == PunctuationPosition.Top || primary == PunctuationPosition.TopRight
-        val secondaryTop = secondary == PunctuationPosition.Top || secondary == PunctuationPosition.TopRight
-
-        if (altText.text.isNullOrBlank() || primary == PunctuationPosition.None) {
-            altText.visibility = View.GONE
-            when (secondary) {
-                PunctuationPosition.Top -> placeIndependentTopLabel(secondLabel, 0)
-                PunctuationPosition.TopRight -> placeIndependentTopLabel(secondLabel, 1)
-                PunctuationPosition.Bottom -> placeIndependentBottomLabel(secondLabel)
-                PunctuationPosition.None -> secondLabel.visibility = View.GONE
-            }
-            if (uppercase) hideAltText1() else hideUpperText()
-            return
-        }
-
-        if (secondary == PunctuationPosition.None) {
-            secondLabel.visibility = View.GONE
-            when (primary) {
-                PunctuationPosition.Top -> placeIndependentTopLabel(altText, 0)
-                PunctuationPosition.TopRight -> placeIndependentTopLabel(altText, 1)
-                PunctuationPosition.Bottom -> placeIndependentBottomLabel(altText)
-                PunctuationPosition.None -> altText.visibility = View.GONE
-            }
-            if (uppercase) hideAltText1() else hideUpperText()
-            return
-        }
-
-        if (primaryTop && secondaryTop) {
-            // At most one label may be TopRight (normalized above). Split the two
-            // labels to opposite top corners so they never overlap — including the
-            // both-"Top" case, where the primary takes the left corner.
-            val primaryRight = primary == PunctuationPosition.TopRight
-            applyCornerPairAltTextPosition(top = true, secondLabel = secondLabel, primaryRight = primaryRight)
-        } else if (primaryTop != secondaryTop) {
-            if (primaryTop) {
-                placeIndependentTopLabel(altText, if (primary == PunctuationPosition.TopRight) 1 else 0)
-                placeIndependentBottomLabel(secondLabel)
-            } else {
-                placeIndependentTopLabel(secondLabel, if (secondary == PunctuationPosition.TopRight) 1 else 0)
-                placeIndependentBottomLabel(altText)
-            }
-        } else {
-            applyCornerPairAltTextPosition(top = false, secondLabel = secondLabel)
-        }
-        if (uppercase) hideAltText1() else hideUpperText()
-    }
-
-    private fun applyDirectionalSwipeLabelPositions(topRight: Boolean) {
-        applyMainTextCenterPosition()
-        hideUpperText()
-        if (altText.text.isNullOrBlank()) {
-            altText.visibility = View.GONE
-        } else {
-            placeIndependentTopLabel(altText, if (topRight) 1 else 0, flushToEdge = false)
-        }
-        if (altText1.text.isNullOrBlank()) {
-            hideAltText1()
-        } else {
-            placeIndependentBottomLabel(altText1)
-        }
-    }
-
-    private fun positionAltTextAtTopRight() {
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            width = 0
-            bottomToBottom = unset; bottomMargin = 0
-            // set
-            topToTop = parentId; topMargin = vMargin + cornerLabelTopSafeInset
-            leftToLeft = parentId; leftMargin = hMargin
-            rightToRight = parentId; rightMargin = hMargin
-        }
-        applyTopRightAltTextPadding()
-        altText.gravity = Gravity.END or Gravity.CENTER_VERTICAL
-    }
-
-    private fun applyTopRightAltTextPosition() {
-        applyMainTextCenterPosition()
-        positionAltTextAtTopRight()
-        hideAltText1()
-        hideUpperText()
-    }
-
-    private fun applyTopAltTextPosition() {
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            topMargin = 0
-            bottomToTop = unset
-            topToTop = parentId
-            bottomToBottom = parentId
-        }
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
-            bottomToBottom = unset
-            bottomMargin = 0
-            topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
-            leftToLeft = parentId
-            leftMargin = hMargin
-            rightToRight = parentId
-            rightMargin = hMargin
-        }
-        applyBottomAltTextPadding()
-        altText.useGlyphBounds = false
-        altText.gravity = Gravity.CENTER
-        hideAltText1()
-        hideUpperText()
-    }
-
-    private fun applyBottomAltTextPosition() {
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            bottomToBottom = unset
-            // set
-            topToTop = parentId; topMargin = vMargin
-            bottomToTop = altText.existingOrNewId
-        }
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            width = 0
-            topToTop = unset; topMargin = 0
-            leftMargin = hMargin
-            rightMargin = hMargin
-            // set
-            leftToLeft = parentId
-            rightToRight = parentId
-            bottomToBottom = parentId; bottomMargin = vMargin
-        }
-        applyBottomAltTextPadding()
-        altText.useGlyphBounds = true
-        altText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-        hideAltText1()
-        hideUpperText()
-    }
-
-    private fun applyNoAltTextPosition() {
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            topMargin = 0
-            bottomToTop = unset
-            // set
-            topToTop = parentId
-            bottomToBottom = parentId
-        }
-        altText.visibility = View.GONE
-        applyBottomAltTextPadding()
-        altText.gravity = Gravity.CENTER
-        hideAltText1()
-        hideUpperText()
-    }
-
-    private fun hideUpperText() {
-        upperText.visibility = View.GONE
-    }
-
-    private fun showUpperTextAtTop() {
-        upperText.visibility = View.VISIBLE
-        upperText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
-            bottomToBottom = unset
-            bottomMargin = 0
-            topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
-            leftToLeft = parentId
-            leftMargin = hMargin
-            rightToRight = parentId
-            rightMargin = hMargin
-        }
-        upperText.setPadding(hMargin, 0, hMargin, 0)
-        upperText.useGlyphBounds = false
-        upperText.gravity = Gravity.CENTER
-    }
-
-    private fun showUpperTextAtBottom() {
-        upperText.visibility = View.VISIBLE
-        upperText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = 0
-            topToTop = unset
-            topMargin = 0
-            leftToLeft = parentId
-            leftMargin = hMargin
-            rightToRight = parentId
-            rightMargin = hMargin
-            bottomToBottom = parentId
-            bottomMargin = vMargin
-        }
-        upperText.setPadding(hMargin, 0, hMargin, 0)
-        upperText.useGlyphBounds = true
-        upperText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-    }
-
-    private fun showUpperTextAtCorner(top: Boolean, left: Boolean) {
-        upperText.visibility = View.VISIBLE
-        upperText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            width = wrapContent
+    private fun placeCornerLabel(label: AutoScaleTextView, top: Boolean, right: Boolean) {
+        resetLabelConstraints(label, wrapContent)
+        label.visibility = View.VISIBLE
+        label.updateLayoutParams<ConstraintLayout.LayoutParams> {
             if (top) {
                 topToTop = parentId
-                topMargin = vMargin + cornerLabelTopSafeInset
-                bottomToBottom = unset
-                bottomMargin = 0
+                topMargin = vMargin + cornerLabelVerticalSafeInset
             } else {
-                topToTop = unset
-                topMargin = 0
                 bottomToBottom = parentId
-                bottomMargin = vMargin
+                bottomMargin = vMargin + cornerLabelVerticalSafeInset
             }
-            if (left) {
-                leftToLeft = parentId
-                leftMargin = hMargin
-                rightToRight = unset
-                rightMargin = 0
-            } else {
-                leftToLeft = unset
-                leftMargin = 0
+            if (right) {
                 rightToRight = parentId
-                rightMargin = hMargin
+                rightMargin = hMargin + cornerLabelHorizontalSafeInset
+            } else {
+                leftToLeft = parentId
+                leftMargin = hMargin + cornerLabelHorizontalSafeInset
             }
         }
-        upperText.setPadding(0, 0, 0, 0)
-        upperText.useGlyphBounds = !top
-        upperText.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        label.setPadding(0, 0, 0, 0)
+        label.useGlyphBounds = !top
+        label.gravity = if (top) Gravity.CENTER else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
-    private fun applyUpperTopPosition() {
+    private fun applyCornerPairAltTextPosition(top: Boolean, primaryRight: Boolean) {
         applyMainTextCenterPosition()
+        placeCornerLabel(altText, top, primaryRight)
+        placeCornerLabel(altText1, top, !primaryRight)
+    }
+
+    private fun hideAltText1() {
+        altText1.visibility = View.GONE
+        altText1.setPadding(hMargin, 0, hMargin, 0)
+        altText1.gravity = Gravity.CENTER
+        altText1.useGlyphBounds = false
+        altText1.maxHeight = Int.MAX_VALUE
+    }
+
+    private fun hidePrimaryAltText() {
         altText.visibility = View.GONE
-        showUpperTextAtTop()
-        hideAltText1()
+        altText.setPadding(hMargin, 0, hMargin, 0)
+        altText.gravity = Gravity.CENTER
+        altText.useGlyphBounds = false
+        altText.maxHeight = Int.MAX_VALUE
     }
 
-    private fun applyUpperBottomPosition() {
-        applyMainTextAboveBottomAltPosition(upperText)
-        altText.visibility = View.GONE
-        showUpperTextAtBottom()
-        hideAltText1()
-    }
-
-    private fun resolveThemeLayoutMode(): AltTextLayoutMode {
-        val pref = punctuationPositionForKey()
-        if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
-        return when (pref) {
-            PunctuationPosition.Top -> AltTextLayoutMode.Top
-            PunctuationPosition.TopRight -> AltTextLayoutMode.TopRight
-            PunctuationPosition.Bottom -> AltTextLayoutMode.Bottom
-            PunctuationPosition.None -> AltTextLayoutMode.Hidden
+    private fun positionLabel(label: AutoScaleTextView, position: LabelPosition) {
+        when (position) {
+            LabelPosition.Hidden -> label.visibility = View.GONE
+            LabelPosition.Top -> placeIndependentTopLabel(label, edge = 0)
+            LabelPosition.TopRight -> placeIndependentTopLabel(label, edge = 1, flushToEdge = false)
+            LabelPosition.Bottom -> placeIndependentBottomLabel(label)
         }
     }
 
-    private fun resolveThemeCornerPairLayoutMode(): AltTextLayoutMode {
-        return when (punctuationPositionForKey()) {
-            PunctuationPosition.Top, PunctuationPosition.TopRight -> AltTextLayoutMode.TopCorners
-            PunctuationPosition.Bottom -> AltTextLayoutMode.BottomCorners
-            PunctuationPosition.None -> AltTextLayoutMode.Hidden
+    private fun positionFrom(position: PunctuationPosition): LabelPosition = when (position) {
+        PunctuationPosition.Top -> LabelPosition.Top
+        PunctuationPosition.TopRight -> LabelPosition.TopRight
+        PunctuationPosition.Bottom -> LabelPosition.Bottom
+        PunctuationPosition.None -> LabelPosition.Hidden
+    }
+
+    private fun positionFrom(position: KeyDef.Appearance.AltTextPosition?): LabelPosition = when (position) {
+        KeyDef.Appearance.AltTextPosition.Top -> LabelPosition.Top
+        KeyDef.Appearance.AltTextPosition.TopRight -> LabelPosition.TopRight
+        KeyDef.Appearance.AltTextPosition.Bottom -> LabelPosition.Bottom
+        KeyDef.Appearance.AltTextPosition.TopBottom, null -> positionFrom(punctuationPositionForKey())
+    }
+
+    private fun isTop(position: LabelPosition): Boolean =
+        position == LabelPosition.Top || position == LabelPosition.TopRight
+
+    private fun labelHeight(label: AutoScaleTextView): Int =
+        (label.paint.fontMetrics.bottom - label.paint.fontMetrics.top).toInt()
+
+    private fun resolvePrimaryPosition(): LabelPosition {
+        return when (val override = def.altTextPositionOverride) {
+            null, KeyDef.Appearance.AltTextPosition.TopBottom -> positionFrom(punctuationPositionForKey())
+            else -> positionFrom(override)
         }
     }
 
-    /**
-     * The punctuation sublabel position for this key: the row-level override set in
-     * the layout editor when present, otherwise the punctuation position applicable to this key.
-     */
-    private fun effectivePunctuationPosition(): PunctuationPosition {
-        return independentPosition(def.altTextPositionOverride)
-    }
-
-    private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
-        if (def.directionalSwipeLabels) {
-            return when (punctuationPositionForKey()) {
-                PunctuationPosition.None -> AltTextLayoutMode.Hidden
-                PunctuationPosition.TopRight -> AltTextLayoutMode.DirectionalTopRightBottom
-                PunctuationPosition.Top, PunctuationPosition.Bottom -> AltTextLayoutMode.DirectionalTopBottom
-            }
-        }
-        if (shouldUseIndependentAltTextPositions()) {
-            return resolveIndependentLayoutMode(keyHeight)
-        }
-        val uppercase = resolveUppercaseMode()
-        if (uppercase != UppercasePosition.None) {
-            return resolveUppercaseLayoutMode(keyHeight, uppercase)
-        }
-        return resolvePunctuationLayoutMode(keyHeight)
-    }
-
-    private fun shouldUseIndependentAltTextPositions(): Boolean {
-        // The second label participates in independent positioning whether it is a
-        // stored alt1 or the auto uppercase hint (upperText). A row-level override
-        // for either label then takes precedence over the global theme positions.
-        val hasSecondLabel = hasSecondAltText() || resolveUppercaseMode() != UppercasePosition.None
-        return hasSecondLabel &&
-                (def.altText1PositionOverride != null ||
-                    (def.altTextPositionOverride != null &&
-                        def.altTextPositionOverride != KeyDef.Appearance.AltTextPosition.TopBottom))
-    }
-
-    private fun independentPosition(position: KeyDef.Appearance.AltTextPosition?): PunctuationPosition {
-        return when (position) {
-            KeyDef.Appearance.AltTextPosition.Top -> PunctuationPosition.Top
-            KeyDef.Appearance.AltTextPosition.TopRight -> PunctuationPosition.TopRight
-            KeyDef.Appearance.AltTextPosition.Bottom -> PunctuationPosition.Bottom
-            KeyDef.Appearance.AltTextPosition.TopBottom, null ->
-                punctuationPositionForKey()
-        }
-    }
-
-    private fun independentAltText1Position(keyHeight: Int = appearanceView.height): PunctuationPosition {
+    private fun resolveSecondaryPosition(): LabelPosition {
         val override = def.altText1PositionOverride
-        if (override != null) {
-            if (override == KeyDef.Appearance.AltTextPosition.TopRight &&
-                isUppercaseAliasAlt1() &&
-                resolveUppercaseMode() == UppercasePosition.Top &&
-                keyHeight > 0
-            ) {
-                val contentHeight = keyHeight - vMargin * 2
-                val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
-                val upperHeight = upperText.paint.run { fontMetrics.bottom - fontMetrics.top }
-                if (contentHeight >= mainHeight + upperHeight + dp(1)) {
-                    // Once both labels fit, return the uppercase hint to the
-                    // centered top position used by the global preference.
-                    return PunctuationPosition.Top
-                }
-            }
-            return independentPosition(override)
+        if (override != null) return positionFrom(override)
+
+        return when (val uppercasePosition = resolveUppercaseMode()) {
+            UppercasePosition.Top -> LabelPosition.Top
+            UppercasePosition.Bottom -> LabelPosition.Bottom
+            UppercasePosition.None -> positionFrom(punctuationPositionForKey())
         }
-        // No explicit 副字符一位置: the uppercase hint keeps following the global
-        // uppercase position; other labels use the punctuation position for this key.
-        if (resolveUppercaseMode() != UppercasePosition.None) {
-            return when (ThemeManager.prefs.uppercasePosition.getValue()) {
-                UppercasePosition.Top -> PunctuationPosition.Top
-                UppercasePosition.Bottom -> PunctuationPosition.Bottom
-                UppercasePosition.None -> PunctuationPosition.Bottom
-            }
-        }
-        return independentPosition(null)
     }
 
-    private fun resolveIndependentLayoutMode(keyHeight: Int): AltTextLayoutMode {
-        if (keyHeight <= 0) return AltTextLayoutMode.Independent
-        val contentHeight = keyHeight - vMargin * 2
-        val primary = independentPosition(def.altTextPositionOverride)
-        val secondary = independentAltText1Position(keyHeight)
-        if (!altText.text.isNullOrBlank() &&
-            (primary == PunctuationPosition.Top || primary == PunctuationPosition.TopRight) &&
-            (secondary == PunctuationPosition.Top || secondary == PunctuationPosition.TopRight)
+    private fun resolveLayout(keyHeight: Int): LabelLayout {
+        if (def.directionalSwipeLabels) {
+            val punctuation = punctuationPositionForKey()
+            if (punctuation == PunctuationPosition.None) {
+                return LabelLayout(LabelPosition.Hidden, LabelPosition.Hidden)
+            }
+            return LabelLayout(
+                primary = if (altText.text.isNullOrBlank()) {
+                    LabelPosition.Hidden
+                } else if (punctuation == PunctuationPosition.TopRight) {
+                    LabelPosition.TopRight
+                } else {
+                    LabelPosition.Top
+                },
+                secondary = if (hasSecondAltText()) LabelPosition.Bottom else LabelPosition.Hidden
+            )
+        }
+
+        val hasPrimary = !altText.text.isNullOrBlank()
+        val hasSecondary = hasSecondAltText()
+        val requestedPrimary = resolvePrimaryPosition()
+        var primary = if (hasPrimary) requestedPrimary else LabelPosition.Hidden
+        var secondary = if (hasSecondary) resolveSecondaryPosition() else LabelPosition.Hidden
+
+        // TopBottom is the legacy combined row setting: it pins the first label
+        // above the second, regardless of the theme's independent positions.
+        if (hasPrimary && hasSecondary &&
+            def.altTextPositionOverride == KeyDef.Appearance.AltTextPosition.TopBottom
         ) {
-            return if (contentHeight >= cornerLabelTopSafeInset + dp(4) + 3) {
-                AltTextLayoutMode.Independent
-            } else AltTextLayoutMode.Hidden
+            primary = LabelPosition.Top
+            secondary = LabelPosition.Bottom
         }
-        val minHeight = max(
-            altText.paint.run { fontMetrics.bottom - fontMetrics.top },
-            altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
-        ) + cornerLabelTopSafeInset
-        return if (contentHeight >= minHeight) AltTextLayoutMode.Independent else AltTextLayoutMode.Hidden
+
+        // There is one upper-right corner. Keep the first label there and place
+        // the second in the remaining upper corner when legacy data collides.
+        if (requestedPrimary == LabelPosition.TopRight && secondary == LabelPosition.TopRight) {
+            secondary = LabelPosition.Top
+        }
+
+        val layout = LabelLayout(primary, secondary)
+        if (keyHeight > 0 && !hasEnoughRoom(layout, keyHeight)) {
+            return LabelLayout(LabelPosition.Hidden, LabelPosition.Hidden)
+        }
+        return layout
     }
 
-    private fun resolveUppercaseLayoutMode(keyHeight: Int, uppercase: UppercasePosition): AltTextLayoutMode {
-        val hasPunct = !altText.text.isNullOrBlank()
-        val punctPref = effectivePunctuationPosition()
-        // Either label set to "None" simply hides that label; the other keeps its own position
-        val preferred = if (!hasPunct || punctPref == PunctuationPosition.None) {
-            if (uppercase == UppercasePosition.Top) AltTextLayoutMode.UpperTop else AltTextLayoutMode.UpperBottom
-        } else when (uppercase) {
-            UppercasePosition.Top -> when (punctPref) {
-                PunctuationPosition.Bottom -> AltTextLayoutMode.UpperTopPunctBottom
-                PunctuationPosition.Top -> AltTextLayoutMode.PunctUpperTopCorners
-                PunctuationPosition.TopRight -> AltTextLayoutMode.PunctTopRightUpperTopLeft
-                PunctuationPosition.None -> AltTextLayoutMode.UpperTop
-            }
-            UppercasePosition.Bottom -> when (punctPref) {
-                PunctuationPosition.Bottom -> AltTextLayoutMode.PunctUpperBottomCorners
-                PunctuationPosition.Top -> AltTextLayoutMode.PunctTopUpperBottom
-                PunctuationPosition.TopRight -> AltTextLayoutMode.PunctTopRightUpperBottom
-                PunctuationPosition.None -> AltTextLayoutMode.UpperBottom
-            }
-            UppercasePosition.None -> AltTextLayoutMode.Hidden
-        }
-        if (keyHeight <= 0) return preferred
+    private fun hasEnoughRoom(layout: LabelLayout, keyHeight: Int): Boolean {
+        val primaryVisible = layout.primary != LabelPosition.Hidden
+        val secondaryVisible = layout.secondary != LabelPosition.Hidden
+        if (!primaryVisible && !secondaryVisible) return true
 
         val contentHeight = keyHeight - vMargin * 2
-        val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val upperHeight = upperText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        // Compact overlays only need the sublabel itself to fit: the centered main
-        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
-        // so its unscaled metrics must not gate the compact minimum height.
-        val compactMinHeight = altHeight + cornerLabelTopSafeInset
-        val dualCompactMinHeight = max(compactMinHeight, upperHeight + cornerLabelTopSafeInset)
-        val upperCompactMinHeight = upperHeight + cornerLabelTopSafeInset
-        val upperStackedMinHeight = mainHeight + upperHeight + dp(1)
-
-        return when (preferred) {
-            AltTextLayoutMode.UpperTopPunctBottom,
-            AltTextLayoutMode.PunctTopUpperBottom -> when {
-                // All three labels can scale inside their own regions on short rows.
-                contentHeight >= cornerLabelTopSafeInset * 2 + dp(4) + 3 -> preferred
-                else -> resolvePunctuationLayoutMode(keyHeight)
-            }
-            AltTextLayoutMode.PunctUpperTopCorners,
-            AltTextLayoutMode.PunctTopRightUpperTopLeft -> when {
-                contentHeight >= cornerLabelTopSafeInset + dp(4) + 3 -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.PunctTopRightUpperBottom,
-            AltTextLayoutMode.PunctUpperBottomCorners -> when {
-                contentHeight >= dualCompactMinHeight -> preferred
-                // Not enough room for both sublabels: fall back to punctuation-only layout
-                else -> resolvePunctuationLayoutMode(keyHeight)
-            }
-            AltTextLayoutMode.UpperTop -> when {
-                contentHeight >= upperCompactMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.UpperBottom -> when {
-                contentHeight >= upperStackedMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            else -> resolvePunctuationLayoutMode(keyHeight)
+        val minimumHeight = when {
+            primaryVisible && secondaryVisible && isTop(layout.primary) == isTop(layout.secondary) &&
+                isTop(layout.primary) -> cornerLabelVerticalSafeInset + dp(4) + 3
+            primaryVisible && secondaryVisible -> maxOf(labelHeight(altText), labelHeight(altText1)) +
+                cornerLabelVerticalSafeInset
+            primaryVisible -> labelHeight(altText) + cornerLabelVerticalSafeInset
+            else -> labelHeight(altText1) + cornerLabelVerticalSafeInset
         }
-    }
-
-    private fun resolvePunctuationLayoutMode(keyHeight: Int): AltTextLayoutMode {
-        if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
-        // An explicit row-level override must display even when the global
-        // preference hides letter-key punctuation
-        if (def.altTextPositionOverride == null &&
-            punctuationPositionForKey() == PunctuationPosition.None
-        ) {
-            return AltTextLayoutMode.Hidden
-        }
-        val hasSecondAlt = hasSecondAltText()
-        val preferred = when (def.altTextPositionOverride) {
-            KeyDef.Appearance.AltTextPosition.TopBottom -> {
-                if (hasSecondAlt) AltTextLayoutMode.TopBottom else resolveThemeLayoutMode()
-            }
-            KeyDef.Appearance.AltTextPosition.Top -> {
-                if (hasSecondAlt) AltTextLayoutMode.TopCorners else AltTextLayoutMode.Top
-            }
-            KeyDef.Appearance.AltTextPosition.TopRight -> {
-                if (hasSecondAlt) AltTextLayoutMode.TopCorners else AltTextLayoutMode.TopRight
-            }
-            KeyDef.Appearance.AltTextPosition.Bottom -> {
-                if (hasSecondAlt) AltTextLayoutMode.BottomCorners else AltTextLayoutMode.Bottom
-            }
-            null -> if (hasSecondAlt) resolveThemeCornerPairLayoutMode() else resolveThemeLayoutMode()
-        }
-        if (keyHeight <= 0) return preferred
-
-        val contentHeight = keyHeight - vMargin * 2
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val altText1Height = altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
-        // Compact overlays only need the sublabel itself to fit: the centered main
-        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
-        // so its unscaled metrics must not gate the compact minimum height.
-        val compactMinHeight = altHeight + cornerLabelTopSafeInset
-        val topBottomCompactMinHeight = max(compactMinHeight, altText1Height + cornerLabelTopSafeInset)
-
-        return when (preferred) {
-            AltTextLayoutMode.TopBottom -> when {
-                contentHeight >= topBottomCompactMinHeight -> AltTextLayoutMode.TopBottom
-                hasSecondAlt && contentHeight >= compactMinHeight -> resolveThemeCornerPairLayoutMode()
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Bottom -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.Bottom
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.TopCorners -> when {
-                contentHeight >= cornerLabelTopSafeInset + dp(4) + 3 -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.BottomCorners -> when {
-                contentHeight >= compactMinHeight -> preferred
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Top -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.Top
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.TopRight -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
-            // Uppercase modes are resolved in resolveUppercaseLayoutMode and never reach here
-            else -> resolveThemeLayoutMode()
-        }
+        return contentHeight >= minimumHeight
     }
 
     private fun applyLayout(keyHeight: Int = appearanceView.height) {
-        if (upperText.typeface.isBold) {
-            upperText.setTypeface(
-                upperText.typeface,
-                if (upperText.typeface.isItalic) Typeface.ITALIC else Typeface.NORMAL
+        if (altText1.typeface.isBold) {
+            altText1.setTypeface(
+                altText1.typeface,
+                if (altText1.typeface.isItalic) Typeface.ITALIC else Typeface.NORMAL
             )
         }
-        syncUppercaseText()
-        val mode = resolveLayoutMode(keyHeight)
+        syncAltText1()
+        val layout = resolveLayout(keyHeight)
         val directionalLabelMask = if (def.directionalSwipeLabels) {
             (if (altText.text.isNullOrBlank()) 0 else 1) or
-                    (if (altText1.text.isNullOrBlank()) 0 else 2)
+                (if (altText1.text.isNullOrBlank()) 0 else 2)
         } else 0
-        if (mode == lastLayoutMode && keyHeight == lastLayoutHeight &&
+        if (layout == lastLayout && keyHeight == lastLayoutHeight &&
             directionalLabelMask == lastDirectionalLabelMask
         ) {
-            // Directional occupancy is fully covered by the mask. Rewriting identical
-            // constraints here from onLayout leaves the child layout requested after
-            // the parent is clean, preventing later text changes from reaching it.
             if (!def.directionalSwipeLabels) updateRemainingSpaceLabels(keyHeight)
             return
         }
-        lastLayoutMode = mode
+
+        lastLayout = layout
         lastLayoutHeight = keyHeight
         lastDirectionalLabelMask = directionalLabelMask
         remainingSpaceTopLabels = emptyList()
         remainingSpaceBottomLabels = emptyList()
         mainText.glyphPlacement = null
         mainText.useGlyphBounds = false
-        val separateMainText = mode == AltTextLayoutMode.UpperTopPunctBottom ||
-                mode == AltTextLayoutMode.PunctTopUpperBottom || def.directionalSwipeLabels
-        val labelMaxHeight = if (separateMainText && keyHeight > 0) {
-            // Reserve at least a third of the usable height for the main label.
-            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
+        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = wrapContent
+            topToBottom = unset
+            bottomToTop = unset
+            topMargin = 0
+            bottomMargin = 0
+        }
+
+        val primaryVisible = layout.primary != LabelPosition.Hidden
+        val secondaryVisible = layout.secondary != LabelPosition.Hidden
+        val separateLabelsOnEdges = primaryVisible && secondaryVisible &&
+            isTop(layout.primary) != isTop(layout.secondary)
+        val labelMaxHeight = if (separateLabelsOnEdges && keyHeight > 0) {
+            ((keyHeight - vMargin * 2 - cornerLabelVerticalSafeInset * 2 - dp(4)) / 3)
                 .coerceAtLeast(1)
         } else {
             Int.MAX_VALUE
         }
-        altText.useGlyphBounds = separateMainText
-        altText1.useGlyphBounds = def.directionalSwipeLabels
-        upperText.useGlyphBounds = separateMainText
         altText.maxHeight = labelMaxHeight
-        altText1.maxHeight = if (def.directionalSwipeLabels) labelMaxHeight else Int.MAX_VALUE
-        upperText.maxHeight = labelMaxHeight
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            height = wrapContent
-            topToBottom = unset
-            topMargin = 0
-            bottomMargin = 0
+        altText1.maxHeight = labelMaxHeight
+
+        when {
+            primaryVisible && secondaryVisible && isTop(layout.primary) == isTop(layout.secondary) -> {
+                val primaryRight = layout.primary == LabelPosition.TopRight
+                applyCornerPairAltTextPosition(isTop(layout.primary), primaryRight)
+            }
+            else -> {
+                if (primaryVisible) positionLabel(altText, layout.primary) else hidePrimaryAltText()
+                if (secondaryVisible) positionLabel(altText1, layout.secondary) else hideAltText1()
+            }
         }
-        when (mode) {
-            AltTextLayoutMode.TopBottom -> {
-                applyVerticalPairAltTextPosition(altText, altText1)
-                hideUpperText()
-            }
-            AltTextLayoutMode.TopCorners -> {
-                applyCornerPairAltTextPosition(top = true)
-                hideUpperText()
-            }
-            AltTextLayoutMode.BottomCorners -> {
-                applyCornerPairAltTextPosition(top = false)
-                hideUpperText()
-            }
-            AltTextLayoutMode.Bottom -> applyBottomAltTextPosition()
-            AltTextLayoutMode.Top -> applyTopAltTextPosition()
-            AltTextLayoutMode.TopRight -> applyTopRightAltTextPosition()
-            AltTextLayoutMode.UpperTopPunctBottom -> {
-                applyVerticalPairAltTextPosition(upperText, altText)
-                hideAltText1()
-            }
-            AltTextLayoutMode.PunctTopUpperBottom -> {
-                applyVerticalPairAltTextPosition(altText, upperText)
-                hideAltText1()
-            }
-            AltTextLayoutMode.PunctTopRightUpperBottom -> {
-                positionAltTextAtTopRight()
-                showUpperTextAtBottom()
-                hideAltText1()
-            }
-            AltTextLayoutMode.PunctUpperTopCorners -> {
-                applyCornerPairAltTextPosition(top = true, secondLabel = upperText)
-                hideAltText1()
-            }
-            AltTextLayoutMode.PunctUpperBottomCorners -> {
-                applyCornerPairAltTextPosition(top = false, secondLabel = upperText)
-                hideAltText1()
-            }
-            AltTextLayoutMode.PunctTopRightUpperTopLeft -> {
-                positionAltTextAtTopRight()
-                showUpperTextAtCorner(top = true, left = true)
-                hideAltText1()
-            }
-            AltTextLayoutMode.UpperTop -> applyUpperTopPosition()
-            AltTextLayoutMode.UpperBottom -> applyUpperBottomPosition()
-            AltTextLayoutMode.Independent -> applyIndependentAltTextPosition(keyHeight)
-            AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalSwipeLabelPositions(topRight = false)
-            AltTextLayoutMode.DirectionalTopRightBottom -> applyDirectionalSwipeLabelPositions(topRight = true)
-            AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
-        }
+
+        if (!primaryVisible && !secondaryVisible) applyMainTextCenterPosition()
         updateRemainingSpaceLabels(keyHeight)
     }
+
     private fun updateRemainingSpaceLabels(keyHeight: Int) {
-        val visibleLabels = listOf(altText, altText1, upperText).filter {
+        val visibleLabels = listOf(altText, altText1).filter {
             it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
         }
         remainingSpaceTopLabels = visibleLabels.filter {
@@ -1656,8 +1109,6 @@ class AltTextKeyView(
         remainingSpaceBottomLabels = visibleLabels.filter {
             (it.layoutParams as ConstraintLayout.LayoutParams).bottomToBottom == ConstraintLayout.LayoutParams.PARENT_ID
         }
-        // Preserve each sublabel's anchor, but reserve room for the main ink and
-        // two gaps, including on short rows with oversized fonts.
         if (visibleLabels.isNotEmpty()) {
             val topInset = remainingSpaceTopLabels.maxOfOrNull {
                 (it.layoutParams as ConstraintLayout.LayoutParams).topMargin
@@ -1668,17 +1119,12 @@ class AltTextKeyView(
             val hasSingleEdge = remainingSpaceTopLabels.isNotEmpty() xor
                 remainingSpaceBottomLabels.isNotEmpty()
             if (keyHeight > 0 && hasSingleEdge) {
-                val maxLabelHeight = ((keyHeight - topInset - bottomInset - dp(4)) / 3)
-                    .coerceAtLeast(1)
-                // Same-edge corner labels need a bounded band; mixed-edge labels
-                // already have independent edge constraints and their own sizing.
+                val maxLabelHeight = ((keyHeight - topInset - bottomInset - dp(4)) / 3).coerceAtLeast(1)
                 visibleLabels.forEach {
                     if (it.maxHeight != maxLabelHeight) it.maxHeight = maxLabelHeight
                 }
             }
             mainText.useGlyphBounds = true
-            // A full-height drawing region avoids clipping ink positioned relative
-            // to other glyphs rather than their (larger) TextView boxes.
             val params = mainText.layoutParams as ConstraintLayout.LayoutParams
             if (params.height != 0 || params.topToTop != params.parentId ||
                 params.bottomToBottom != params.parentId || params.topToBottom != params.unset ||
@@ -1700,104 +1146,47 @@ class AltTextKeyView(
         }
     }
 
-
-    override fun secondarySwipeTarget(): AltTextSwipeTarget {
-        return if (resolveUppercaseMode() != UppercasePosition.None) {
-            AltTextSwipeTarget.Uppercase
-        } else {
-            AltTextSwipeTarget.Secondary
-        }
-    }
+    override fun secondarySwipeTarget(): AltTextSwipeTarget =
+        if (isUppercaseHintActive()) AltTextSwipeTarget.Uppercase else AltTextSwipeTarget.Secondary
 
     override fun selectAltTextSwipeTarget(totalY: Int): AltTextSwipeTarget? {
         if (totalY == 0) return null
-        val mode = lastLayoutMode ?: resolveLayoutMode(appearanceView.height)
-        // Fallback layouts (TopBottom/TopCorners/BottomCorners) may carry the uppercase alias
-        val secondary = secondarySwipeTarget()
-        return when (mode) {
-            AltTextLayoutMode.DirectionalTopBottom,
-            AltTextLayoutMode.DirectionalTopRightBottom -> if (totalY < 0) {
-                AltTextSwipeTarget.Primary.takeUnless { altText.text.isNullOrBlank() }
+        val layout = lastLayout ?: resolveLayout(appearanceView.height)
+        val primaryShown = layout.primary != LabelPosition.Hidden && !altText.text.isNullOrBlank()
+        val secondaryShown = layout.secondary != LabelPosition.Hidden && !altText1.text.isNullOrBlank()
+        if (!primaryShown && !secondaryShown) return null
+
+        if (def.directionalSwipeLabels) {
+            return if (totalY < 0) {
+                AltTextSwipeTarget.Primary.takeIf { primaryShown }
             } else {
-                AltTextSwipeTarget.Secondary.takeUnless { altText1.text.isNullOrBlank() }
+                AltTextSwipeTarget.Secondary.takeIf { secondaryShown }
             }
-            AltTextLayoutMode.TopBottom,
-            AltTextLayoutMode.TopCorners -> if (totalY < 0) {
-                AltTextSwipeTarget.Primary
-            } else {
-                secondary
-            }
-            AltTextLayoutMode.BottomCorners -> if (totalY < 0) {
-                secondary
-            } else {
-                AltTextSwipeTarget.Primary
-            }
-            AltTextLayoutMode.Top,
-            AltTextLayoutMode.TopRight ->
-                AltTextSwipeTarget.Primary.takeIf { totalY < 0 }
-            AltTextLayoutMode.Bottom ->
-                AltTextSwipeTarget.Primary.takeIf { totalY > 0 }
-            // Punctuation sits above the uppercase hint: swipe up commits
-            // punctuation, swipe down commits the uppercase letter
-            AltTextLayoutMode.PunctTopUpperBottom,
-            AltTextLayoutMode.PunctTopRightUpperBottom,
-            AltTextLayoutMode.PunctUpperTopCorners,
-            AltTextLayoutMode.PunctTopRightUpperTopLeft -> if (totalY < 0) {
-                AltTextSwipeTarget.Primary
-            } else {
-                AltTextSwipeTarget.Uppercase
-            }
-            // Uppercase hint sits above the punctuation: swipe up commits the
-            // uppercase letter, swipe down commits punctuation
-            AltTextLayoutMode.UpperTopPunctBottom,
-            AltTextLayoutMode.PunctUpperBottomCorners -> if (totalY > 0) {
-                AltTextSwipeTarget.Primary
-            } else {
-                AltTextSwipeTarget.Uppercase
-            }
-            AltTextLayoutMode.UpperTop ->
-                AltTextSwipeTarget.Uppercase.takeIf { totalY < 0 }
-            AltTextLayoutMode.UpperBottom ->
-                AltTextSwipeTarget.Uppercase.takeIf { totalY > 0 }
-            // 顶底双角标 (both labels on the same edge): fixed gesture regardless of
-            // edge — swipe up = 副字符一 (uppercase / second alt), swipe down = 副字符
-            // (punctuation). 一顶一底 (mixed) and single-label layouts instead follow
-            // each label's actual vertical position (up = top label, down = bottom).
-            AltTextLayoutMode.Independent -> {
-                val primaryPos = independentPosition(def.altTextPositionOverride)
-                val secondaryPos = independentAltText1Position()
-                val primaryShown = !altText.text.isNullOrBlank() && primaryPos != PunctuationPosition.None
-                val secondaryShown = secondaryPos != PunctuationPosition.None
-                val primaryTop = primaryPos == PunctuationPosition.Top ||
-                    primaryPos == PunctuationPosition.TopRight
-                val secondaryTop = secondaryPos == PunctuationPosition.Top ||
-                    secondaryPos == PunctuationPosition.TopRight
-                if (primaryShown && secondaryShown && primaryTop == secondaryTop) {
-                    if (totalY < 0) secondary else AltTextSwipeTarget.Primary
-                } else {
-                    val topTarget = when {
-                        primaryShown && primaryTop -> AltTextSwipeTarget.Primary
-                        secondaryShown && secondaryTop -> secondary
-                        else -> null
-                    }
-                    val bottomTarget = when {
-                        primaryShown && !primaryTop -> AltTextSwipeTarget.Primary
-                        secondaryShown && !secondaryTop -> secondary
-                        else -> null
-                    }
-                    if (totalY < 0) topTarget else bottomTarget
-                }
-            }
-            AltTextLayoutMode.Hidden -> null
         }
+
+        val secondaryTarget = secondarySwipeTarget()
+        if (primaryShown && secondaryShown && isTop(layout.primary) == isTop(layout.secondary)) {
+            // Same-edge pairs keep the established gesture mapping: up selects
+            // the second label, down selects the first.
+            return if (totalY < 0) secondaryTarget else AltTextSwipeTarget.Primary
+        }
+
+        val topTarget = when {
+            primaryShown && isTop(layout.primary) -> AltTextSwipeTarget.Primary
+            secondaryShown && isTop(layout.secondary) -> secondaryTarget
+            else -> null
+        }
+        val bottomTarget = when {
+            primaryShown && !isTop(layout.primary) -> AltTextSwipeTarget.Primary
+            secondaryShown && !isTop(layout.secondary) -> secondaryTarget
+            else -> null
+        }
+        return if (totalY < 0) topTarget else bottomTarget
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        lastLayoutMode = null
-        // 修复时序问题：使用 post 延后执行，确保获取到 layout 后的最终高度
-        appearanceView.post {
-            applyLayout()
-        }
+        lastLayout = null
+        appearanceView.post { applyLayout() }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -1808,19 +1197,15 @@ class AltTextKeyView(
 
     override fun onAppearanceLayoutChanged(width: Int, height: Int) {
         applyLayout(height)
-        // Standalone previews can contain one key. BaseKeyboard repeats this once
-        // for the complete row after every sibling has finished laying out.
         alignRemainingSpaceMainLabels(listOf(this))
         if (mainText.text.length > 1) {
-            val visibleLabels = listOf(altText, altText1, upperText).filter {
+            val visibleLabels = listOf(altText, altText1).filter {
                 it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
             }
             val topLabels = visibleLabels.filter { it.bottom <= height / 2 }
             val bottomLabels = visibleLabels.filter { it.top >= height / 2 }
-            val top = topLabels.maxOfOrNull { it.bottom + (dp(2) - 1) }
-                ?: vMargin
-            val bottom = bottomLabels.minOfOrNull { it.top - (dp(2) - 1) }
-                ?: (height - vMargin)
+            val top = topLabels.maxOfOrNull { it.bottom + (dp(2) - 1) } ?: vMargin
+            val bottom = bottomLabels.minOfOrNull { it.top - (dp(2) - 1) } ?: (height - vMargin)
             mainText.centerGlyphsInBand(top, bottom, height / 2f)
         } else if (mainText.glyphPlacement == null) {
             mainText.constrainGlyphsVertically(vMargin, height - vMargin)
@@ -1845,7 +1230,7 @@ class AltTextKeyView(
                 key.mainText.paint.getTextBounds(text, 0, text.length, bounds)
                 if (bounds.isEmpty) return@mapNotNull null
 
-                val visibleLabels = listOf(key.altText, key.altText1, key.upperText).filter {
+                val visibleLabels = listOf(key.altText, key.altText1).filter {
                     it.visibility == View.VISIBLE && !it.text.isNullOrBlank()
                 }
                 val topLabels = key.remainingSpaceTopLabels.ifEmpty {
@@ -2015,44 +1400,24 @@ class AltTextKeyView(
      * Used by BaseKeyboard to ensure correct layout after keyboard size is fully applied.
      */
     internal fun refreshLayout() {
-        lastLayoutMode = null
+        lastLayout = null
         applyLayout()
     }
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
-        lastLayoutMode = null
-        // 修复时序问题：使用 post 延后执行，确保获取到 layout 后的最终高度
-        appearanceView.post {
-            applyLayout()
-        }
-        altText.setTextColor(
-            resolveAltTextColor(
-                when (def.variant) {
-                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
+        val color = resolveAltTextColor(
+            when (def.variant) {
+                Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
+                Variant.Accent -> newTheme.accentKeyTextColor
+            }
         )
-        altText1.setTextColor(
-            resolveAltTextColor(
-                when (def.variant) {
-                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
-        upperText.setTextColor(
-            resolveAltTextColor(
-                when (def.variant) {
-                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
-        lastLayoutMode = null
-        applyLayout()
+        altText.setTextColor(color)
+        altText1.setTextColor(color)
+        lastLayout = null
+        appearanceView.post { applyLayout() }
     }
+
 }
 
 @SuppressLint("ViewConstructor")
@@ -2154,7 +1519,7 @@ class ImageAltTextKeyView(
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
-            topToTop = parentId; topMargin = vMargin + cornerLabelTopSafeInset
+            topToTop = parentId; topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset; bottomMargin = 0
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
@@ -2177,7 +1542,7 @@ class ImageAltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
+            topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset
             bottomMargin = 0
             leftToLeft = parentId
@@ -2228,7 +1593,7 @@ class ImageAltTextKeyView(
 
     private fun applyDirectionalSwipeLabelPositions(topRight: Boolean, keyHeight: Int) {
         val labelMaxHeight = if (keyHeight > 0) {
-            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
+            ((keyHeight - vMargin * 2 - cornerLabelVerticalSafeInset * 2 - dp(4)) / 3)
                 .coerceAtLeast(1)
         } else {
             Int.MAX_VALUE
@@ -2241,7 +1606,7 @@ class ImageAltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
+            topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset
             bottomMargin = 0
             leftToLeft = parentId
@@ -2315,7 +1680,7 @@ class ImageAltTextKeyView(
         val contentHeight = keyHeight - vMargin * 2
         val iconHeight = img.measuredHeight.takeIf { it > 0 } ?: dp(24)
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val compactMinHeight = max(iconHeight.toFloat(), altHeight + cornerLabelTopSafeInset.toFloat())
+        val compactMinHeight = max(iconHeight.toFloat(), altHeight + cornerLabelVerticalSafeInset.toFloat())
         val stackedMinHeight = iconHeight + altHeight + dp(1)
 
         return when (preferred) {

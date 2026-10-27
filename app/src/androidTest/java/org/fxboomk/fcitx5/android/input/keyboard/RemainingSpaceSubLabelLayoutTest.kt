@@ -54,7 +54,7 @@ class RemainingSpaceSubLabelLayoutTest {
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Bottom)
         val mixed = createKey(appearance(secondary = null, uppercase = true))
         layoutKey(mixed)
-        assertBalanced("theme TopRight + UpperBottom", mixed, Edges(Edge.Top, uppercase = Edge.Bottom))
+        assertBalanced("theme TopRight + UpperBottom", mixed, Edges(Edge.Top, secondary = Edge.Bottom))
 
         // TopBottom is the legacy combined override, not an independent pair.
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.None)
@@ -125,13 +125,13 @@ class RemainingSpaceSubLabelLayoutTest {
                 layoutKey(key)
                 assertBalanced(
                     "theme punctuation=$position uppercase=$uppercase", key,
-                    Edges(primary = position.edge(), uppercase = upperEdge)
+                    Edges(primary = position.edge(), secondary = upperEdge)
                 )
             }
             ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
             val key = createKey(appearance(secondary = null, uppercase = true))
             layoutKey(key)
-            assertBalanced("theme uppercase only $uppercase", key, Edges(uppercase = upperEdge))
+            assertBalanced("theme uppercase only $uppercase", key, Edges(secondary = upperEdge))
         }
     }
 
@@ -149,7 +149,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 layoutKey(key)
                 assertBalanced(
                     "independent punctuation=$primary uppercase=$upper", key,
-                    Edges(primary = primary.edge(), uppercase = upper.edge())
+                    Edges(primary = primary.edge(), secondary = upper.edge())
                 )
             }
         }
@@ -158,7 +158,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 primary = "", secondary = null, uppercase = true, secondaryPosition = upper
             ))
             layoutKey(key)
-            assertBalanced("independent uppercase only $upper", key, Edges(uppercase = upper.edge()))
+            assertBalanced("independent uppercase only $upper", key, Edges(secondary = upper.edge()))
         }
     }
 
@@ -210,12 +210,12 @@ class RemainingSpaceSubLabelLayoutTest {
         check("restored theme top corners", Edges(Edge.Top, Edge.Top))
         assertEquals("Restoring the original layout restores its ink", initialInk, inkBounds(key.mainText))
 
-        // Exercise the independently rendered uppercase view's hidden/reset path too.
+        // Exercise the shared secondary slot's hidden/reset path too.
         val upperDefinition = appearance(secondary = null, uppercase = true, secondaryPosition = AltTextPosition.TopRight)
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Top)
         val upperKey = createKey(upperDefinition)
         layoutKey(upperKey)
-        assertBalanced("uppercase before hiding", upperKey, Edges(primary = Edge.Top, uppercase = Edge.Top))
+        assertBalanced("uppercase before hiding", upperKey, Edges(primary = Edge.Top, secondary = Edge.Top))
         upperDefinition.altText1PositionOverride = null
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.None)
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
@@ -224,7 +224,7 @@ class RemainingSpaceSubLabelLayoutTest {
         assertNull(upperKey.mainText.glyphPlacement)
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Bottom)
         layoutKey(upperKey)
-        assertBalanced("uppercase restored at bottom", upperKey, Edges(uppercase = Edge.Bottom))
+        assertBalanced("uppercase restored at bottom", upperKey, Edges(secondary = Edge.Bottom))
     }
 
     @Test
@@ -248,7 +248,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 uppercase = sample.uppercase, primaryPosition = sample.primary, secondaryPosition = sample.secondary
             ), sampleContext, sample.font, sample.scale)
             val edges = if (sample.uppercase) {
-                Edges(primary = sample.primary.edge(), uppercase = sample.secondary.edge())
+                Edges(primary = sample.primary.edge(), secondary = sample.secondary.edge())
             } else Edges(sample.primary.edge(), sample.secondary.edge())
             for (height in listOf(72, 32, 64)) {
                 layoutKey(key, height)
@@ -258,8 +258,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 val normalRow = height / sample.scale >= 52
                 val effective = if (
                     key.altText.visibility == View.GONE &&
-                    key.altText1.visibility == View.GONE &&
-                    key.upperText.visibility == View.GONE
+                    key.altText1.visibility == View.GONE
                 ) Edges() else edges
                 assertBalanced("$sample height=$height", key, effective, normalRow = normalRow)
             }
@@ -362,7 +361,7 @@ class RemainingSpaceSubLabelLayoutTest {
                 key.requestLayout()
                 measureAndLayout(key, 48, 64)
                 assertFalse("The key must finish layout for $position", key.isLayoutRequested)
-                for (label in listOf(key.mainText, key.altText, key.altText1, key.upperText)) {
+                for (label in listOf(key.mainText, key.altText, key.altText1)) {
                     if (label.visibility == View.VISIBLE) {
                         assertFalse("Unchanged '${label.text}' must not request another layout",
                             label.isLayoutRequested)
@@ -373,7 +372,7 @@ class RemainingSpaceSubLabelLayoutTest {
     }
 
     private enum class Edge { Top, Bottom }
-    private data class Edges(val primary: Edge? = null, val secondary: Edge? = null, val uppercase: Edge? = null)
+    private data class Edges(val primary: Edge? = null, val secondary: Edge? = null)
     private data class Ink(
         val main: Rect,
         val top: Int,
@@ -421,7 +420,7 @@ class RemainingSpaceSubLabelLayoutTest {
         key.mainText.typeface = font
         key.mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f * scale)
         // Keep these fixtures independent of a device's persisted custom font sizes.
-        listOf(key.altText, key.altText1, key.upperText).forEach { label ->
+        listOf(key.altText, key.altText1).forEach { label ->
             label.setTypeface(Typeface.SANS_SERIF, if (label === key.altText1) Typeface.NORMAL else Typeface.BOLD)
             label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.666667f * scale)
         }
@@ -460,7 +459,7 @@ class RemainingSpaceSubLabelLayoutTest {
         val tops = mutableListOf<Rect>()
         val bottoms = mutableListOf<Rect>()
         val labels = listOf(Triple("primary", key.altText, edges.primary),
-            Triple("secondary", key.altText1, edges.secondary), Triple("uppercase", key.upperText, edges.uppercase))
+            Triple("secondary", key.altText1, edges.secondary))
         labels.forEach { (name, view, edge) ->
             assertEquals("$label: $name visibility", if (edge == null) View.GONE else View.VISIBLE, view.visibility)
             if (edge != null) {
@@ -482,8 +481,8 @@ class RemainingSpaceSubLabelLayoutTest {
         val main = inkBounds(key.mainText)
         assertTrue("$label: invalid main scale ${key.mainText.textScaleX}",
             key.mainText.textScaleX.isFinite() && key.mainText.textScaleX > 0f)
-        val topCount = listOfNotNull(edges.primary, edges.secondary, edges.uppercase).count { it == Edge.Top }
-        val bottomCount = listOfNotNull(edges.primary, edges.secondary, edges.uppercase).count { it == Edge.Bottom }
+        val topCount = listOfNotNull(edges.primary, edges.secondary).count { it == Edge.Top }
+        val bottomCount = listOfNotNull(edges.primary, edges.secondary).count { it == Edge.Bottom }
         return Ink(
             main = main,
             top = top,

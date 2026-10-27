@@ -49,7 +49,7 @@ class VerticalSubLabelLayoutTest {
         key.setTextScale(2.4f)
         for (height in listOf(60, 32, 48)) {
             layoutKey(key, heightDp = height)
-            if (key.altText.visibility == View.VISIBLE && key.upperText.visibility == View.VISIBLE) {
+            if (key.altText.visibility == View.VISIBLE && key.altText1.visibility == View.VISIBLE) {
                 assertSeparatedAtEdges(key, punctuationOnTop = true)
             }
         }
@@ -67,13 +67,13 @@ class VerticalSubLabelLayoutTest {
         layoutKey(key, heightDp = 52)
         assertTrue(key.mainText.useGlyphBounds)
         assertEquals(0, (key.mainText.layoutParams as ConstraintLayout.LayoutParams).height)
-        assertEquals(View.VISIBLE, key.upperText.visibility)
+        assertEquals(View.VISIBLE, key.altText1.visibility)
 
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.None)
         layoutKey(key, heightDp = 52)
         assertTrue(key.mainText.useGlyphBounds)
         assertEquals(0, (key.mainText.layoutParams as ConstraintLayout.LayoutParams).height)
-        assertEquals(View.GONE, key.upperText.visibility)
+        assertEquals(View.GONE, key.altText1.visibility)
         val mainInk = inkBounds(key.mainText)
         assertEquals(
             (mainInk.top - inkBounds(key.altText).bottom).toFloat(),
@@ -87,8 +87,8 @@ class VerticalSubLabelLayoutTest {
     }
 
     private fun assertSeparatedAtEdges(key: AltTextKeyView, punctuationOnTop: Boolean) {
-        val topLabel = if (punctuationOnTop) key.altText else key.upperText
-        val bottomLabel = if (punctuationOnTop) key.upperText else key.altText
+        val topLabel = if (punctuationOnTop) key.altText else key.altText1
+        val bottomLabel = if (punctuationOnTop) key.altText1 else key.altText
         assertEquals(View.VISIBLE, topLabel.visibility)
         assertEquals(View.VISIBLE, bottomLabel.visibility)
         val topInk = inkBounds(topLabel)
@@ -113,7 +113,7 @@ class VerticalSubLabelLayoutTest {
 
     private fun assertNormalMainLabelLayout(key: AltTextKeyView) {
         assertFalse(key.altText.useGlyphBounds)
-        assertFalse(key.upperText.useGlyphBounds)
+        assertFalse(key.altText1.useGlyphBounds)
         assertEquals(Int.MAX_VALUE, key.altText.maxHeight)
         val params = key.mainText.layoutParams as ConstraintLayout.LayoutParams
         assertEquals(ConstraintLayout.LayoutParams.WRAP_CONTENT, params.height)

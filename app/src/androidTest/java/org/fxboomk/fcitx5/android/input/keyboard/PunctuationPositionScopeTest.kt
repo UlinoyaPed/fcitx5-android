@@ -207,7 +207,12 @@ class PunctuationPositionScopeTest {
             if (position == PunctuationPosition.Bottom) params.bottomToBottom else params.topToTop
         )
         assertEquals(
-            if (position == PunctuationPosition.TopRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER,
+            when (position) {
+                PunctuationPosition.Top -> Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                PunctuationPosition.TopRight -> Gravity.END or Gravity.CENTER_VERTICAL
+                PunctuationPosition.Bottom -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                PunctuationPosition.None -> error("Hidden labels have no gravity")
+            },
             label.gravity
         )
     }
