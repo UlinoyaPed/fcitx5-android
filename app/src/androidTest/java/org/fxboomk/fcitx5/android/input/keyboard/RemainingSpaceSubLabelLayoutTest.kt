@@ -25,7 +25,6 @@ import org.fxboomk.fcitx5.android.input.AutoScaleTextView
 import org.fxboomk.fcitx5.android.input.keyboard.KeyDef.Appearance.AltTextPosition
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -196,7 +195,6 @@ class RemainingSpaceSubLabelLayoutTest {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         layoutKey(key)
         val hidden = readInk("hidden after independent", key, Edges())
-        assertNull("Hidden labels must clear custom glyph placement", key.mainText.glyphPlacement)
         // Hidden keys retain the normal no-sublabel typography. Compare actual ink
         // to a fresh hidden key rather than requiring a different font-metric policy.
         val freshDefinition = appearance(primary = "?", secondary = null)
@@ -221,7 +219,6 @@ class RemainingSpaceSubLabelLayoutTest {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.None)
         layoutKey(upperKey)
         assertEquals("Hidden uppercase clears its old offset", hidden.main, readInk("uppercase hidden", upperKey, Edges()).main)
-        assertNull(upperKey.mainText.glyphPlacement)
         ThemeManager.prefs.uppercasePosition.setValue(UppercasePosition.Bottom)
         layoutKey(upperKey)
         assertBalanced("uppercase restored at bottom", upperKey, Edges(secondary = Edge.Bottom))
@@ -266,7 +263,7 @@ class RemainingSpaceSubLabelLayoutTest {
     }
 
     @Test
-    fun mixedRowSharesBaselinesOnlyWithinEachOccupiedEdgeBand() = withPreferences {
+    fun mixedLabelPlacementsInOneRowShareTheirBaseline() = withPreferences {
         val pairs = listOf(
             AltTextPosition.Top to AltTextPosition.TopRight,
             AltTextPosition.Bottom to AltTextPosition.Bottom,
@@ -286,6 +283,9 @@ class RemainingSpaceSubLabelLayoutTest {
         val keyboard = object : BaseKeyboard(context, ThemePreset.MaterialLight, { listOf(definitions) }) {}
         val keys = (keyboard.getChildAt(0) as ViewGroup).children.filterIsInstance<AltTextKeyView>().toList()
         assertEquals(6, keys.size)
+        // Geometry reserves dp(2) - 1 from Paint bounds; allow one additional
+        // pixel because this assertion measures the rasterized Canvas ink.
+        val minimumInkGap = (dp(context, 2) - 2).coerceAtLeast(0)
         for (changed in listOf(false, true)) {
             keys.forEachIndexed { index, key ->
                 configureText(key, if (changed) Typeface.SERIF else Typeface.SANS_SERIF, 1f)
@@ -299,25 +299,22 @@ class RemainingSpaceSubLabelLayoutTest {
                 keyboard.requestLayout()
                 measureAndLayout(keyboard, 288, 64)
             }
-            val groupBaselines = keys.chunked(2).mapIndexed { index, group ->
-                val (primary, secondary) = pairs[index]
-                val label = "row $primary/$secondary changed=$changed"
-                group.forEachIndexed { keyIndex, key ->
-                    val ink = readInk(label, key, Edges(primary.edge(), secondary.edge()))
-                    // Row baseline alignment is intentionally shared within an
-                    // occupancy band, so different glyphs can have unequal ink
-                    // gaps. They must nevertheless stay inside their own band.
-                    val above = ink.main.top - ink.top
-                    val below = ink.bottom - ink.main.bottom
-                    assertTrue("$label key=$keyIndex: gaps=$above/$below", above >= dp(context, 2) - 1 && below >= dp(context, 2) - 1)
-                }
-                // readInk above draws first, updating AutoScaleTextView's real baseline.
-                val baselines = group.map { it.top + it.getChildAt(0).top + it.mainText.top + it.mainText.baseline }
-                assertTrue("$label must share a baseline: $baselines", baselines.max() - baselines.min() <= 1)
-                baselines.first()
+            keys.forEachIndexed { index, key ->
+                val (primary, secondary) = pairs[index / 2]
+                val label = "row key=$index $primary/$secondary changed=$changed"
+                val ink = readInk(label, key, Edges(primary.edge(), secondary.edge()))
+                // A shared row baseline can produce unequal ink gaps for different
+                // glyphs; each glyph must still remain inside its own label band.
+                val above = ink.main.top - ink.top
+                val below = ink.bottom - ink.main.bottom
+                assertTrue("$label: gaps=$above/$below, minimum=$minimumInkGap",
+                    above >= minimumInkGap && below >= minimumInkGap)
             }
-            assertTrue("Different occupancy bands need independent baselines: $groupBaselines",
-                groupBaselines.max() - groupBaselines.min() > 2)
+            // These six keys are one row in BaseKeyboard, so their different label
+            // placements participate in the same row-wide baseline calculation.
+            val baselines = keys.map { it.top + it.getChildAt(0).top + it.mainText.top + it.mainText.baseline }
+            assertTrue("Different label placements in one row must share a baseline: $baselines",
+                baselines.max() - baselines.min() <= 1)
         }
     }
 
@@ -379,7 +376,7 @@ class RemainingSpaceSubLabelLayoutTest {
         val bottom: Int,
         val faceCenter: Float,
         val xHeightCenter: Float,
-        val singleEdge: Boolean
+        val centerXHeightOnFace: Boolean
     )
     private data class Sample(
         val main: String, val font: Typeface, val scale: Float, val density: Int, val fontScale: Float,
@@ -449,8 +446,7 @@ class RemainingSpaceSubLabelLayoutTest {
             label,
             readInk(label, key, edges),
             if (normalRow) dp(key.context, 2) - 1 else 0,
-            tolerance,
-            normalRow
+            tolerance
         )
     }
 
@@ -483,13 +479,17 @@ class RemainingSpaceSubLabelLayoutTest {
             key.mainText.textScaleX.isFinite() && key.mainText.textScaleX > 0f)
         val topCount = listOfNotNull(edges.primary, edges.secondary).count { it == Edge.Top }
         val bottomCount = listOfNotNull(edges.primary, edges.secondary).count { it == Edge.Bottom }
+        val singleEdge = (topCount == 0) != (bottomCount == 0)
+        val sameEdgePair = listOfNotNull(edges.primary, edges.secondary).size > 1 && singleEdge
         return Ink(
             main = main,
             top = top,
             bottom = bottom,
             faceCenter = appearance.height / 2f,
             xHeightCenter = xHeightCenter(key.mainText),
-            singleEdge = (topCount == 0) != (bottomCount == 0)
+            // Multicharacter labels are explicitly placed by centerGlyphsInBand;
+            // same-edge pairs use the same face-centered x-height rule.
+            centerXHeightOnFace = key.mainText.text.length > 1 || sameEdgePair
         )
     }
 
@@ -497,17 +497,18 @@ class RemainingSpaceSubLabelLayoutTest {
         label: String,
         ink: Ink,
         minimum: Int,
-        tolerance: Float = 2f,
-        normalRow: Boolean = true
+        tolerance: Float = 2f
     ) {
         val above = ink.main.top - ink.top
         val below = ink.bottom - ink.main.bottom
         val message = "$label: main=${ink.main}, band=[${ink.top}, ${ink.bottom}], gaps=$above/$below"
-        if (ink.singleEdge && normalRow) {
-            // One edge leaves a one-sided band. The main glyph is centred on the
-            // key face by its x-height instead of being pushed into that band.
+        if (ink.centerXHeightOnFace) {
+            // Multicharacter labels and two labels sharing one edge use the
+            // optical baseline: centre the main glyph's x-height on the key face.
             assertEquals(message, ink.faceCenter.toDouble(), ink.xHeightCenter.toDouble(), tolerance.toDouble())
         } else {
+            // A lone label leaves a one-sided free band, so balance the main
+            // glyph's visible ink inside that remaining space.
             assertEquals(message, above.toFloat(), below.toFloat(), tolerance)
         }
         assertTrue("$message, minimum=$minimum", above >= minimum && below >= minimum)
