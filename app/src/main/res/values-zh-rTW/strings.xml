@@ -145,7 +145,7 @@
     <string name="theme_candidate_style_summary">%1$s · 高亮圓角 %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · 高亮圓角 %3$d dp</string>
     <string name="theme_animation_summary">水波紋 %1$s · 動畫 %2$s</string>
-    <string name="theme_other_style_summary">編碼區 %1$s · 文字編輯 %2$d dp · 剪貼簿 %3$d dp</string>
+    <string name="theme_other_style_summary">文字編輯 %1$d dp · 剪貼簿 %2$d dp</string>
     <string name="key_ripple_effect">啟用按鍵水波紋特效</string>
     <string name="key_border">啟用按鍵邊框</string>
     <string name="brightness">亮度</string>
@@ -270,9 +270,13 @@
     <string name="keyboard_settings_key_and_gesture">按鍵與手勢</string>
     <string name="keyboard_settings_layout_and_split">佈局與分體</string>
     <string name="keyboard_settings_candidates">編碼與候選詞</string>
-    <string name="preedit_style">編碼區樣式</string>
-    <string name="preedit_style_default">預設</string>
-    <string name="preedit_style_inline_candidate_bar">內嵌候選列</string>
+    <string name="preedit_style">預編碼樣式</string>
+    <string name="preedit_style_group_no_preview">編輯框不預覽時</string>
+    <string name="preedit_style_group_preview">編輯框需要預覽</string>
+    <string name="preedit_style_default">獨立編碼區</string>
+    <string name="preedit_style_inline_candidate_bar">嵌入候選列</string>
+    <string name="preedit_style_composing">目前編碼字串</string>
+    <string name="preedit_style_commit_preview">高亮候選詞</string>
     <string name="keyboard_settings_advanced_customization">進階自訂</string>
     <string name="keyboard_settings_split_tools_section">分體鍵盤工具</string>
     <string name="focus_change_reset_enabled_summary">焦點變化後恢復鍵盤</string>

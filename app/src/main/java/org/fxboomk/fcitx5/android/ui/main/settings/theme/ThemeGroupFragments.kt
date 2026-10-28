@@ -219,10 +219,5 @@ class ThemeOtherStyleFragment : ThemeGroupFragment(ThemeManager.prefs) {
             ThemeManager.prefs,
             ThemeSettingsSupport.otherStyleThemeKeys
         )
-        addThemePreferences(
-            screen,
-            AppPrefs.getInstance().keyboard,
-            ThemeSettingsSupport.otherStyleKeyboardKeys
-        )
     }
 }

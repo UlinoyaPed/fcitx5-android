@@ -257,7 +257,6 @@ class ThemeAppearanceFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
         val prefs = ThemeManager.prefs
         return ctx.getString(
             R.string.theme_other_style_summary,
-            ctx.getString(AppPrefs.getInstance().keyboard.compositionAreaStyle.getValue().stringRes),
             prefs.textEditingButtonRadius.getValue(),
             prefs.clipboardEntryRadius.getValue()
         )

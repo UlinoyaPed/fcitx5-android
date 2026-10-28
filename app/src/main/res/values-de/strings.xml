@@ -804,7 +804,7 @@
     <string name="theme_candidate_style_summary">%1$s · Hervorhebungsradius %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · Hervorhebungsradius %3$d dp</string>
     <string name="theme_animation_summary">Welleffekt %1$s · Animationen %2$s</string>
-    <string name="theme_other_style_summary">Eingabe %1$s · Textbearbeitung %2$d dp · Zwischenablage %3$d dp</string>
+    <string name="theme_other_style_summary">Textbearbeitung %1$d dp · Zwischenablage %2$d dp</string>
     <string name="toggle_day_night_theme">Themenwechsel</string>
     <string name="gboard_light_main_key_tone">Deckkraft der Haupttasten</string>
     <string name="gboard_light_other_key_tone">Deckkraft der Nebentasten</string>
@@ -893,9 +893,13 @@
     <string name="llm_model_status_remote_ready">Status: Remote-Modell verfügbar</string>
     <string name="llm_model_status_remote_unavailable">Status: Remote-Modell nicht verfügbar</string>
     <string name="llm_model_status_remote_missing_name">Status: Modellname nicht ausgefüllt</string>
-    <string name="preedit_style">Stil des Eingabebereichs</string>
-    <string name="preedit_style_default">Standard</string>
-    <string name="preedit_style_inline_candidate_bar">Inline-Kandidatenleiste</string>
+    <string name="preedit_style">Vorbearbeitungsstil</string>
+    <string name="preedit_style_group_no_preview">Ohne Editorvorschau</string>
+    <string name="preedit_style_group_preview">Mit Editorvorschau</string>
+    <string name="preedit_style_default">Separater Eingabebereich</string>
+    <string name="preedit_style_inline_candidate_bar">In Kandidatenleiste eingebettet</string>
+    <string name="preedit_style_composing">Aktuelle Eingabezeichenfolge</string>
+    <string name="preedit_style_commit_preview">Kandidatenwort hervorheben</string>
     <string name="settings_search_hint">Einstellungen durchsuchen</string>
     <string name="settings_search_results">Suchergebnisse</string>
     <string name="settings_search_no_results">Keine passenden Einstellungen</string>

@@ -41,6 +41,10 @@ data class ConfigLayout(
      * fcitx option name.
      */
     val enumSwitches: Map<String, EnumSwitch> = emptyMap(),
+    /**
+     * Engine preedit mode option rendered as the app-level preedit style selector.
+     */
+    val preeditStyleOption: String? = null,
     /** Layouts for nested custom options, keyed by fcitx option name. */
     val children: Map<String, ConfigLayout> = emptyMap()
 ) {

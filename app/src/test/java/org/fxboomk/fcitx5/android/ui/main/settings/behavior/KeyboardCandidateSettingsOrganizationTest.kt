@@ -101,12 +101,8 @@ class KeyboardCandidateSettingsOrganizationTest {
     }
 
     @Test
-    fun compositionAreaStyleLivesInOtherStyles() {
-        assertEquals(
-            listOf("preedit_style"),
-            ThemeSettingsSupport.otherStyleKeyboardKeys
-        )
-        assertTrue("preedit_style" in ThemeSettingsSupport.otherStyleKeys)
+    fun compositionAreaStyleNoLongerLivesInOtherStyles() {
+        assertFalse("preedit_style" in ThemeSettingsSupport.otherStyleKeys)
         assertFalse("preedit_style" in ThemeSettingsSupport.candidateHorizontalKeys)
     }
 }

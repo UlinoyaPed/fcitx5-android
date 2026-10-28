@@ -805,7 +805,7 @@
     <string name="theme_candidate_style_summary">%1$s · 강조 반경 %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · 강조 반경 %3$d dp</string>
     <string name="theme_animation_summary">물결 효과 %1$s · 애니메이션 %2$s</string>
-    <string name="theme_other_style_summary">입력 %1$s · 텍스트 편집 %2$d dp · 클립보드 %3$d dp</string>
+    <string name="theme_other_style_summary">텍스트 편집 %1$d dp · 클립보드 %2$d dp</string>
     <string name="toggle_day_night_theme">테마 전환</string>
     <string name="gboard_light_main_key_tone">주요 키 영역 불투명도</string>
     <string name="gboard_light_other_key_tone">보조 키 영역 불투명도</string>
@@ -896,9 +896,13 @@
     <string name="llm_model_status_remote_ready">상태: 원격 모델 사용 가능</string>
     <string name="llm_model_status_remote_unavailable">상태: 원격 모델 사용 불가</string>
     <string name="llm_model_status_remote_missing_name">상태: 모델 이름 미입력</string>
-    <string name="preedit_style">조합 영역 스타일</string>
-    <string name="preedit_style_default">기본값</string>
-    <string name="preedit_style_inline_candidate_bar">인라인 후보 표시줄</string>
+    <string name="preedit_style">사전 편집 스타일</string>
+    <string name="preedit_style_group_no_preview">편집기에서 미리 보지 않을 때</string>
+    <string name="preedit_style_group_preview">편집기에서 미리 볼 때</string>
+    <string name="preedit_style_default">독립 입력 영역</string>
+    <string name="preedit_style_inline_candidate_bar">후보 표시줄에 포함</string>
+    <string name="preedit_style_composing">현재 입력 문자열</string>
+    <string name="preedit_style_commit_preview">후보 단어 강조</string>
     <string name="settings_search_hint">설정 검색</string>
     <string name="settings_search_results">검색 결과</string>
     <string name="settings_search_no_results">일치하는 설정이 없습니다</string>

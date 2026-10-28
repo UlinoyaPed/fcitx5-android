@@ -70,10 +70,15 @@ abstract class ManagedPreferenceCategory(
         title: Int,
         key: String,
         defaultValue: T,
-        noinline enableUiOn: (() -> Boolean)? = null
+        noinline enableUiOn: (() -> Boolean)? = null,
+        showUi: Boolean = true
     ): ManagedPreference.PStringLike<T> where T : Enum<T>, T : ManagedPreferenceEnum {
         val codec = object : ManagedPreference.StringLikeCodec<T> {
             override fun decode(raw: String): T = enumValueOf(raw)
+        }
+        if (!showUi) {
+            return ManagedPreference.PStringLike(sharedPreferences, key, defaultValue, codec)
+                .apply { register() }
         }
         val entryValues = enumValues<T>().toList()
         val entryLabels = entryValues.map { it.stringRes }

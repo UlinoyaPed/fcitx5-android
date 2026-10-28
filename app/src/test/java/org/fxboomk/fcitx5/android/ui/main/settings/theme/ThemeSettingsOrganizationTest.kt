@@ -116,14 +116,9 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.otherStyleThemeKeys
         )
         assertEquals(
-            listOf("preedit_style"),
-            ThemeSettingsSupport.otherStyleKeyboardKeys
-        )
-        assertEquals(
             listOf(
                 "text_editing_button_radius",
-                "clipboard_entry_radius",
-                "preedit_style"
+                "clipboard_entry_radius"
             ),
             ThemeSettingsSupport.otherStyleKeys
         )

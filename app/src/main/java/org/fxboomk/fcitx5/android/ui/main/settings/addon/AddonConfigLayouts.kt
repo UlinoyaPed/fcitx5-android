@@ -24,18 +24,20 @@ object AddonConfigLayouts {
 
     fun get(context: Context, uniqueName: String): ConfigLayout? = when (uniqueName) {
         "pinyin" -> PinyinConfigLayout.get(context)
+        "rime" -> RimeConfigLayout.get()
         else -> null
     }
 
-    /** Layout for pinyin and shuangpin input-method configs. */
+    /** Layout for pinyin, shuangpin and rime input-method configs. */
     fun getForInputMethod(context: Context, uniqueName: String): ConfigLayout? =
-        if (uniqueName == "pinyin" ||
-            uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
-            ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName)
-        ) {
-            PinyinConfigLayout.get(context)
-        } else {
-            null
+        when {
+            uniqueName == "pinyin" ||
+                uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
+                ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName) ->
+                PinyinConfigLayout.get(context)
+
+            uniqueName == "rime" -> RimeConfigLayout.get()
+            else -> null
         }
 
     fun isFuzzySection(layout: ConfigLayout, index: Int): Boolean =
@@ -170,7 +172,6 @@ private object PinyinConfigLayout {
         "PreeditCursorPositionAtBeginning" to R.string.pinyin_config_cursor_at_start,
         "PinyinInPreedit" to R.string.pinyin_config_full_pinyin,
         "ShowShuangpinMode" to R.string.pinyin_config_show_shuangpin_mode,
-        "PreeditMode" to R.string.pinyin_config_preedit_mode,
         "ShuangpinProfile" to R.string.pinyin_config_shuangpin_profile,
         "SpellEnabled" to R.string.pinyin_config_english_candidates,
         "SymbolsEnabled" to R.string.pinyin_config_symbol_candidates,
@@ -279,7 +280,8 @@ private object PinyinConfigLayout {
             sections = sections,
             sectionNavigation = true,
             fallbackSectionTitle = R.string.pinyin_config_section_other,
-            titleOverrides = if (shortTitles) titleOverrides else emptyMap(),
+            titleOverrides = (if (shortTitles) titleOverrides else emptyMap()) +
+                mapOf("PreeditMode" to R.string.preedit_style),
             entryTitleOverrides = if (shortTitles) {
                 mapOf(
                     "SwitchInputMethodBehavior" to mapOf(
@@ -289,6 +291,7 @@ private object PinyinConfigLayout {
             } else {
                 emptyMap()
             },
+            preeditStyleOption = "PreeditMode",
             children = mapOf(
                 "Fuzzy" to ConfigLayout(
                     collapsible = false,
@@ -315,4 +318,11 @@ private object PinyinConfigLayout {
         val language = context.resources.configuration.locales[0].language
         return language == Locale.ENGLISH.language || language == Locale.CHINESE.language
     }
+}
+
+private object RimeConfigLayout {
+    fun get(): ConfigLayout = ConfigLayout(
+        titleOverrides = mapOf("PreeditMode" to R.string.preedit_style),
+        preeditStyleOption = "PreeditMode"
+    )
 }

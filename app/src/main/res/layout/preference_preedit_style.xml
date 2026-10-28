@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: LGPL-2.1-or-later
+  SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
+-->
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/preedit_style_group"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:text="@string/preedit_style_group_no_preview"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textStyle="bold" />
+
+    <RadioButton
+        android:id="@+id/preedit_style_standalone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/preedit_style_default" />
+
+    <RadioButton
+        android:id="@+id/preedit_style_embedded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/preedit_style_inline_candidate_bar" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/preedit_style_group_preview"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textStyle="bold" />
+
+    <RadioButton
+        android:id="@+id/preedit_style_composing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/preedit_style_composing" />
+
+    <RadioButton
+        android:id="@+id/preedit_style_commit_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/preedit_style_commit_preview" />
+
+</RadioGroup>

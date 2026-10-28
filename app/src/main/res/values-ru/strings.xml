@@ -806,7 +806,7 @@
     <string name="theme_candidate_style_summary">%1$s · Радиус подсветки %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · Радиус подсветки %3$d dp</string>
     <string name="theme_animation_summary">Волна %1$s · Анимация %2$s</string>
-    <string name="theme_other_style_summary">Ввод %1$s · Редактирование текста %2$d dp · Буфер обмена %3$d dp</string>
+    <string name="theme_other_style_summary">Редактирование текста %1$d dp · Буфер обмена %2$d dp</string>
     <string name="toggle_day_night_theme">Переключение темы</string>
     <string name="gboard_light_main_key_tone">Непрозрачность основных клавиш</string>
     <string name="gboard_light_other_key_tone">Непрозрачность дополнительных клавиш</string>
@@ -895,9 +895,13 @@
     <string name="llm_model_status_remote_ready">Статус: удаленная модель доступна</string>
     <string name="llm_model_status_remote_unavailable">Статус: удаленная модель недоступна</string>
     <string name="llm_model_status_remote_missing_name">Статус: имя модели не указано</string>
-    <string name="preedit_style">Стиль области ввода</string>
-    <string name="preedit_style_default">По умолчанию</string>
-    <string name="preedit_style_inline_candidate_bar">Встроенная панель кандидатов</string>
+    <string name="preedit_style">Стиль предварительного ввода</string>
+    <string name="preedit_style_group_no_preview">Без предпросмотра в редакторе</string>
+    <string name="preedit_style_group_preview">С предпросмотром в редакторе</string>
+    <string name="preedit_style_default">Отдельная область ввода</string>
+    <string name="preedit_style_inline_candidate_bar">Встроено в панель кандидатов</string>
+    <string name="preedit_style_composing">Текущая строка ввода</string>
+    <string name="preedit_style_commit_preview">Выделять слово-кандидат</string>
     <string name="settings_search_hint">Поиск настроек</string>
     <string name="settings_search_results">Результаты поиска</string>
     <string name="settings_search_no_results">Нет подходящих настроек</string>

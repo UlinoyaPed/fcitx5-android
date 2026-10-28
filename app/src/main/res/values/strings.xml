@@ -158,7 +158,7 @@
     <string name="theme_candidate_style_summary">%1$s · Highlight radius %2$d dp</string>
     <string name="theme_candidate_style_summary_floating">%1$s · %2$s · Highlight radius %3$d dp</string>
     <string name="theme_animation_summary">Ripple %1$s · Animations %2$s</string>
-    <string name="theme_other_style_summary">Composition %1$s · Text editing %2$d dp · Clipboard %3$d dp</string>
+    <string name="theme_other_style_summary">Text editing %1$d dp · Clipboard %2$d dp</string>
     <string name="toggle_day_night_theme">Day/Night Theme</string>
     <string name="key_ripple_effect">Enable key ripple effect</string>
     <string name="key_border">Enable key border</string>
@@ -259,9 +259,13 @@
     <string name="keyboard_settings_key_and_gesture">Keys and gestures</string>
     <string name="keyboard_settings_layout_and_split">Layout and split keyboard</string>
     <string name="keyboard_settings_candidates">Composition and candidates</string>
-    <string name="preedit_style">Composition area style</string>
-    <string name="preedit_style_default">Default</string>
-    <string name="preedit_style_inline_candidate_bar">Inline candidate bar</string>
+    <string name="preedit_style">Preedit style</string>
+    <string name="preedit_style_group_no_preview">When editor does not preview</string>
+    <string name="preedit_style_group_preview">When editor previews</string>
+    <string name="preedit_style_default">Standalone preedit</string>
+    <string name="preedit_style_inline_candidate_bar">Inline in candidate bar</string>
+    <string name="preedit_style_composing">Current composition string</string>
+    <string name="preedit_style_commit_preview">Highlight candidate word</string>
     <string name="keyboard_settings_advanced_customization">Advanced customization</string>
     <string name="keyboard_settings_split_tools_section">Split keyboard tools</string>
     <string name="focus_change_reset_enabled_summary">Return to keyboard when focus changes</string>

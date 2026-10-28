@@ -597,14 +597,6 @@ object SettingsSearchIndex {
             R.string.theme_category_other_style,
             ThemeSettingsSupport.otherStyleThemeKeys
         )
-        addThemeSection(
-            context,
-            prefs.keyboard,
-            SettingsRoute.ThemeOtherStyle,
-            pagePath,
-            R.string.theme_category_other_style,
-            ThemeSettingsSupport.otherStyleKeyboardKeys
-        )
     }
 
     private fun MutableList<SettingsSearchResult>.addThemeSection(

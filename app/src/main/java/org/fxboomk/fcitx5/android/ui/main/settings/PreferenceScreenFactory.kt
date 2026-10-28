@@ -406,6 +406,18 @@ object PreferenceScreenFactory {
 
         val titleText = layout?.titleOverride(context, descriptor.name) ?: displayTitle()
         val summaryText = layout?.summaryOverride(context, descriptor.name) ?: descriptor.tooltip
+        val preeditStyleValues =
+            if (descriptor is ConfigEnum && layout?.preeditStyleOption == descriptor.name) {
+                PreeditStyleOption.EngineValues.fromEntries(descriptor.entries)
+            } else {
+                null
+            }
+        val optionStore = if (cfg != null && preeditStyleValues != null) {
+            PreeditStyleStore(cfg, preeditStyleValues)
+        } else {
+            store
+        }
+        val usesPreeditStyle = optionStore is PreeditStyleStore
 
         when (descriptor) {
             is ConfigBool -> MySwitchPreference(context).apply {
@@ -414,7 +426,11 @@ object PreferenceScreenFactory {
             }
             is ConfigEnum -> {
                 val enumSwitch = layout?.enumSwitches?.get(descriptor.name)
-                if (enumSwitch != null) {
+                if (usesPreeditStyle) {
+                    PreeditStylePreference(context).apply {
+                        setDefaultValue(PreeditStyleOption.STANDALONE)
+                    }
+                } else if (enumSwitch != null) {
                     MySwitchPreference(context).apply {
                         summary = summaryText
                         setDefaultValue(descriptor.defaultValue == enumSwitch.onValue)
@@ -496,7 +512,7 @@ object PreferenceScreenFactory {
             title = titleText
             isSingleLineTitle = false
             isIconSpaceReserved = false
-            preferenceDataStore = store
+            preferenceDataStore = optionStore
             if (this is DialogPreference) {
                 dialogTitle = title
                 dialogMessage = descriptor.tooltip

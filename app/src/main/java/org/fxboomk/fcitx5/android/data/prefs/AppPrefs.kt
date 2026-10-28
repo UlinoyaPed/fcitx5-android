@@ -456,7 +456,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val compositionAreaStyle = enumList(
             R.string.preedit_style,
             "preedit_style",
-            CompositionAreaStyle.Default
+            CompositionAreaStyle.Default,
+            showUi = false
         )
         val expandedCandidateStyle = enumList(
             R.string.expanded_candidate_style,

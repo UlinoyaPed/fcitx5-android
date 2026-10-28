@@ -97,11 +97,7 @@ internal object ThemeSettingsSupport {
         "clipboard_entry_radius"
     )
 
-    val otherStyleKeyboardKeys = listOf(
-        "preedit_style"
-    )
-
-    val otherStyleKeys = otherStyleThemeKeys + otherStyleKeyboardKeys
+    val otherStyleKeys = otherStyleThemeKeys
 
     val candidateEmojiKeys = listOf(
         "hide_unsupported_emojis",
