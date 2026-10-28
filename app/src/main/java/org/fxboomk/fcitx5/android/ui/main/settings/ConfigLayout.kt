@@ -45,6 +45,8 @@ data class ConfigLayout(
      * Engine preedit mode option rendered as the app-level preedit style selector.
      */
     val preeditStyleOption: String? = null,
+    /** Per-scope storage for the app-level preedit style. */
+    val preeditStyleScope: PreeditStyleScope? = null,
     /** Layouts for nested custom options, keyed by fcitx option name. */
     val children: Map<String, ConfigLayout> = emptyMap()
 ) {

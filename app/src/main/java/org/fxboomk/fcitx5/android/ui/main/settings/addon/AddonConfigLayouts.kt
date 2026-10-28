@@ -28,15 +28,21 @@ object AddonConfigLayouts {
         else -> null
     }
 
+    /** Engine addon that owns the per-IM config of [uniqueName]. */
+    fun engineAddonForInputMethod(uniqueName: String): String? = when {
+        uniqueName == "pinyin" ||
+            uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
+            ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName) -> "pinyin"
+
+        uniqueName == "rime" -> "rime"
+        else -> null
+    }
+
     /** Layout for pinyin, shuangpin and rime input-method configs. */
     fun getForInputMethod(context: Context, uniqueName: String): ConfigLayout? =
-        when {
-            uniqueName == "pinyin" ||
-                uniqueName == ShuangpinLayoutKeys.BASE_LAYOUT_KEY ||
-                ShuangpinLayoutKeys.isSchemeUniqueName(uniqueName) ->
-                PinyinConfigLayout.get(context)
-
-            uniqueName == "rime" -> RimeConfigLayout.get()
+        when (engineAddonForInputMethod(uniqueName)) {
+            "pinyin" -> PinyinConfigLayout.get(context)
+            "rime" -> RimeConfigLayout.get()
             else -> null
         }
 
@@ -282,6 +288,10 @@ private object PinyinConfigLayout {
             fallbackSectionTitle = R.string.pinyin_config_section_other,
             titleOverrides = (if (shortTitles) titleOverrides else emptyMap()) +
                 mapOf("PreeditMode" to R.string.preedit_style),
+            summaryOverrides = mapOf(
+                "PreeditCursorPositionAtBeginning" to
+                    R.string.pinyin_config_cursor_at_start_summary
+            ),
             entryTitleOverrides = if (shortTitles) {
                 mapOf(
                     "SwitchInputMethodBehavior" to mapOf(
@@ -322,7 +332,14 @@ private object PinyinConfigLayout {
 
 private object RimeConfigLayout {
     fun get(): ConfigLayout = ConfigLayout(
-        titleOverrides = mapOf("PreeditMode" to R.string.preedit_style),
+        titleOverrides = mapOf(
+            "PreeditMode" to R.string.preedit_style,
+            "PreeditCursorPositionAtBeginning" to R.string.pinyin_config_cursor_at_start
+        ),
+        summaryOverrides = mapOf(
+            "PreeditCursorPositionAtBeginning" to
+                R.string.pinyin_config_cursor_at_start_summary
+        ),
         preeditStyleOption = "PreeditMode"
     )
 }

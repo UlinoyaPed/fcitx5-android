@@ -1117,6 +1117,7 @@
     <string name="pinyin_config_section_cloud">Cloud Pinyin</string>
     <string name="pinyin_config_section_other">Other</string>
     <string name="pinyin_config_cursor_at_start">Cursor at start</string>
+    <string name="pinyin_config_cursor_at_start_summary">Keep the cursor at the beginning of the inline preview (preedit or candidate).</string>
     <string name="pinyin_config_full_pinyin">Show full pinyin</string>
     <string name="pinyin_config_show_shuangpin_mode">Show shuangpin mode</string>
     <string name="pinyin_config_preedit_mode">Preedit mode</string>

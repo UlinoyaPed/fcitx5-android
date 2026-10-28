@@ -994,6 +994,7 @@
     <string name="pinyin_config_section_other">Sonstiges</string>
     <!-- Pinyin addon configuration options -->
     <string name="pinyin_config_cursor_at_start">Cursor am Anfang</string>
+    <string name="pinyin_config_cursor_at_start_summary">Cursor am Anfang der Inline-Vorschau (Eingabevorschau oder Kandidat) halten.</string>
     <string name="pinyin_config_full_pinyin">Vollständiges Pinyin</string>
     <string name="pinyin_config_show_shuangpin_mode">Shuangpin-Modus anzeigen</string>
     <string name="pinyin_config_preedit_mode">Vorbearbeitungsmodus</string>

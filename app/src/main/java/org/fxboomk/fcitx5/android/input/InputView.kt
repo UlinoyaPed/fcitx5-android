@@ -61,6 +61,7 @@ import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
+import org.fxboomk.fcitx5.android.ui.main.settings.PreeditStyleResolver
 import org.fxboomk.fcitx5.android.utils.DarkenColorFilter
 import org.fxboomk.fcitx5.android.input.clipboard.ClipboardSearchOverlay
 import org.fxboomk.fcitx5.android.input.config.ConfigChangeListener
@@ -3080,6 +3081,7 @@ class InputView(
             }
 
             is FcitxEvent.IMChangeEvent -> {
+                PreeditStyleResolver.apply(it.data)
                 broadcaster.onImeUpdate(it.data)
                 // Rime 输入方案（子模式）切换会改变专属布局高度，
                 // 广播只刷新键位行不重算窗口高度，这里按需补一次刷新

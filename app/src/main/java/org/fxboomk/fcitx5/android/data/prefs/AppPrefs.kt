@@ -69,6 +69,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val splitKeyboardMigrated = bool("split_keyboard_migrated", false)
         val lastShareReceiveDirectory = string("last_share_receive_directory", "")
         val lastShareReceiveDirectoryRemembered = bool("last_share_receive_directory_remembered", false)
+        val preeditStyleScopes = stringSet("preedit_style_scopes", emptySet())
     }
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {

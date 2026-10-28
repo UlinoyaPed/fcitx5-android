@@ -9,6 +9,7 @@ import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.PreeditStyleScope
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
 import org.fxboomk.fcitx5.android.utils.lazyRoute
@@ -20,6 +21,10 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
 
     override fun getConfigLayout(context: Context): ConfigLayout? =
         AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
+
+    override fun getPreeditStyleScope(): PreeditStyleScope? =
+        AddonConfigLayouts.engineAddonForInputMethod(args.uniqueName)
+            ?.let { PreeditStyleScope.forInputMethod(args.uniqueName, it) }
 
     override fun getConfigSectionRoute(
         context: Context,

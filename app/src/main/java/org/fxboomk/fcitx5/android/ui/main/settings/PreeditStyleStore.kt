@@ -9,50 +9,68 @@ import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.input.preedit.CompositionAreaStyle
 
-/**
- * Bridges the four app-level preedit styles to the engine's three-value
- * `PreeditMode` enum and the app's inline composition area preference.
- */
 internal class PreeditStyleStore(
     private val cfg: RawConfig,
-    private val engineValues: PreeditStyleOption.EngineValues
+    private val engineValues: PreeditStyleOption.EngineValues,
+    private val scope: PreeditStyleScope? = null
 ) : PreferenceDataStore() {
-
     override fun getString(key: String?, defValue: String?): String? {
         if (key == null) return defValue
         val keyboard = AppPrefs.getInstance().keyboard
+        val stored = scope?.let {
+            PreeditStyleScopes.read(it.storageKey) ?: PreeditStyleScopes.read(it.fallbackKey)
+        }
+        val inlineInCandidateBar = when (stored) {
+            PreeditStyleOption.EMBEDDED -> true
+            PreeditStyleOption.STANDALONE,
+            PreeditStyleOption.COMPOSING,
+            PreeditStyleOption.COMMIT_PREVIEW -> false
+            else -> keyboard.compositionAreaStyle.getValue() ==
+                CompositionAreaStyle.InlineCandidateBar
+        }
         return PreeditStyleOption.displayValue(
             engineValue = cfg.value,
-            inlineInCandidateBar =
-                keyboard.compositionAreaStyle.getValue() == CompositionAreaStyle.InlineCandidateBar,
+            inlineInCandidateBar = inlineInCandidateBar,
             engineValues = engineValues
         )
     }
 
     override fun putString(key: String?, value: String?) {
         if (key == null || value == null) return
-        val keyboard = AppPrefs.getInstance().keyboard
         when (value) {
             PreeditStyleOption.STANDALONE -> {
                 cfg.value = engineValues.none
-                setInlineInCandidateBar(keyboard, false)
+                writeScope(value)
             }
-
             PreeditStyleOption.EMBEDDED -> {
                 cfg.value = engineValues.none
-                setInlineInCandidateBar(keyboard, true)
+                writeScope(value)
             }
-
-            PreeditStyleOption.COMPOSING -> cfg.value = engineValues.composing
-            PreeditStyleOption.COMMIT_PREVIEW -> cfg.value = engineValues.commitPreview
+            PreeditStyleOption.COMPOSING -> {
+                cfg.value = engineValues.composing
+                writeScope(value)
+            }
+            PreeditStyleOption.COMMIT_PREVIEW -> {
+                cfg.value = engineValues.commitPreview
+                writeScope(value)
+            }
         }
     }
 
-    private fun setInlineInCandidateBar(keyboard: AppPrefs.Keyboard, inline: Boolean) {
-        keyboard.compositionAreaStyle.setValue(
-            if (inline) CompositionAreaStyle.InlineCandidateBar else CompositionAreaStyle.Default
-        )
-        // InputView listens on the preference provider, not the ManagedPreference itself.
+    private fun writeScope(value: String) {
+        if (scope != null) {
+            PreeditStyleScopes.write(scope.storageKey, value)
+            return
+        }
+        // Fallback for callers that do not provide a scope: preserve the old
+        // behavior of updating the global composition-area style directly.
+        val keyboard = AppPrefs.getInstance().keyboard
+        val target = if (value == PreeditStyleOption.EMBEDDED) {
+            CompositionAreaStyle.InlineCandidateBar
+        } else {
+            CompositionAreaStyle.Default
+        }
+        keyboard.compositionAreaStyle.setValue(target)
         keyboard.fireChange(keyboard.compositionAreaStyle.key)
     }
 }

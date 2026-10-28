@@ -23,6 +23,14 @@ class ConfigSectionFragment : FcitxPreferenceFragment() {
             AddonConfigLayouts.getForInputMethod(context, args.uniqueName)
         }
 
+    override fun getPreeditStyleScope(): PreeditStyleScope? =
+        if (args.isAddon) {
+            PreeditStyleScope.addon(args.uniqueName)
+        } else {
+            AddonConfigLayouts.engineAddonForInputMethod(args.uniqueName)
+                ?.let { PreeditStyleScope.forInputMethod(args.uniqueName, it) }
+        }
+
     override fun getConfigSection(): Int = args.sectionIndex
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =

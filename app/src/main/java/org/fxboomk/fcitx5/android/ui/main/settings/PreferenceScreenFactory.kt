@@ -413,7 +413,7 @@ object PreferenceScreenFactory {
                 null
             }
         val optionStore = if (cfg != null && preeditStyleValues != null) {
-            PreeditStyleStore(cfg, preeditStyleValues)
+            PreeditStyleStore(cfg, preeditStyleValues, layout?.preeditStyleScope)
         } else {
             store
         }

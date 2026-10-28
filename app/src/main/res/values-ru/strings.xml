@@ -996,6 +996,7 @@
     <string name="pinyin_config_section_other">Другое</string>
     <!-- Pinyin addon configuration options -->
     <string name="pinyin_config_cursor_at_start">Курсор в начале</string>
+    <string name="pinyin_config_cursor_at_start_summary">Удерживать курсор в начале встроенного предпросмотра (предварительный ввод или кандидат).</string>
     <string name="pinyin_config_full_pinyin">Показывать полный пиньинь</string>
     <string name="pinyin_config_show_shuangpin_mode">Показывать режим shuangpin</string>
     <string name="pinyin_config_preedit_mode">Режим предварительного ввода</string>

@@ -51,6 +51,9 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
     /** Route used when a grouped config page opens one of its sections. */
     protected open fun getConfigSectionRoute(context: Context, sectionIndex: Int): SettingsRoute? = null
 
+    /** Scope used to store the app-level preedit style independently. */
+    protected open fun getPreeditStyleScope(): PreeditStyleScope? = null
+
     abstract suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig
     abstract suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig)
 
@@ -71,6 +74,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
         scope.launch {
             fcitx.runOnReady {
                 saveConfig(this, raw["cfg"])
+                PreeditStyleResolver.applyActive(this)
             }
         }
     }
@@ -121,12 +125,15 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             raw = fcitx.runOnReady { obtainConfig(this) }
             configLoaded = raw.findByName("cfg") != null && raw.findByName("desc") != null
             preferenceScreen = if (configLoaded) {
+                val layout = getConfigLayout(context)?.copy(
+                    preeditStyleScope = getPreeditStyleScope()
+                )
                 PreferenceScreenFactory.create(
                     preferenceManager,
                     preferenceFragmentManager,
                     raw,
                     ::save,
-                    getConfigLayout(context),
+                    layout,
                     getConfigSection(),
                     { index ->
                         getConfigSectionRoute(context, index)?.let { route ->

@@ -9,6 +9,7 @@ import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.PreeditStyleScope
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.lazyRoute
 
@@ -26,6 +27,9 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
 
     override fun getConfigLayout(context: Context): ConfigLayout? =
         AddonConfigLayouts.get(context, args.uniqueName)
+
+    override fun getPreeditStyleScope(): PreeditStyleScope =
+        PreeditStyleScope.addon(args.uniqueName)
 
     override fun getConfigSectionRoute(
         context: Context,

@@ -957,6 +957,7 @@
     <string name="pinyin_config_section_cloud">雲拼音</string>
     <string name="pinyin_config_section_other">其他</string>
     <string name="pinyin_config_cursor_at_start">游標置首</string>
+    <string name="pinyin_config_cursor_at_start_summary">游標保持在行內預覽項(預編碼、候選項)的開頭。</string>
     <string name="pinyin_config_full_pinyin">顯示完整拼音</string>
     <string name="pinyin_config_show_shuangpin_mode">顯示雙拼狀態</string>
     <string name="pinyin_config_preedit_mode">預編輯模式</string>

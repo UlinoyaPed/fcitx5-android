@@ -997,6 +997,7 @@
     <string name="pinyin_config_section_other">기타</string>
     <!-- Pinyin addon configuration options -->
     <string name="pinyin_config_cursor_at_start">커서를 시작 위치에 두기</string>
+    <string name="pinyin_config_cursor_at_start_summary">커서를 인라인 미리보기(프리 에디트 또는 후보)의 시작 부분에 유지합니다.</string>
     <string name="pinyin_config_full_pinyin">전체 병음 표시</string>
     <string name="pinyin_config_show_shuangpin_mode">쌍핀 모드 표시</string>
     <string name="pinyin_config_preedit_mode">사전 편집 모드</string>
