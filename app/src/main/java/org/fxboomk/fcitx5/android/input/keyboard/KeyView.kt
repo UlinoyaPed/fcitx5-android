@@ -1258,6 +1258,13 @@ class AltTextKeyView(
                     (key.appearanceView.height - key.vMargin).toFloat()
                 }
                 val xHeight = key.mainLabelXHeight()
+                val visibleText = text.filterNot {
+                    it.isWhitespace() || Character.getType(it) == Character.FORMAT.toInt()
+                }
+                val mainCodePoint = visibleText.takeIf {
+                    it.codePointCount(0, it.length) == 1
+                }?.codePointAt(0)
+                val centerInkOnFace = mainCodePoint != null && Character.isIdeographic(mainCodePoint)
                 val inputs = MainLabelBandGeometryInputs(
                     bandTop = bandTop,
                     bandBottom = bandBottom,
@@ -1270,8 +1277,9 @@ class AltTextKeyView(
                     // A single edge label on a standalone key gets a balanced
                     // ink band; rows and same-edge label pairs still use the
                     // shared x-height centre for baseline consistency.
-                    centerOnFace = visibleLabels.size > 1 &&
-                        (topLabels.isEmpty() || bottomLabels.isEmpty()),
+                    centerOnFace = centerInkOnFace ||
+                        (visibleLabels.size > 1 && (topLabels.isEmpty() || bottomLabels.isEmpty())),
+                    centerInkOnFace = centerInkOnFace,
                 )
                 val availableWidth = (key.mainText.measuredWidth - key.mainText.paddingLeft - key.mainText.paddingRight)
                     .coerceAtLeast(0)
@@ -1286,12 +1294,51 @@ class AltTextKeyView(
             // scale from a narrow glyph after the shared geometry is computed.
             if (placements.isEmpty()) return
             val group = placements
-            val singleLetters = group.filter { placement ->
-                val text = placement.key.mainText.text.toString()
-                text.length == 1 && text[0].isLetter()
+            val ideographicPlacements = group.filter { it.inputs.centerInkOnFace }
+            ideographicPlacements.forEach { placement ->
+                val mainText = placement.key.mainText
+                val initialScale = min(placement.inputs.geometry().scale, placement.widthScale)
+                val geometry = placement.inputs.geometry(scaleOverride = initialScale)
+                val safeTop = placement.inputs.bandTop + placement.inputs.minGap - mainText.top
+                val safeBottom = placement.inputs.bandBottom - placement.inputs.minGap - mainText.top
+                val faceCenter = placement.inputs.faceCenter - mainText.top
+                val initialPlacement = AutoScaleTextView.GlyphPlacement(
+                    geometry.baseline - mainText.top,
+                    initialScale,
+                )
+                mainText.glyphPlacement = initialPlacement
+                val initialBounds = mainText.renderedGlyphBounds()
+                val centeredHeight = 2f * min(faceCenter - safeTop, safeBottom - faceCenter)
+                    .coerceAtLeast(0f)
+                val scale = if (initialBounds.height() > 0f) {
+                    min(initialScale, initialScale * centeredHeight / initialBounds.height())
+                } else {
+                    initialScale
+                }
+                val scaledPlacement = initialPlacement.copy(scale = scale)
+                mainText.glyphPlacement = scaledPlacement
+                val scaledBounds = mainText.renderedGlyphBounds()
+                mainText.glyphPlacement = scaledPlacement.copy(
+                    baseline = scaledPlacement.baseline + faceCenter - scaledBounds.centerY()
+                )
             }
-            if (placements.size == 1 && singleLetters.size == 1) {
-                val placement = placements.first()
+            val baselineGroup = group.filterNot { it.inputs.centerInkOnFace }
+            if (baselineGroup.isEmpty()) return
+            val isSingleLetterKey = { placement: MainLabelPlacement ->
+                val keyText = placement.key.mainText.text.toString()
+                val visibleText = keyText.filterNot {
+                    it.isWhitespace() || Character.getType(it) == Character.FORMAT.toInt()
+                }
+                val character = (placement.key.def as? KeyDef.Appearance.AltText)?.character
+                visibleText.singleOrNull()?.let {
+                    it.isLetter()
+                } == true && character?.singleOrNull()?.let {
+                    it.isLetter()
+                } == true
+            }
+            val singleLetters = baselineGroup.filter(isSingleLetterKey)
+            if (baselineGroup.size == 1 && singleLetters.size == 1) {
+                val placement = baselineGroup.first()
                 var scale = placement.inputs.geometry().scale
                 var baseline: Float? = null
                 if (placement.inputs.centerOnFace) {
@@ -1310,7 +1357,7 @@ class AltTextKeyView(
                 )
                 return
             }
-            val geometryGroup = singleLetters.ifEmpty { group }
+            val geometryGroup = singleLetters.ifEmpty { baselineGroup }
             val first = geometryGroup.first().inputs
             val sharedInputs = MainLabelBandGeometryInputs(
                     bandTop = geometryGroup.maxOf { it.inputs.bandTop },
@@ -1322,6 +1369,7 @@ class AltTextKeyView(
                     xHeightBottom = geometryGroup.maxOf { it.inputs.xHeightBottom },
                     minGap = geometryGroup.maxOf { it.inputs.minGap },
                     centerOnFace = first.centerOnFace,
+                    centerInkOnFace = false,
             )
             var sharedScale = geometryGroup.minOf { placement ->
                 min(placement.inputs.geometry().scale, placement.widthScale)
@@ -1333,17 +1381,21 @@ class AltTextKeyView(
                 if (centeredScale > 0f) sharedScale = min(sharedScale, centeredScale)
             }
             val geometry = sharedInputs.geometry(scaleOverride = sharedScale)
-            group.forEach { placement ->
-                val isSingleLetter = singleLetters.isNotEmpty() &&
-                    placement.key.mainText.text.length == 1 &&
-                    placement.key.mainText.text[0].isLetter()
+            baselineGroup.forEach { placement ->
+                val isSingleLetter = singleLetters.isNotEmpty() && isSingleLetterKey(placement)
                 val ownScale = min(placement.inputs.geometry().scale, placement.widthScale)
-                val scale = if (isSingleLetter) sharedScale else ownScale
-                placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
-                    geometry.baseline - placement.key.mainText.top,
-                    if (singleLetters.isNotEmpty()) sharedScale else scale,
-                    if (singleLetters.isNotEmpty() && !isSingleLetter) ownScale else null,
-                )
+                if (isSingleLetter) {
+                    placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
+                        geometry.baseline - placement.key.mainText.top,
+                        sharedScale,
+                    )
+                } else {
+                    placement.key.mainText.glyphPlacement = AutoScaleTextView.GlyphPlacement(
+                        geometry.baseline - placement.key.mainText.top,
+                        sharedScale,
+                        ownScale,
+                    )
+                }
             }
         }
 
@@ -1363,17 +1415,20 @@ class AltTextKeyView(
             val xHeightBottom: Float,
             val minGap: Float,
             val centerOnFace: Boolean,
+            val centerInkOnFace: Boolean,
         ) {
             fun centeredInkScaleLimit(): Float {
-                val xHeightCenter = (xHeightTop + xHeightBottom) / 2f
+                val centerTop = if (centerInkOnFace) inkTop else xHeightTop
+                val centerBottom = if (centerInkOnFace) inkBottom else xHeightBottom
                 val lower = bandTop + minGap
                 val upper = bandBottom - minGap
                 var limit = 1f
-                val topDelta = inkTop - xHeightCenter
+                val centerReference = (centerTop + centerBottom) / 2f
+                val topDelta = inkTop - centerReference
                 if (topDelta < 0f) {
                     limit = min(limit, (faceCenter - lower) / -topDelta)
                 }
-                val bottomDelta = inkBottom - xHeightCenter
+                val bottomDelta = inkBottom - centerReference
                 if (bottomDelta > 0f) {
                     limit = min(limit, (upper - faceCenter) / bottomDelta)
                 }
@@ -1391,6 +1446,7 @@ class AltTextKeyView(
                 minGap = minGap,
                 centerOnFace = centerOnFace,
                 scaleOverride = scaleOverride,
+                centerInkOnFace = centerInkOnFace,
             )
         }
     }
@@ -1556,13 +1612,7 @@ class ImageAltTextKeyView(
     }
 
     private fun applyBottomAltTextPosition() {
-        img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            topToTop = parentId; topMargin = vMargin
-            bottomToTop = altText.existingOrNewId
-            bottomToBottom = unset; bottomMargin = 0
-            startToStart = parentId
-            endToEnd = parentId
-        }
+        centerImageOnKey()
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
@@ -1629,16 +1679,18 @@ class ImageAltTextKeyView(
         }
         altText1.setPadding(0, 0, 0, 0)
         altText1.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-        val hasUpLabel = altText.visibility == View.VISIBLE
-        val hasDownLabel = altText1.visibility == View.VISIBLE
+        centerImageOnKey()
+    }
+
+    private fun centerImageOnKey() {
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            constrainedHeight = true
-            topToTop = if (hasUpLabel) unset else parentId
-            topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
-            topMargin = if (hasUpLabel) dp(2) else vMargin
-            bottomToBottom = if (hasDownLabel) unset else parentId
-            bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
-            bottomMargin = if (hasDownLabel) dp(2) else vMargin
+            constrainedHeight = false
+            topToTop = parentId
+            topToBottom = unset
+            topMargin = 0
+            bottomToBottom = parentId
+            bottomToTop = unset
+            bottomMargin = 0
             startToStart = parentId
             endToEnd = parentId
         }

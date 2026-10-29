@@ -31,6 +31,7 @@ internal fun computeMainLabelGeometry(
     minGap: Float,
     centerOnFace: Boolean,
     scaleOverride: Float? = null,
+    centerInkOnFace: Boolean = false,
 ): MainLabelGeometry {
     val inkHeight = (inkBottom - inkTop).coerceAtLeast(0.001f)
     val reserved = bandBottom - bandTop - minGap * 2f
@@ -41,7 +42,9 @@ internal fun computeMainLabelGeometry(
     val scaledTop = inkTop * scale
     val scaledBottom = inkBottom * scale
     val balanced = (bandTop + bandBottom - scaledTop - scaledBottom) / 2f
-    val centered = faceCenter - (xHeightTop + xHeightBottom) * scale / 2f
+    val centerTop = if (centerInkOnFace) inkTop else xHeightTop
+    val centerBottom = if (centerInkOnFace) inkBottom else xHeightBottom
+    val centered = faceCenter - (centerTop + centerBottom) * scale / 2f
     val lowerBound = bandTop + minGap - scaledTop
     val upperBound = bandBottom - minGap - scaledBottom
     val desired = if (centerOnFace) centered else balanced

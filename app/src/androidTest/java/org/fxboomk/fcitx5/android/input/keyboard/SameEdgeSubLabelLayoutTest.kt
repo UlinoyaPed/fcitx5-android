@@ -368,6 +368,85 @@ class SameEdgeSubLabelLayoutTest {
     }
 
     @Test
+    fun composeStateNonLetterMacroDoesNotMoveLetterRowBaseline() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        instrumentation.runOnMainSync {
+            val density = context.resources.displayMetrics.density
+            val width = (48 * density).roundToInt()
+            val height = (64 * density).roundToInt()
+
+            fun letterKey(letter: String): AltTextKeyView {
+                val appearance = MacroKey(
+                    label = "\u200b$letter",
+                    character = letter,
+                    altLabel = "'",
+                    tap = MacroAction(listOf(MacroStep.Text(letter)))
+                ).appearance as KeyDef.Appearance.AltText
+                appearance.altTextPositionOverride = KeyDef.Appearance.AltTextPosition.TopRight
+                return AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+            }
+
+            fun composeCapsKey(): AltTextKeyView {
+                val appearance = MacroKey(
+                    label = "分",
+                    character = "/",
+                    altLabel = "/",
+                    tap = MacroAction(listOf(MacroStep.Text("/")))
+                ).appearance as KeyDef.Appearance.AltText
+                appearance.altTextPositionOverride = KeyDef.Appearance.AltTextPosition.TopRight
+                return AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+            }
+
+            fun layout(keys: List<AltTextKeyView>) {
+                keys.forEach { key ->
+                    repeat(2) {
+                        key.refreshLayout()
+                        key.measure(
+                            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                        )
+                        key.layout(0, 0, width, height)
+                    }
+                }
+                AltTextKeyView.alignRemainingSpaceMainLabels(keys)
+            }
+
+            val lettersOnly = "ZXCVBNM".map { letterKey(it.toString()) }
+            layout(lettersOnly)
+            val lettersOnlyBaselines = lettersOnly.map { it.mainText.top + it.mainText.baseline }
+
+            val withComposeCaps = listOf(composeCapsKey()) +
+                "ZXCVBNM".map { letterKey(it.toString()) }
+            layout(withComposeCaps)
+            val withComposeCapsBaselines = withComposeCaps.drop(1)
+                .map { it.mainText.top + it.mainText.baseline }
+
+            assertTrue(
+                "Zero-width formatted letter labels must keep a shared baseline",
+                lettersOnlyBaselines.max() - lettersOnlyBaselines.min() <= 1
+            )
+            assertTrue(
+                "A non-letter compose-state key must not move the letter row baseline",
+                lettersOnlyBaselines.zip(withComposeCapsBaselines)
+                    .all { (before, after) -> kotlin.math.abs(before - after) <= 1 }
+            )
+            assertTrue(
+                "Letters must keep a shared baseline while a non-letter compose key is visible",
+                withComposeCapsBaselines.max() - withComposeCapsBaselines.min() <= 1
+            )
+            val composeCaps = withComposeCaps.first()
+            val composeCapsInk = inkBounds(composeCaps.mainText)
+            assertEquals(
+                "A Han main label should center its visible ink on its key face",
+                composeCaps.getChildAt(0).height / 2f,
+                (composeCapsInk.top + composeCapsInk.bottom) / 2f,
+                1.5f,
+            )
+        }
+    }
+
+    @Test
     fun independentSameEdgeLabelsKeepLegacyMainLabelPosition() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext

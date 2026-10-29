@@ -12,6 +12,7 @@ import androidx.core.view.allViews
 import java.lang.ref.WeakReference
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
+import org.fxboomk.fcitx5.android.core.InputMethodSubMode
 import org.fxboomk.fcitx5.android.core.KeyState
 import org.fxboomk.fcitx5.android.core.KeyStates
 import org.fxboomk.fcitx5.android.input.FcitxInputMethodService
@@ -27,6 +28,42 @@ import splitties.views.imageResource
 import kotlinx.serialization.json.*
 import kotlinx.serialization.Serializable
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
+
+internal fun resolveCapsAwareAltText(
+    appearance: KeyDef.Appearance.AltText,
+    renderedText: String,
+    displayUppercase: Boolean,
+    keepLettersUppercase: Boolean,
+    preserveConfiguredDisplayCase: Boolean = false,
+): String {
+    val sourceFromAppearance = renderedText.isEmpty() || renderedText == appearance.displayText
+    val displayText = if (sourceFromAppearance) appearance.displayText else renderedText
+
+    if (appearance.caseAwareCapsState) {
+        if (preserveConfiguredDisplayCase) return appearance.displayText
+        if (displayText.length != 1 || !displayText[0].isLetter()) return displayText
+        if (appearance.displayText[0].isUpperCase()) return appearance.displayText
+        return if (displayUppercase) displayText.uppercase() else displayText.lowercase()
+    }
+    if (!appearance.followsCapsState) return appearance.displayText
+
+    val character = appearance.character
+    val displayIsSingleLetter = displayText.length == 1 && displayText[0].isLetter()
+    val characterIsSingleLetter = sourceFromAppearance &&
+        character.length == 1 && character[0].isLetter()
+    val isCustomLabel = !displayText.equals(character, ignoreCase = true)
+
+    return when {
+        isCustomLabel -> displayText
+        keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
+        keepLettersUppercase -> displayText
+        !displayUppercase && displayIsSingleLetter -> displayText.lowercase()
+        !displayUppercase -> displayText
+        displayIsSingleLetter -> displayText.uppercase()
+        characterIsSingleLetter -> character.uppercase()
+        else -> displayText
+    }
+}
 
 /**
  * Virtual uppercase input uses Shift semantics for both one-shot and
@@ -62,6 +99,10 @@ class TextKeyboard private constructor(
         const val Name = "Text"
         private var lastModified = 0L
         internal var ime: InputMethodEntry? = null
+            set(value) {
+                field = value
+                TextKeyboardLayoutState.observeActiveIme(value)
+            }
         private var listenerRegistered = false
         private var iconListenerRegistered = false
         private val attachedKeyboards = mutableListOf<WeakReference<TextKeyboard>>()
@@ -201,11 +242,22 @@ class TextKeyboard private constructor(
                 return cachedRawLayoutJson
             }
 
-        fun getLayout(): List<List<KeyDef>> = getLayout(ime, ThemeManager.activeTheme)
+        fun getLayout(): List<List<KeyDef>> = getLayout(
+            ime,
+            ThemeManager.activeTheme,
+            TextKeyboardLayoutState.activeLayoutSubMode(ime),
+        )
 
-        internal fun getLayout(currentIme: InputMethodEntry?, theme: Theme): List<List<KeyDef>> {
+        internal fun layoutSubModeForIme(ime: InputMethodEntry): InputMethodSubMode =
+            TextKeyboardLayoutState.activeLayoutSubMode(ime)
+
+        internal fun getLayout(
+            currentIme: InputMethodEntry?,
+            theme: Theme,
+            layoutSubMode: InputMethodSubMode = currentIme?.subMode ?: InputMethodSubMode(),
+        ): List<List<KeyDef>> {
             val imeName = currentIme?.uniqueName
-            val subModeLabel = currentIme?.subMode?.label ?: ""
+            val subModeLabel = layoutSubMode.label
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
             if (imeName != null) {
                 val json = textLayoutJson
@@ -230,7 +282,7 @@ class TextKeyboard private constructor(
                                     rowElement = rowElement,
                                     showLangSwitch = showLangSwitch,
                                     subModeLabel = subModeLabel,
-                                    subModeName = currentIme.subMode.name,
+                                    subModeName = layoutSubMode.name,
                                     theme = theme,
                                 )
                             }
@@ -371,6 +423,7 @@ class TextKeyboard private constructor(
      */
     @Volatile
     internal var keepLettersUppercaseOverride: Boolean? = null
+    internal var preserveMacroDisplayCaseOverride: Boolean = false
 
     private val keepLettersUppercase: Boolean
         get() = keepLettersUppercaseOverride ?: keepLettersUppercasePref
@@ -409,7 +462,8 @@ class TextKeyboard private constructor(
             parentKey != null && json?.containsKey(parentKey) == true -> "p:$parentKey"
             else -> "default"
         }
-        val subModeLabel = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }
+        val subModeLabel = layoutState.layoutSubMode(ime)
+            .run { label.ifEmpty { name.ifEmpty { "" } } }
         return "$layoutSource|$subModeLabel|$lastRawModified"
     }
 
@@ -791,28 +845,13 @@ class TextKeyboard private constructor(
             val appearance = keyView.def
             when (appearance) {
                 is KeyDef.Appearance.AltText -> {
-                    val renderedText = keyView.mainText.text.toString()
-                    val sourceFromAppearance = renderedText.isEmpty() || renderedText == appearance.displayText
-                    val displayText = if (sourceFromAppearance) appearance.displayText else renderedText
-                    val character = appearance.character
-                    val displayIsSingleLetter = displayText.length == 1 && displayText[0].isLetter()
-                    val characterIsSingleLetter = sourceFromAppearance &&
-                        character.length == 1 &&
-                        character[0].isLetter()
-
-                    // 用户自定义标签：displayText 与 character 不同（忽略大小写）时，保持用户设定的大小写
-                    val isCustomLabel = displayText.equals(character, ignoreCase = true) == false
-
-                    keyView.mainText.text = when {
-                        isCustomLabel -> displayText
-                        keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
-                        keepLettersUppercase -> displayText
-                        !displayUppercase && displayIsSingleLetter -> displayText.lowercase()
-                        !displayUppercase -> displayText
-                        displayIsSingleLetter -> displayText.uppercase()
-                        characterIsSingleLetter -> character.uppercase()
-                        else -> displayText
-                    }
+                    keyView.mainText.text = resolveCapsAwareAltText(
+                        appearance = appearance,
+                        renderedText = keyView.mainText.text.toString(),
+                        displayUppercase = displayUppercase,
+                        keepLettersUppercase = keepLettersUppercase,
+                        preserveConfiguredDisplayCase = preserveMacroDisplayCaseOverride,
+                    )
                 }
                 is KeyDef.Appearance.Text -> {
                     val renderedText = keyView.mainText.text.toString()

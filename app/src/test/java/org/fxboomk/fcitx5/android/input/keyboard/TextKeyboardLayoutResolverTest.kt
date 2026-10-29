@@ -11,6 +11,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
+import org.fxboomk.fcitx5.android.core.InputMethodSubMode
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -32,6 +33,76 @@ class TextKeyboardLayoutResolverTest {
 
         assertEquals(realIme, realState.ime)
         assertEquals(previewIme, previewState.ime)
+    }
+
+    @Test
+    fun rimeAsciiModeKeepsTheLastChineseSubModeForRowsAndHeight() {
+        val chineseSubMode = InputMethodSubMode("朙月拼音", "朙", "fcitx-rime")
+        val chineseIme = rimeIme(chineseSubMode)
+        val asciiIme = rimeIme(InputMethodSubMode("Latin Mode", "custom-latin", "fcitx_rime_latin"))
+        val store = MemoryRimeSubModeLayoutStore()
+        val tracker = RimeSubModeLayoutTracker(store).apply { observe(chineseIme) }
+        val effectiveSubMode = tracker.resolve(asciiIme)
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "rime": {
+                "朙": {
+                  "rows": [[{"type":"AlphabetKey","main":"c"}]],
+                  "__meta__": {"keyboard_height_percent": 33}
+                },
+                "custom-latin": {
+                  "rows": [[{"type":"AlphabetKey","main":"a"}]],
+                  "__meta__": {"keyboard_height_percent": 70}
+                },
+                "default": [[{"type":"AlphabetKey","main":"d"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = asciiIme.uniqueName,
+            displayName = asciiIme.displayName,
+            subModeLabel = effectiveSubMode.label,
+        )
+
+        assertEquals(chineseSubMode, effectiveSubMode)
+        assertEquals("c", resolution!!.rows!!.firstKeyMain())
+        assertEquals(33, resolution.keyboardHeightPercentOverride(landscape = false))
+        assertEquals(
+            KeyboardHeightOverrideTarget.SubMode("rime", "朙"),
+            resolution.keyboardHeightOverrideTarget(landscape = false),
+        )
+    }
+
+    @Test
+    fun rimeAsciiCapsIndicatorKeepsTheRememberedSubModeAndColdStartFallsBack() {
+        val chineseIme = rimeIme(InputMethodSubMode("朙月拼音", "朙", "fcitx-rime"))
+        val uppercaseAsciiIme = rimeIme(InputMethodSubMode("Latin Mode", "ABC", "fcitx_rime_latin_upper"))
+        val store = MemoryRimeSubModeLayoutStore()
+        val tracker = RimeSubModeLayoutTracker(store).apply { observe(chineseIme) }
+        val state = TextKeyboardLayoutState(chineseIme, store)
+        state.ime = uppercaseAsciiIme
+
+        assertEquals(chineseIme.subMode, tracker.resolve(uppercaseAsciiIme))
+        assertEquals(chineseIme.subMode, state.layoutSubMode())
+        assertEquals(
+            InputMethodSubMode(),
+            RimeSubModeLayoutTracker(MemoryRimeSubModeLayoutStore()).resolve(uppercaseAsciiIme),
+        )
+
+        val recreatedTracker = RimeSubModeLayoutTracker(store)
+        assertEquals(chineseIme.subMode, recreatedTracker.resolve(uppercaseAsciiIme))
+    }
+
+    @Test
+    fun rimeSubModePersistenceRoundTripsAllFieldsAndIgnoresInvalidData() {
+        val subMode = InputMethodSubMode("朙月拼音", "朙", "fcitx-rime")
+
+        assertEquals(subMode, decodeRimeSubMode(encodeRimeSubMode(subMode)))
+        assertEquals(null, decodeRimeSubMode("not-json"))
     }
 
     @Test
@@ -643,6 +714,28 @@ class TextKeyboardLayoutResolverTest {
             }
             """.trimIndent()
         ) as JsonObject
+    }
+
+    private fun rimeIme(subMode: InputMethodSubMode) = InputMethodEntry(
+        uniqueName = "rime",
+        name = "中州韵",
+        icon = "",
+        nativeName = "",
+        label = "",
+        languageCode = "zh_CN",
+        addon = "rime",
+        isConfigurable = false,
+        subMode = subMode,
+    )
+
+    private class MemoryRimeSubModeLayoutStore : RimeSubModeLayoutStore {
+        private var subMode: InputMethodSubMode? = null
+
+        override fun read(): InputMethodSubMode? = subMode
+
+        override fun write(subMode: InputMethodSubMode) {
+            this.subMode = subMode
+        }
     }
 
     private fun childOnlyLayoutJson(): JsonObject {

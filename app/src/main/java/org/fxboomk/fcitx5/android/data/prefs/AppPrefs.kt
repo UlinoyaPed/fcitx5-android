@@ -50,6 +50,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val lastPickerType = string("last_picker_type", PickerWindow.Key.Emoji.name)
         val lastNonEnglishIme = string("last_non_english_ime", "")
         val lastNonEnglishSubMode = string("last_non_english_submode", "")
+        val lastRimeChineseSubMode = string("last_rime_chinese_submode", "")
         val verboseLog = bool("verbose_log", false)
         val pid = int("pid", 0)
         val editorInfoInspector = bool("editor_info_inspector", false)

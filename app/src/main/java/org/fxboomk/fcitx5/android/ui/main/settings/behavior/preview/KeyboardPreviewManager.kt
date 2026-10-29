@@ -88,7 +88,9 @@ internal fun buildPreviewSubModeMap(
     previewSubModeLabel: String?
 ): MutableMap<String, JsonElement> {
     val subModeMap = mutableMapOf<String, JsonElement>()
-    val currentRowsArray = JsonArray(currentRows.map(LayoutJsonUtils::rowToJsonElement))
+    val currentRowsArray = JsonArray(
+        previewRowsUsingMacroLabels(currentRows).map(LayoutJsonUtils::rowToJsonElement)
+    )
 
     if (subModeKey != null && entries.containsKey(subModeKey)) {
         subModeMap[previewSubModeLabel ?: "default"] = currentRowsArray
@@ -96,13 +98,28 @@ internal fun buildPreviewSubModeMap(
             ?: ShuangpinLayoutKeys.parentBaseLayoutKey(layoutName)?.let { entries[it] }
             ?: entries[LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY]
         defaultRows?.let {
-            subModeMap["default"] = JsonArray(it.map(LayoutJsonUtils::rowToJsonElement))
+            subModeMap["default"] = JsonArray(
+                previewRowsUsingMacroLabels(it).map(LayoutJsonUtils::rowToJsonElement)
+            )
         }
     } else {
         subModeMap["default"] = currentRowsArray
     }
 
     return subModeMap
+}
+
+private fun previewRowsUsingMacroLabels(
+    rows: List<List<Map<String, Any?>>>
+): List<List<Map<String, Any?>>> = rows.map { row ->
+    row.map { key ->
+        val label = key["label"] as? String
+        if (key["type"] != "MacroKey" || label == null) {
+            key
+        } else {
+            key.toMutableMap().apply { this["displayText"] = label }
+        }
+    }
 }
 
 /**
@@ -237,6 +254,7 @@ class KeyboardPreviewManager(
         previewKeyboard = TextKeyboard(context, theme).apply {
             // 预览中的字母键保持大写，与下方编辑器的按键标签视觉一致
             keepLettersUppercaseOverride = true
+            preserveMacroDisplayCaseOverride = true
             val displayMetrics = context.resources.displayMetrics
             val screenHeight = displayMetrics.heightPixels
 
