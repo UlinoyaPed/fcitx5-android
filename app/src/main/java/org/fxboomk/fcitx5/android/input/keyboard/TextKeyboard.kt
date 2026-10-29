@@ -800,7 +800,11 @@ class TextKeyboard private constructor(
                         character.length == 1 &&
                         character[0].isLetter()
 
+                    // 用户自定义标签：displayText 与 character 不同（忽略大小写）时，保持用户设定的大小写
+                    val isCustomLabel = displayText.equals(character, ignoreCase = true) == false
+
                     keyView.mainText.text = when {
+                        isCustomLabel -> displayText
                         keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
                         keepLettersUppercase -> displayText
                         !displayUppercase && displayIsSingleLetter -> displayText.lowercase()
