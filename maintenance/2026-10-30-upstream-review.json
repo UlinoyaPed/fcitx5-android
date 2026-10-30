@@ -5,7 +5,7 @@
   "previous_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
   "reviewed_upstream_sha": "939a8ed546959a3120d1418e5215ca762071087e",
   "commit_count": 39,
-  "status": "validated_candidate",
+  "status": "validated_merge_published",
   "commits": [
     {
       "sha": "0e97ecc807032f46ecbe2118634d68e981ee8f92",
@@ -653,13 +653,14 @@
   ],
   "maintenance_prompt": {
     "repository_file": "maintenance/task-prompt.txt",
-    "update_status": "Replacement enabled for Friday 01:00 Asia/Shanghai; prompt update pending after validated commit.",
+    "update_status": "Replacement enabled for Friday 01:00 Asia/Shanghai; committed prompt synchronized and verified equal via automation update",
     "requested_schedule": "Friday 01:00 Asia/Shanghai (user confirmed 2026-10-30)",
     "prior_task_access": "Prior task ID inaccessible in current context; private lookup found no matching task. Its deletion is not established; duplicate scheduling remains possible.",
     "prior_automation_id": "6ac9065509e0819184f9503d7939ab90",
     "replacement_automation_id": "6ae409efcc048191b14c40be2839e021",
     "file_sha256": "58b5fea9648e206d5401eff9973b2b2a0131da29383a2d08a3d0ef29fb98039b",
-    "automation_prompt_sha256": "3892d7dfa8a95a7315da16a37ef2ef25a9498ce7786589e723262424e5e6cb76"
+    "automation_prompt_sha256": "3892d7dfa8a95a7315da16a37ef2ef25a9498ce7786589e723262424e5e6cb76",
+    "validated_merge_on_main": "a7c24110a2f15c7acea4ac8d05d0843dcabb9825"
   },
   "personal_source_preservation": {
     "AutoScaleTextView": {
