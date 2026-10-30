@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import splitties.dimensions.dp
 import kotlin.math.max
 
-class ResponsiveThemeListView(context: Context) : RecyclerView(context) {
+class ResponsiveThemeListView(
+    context: Context,
+    private val firstRowTopOffset: Int = -1
+) : RecyclerView(context) {
 
     var itemWidth = dp(128)
     var itemHeight = dp(110)  // Increased from 92 to 110 to fit edit button
@@ -31,7 +34,7 @@ class ResponsiveThemeListView(context: Context) : RecyclerView(context) {
                     if ((adapter as? ThemeListAdapter)?.isFullSpan(position) == true) grid.spanCount else 1
             }
             layoutManager = grid
-            addItemDecoration(ThemeListItemDecoration(itemWidth))
+            addItemDecoration(ThemeListItemDecoration(itemWidth, firstRowTopOffset))
         } else {
             grid.spanCount = spanCount
             invalidateItemDecorations()

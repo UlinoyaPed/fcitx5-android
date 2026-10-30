@@ -2,10 +2,10 @@
   "upstream": "boomker/fcitx5-android",
   "personal_repository": "UlinoyaPed/fcitx5-android",
   "maintained_branch": "main",
-  "review_date": "2026-10-23",
-  "previous_upstream_sha": "9f5570852325a04bf9a4f49e7249353911a43c85",
-  "reviewed_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
-  "reviewed_commit_count": 37,
+  "review_date": "2026-10-30",
+  "previous_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
+  "reviewed_upstream_sha": "939a8ed546959a3120d1418e5215ca762071087e",
+  "reviewed_commit_count": 39,
   "decision": "Integrate reviewed updates with retained personal patches and user data; defer incompatible AI mode/settings batch",
   "deferred_commits": [
     {
@@ -32,39 +32,36 @@
     "no_force_push": true,
     "no_automatic_upstream_comments_or_prs": true
   },
-  "review_record": "maintenance/2026-10-23-upstream-review.json",
-  "previous_record": "maintenance/2026-10-15-upstream-review.json",
+  "review_record": "maintenance/2026-10-30-upstream-review.json",
+  "previous_record": "maintenance/2026-10-23-upstream-review.json",
   "validation": {
     "status": "passed",
     "unit_tests": {
-      "tests": 698,
+      "tests": 734,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "android_instrumentation": {
-      "tests": 155,
+      "tests": 220,
       "failures": 0,
+      "skipped": 0,
       "api": 29,
       "physical_device_testing": "not performed"
     },
     "release_abi": "arm64-v8a",
     "release_plugins": 10,
-    "configuration_cache": "Final debug and release task graphs stored successfully",
-    "apk_signing": "11 APKs verified with one temporary local certificate; production signing remains in repository Secrets",
     "lint": {
-      "errors": 0,
-      "warnings": 386,
       "result": "passed",
-      "previous_release_warnings": 380,
-      "warning_delta": {
-        "NotifyDataSetChanged": 3,
-        "PluralsCandidate": 1,
-        "NewerVersionAvailable": 1,
-        "UseTomlInstead": 1
+      "debug": {
+        "errors": 0,
+        "warnings": 35
       },
-      "new_missing_translation_or_lint_error": false
+      "release": {
+        "errors": 0,
+        "warnings": 33
+      }
     },
-    "details": "maintenance/2026-10-23-upstream-review.json"
+    "details": "maintenance/2026-10-30-upstream-review.json"
   }
 }

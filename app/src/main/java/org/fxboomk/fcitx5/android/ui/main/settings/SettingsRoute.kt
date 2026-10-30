@@ -24,16 +24,14 @@ import org.fxboomk.fcitx5.android.ui.main.LicensesFragment
 import org.fxboomk.fcitx5.android.ui.main.MainFragment
 import org.fxboomk.fcitx5.android.ui.main.PluginFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.FuzzyConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardAdvancedCustomizationFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardBasicSettingsFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardCandidatesSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardKeyAndGestureSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardLayoutAndSplitSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardToolbarAndInputSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardTouchAndSoundSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmAdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmSettingsFragment
@@ -41,7 +39,14 @@ import org.fxboomk.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodListFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAnimationFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeCandidateStyleFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeKeyStyleFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeModeFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeOtherStyleFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeToolbarStyleFragment
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
 import org.fxboomk.fcitx5.android.utils.parcelable
@@ -75,10 +80,48 @@ sealed class SettingsRoute : Parcelable {
     @Serializable
     data class AddonConfig(val name: String, val uniqueName: String) : SettingsRoute()
 
+    @Serializable
+    data class ConfigSection(
+        val pageTitle: String,
+        val uniqueName: String,
+        val isAddon: Boolean,
+        val sectionIndex: Int,
+        val sectionTitle: String
+    ) : SettingsRoute()
+
+    @Serializable
+    data class FuzzyConfig(
+        val pageTitle: String,
+        val uniqueName: String,
+        val isAddon: Boolean,
+        val sectionTitle: String
+    ) : SettingsRoute()
+
     /* ========== Android ========== */
 
     @Serializable
     data object Theme : SettingsRoute()
+
+    @Serializable
+    data object ThemeList : SettingsRoute()
+
+    @Serializable
+    data object ThemeKeyStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeToolbarStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeCandidateStyle : SettingsRoute()
+
+    @Serializable
+    data object ThemeAnimation : SettingsRoute()
+
+    @Serializable
+    data object ThemeMode : SettingsRoute()
+
+    @Serializable
+    data object ThemeOtherStyle : SettingsRoute()
 
     @Serializable
     data object VirtualKeyboard : SettingsRoute()
@@ -90,22 +133,10 @@ sealed class SettingsRoute : Parcelable {
     data object VirtualKeyboardTouchAndSound : SettingsRoute()
 
     @Serializable
-    data object VirtualKeyboardToolbarAndInput : SettingsRoute()
-
-    @Serializable
     data object VirtualKeyboardKeyAndGesture : SettingsRoute()
 
     @Serializable
     data object VirtualKeyboardLayoutAndSplit : SettingsRoute()
-
-    @Serializable
-    data object VirtualKeyboardCandidates : SettingsRoute()
-
-    @Serializable
-    data object VirtualKeyboardAdvancedCustomization : SettingsRoute()
-
-    @Serializable
-    data object CandidatesWindow : SettingsRoute()
 
     @Serializable
     data object Clipboard : SettingsRoute()
@@ -250,11 +281,34 @@ sealed class SettingsRoute : Parcelable {
                 label = ctx.getString(R.string.addons)
             }
             fragment<AddonConfigFragment, AddonConfig>()
+            fragment<ConfigSectionFragment, ConfigSection>()
+            fragment<FuzzyConfigFragment, FuzzyConfig>()
 
             /* ========== Android ========== */
 
-            fragment<ThemeFragment, Theme> {
+            fragment<ThemeAppearanceFragment, Theme> {
                 label = ctx.getString(R.string.theme_appearance)
+            }
+            fragment<ThemeFragment, ThemeList> {
+                label = ctx.getString(R.string.keyboard_theme)
+            }
+            fragment<ThemeKeyStyleFragment, ThemeKeyStyle> {
+                label = ctx.getString(R.string.theme_category_key_style)
+            }
+            fragment<ThemeToolbarStyleFragment, ThemeToolbarStyle> {
+                label = ctx.getString(R.string.theme_category_toolbar_style)
+            }
+            fragment<ThemeCandidateStyleFragment, ThemeCandidateStyle> {
+                label = ctx.getString(R.string.theme_category_candidate_style)
+            }
+            fragment<ThemeAnimationFragment, ThemeAnimation> {
+                label = ctx.getString(R.string.theme_category_animation)
+            }
+            fragment<ThemeModeFragment, ThemeMode> {
+                label = ctx.getString(R.string.theme_category_theme_mode)
+            }
+            fragment<ThemeOtherStyleFragment, ThemeOtherStyle> {
+                label = ctx.getString(R.string.theme_category_other_style)
             }
             fragment<KeyboardSettingsHomeFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)
@@ -265,23 +319,11 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardTouchAndSoundSettingsFragment, VirtualKeyboardTouchAndSound> {
                 label = ctx.getString(R.string.keyboard_settings_touch_and_sound)
             }
-            fragment<KeyboardToolbarAndInputSettingsFragment, VirtualKeyboardToolbarAndInput> {
-                label = ctx.getString(R.string.keyboard_settings_toolbar_and_voice)
-            }
             fragment<KeyboardKeyAndGestureSettingsFragment, VirtualKeyboardKeyAndGesture> {
                 label = ctx.getString(R.string.keyboard_settings_key_and_gesture)
             }
             fragment<KeyboardLayoutAndSplitSettingsFragment, VirtualKeyboardLayoutAndSplit> {
                 label = ctx.getString(R.string.keyboard_settings_layout_and_split)
-            }
-            fragment<KeyboardCandidatesSettingsFragment, VirtualKeyboardCandidates> {
-                label = ctx.getString(R.string.keyboard_settings_candidates)
-            }
-            fragment<KeyboardAdvancedCustomizationFragment, VirtualKeyboardAdvancedCustomization> {
-                label = ctx.getString(R.string.keyboard_settings_advanced_customization)
-            }
-            fragment<KeyboardCandidatesSettingsFragment, CandidatesWindow> {
-                label = ctx.getString(R.string.keyboard_settings_candidates)
             }
             fragment<ClipboardSettingsFragment, Clipboard> {
                 label = ctx.getString(R.string.clipboard)

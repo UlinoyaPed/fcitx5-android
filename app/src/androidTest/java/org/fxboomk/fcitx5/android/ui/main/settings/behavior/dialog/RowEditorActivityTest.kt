@@ -5,6 +5,9 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
 import android.content.Intent
+import android.graphics.Rect
+import android.os.SystemClock
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
@@ -86,17 +89,52 @@ class RowEditorActivityTest {
                     instrumentation.waitForIdleSync()
                     val automation = instrumentation.uiAutomation
                     automation.waitForIdle(100, 5000)
-                    val followTheme = context.getString(R.string.text_keyboard_layout_key_color_mode_theme)
-                    var option = automation.rootInActiveWindow
-                        .findAccessibilityNodeInfosByText(followTheme).single { it.text == followTheme }
-                    while (!option.isClickable) {
-                        option = checkNotNull(option.parent)
+                    val followTheme = activity.getString(R.string.text_keyboard_layout_key_color_mode_theme)
+                    val customColor = activity.getString(R.string.text_keyboard_layout_key_color_mode_custom)
+                    var found: AccessibilityNodeInfo? = null
+                    val deadline = android.os.SystemClock.uptimeMillis() + 10_000
+                    while (found == null && android.os.SystemClock.uptimeMillis() < deadline) {
+                        val root = automation.rootInActiveWindow
+                        if (root?.findAccessibilityNodeInfosByText(customColor)?.any { it.text == customColor } == true) {
+                            found = root.findAccessibilityNodeInfosByText(followTheme).firstOrNull { it.text == followTheme }
+                        }
+                        if (found == null) Thread.sleep(100)
                     }
-                    assertTrue(option.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                    fun texts(node: AccessibilityNodeInfo?): List<String> {
+                        if (node == null) return emptyList()
+                        return listOfNotNull(node.text?.toString()) +
+                            (0 until node.childCount).flatMap { texts(node.getChild(it)) }
+                    }
+                    val option = checkNotNull(found) {
+                        "The background color dialog did not show: $followTheme; " +
+                            "active window texts=${texts(automation.rootInActiveWindow)}"
+                    }
+                    val bounds = Rect().also(option::getBoundsInScreen)
+                    assertFalse("Dialog option must be visible", bounds.isEmpty)
+                    println("Tap follow-theme option for $backgroundStyle / $reference at $bounds")
+                    val downTime = SystemClock.uptimeMillis()
+                    for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                        val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action,
+                            bounds.exactCenterX(), bounds.exactCenterY(), 0)
+                        try {
+                            instrumentation.sendPointerSync(event)
+                        } finally {
+                            event.recycle()
+                        }
+                    }
+                    instrumentation.waitForIdleSync()
+                    val dismissDeadline = SystemClock.uptimeMillis() + 10_000
+                    while (SystemClock.uptimeMillis() < dismissDeadline &&
+                        automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(customColor)
+                            ?.any { it.text == customColor } == true) Thread.sleep(100)
+                    check(automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(customColor)
+                        ?.none { it.text == customColor } != false) { "Color dialog did not dismiss after selection" }
                     instrumentation.waitForIdleSync()
                     instrumentation.runOnMainSync {
                         val views = descendants(activity.window.decorView).toList()
-                        assertEquals(0, views.filterIsInstance<Spinner>().last().selectedItemPosition)
+                        assertEquals("Reset $backgroundStyle / $reference, texts=" +
+                            views.filterIsInstance<TextView>().map { it.text.toString() },
+                            0, views.filterIsInstance<Spinner>().last().selectedItemPosition)
                         val save = views.filterIsInstance<Toolbar>().single().menu.getItem(0)
                         assertTrue("Resetting $backgroundStyle / $reference must enable Save", save.isEnabled)
                         assertTrue(views.filterIsInstance<TextView>().any {

@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("ClickableViewAccessibility")
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.content.Context
@@ -90,8 +91,14 @@ class AlphaPreviewSlider(context: Context) : View(context) {
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 parent?.requestDisallowInterceptTouchEvent(false)
+                if (event.action == MotionEvent.ACTION_UP) performClick()
             }
         }
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
         return true
     }
 

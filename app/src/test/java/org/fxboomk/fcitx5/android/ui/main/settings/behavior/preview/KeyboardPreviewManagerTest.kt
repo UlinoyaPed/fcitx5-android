@@ -5,6 +5,9 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview
 
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import org.fxboomk.fcitx5.android.data.pinyin.ShuangpinLayoutKeys
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -34,6 +37,41 @@ class KeyboardPreviewManagerTest {
         assertSame(defaultRows, resolvedRows)
         assertEquals(setOf("default"), result.keys)
         assertEquals(rowsJson(defaultRows), result.getValue("default"))
+    }
+
+    @Test
+    fun previewMacroDisplayTextUsesLabelForBaseAndSubModeRowsWithoutMutation() {
+        val baseMacro = mutableMapOf<String, Any?>(
+            "type" to "MacroKey",
+            "label" to "B",
+            "displayText" to "b",
+            "tap" to mapOf("macro" to emptyList<Any>())
+        )
+        val subModeMacro = mutableMapOf<String, Any?>(
+            "type" to "MacroKey",
+            "label" to "Q",
+            "displayText" to "q",
+            "tap" to mapOf("macro" to emptyList<Any>())
+        )
+        val baseRows = listOf(listOf(baseMacro))
+        val subModeRows = listOf(listOf(subModeMacro))
+
+        val previewSubModes = buildPreviewSubModeMap(
+            entries = mapOf("ime" to baseRows, "ime:child" to subModeRows),
+            layoutName = "ime",
+            subModeKey = "ime:child",
+            currentRows = subModeRows,
+            previewSubModeLabel = "child"
+        )
+        val basePreviewMacro = previewSubModes.getValue("default").jsonArray[0].jsonArray[0].jsonObject
+        val subModePreviewMacro = previewSubModes.getValue("child").jsonArray[0].jsonArray[0].jsonObject
+
+        assertEquals(JsonPrimitive("B"), basePreviewMacro["label"])
+        assertEquals(JsonPrimitive("B"), basePreviewMacro["displayText"])
+        assertEquals(JsonPrimitive("Q"), subModePreviewMacro["label"])
+        assertEquals(JsonPrimitive("Q"), subModePreviewMacro["displayText"])
+        assertEquals("b", baseMacro["displayText"])
+        assertEquals("q", subModeMacro["displayText"])
     }
 
     @Test

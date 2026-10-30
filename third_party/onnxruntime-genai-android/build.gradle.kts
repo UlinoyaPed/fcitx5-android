@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.fxboomk.fcitx5.android.thirdparty"
-version = "0.15.0"
+version = "0.17.0"
 
 fun Project.githubPackagesRepositoryUrl(): String {
     val explicit = providers.gradleProperty("githubPackagesRepository").orNull?.trim().orEmpty()
@@ -39,9 +39,10 @@ fun isFileBackedRepository(url: String): Boolean = url.startsWith("file:", ignor
 
 val artifactName = "onnxruntime-genai-android"
 val artifactFileName = "$artifactName-$version.aar"
-val artifactSha256 = "a4aeadcd4d70b877c56a74ece7778324a5ee4686f395ef29e4d2a83908b83a6c"
+val artifactSha256 = "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50"
 val artifactUrl =
     "https://github.com/microsoft/onnxruntime-genai/releases/download/v$version/$artifactFileName"
+val rawDownloadedArtifact = layout.buildDirectory.file("downloads/raw/$artifactFileName")
 val downloadedArtifact = layout.buildDirectory.file("downloads/$artifactFileName")
 
 fun sha256(file: File): String {
@@ -64,6 +65,32 @@ fun requireExpectedSha256(file: File) {
     }
 }
 
+fun zipAlignExecutable(): File {
+    val sdk = providers.environmentVariable("ANDROID_HOME").orNull?.trim().orEmpty()
+        .ifBlank { providers.environmentVariable("ANDROID_SDK_ROOT").orNull?.trim().orEmpty() }
+        .ifBlank {
+            rootProject.rootDir.resolve("local.properties").takeIf { it.isFile }
+                ?.readLines()
+                ?.firstOrNull { it.startsWith("sdk.dir=") }
+                ?.substringAfter('=')
+                ?.replace("\\:", ":")
+                ?.trim()
+                .orEmpty()
+        }
+    check(sdk.isNotEmpty()) { "Android SDK path is required to align the ONNX Runtime AAR" }
+    val buildToolsDir = File(sdk, "build-tools")
+        .listFiles()
+        ?.filter { it.isDirectory }
+        ?.mapNotNull { directory ->
+            runCatching { directory to org.gradle.util.GradleVersion.version(directory.name) }.getOrNull()
+        }
+        ?.maxByOrNull { it.second }?.first
+        ?: error("No Android build-tools installation found under $sdk")
+    val executable = File(buildToolsDir, if (System.getProperty("os.name").startsWith("Windows")) "zipalign.exe" else "zipalign")
+    check(executable.isFile) { "zipalign not found at ${executable.absolutePath}" }
+    return executable
+}
+
 val downloadOrtGenAiAar = tasks.register("downloadOrtGenAiAar") {
     outputs.file(downloadedArtifact)
     notCompatibleWithConfigurationCache(
@@ -71,30 +98,46 @@ val downloadOrtGenAiAar = tasks.register("downloadOrtGenAiAar") {
     )
     doLast {
         val target = downloadedArtifact.get().asFile
-        if (target.exists() && target.length() > 0L) {
-            requireExpectedSha256(target)
-            return@doLast
+        val raw = rawDownloadedArtifact.get().asFile
+        raw.parentFile.mkdirs()
+        if (raw.exists() && raw.length() > 0L) {
+            runCatching { requireExpectedSha256(raw) }.onFailure { raw.delete() }
         }
+        if (!raw.exists() || raw.length() == 0L) {
+            val connection = (URL(artifactUrl).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 15_000
+                readTimeout = 60_000
+                instanceFollowRedirects = true
+            }
+            try {
+                check(connection.responseCode in 200..299) {
+                    "Download failed (${connection.responseCode}): $artifactUrl"
+                }
+                connection.inputStream.use { input ->
+                    raw.outputStream().use { output -> input.copyTo(output) }
+                }
+            } catch (failure: Throwable) {
+                raw.delete()
+                throw failure
+            } finally {
+                connection.disconnect()
+            }
+        }
+        requireExpectedSha256(raw)
         target.parentFile.mkdirs()
-        val connection = (URL(artifactUrl).openConnection() as HttpURLConnection).apply {
-            connectTimeout = 15_000
-            readTimeout = 60_000
-            instanceFollowRedirects = true
-        }
+        val aligned = File.createTempFile("$artifactName-", ".aar", target.parentFile)
         try {
-            check(connection.responseCode in 200..299) {
-                "Download failed (${connection.responseCode}): $artifactUrl"
-            }
-            connection.inputStream.use { input ->
-                target.outputStream().use { output -> input.copyTo(output) }
-            }
-        } catch (failure: Throwable) {
-            target.delete()
-            throw failure
+            val result = ProcessBuilder(
+                zipAlignExecutable().absolutePath,
+                "-f", "-P", "16", "4", raw.absolutePath, aligned.absolutePath
+            ).inheritIO().start().waitFor()
+            check(result == 0) { "zipalign failed for $artifactFileName (exit code $result)" }
+            java.nio.file.Files.move(
+                aligned.toPath(), target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING
+            )
         } finally {
-            connection.disconnect()
+            aligned.delete()
         }
-        requireExpectedSha256(target)
     }
 }
 

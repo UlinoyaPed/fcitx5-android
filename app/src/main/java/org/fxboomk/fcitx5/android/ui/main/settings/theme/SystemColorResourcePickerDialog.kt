@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2025 Fcitx5 for Android Contributors
  */
+@file:Suppress("DiscouragedApi")
+
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.content.Context

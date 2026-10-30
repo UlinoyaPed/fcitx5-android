@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
+
+import timber.log.Timber
 
 import android.content.Intent
 import android.graphics.Color
@@ -584,6 +587,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun buildSpinner() {
         spinnerContainer.removeAllViews()
+        spinnerContainer.visibility = View.VISIBLE
+        // 从布局管理页直达编辑双拼继承布局时，保留目标内容但不显示已移除的分类下拉项。
+        if (targetForceBase && currentLayout == ShuangpinLayoutKeys.BASE_LAYOUT_KEY) {
+            spinnerContainer.visibility = View.GONE
+            return
+        }
+
         // Build display list showing the IME display name only, without the " (uniqueName)" suffix
         val displayItems = mutableListOf<String>()
         val layoutNameMap = mutableMapOf<String, String>() // display -> actual key
@@ -591,8 +601,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
         // Filter out submode keys (format: "layoutName:subModeLabel")
         // Only show base layout keys (those without a colon)
-        // 中州韵插件未随应用加载时（如 debug 应用未配 rime 插件），不展示 rime 输入法层级
+        // 中州韵插件未随应用加载时（如 debug 应用未配 rime 插件），不展示 rime 输入法层级。
+        // 双拼父布局仍作为方案继承来源保留，但编辑器下拉框将各方案直接平铺展示。
         val baseLayoutKeys = visibleBaseLayoutKeys()
+            .filterNot { it == ShuangpinLayoutKeys.BASE_LAYOUT_KEY }
 
         // Ensure we have at least one layout to display
         if (baseLayoutKeys.isEmpty()) {
@@ -869,7 +881,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     // Rollback state on failure
                     previewSubModeLabel = oldSubModeLabel
                     lastEditingTarget = oldLastEditingTarget
-                    android.util.Log.e("TextKeyboardLayoutEditor", "Failed to switch submode to: $selected", e)
+                    Timber.tag("TextKeyboardLayoutEditor").e(e, "Failed to switch submode to: $selected")
                     showToast(getString(R.string.text_keyboard_layout_switch_submode_failed, selected))
                 }
             }
@@ -949,7 +961,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 run { val name = currentLayout ?: return@run; previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection) }
                 updateSaveButtonState()
             } else {
-                android.util.Log.e("TextKeyboardEditor", "No valid layout found in entries")
+                Timber.tag("TextKeyboardEditor").e("No valid layout found in entries")
             }
             return
         }

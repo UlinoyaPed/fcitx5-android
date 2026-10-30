@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("ClickableViewAccessibility")
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.content.Context
@@ -29,6 +30,11 @@ class SaturationValuePickerView(context: Context) : View(context) {
     private val saturationPaint = Paint()
     private val valuePaint = Paint()
     private val markerPaint = Paint()
+    private val innerMarkerPaint = Paint()
+    private var hueGradient: LinearGradient? = null
+    private var valueGradient: LinearGradient? = null
+    private var gradientWidth = -1
+    private var gradientHeight = -1
 
     private var hue = 0f
     private var saturation = 1f
@@ -48,6 +54,7 @@ class SaturationValuePickerView(context: Context) : View(context) {
 
     fun setHue(hue: Float) {
         this.hue = hue
+        hueGradient = null
         invalidate()
     }
 
@@ -70,34 +77,38 @@ class SaturationValuePickerView(context: Context) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
+        if (hueGradient == null || gradientWidth != width || gradientHeight != height) {
+            hueGradient = LinearGradient(
+                0f, 0f, width.toFloat(), 0f,
+                intArrayOf(
+                    Color.HSVToColor(floatArrayOf(hue, 0f, 1f)),
+                    Color.HSVToColor(floatArrayOf(hue, 1f, 1f))
+                ),
+                null,
+                Shader.TileMode.CLAMP
+            )
+            valueGradient = LinearGradient(
+                0f, 0f, 0f, height.toFloat(),
+                intArrayOf(Color.TRANSPARENT, Color.BLACK),
+                floatArrayOf(0f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            gradientWidth = width
+            gradientHeight = height
+        }
         // Draw hue background (current hue with full saturation and value)
-        huePaint.shader = LinearGradient(
-            0f, 0f, width.toFloat(), 0f,
-            intArrayOf(
-                Color.HSVToColor(floatArrayOf(hue, 0f, 1f)),  // Left: white (saturation 0)
-                Color.HSVToColor(floatArrayOf(hue, 1f, 1f))   // Right: full color
-            ),
-            null,
-            Shader.TileMode.CLAMP
-        )
+        huePaint.shader = hueGradient
         canvas.drawRect(rect, huePaint)
 
         // Draw value gradient (transparent to black, top to bottom)
-        valuePaint.shader = LinearGradient(
-            0f, 0f, 0f, height.toFloat(),
-            intArrayOf(Color.TRANSPARENT, Color.BLACK),
-            floatArrayOf(0f, 1f),
-            Shader.TileMode.CLAMP
-        )
+        valuePaint.shader = valueGradient
         canvas.drawRect(rect, valuePaint)
 
         // Draw marker
         canvas.drawCircle(markerX, markerY, dp(10f).toFloat(), markerPaint)
         
-        val innerMarkerPaint = Paint().apply {
-            color = Color.HSVToColor(floatArrayOf(hue, saturation, value))
-            style = Paint.Style.FILL
-        }
+        innerMarkerPaint.color = Color.HSVToColor(floatArrayOf(hue, saturation, value))
+        innerMarkerPaint.style = Paint.Style.FILL
         canvas.drawCircle(markerX, markerY, dp(8f).toFloat(), innerMarkerPaint)
     }
 
@@ -116,7 +127,13 @@ class SaturationValuePickerView(context: Context) : View(context) {
                 invalidate()
                 onColorChanged?.invoke(saturation, value)
             }
+            MotionEvent.ACTION_UP -> performClick()
         }
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
         return true
     }
 

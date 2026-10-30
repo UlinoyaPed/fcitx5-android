@@ -83,6 +83,9 @@ printf 'global\n' > "${FCITX_WORK}/global.txt"
 git -C "${FCITX_WORK}" diff -- global.txt > "${PATCH_ROOT}/global.patch"
 git -C "${FCITX_WORK}" reset -q -- global.txt
 git -C "${FCITX_WORK}" checkout -q -- global.txt
+printf 'patched-rime-runtime\n' > "${TMP_ROOT}/rime-remote-work/state.txt"
+git -C "${TMP_ROOT}/rime-remote-work" diff "${RIME_PIN}" -- state.txt > "${PATCH_ROOT}/rime.patch"
+
 
 FIXTURE="${TMP_ROOT}/fixture"
 mkdir -p "${FIXTURE}/plugin/rime/src/main/cpp" "${FIXTURE}/lib/fcitx5/src/main/cpp"
@@ -106,6 +109,7 @@ run_script() {
     FCITX5_RIME_REPO="file://${RIME_REMOTE}" \
     PREBUILT_REPO="file://${PREBUILT_REMOTE}" \
     PREBUILDER_REPO="file://${TMP_ROOT}/prebuilder.git" \
+    RIME_PER_IM_RUNTIME_PATCH="${PATCH_ROOT}/rime.patch" \
     FCITX5_GLOBAL_OPTIONS_UI_PATCH="${PATCH_ROOT}/global.patch" \
     bash "${SCRIPT_UNDER_TEST}"
 }
@@ -118,12 +122,17 @@ assert_eq 'global' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/global.txt"
 assert_eq "file://${RIME_REMOTE}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" config remote.boomker.url)" "Rime remote config"
 assert_eq "file://${PREBUILT_REMOTE}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" config remote.boomker.url)" "prebuilt remote config"
 
+assert_eq 'patched-rime-runtime' "$(cat "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime/state.txt")" "Rime runtime patch applied"
+
 # A second invocation must recognize the patch as already applied, keep the
 # pinned submodules unchanged, and leave prebuilt pinned.
 run_script >/dev/null 2>&1
 assert_eq "${RIME_PIN}" "$(git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" rev-parse HEAD)" "repeat Rime pin"
 assert_eq "${PREBUILT_PIN}" "$(git -C "${FIXTURE}/lib/fcitx5/src/main/cpp/prebuilt" rev-parse HEAD)" "repeat prebuilt pin"
 assert_eq 'global' "$(cat "${FIXTURE}/lib/fcitx5/src/main/cpp/fcitx5/global.txt")" "repeat global patch"
+
+assert_eq 'patched-rime-runtime' "$(cat "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime/state.txt")" "repeat Rime runtime patch"
+git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q -- state.txt
 
 # A mismatched submodule with local changes must fail without discarding them.
 git -C "${FIXTURE}/plugin/rime/src/main/cpp/fcitx5-rime" checkout -q --detach "${RIME_DRIFT}"

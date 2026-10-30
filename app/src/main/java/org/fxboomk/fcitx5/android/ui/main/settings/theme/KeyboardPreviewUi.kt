@@ -511,7 +511,18 @@ class KeyboardPreviewUi(
                         ?.let(::setIconDrawable)
             }
         }
-        val hideButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
+        val hideConfig = config.resolvedHideKeyboardButton()
+        val hideButton = ToolButton(
+            ctx,
+            ButtonIconSpec.drawableResource(ctx, hideConfig.icon, R.drawable.ic_keyboard_hide_24),
+            theme
+        ).apply {
+            ButtonIconSpec.glyph(hideConfig.icon)?.let(::setIconText)
+            if (ButtonIconSpec.svg(hideConfig.icon) != null) {
+                ButtonIconSpec.drawable(ctx, hideConfig.icon, R.drawable.ic_keyboard_hide_24)
+                    ?.let(::setIconDrawable)
+            }
+        }
         previewMenuButton = menuButton
         previewHideButton = hideButton
         val buttonsUi = ButtonsBarUi(ctx, theme, loadToolbarButtonsConfig())

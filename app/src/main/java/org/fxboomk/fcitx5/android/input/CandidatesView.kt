@@ -5,6 +5,8 @@
 
 package org.fxboomk.fcitx5.android.input
 
+import timber.log.Timber
+
 import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -681,7 +683,7 @@ class CandidatesView(
         // - If not enough space (cursorBottom is too low), place candidates as high as possible
         //   while staying within screen bounds
 
-        android.util.Log.d("CandidatesPos", "cursorBottom=$cursorBottom, selfSize: ${selfWidth}x${selfHeight}, position=$floatingPosition")
+        Timber.tag("CandidatesPos").d("cursorBottom=$cursorBottom, selfSize: ${selfWidth}x${selfHeight}, position=$floatingPosition")
 
         // Calculate X position based on floatingPosition
         val tX: Float = when (floatingPosition) {
@@ -719,7 +721,7 @@ class CandidatesView(
             }
         }
 
-        android.util.Log.d("CandidatesPos", "Calculated position: tX=$tX, tY=$tY")
+        Timber.tag("CandidatesPos").d("Calculated position: tX=$tX, tY=$tY")
 
         return Pair(tX, tY)
     }

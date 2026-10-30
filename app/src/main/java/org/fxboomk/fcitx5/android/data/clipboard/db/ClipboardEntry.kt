@@ -57,19 +57,11 @@ data class ClipboardEntry(
             val str = item.text?.toString()
                 ?: item.uri?.toString()
                 ?: return null
-            val sensitive = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                desc.extras?.getBoolean(IS_SENSITIVE) ?: false
-            } else {
-                false
-            }
-            val source = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                desc.extras?.getString(ClipboardMetadata.EXTRA_SOURCE)
-                    ?.takeIf { it == SOURCE_REMOTE }
-                    ?: SOURCE_LOCAL
-            } else {
-                SOURCE_LOCAL
-            }
-            val originalRootUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && source == SOURCE_REMOTE) {
+            val sensitive = desc.extras?.getBoolean(IS_SENSITIVE) ?: false
+            val source = desc.extras?.getString(ClipboardMetadata.EXTRA_SOURCE)
+                ?.takeIf { it == SOURCE_REMOTE }
+                ?: SOURCE_LOCAL
+            val originalRootUri = if (source == SOURCE_REMOTE) {
                 desc.extras?.getString(ClipboardMetadata.EXTRA_REMOTE_ROOT_URI).orEmpty()
             } else {
                 ""

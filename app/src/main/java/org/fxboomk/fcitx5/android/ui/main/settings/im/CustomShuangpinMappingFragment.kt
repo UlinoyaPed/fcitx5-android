@@ -71,6 +71,7 @@ class CustomShuangpinMappingFragment : PaddingPreferenceFragment() {
         )
     }
 
+    @Suppress("DEPRECATION")
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (parentFragmentManager.findFragmentByTag(javaClass.name) != null) return
         val dialog = when (preference) {

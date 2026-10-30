@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,18 +23,11 @@ import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
-import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.alpha
 import org.fxboomk.fcitx5.android.utils.isDarkMode
 import splitties.dimensions.dp
@@ -52,14 +46,12 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalLayout
 import splitties.views.dsl.core.imageView
 import splitties.views.dsl.core.lParams
-import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.wrapContent
 import splitties.views.imageResource
 import splitties.views.setPaddingDp
 
 class ThemeFragment : Fragment() {
-    private val viewModel: MainViewModel by activityViewModels()
 
     companion object {
         // Visual scale applied to the keyboard preview.
@@ -67,10 +59,7 @@ class ThemeFragment : Fragment() {
     }
 
     private lateinit var previewUi: KeyboardPreviewUi
-
-    private lateinit var tabLayout: TabLayout
-
-    private lateinit var viewPager: ViewPager2
+    private lateinit var previewWrapper: ConstraintLayout
 
     private lateinit var prevThemeButton: ImageView
     private lateinit var nextThemeButton: ImageView
@@ -147,6 +136,7 @@ class ThemeFragment : Fragment() {
         prevThemeButton.isVisible = carousel
         nextThemeButton.isVisible = carousel
         carouselFooter.isVisible = carousel
+        schedulePreviewWrapperHeightUpdate()
         if (!carousel) {
             displayedThemeName = active.name
             previewUi.setTheme(active)
@@ -172,6 +162,52 @@ class ThemeFragment : Fragment() {
         if (carouselThemes.size < 2) return
         val current = carouselThemes.indexOfFirst { it.name == displayedThemeName }.coerceAtLeast(0)
         showPoolTheme(carouselThemes[(current + step).mod(carouselThemes.size)])
+    }
+
+    private fun schedulePreviewWrapperHeightUpdate() {
+        if (::previewWrapper.isInitialized) {
+            previewWrapper.post { updatePreviewWrapperHeight() }
+        }
+    }
+
+    /**
+     * The preview is scaled from its top edge, but its unscaled layout height is
+     * still measured below the visible bitmap. Give the wrapper an explicit
+     * height so that the area below the footer does not keep that invisible
+     * overflow.
+     */
+    private fun updatePreviewWrapperHeight() {
+        if (!::previewWrapper.isInitialized || view == null) return
+        val previewHeight = previewUi.intrinsicHeight
+        if (previewHeight <= 0) return
+
+        // The preview is measured inside the wrapper, so an explicit wrapper
+        // height would otherwise clamp the preview to the visible height and
+        // make the scaled bitmap shrink again. Keep its full intrinsic height.
+        val preview = previewUi.root
+        val previewParams = preview.layoutParams
+        if (previewParams != null && previewParams.height != previewHeight) {
+            previewParams.height = previewHeight
+            preview.layoutParams = previewParams
+        }
+
+        val overflow = (previewHeight * (1f - PREVIEW_SCALE)).toInt()
+        val visibleBottom = previewHeight - overflow
+        val footerHeight = if (carouselFooter.isVisible) {
+            if (carouselFooter.height <= 0) return
+            carouselFooter.height
+        } else {
+            0
+        }
+        val footerGap = if (carouselFooter.isVisible) previewWrapper.context.dp(6) else 0
+        val bottomGap = previewWrapper.context.dp(2)
+        val desiredHeight = visibleBottom + footerGap + footerHeight + bottomGap
+
+        val params = previewWrapper.layoutParams ?: return
+        if (params.height != desiredHeight) {
+            params.height = desiredHeight
+            previewWrapper.layoutParams = params
+        }
     }
 
     override fun onCreateView(
@@ -240,61 +276,38 @@ class ThemeFragment : Fragment() {
             })
         }
 
-        tabLayout = TabLayout(this)
-
-        viewPager = ViewPager2(this).apply {
-            adapter = object : FragmentStateAdapter(this@ThemeFragment) {
-                override fun getItemCount() = 2
-                override fun createFragment(position: Int): Fragment = when (position) {
-                    0 -> ThemeListFragment()
-                    else -> ThemeSettingsFragment()
-                }
-            }
-        }
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = getString(
-                when (position) {
-                    0 -> R.string.theme
-                    else -> R.string.configure
-                }
-            )
-        }.attach()
-
-        val pendingPreferenceKey = viewModel.peekPendingPreferenceScrollKey()
-        val themePreferenceKeys = ThemeManager.prefs.managedPreferencesUi.map { it.key } +
-            ThemePrefs.CandidateAppearancePreferenceKeys
-        if (pendingPreferenceKey in themePreferenceKeys) {
-            viewPager.setCurrentItem(1, false)
-        }
-
         // The preview renders at PREVIEW_SCALE from its top edge (pivotY = 0),
         // so its layout bounds extend past the visible bitmap by (1 - scale) of
         // the height at the bottom. Pull the footer up to sit right under the
         // visible bitmap, and center the arrows on the visible keyboard.
-        preview.addOnLayoutChangeListener { view, left, top, right, bottom, _, _, _, _ ->
+        preview.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             // Keep horizontal scaling centered around the actual view width.
             view.pivotX = (right - left) / 2f
+            val sizeChanged = right - left != oldRight - oldLeft ||
+                bottom - top != oldBottom - oldTop
+            if (!sizeChanged) return@addOnLayoutChangeListener
             val overflow = ((bottom - top) * (1f - PREVIEW_SCALE)).toInt()
-            if (overflow <= 0) return@addOnLayoutChangeListener
-            val footerParams = carouselFooter.layoutParams as? ConstraintLayout.LayoutParams
-            if (footerParams != null) {
-                val topMargin = -(overflow - dp(6))
-                if (footerParams.topMargin != topMargin) {
-                    footerParams.topMargin = topMargin
-                    carouselFooter.layoutParams = footerParams
+            if (overflow > 0) {
+                val footerParams = carouselFooter.layoutParams as? ConstraintLayout.LayoutParams
+                if (footerParams != null) {
+                    val topMargin = -(overflow - dp(6))
+                    if (footerParams.topMargin != topMargin) {
+                        footerParams.topMargin = topMargin
+                        carouselFooter.layoutParams = footerParams
+                    }
+                }
+                listOf(prevThemeButton, nextThemeButton).forEach { button ->
+                    val params = button.layoutParams as? ConstraintLayout.LayoutParams
+                    if (params != null && params.bottomMargin != overflow) {
+                        params.bottomMargin = overflow
+                        button.layoutParams = params
+                    }
                 }
             }
-            listOf(prevThemeButton, nextThemeButton).forEach { button ->
-                val params = button.layoutParams as? ConstraintLayout.LayoutParams
-                if (params != null && params.bottomMargin != overflow) {
-                    params.bottomMargin = overflow
-                    button.layoutParams = params
-                }
-            }
+            view.post { updatePreviewWrapperHeight() }
         }
 
-        val previewWrapper = constraintLayout {
+        previewWrapper = constraintLayout {
             add(preview, lParams(wrapContent, wrapContent) {
                 topOfParent()
                 startOfParent()
@@ -316,28 +329,45 @@ class ThemeFragment : Fragment() {
                 below(preview)
                 centerHorizontally()
             })
-            add(tabLayout, lParams(matchParent, wrapContent) {
-                below(carouselFooter, dp(4))
-            })
             backgroundColor = styledColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
 
+        carouselFooter.addOnLayoutChangeListener { footer, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            val sizeChanged = right - left != oldRight - oldLeft ||
+                bottom - top != oldBottom - oldTop
+            if (sizeChanged) {
+                footer.post { updatePreviewWrapperHeight() }
+            }
+        }
+
         refreshPreview()
 
-        constraintLayout {
+        val themeListContainer = FrameLayout(this).apply {
+            id = R.id.theme_list_container
+        }
+
+        val root = constraintLayout {
             add(previewWrapper, lParams(height = wrapContent) {
                 topOfParent()
                 startOfParent()
                 endOfParent()
             })
-            add(viewPager, lParams {
+            add(themeListContainer, lParams {
                 below(previewWrapper)
                 startOfParent()
                 endOfParent()
                 bottomOfParent()
             })
         }
+
+        if (childFragmentManager.findFragmentById(R.id.theme_list_container) == null) {
+            childFragmentManager.beginTransaction()
+                .replace(R.id.theme_list_container, ThemeListFragment())
+                .commit()
+        }
+
+        root
     }
 
     override fun onStart() {
@@ -351,9 +381,7 @@ class ThemeFragment : Fragment() {
         ThemeManager.prefs.lightModeThemes.sharedPreferences
             .unregisterOnSharedPreferenceChangeListener(onCarouselPrefsChange)
         ThemeManager.removeOnThemeListChangedListener(onThemeListChangeListener)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ThemeManager.syncToDeviceEncryptedStorage()
-        }
+        ThemeManager.syncToDeviceEncryptedStorage()
         super.onStop()
     }
 

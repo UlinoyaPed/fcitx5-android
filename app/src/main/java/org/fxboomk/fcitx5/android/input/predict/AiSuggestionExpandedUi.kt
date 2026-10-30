@@ -1,5 +1,7 @@
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.input.predict
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
@@ -16,6 +18,7 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import splitties.dimensions.dp
 
+@SuppressLint("ViewConstructor")
 class AiSuggestionExpandedUi(
     context: Context,
     private val theme: Theme,

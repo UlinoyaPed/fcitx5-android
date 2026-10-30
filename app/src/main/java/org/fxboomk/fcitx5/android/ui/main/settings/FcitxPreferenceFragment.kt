@@ -4,6 +4,7 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -24,6 +25,7 @@ import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.addPreference
+import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 
 abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
     abstract fun getPageTitle(): String
@@ -37,6 +39,21 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
 
     protected open val preferenceFragmentManager: FragmentManager
         get() = parentFragmentManager
+
+    /**
+     * Optional presentation layout for the generated preference screen.
+     */
+    protected open fun getConfigLayout(context: Context): ConfigLayout? = null
+
+    /** Optional section index when this page displays one config group. */
+    protected open fun getConfigSection(): Int? = null
+
+    /** Route used when a grouped config page opens one of its sections. */
+    protected open fun getConfigSectionRoute(context: Context, sectionIndex: Int): SettingsRoute? = null
+
+    /** Scope used to store the app-level preedit style independently. */
+    protected open fun getPreeditStyleScope(): PreeditStyleScope? = null
+
     abstract suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig
     abstract suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig)
 
@@ -57,6 +74,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
         scope.launch {
             fcitx.runOnReady {
                 saveConfig(this, raw["cfg"])
+                PreeditStyleResolver.applyActive(this)
             }
         }
     }
@@ -107,8 +125,22 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             raw = fcitx.runOnReady { obtainConfig(this) }
             configLoaded = raw.findByName("cfg") != null && raw.findByName("desc") != null
             preferenceScreen = if (configLoaded) {
+                val layout = getConfigLayout(context)?.copy(
+                    preeditStyleScope = getPreeditStyleScope()
+                )
                 PreferenceScreenFactory.create(
-                    preferenceManager, preferenceFragmentManager, raw, ::save
+                    preferenceManager,
+                    preferenceFragmentManager,
+                    raw,
+                    ::save,
+                    layout,
+                    getConfigSection(),
+                    { index ->
+                        getConfigSectionRoute(context, index)?.let { route ->
+                            preferenceFragmentManager.primaryNavigationFragment
+                                ?.navigateWithAnim(route)
+                        }
+                    }
                 ).apply {
                     if (isEmpty()) {
                         addPreference(R.string.no_config_options)

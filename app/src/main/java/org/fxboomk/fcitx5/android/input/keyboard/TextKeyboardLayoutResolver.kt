@@ -20,11 +20,22 @@ private const val ENGLISH_IME_UNIQUE_NAME = "keyboard-us"
 
 internal data class TextKeyboardLayoutResolution(
     val sourceKey: String,
+    /** Top-level JSON key that matched this input method (may be a display-name fallback). */
+    val layoutKey: String,
     val root: JsonElement,
     val subMode: JsonElement?,
+    val subModeLabel: String,
     val globalDefault: JsonElement?,
+    /** Key for [globalDefault] when it is eligible to provide the effective height. */
+    val globalDefaultKey: String?,
     val rows: JsonArray?,
 )
+
+internal sealed interface KeyboardHeightOverrideTarget {
+    data class Layout(val layoutKey: String) : KeyboardHeightOverrideTarget
+    data class SubMode(val layoutKey: String, val subModeLabel: String) : KeyboardHeightOverrideTarget
+    data object Profile : KeyboardHeightOverrideTarget
+}
 
 internal fun resolveTextKeyboardLayout(
     json: JsonObject,
@@ -70,14 +81,18 @@ internal fun resolveTextKeyboardLayout(
     // 兜底高度基准：双拼方案即便拥有自己的行，缺失的高度也应以"双拼"父级输入法布局
     // 为基准；其余输入法仅在子布局（无自己的行）时才继承兜底高度，避免显式
     // 父级输入法布局意外继承 English 的高度。
-    val heightBaseline = globalDefault?.takeIf {
+    val heightBaselineKey = baselineKey?.takeIf {
         isChildOnlyLayout || (parentKey != null && parentKey != matchedSourceKey)
     }
+    val heightBaseline = heightBaselineKey?.let { json[it] }
     return TextKeyboardLayoutResolution(
         sourceKey = sourceKey,
+        layoutKey = matchedSourceKey,
         root = root,
         subMode = subMode,
+        subModeLabel = subModeLabel,
         globalDefault = heightBaseline,
+        globalDefaultKey = heightBaselineKey,
         rows = rows,
     )
 }
@@ -93,6 +108,63 @@ internal fun TextKeyboardLayoutResolution.keyboardHeightPercentOverride(
     return layoutHeightPercentFromMeta(subMode, key)
         ?: layoutHeightPercentFromMeta(root, key)
         ?: layoutHeightPercentFromMeta(globalDefault, key)
+}
+
+/**
+ * Returns the layout metadata location that currently supplies this orientation's explicit height.
+ * File-level profile metadata is resolved separately because it is not part of a layout resolution.
+ */
+internal fun TextKeyboardLayoutResolution.keyboardHeightOverrideTarget(
+    landscape: Boolean,
+): KeyboardHeightOverrideTarget? {
+    val key = keyboardHeightPercentMetaKey(landscape)
+    if (layoutHeightPercentFromMeta(subMode, key) != null) {
+        return KeyboardHeightOverrideTarget.SubMode(layoutKey, subModeLabel)
+    }
+    if (layoutHeightPercentFromMeta(root, key) != null) {
+        return KeyboardHeightOverrideTarget.Layout(layoutKey)
+    }
+    if (globalDefaultKey != null && layoutHeightPercentFromMeta(globalDefault, key) != null) {
+        return KeyboardHeightOverrideTarget.Layout(globalDefaultKey)
+    }
+    return null
+}
+
+/**
+ * Applies an orientation-specific height override while preserving the rest of the JSON tree.
+ * Array layouts are wrapped in the established object form with their rows stored under `default`.
+ */
+internal fun JsonObject.withKeyboardHeightPercentOverride(
+    target: KeyboardHeightOverrideTarget,
+    landscape: Boolean,
+    percent: Int,
+): JsonObject? {
+    val metaKey = keyboardHeightPercentMetaKey(landscape)
+    val value = JsonPrimitive(percent.coerceIn(10, 90))
+    return when (target) {
+        is KeyboardHeightOverrideTarget.Layout -> {
+            val current = this[target.layoutKey] ?: return null
+            val updated = current.withHeightPercentMetadata(metaKey, value) ?: return null
+            JsonObject(toMutableMap().apply { put(target.layoutKey, updated) })
+        }
+        is KeyboardHeightOverrideTarget.SubMode -> {
+            val layout = this[target.layoutKey] as? JsonObject ?: return null
+            val current = layout[target.subModeLabel] ?: return null
+            val updated = current.withHeightPercentMetadata(metaKey, value) ?: return null
+            JsonObject(toMutableMap().apply {
+                put(
+                    target.layoutKey,
+                    JsonObject(layout.toMutableMap().apply { put(target.subModeLabel, updated) })
+                )
+            })
+        }
+        KeyboardHeightOverrideTarget.Profile -> {
+            val profile = this[PROFILE_META_KEY] as? JsonObject ?: return null
+            JsonObject(toMutableMap().apply {
+                put(PROFILE_META_KEY, profile.withHeightPercentMetadata(metaKey, value) as JsonObject)
+            })
+        }
+    }
 }
 
 /**
@@ -115,6 +187,29 @@ private fun layoutHeightPercentFromMeta(layout: JsonElement?, key: String): Int?
     return (meta[key] as? JsonPrimitive)
         ?.intOrNull
         ?.takeIf { it in 10..90 }
+}
+
+private fun keyboardHeightPercentMetaKey(landscape: Boolean): String = if (landscape) {
+    "keyboard_height_percent_landscape"
+} else {
+    "keyboard_height_percent"
+}
+
+private fun JsonElement.withHeightPercentMetadata(key: String, value: JsonPrimitive): JsonElement? {
+    return when (this) {
+        is JsonArray -> JsonObject(
+            mapOf(
+                "default" to this,
+                "__meta__" to JsonObject(mapOf(key to value)),
+            )
+        )
+        is JsonObject -> JsonObject(toMutableMap().apply {
+            val meta = (this["__meta__"] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
+            meta[key] = value
+            put("__meta__", JsonObject(meta))
+        })
+        else -> null
+    }
 }
 
 private fun JsonElement?.rowsOrNull(): JsonArray? {

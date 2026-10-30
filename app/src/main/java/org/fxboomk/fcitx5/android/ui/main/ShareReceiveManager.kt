@@ -882,13 +882,13 @@ class ShareReceiveManager(
         val documentId = runCatching {
             if (DocumentsContract.isDocumentUri(activity, source.uri)) {
                 DocumentsContract.getDocumentId(source.uri)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DocumentsContract.isTreeUri(source.uri)) {
+            } else if (DocumentsContract.isTreeUri(source.uri)) {
                 DocumentsContract.getTreeDocumentId(source.uri)
             } else {
                 return emptyList()
             }
         }.getOrElse { return emptyList() }
-        val childrenUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DocumentsContract.isTreeUri(source.uri)) {
+        val childrenUri = if (DocumentsContract.isTreeUri(source.uri)) {
             DocumentsContract.buildChildDocumentsUriUsingTree(source.uri, documentId)
         } else {
             DocumentsContract.buildChildDocumentsUri(authority, documentId)
@@ -908,7 +908,7 @@ class ShareReceiveManager(
                 buildList {
                     while (cursor.moveToNext()) {
                         val childId = cursor.stringAt(DocumentsContract.Document.COLUMN_DOCUMENT_ID) ?: continue
-                        val childUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DocumentsContract.isTreeUri(source.uri)) {
+                        val childUri = if (DocumentsContract.isTreeUri(source.uri)) {
                             DocumentsContract.buildDocumentUriUsingTree(source.uri, childId)
                         } else {
                             DocumentsContract.buildDocumentUri(authority, childId)
@@ -928,19 +928,11 @@ class ShareReceiveManager(
     }
 
     private fun decodeThemeFromZipFile(zipFile: File): Theme.Custom {
-        val encodings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            listOf("UTF-8", "GBK", "Big5")
-        } else {
-            listOf("UTF-8")
-        }
+        val encodings = listOf("UTF-8", "GBK", "Big5")
         encodings.forEach { encoding ->
             runCatching {
                 zipFile.inputStream().use { input ->
-                    val zip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        ZipInputStream(input, Charset.forName(encoding))
-                    } else {
-                        ZipInputStream(input)
-                    }
+                    val zip = ZipInputStream(input, Charset.forName(encoding))
                     zip.use { return decodeThemeFromZip(it) }
                 }
             }

@@ -4,15 +4,12 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
-import android.content.Intent
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
-import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
 
@@ -37,14 +34,6 @@ class KeyboardTouchAndSoundSettingsFragment : KeyboardSectionFragment() {
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         KeyboardSettingsSupport.run {
             addKeyboardSection(screen, R.string.keyboard_settings_touch_and_sound, touchAndSoundKeys)
-        }
-    }
-}
-
-class KeyboardToolbarAndInputSettingsFragment : KeyboardSectionFragment() {
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        KeyboardSettingsSupport.run {
-            addKeyboardSection(screen, R.string.keyboard_settings_toolbar_and_voice, toolbarAndInputKeys)
         }
     }
 }
@@ -86,119 +75,5 @@ class KeyboardLayoutAndSplitSettingsFragment : KeyboardSectionFragment() {
     override fun onDestroy() {
         AppPrefs.getInstance().keyboard.unregisterOnChangeListener(onSplitEnabledChangeListener)
         super.onDestroy()
-    }
-}
-
-class KeyboardCandidatesSettingsFragment : KeyboardSectionFragment() {
-    private var horizontalCategory: PreferenceCategory? = null
-    private var candidateWindowCategory: PreferenceCategory? = null
-
-    private val onCandidateDisplayModeChangeListener =
-        ManagedPreferenceProvider.OnChangeListener { key ->
-            if (key == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY) {
-                updateCandidateSettingVisibility()
-            }
-        }
-
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        KeyboardSettingsSupport.run {
-            addManagedPreference(
-                screen,
-                AppPrefs.getInstance().candidates,
-                AppPrefs.CANDIDATE_DISPLAY_MODE_KEY
-            )
-            screen.addCategory(R.string.candidate_display_mode_horizontal) {
-                horizontalCategory = this
-                horizontalCandidateKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
-                }
-            }
-            screen.addCategory(R.string.candidates_window) {
-                candidateWindowCategory = this
-                candidateWindowKeys.forEach { key ->
-                    addManagedPreference(this, AppPrefs.getInstance().candidates, key)
-                }
-            }
-            updateCandidateSettingVisibility()
-            AppPrefs.getInstance().candidates.registerOnChangeListener(
-                onCandidateDisplayModeChangeListener
-            )
-        }
-    }
-
-    private fun updateCandidateSettingVisibility() {
-        when (AppPrefs.getInstance().candidates.mode.getValue()) {
-            FloatingCandidatesMode.InputDevice -> {
-                horizontalCategory?.isVisible = true
-                candidateWindowCategory?.isVisible = false
-            }
-            FloatingCandidatesMode.Always -> {
-                horizontalCategory?.isVisible = false
-                candidateWindowCategory?.isVisible = true
-            }
-            FloatingCandidatesMode.SystemDefault,
-            FloatingCandidatesMode.Disabled -> {
-                horizontalCategory?.isVisible = false
-                candidateWindowCategory?.isVisible = false
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        AppPrefs.getInstance().candidates.unregisterOnChangeListener(
-            onCandidateDisplayModeChangeListener
-        )
-        super.onDestroy()
-    }
-}
-
-class KeyboardAdvancedCustomizationFragment : KeyboardSectionFragment() {
-
-    private var textLayoutFilePreference: Preference? = null
-    private var textLayoutFileSelectPreference: Preference? = null
-
-    override fun onResume() {
-        super.onResume()
-        textLayoutFilePreference?.summary = KeyboardSettingsSupport.buildTextLayoutSummary(this)
-        textLayoutFileSelectPreference?.summary = KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(this)
-    }
-
-    override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
-        screen.addCategory(R.string.keyboard_settings_advanced_customization) {
-            addPreference(R.string.edit_fontset, R.string.edit_fontset_summary) {
-                startActivity(Intent(requireContext(), FontsetEditorActivity::class.java))
-            }
-            addPreference(R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary) {
-                startActivity(Intent(requireContext(), SwipeSymbolMappingEditorActivity::class.java))
-            }
-            addPreference(R.string.edit_popup_preset, R.string.edit_popup_preset_summary) {
-                startActivity(Intent(requireContext(), PopupEditorActivity::class.java))
-            }
-            addPreference(Preference(requireContext()).apply {
-                setTitle(R.string.edit_text_keyboard_layout)
-                summary = KeyboardSettingsSupport.buildTextLayoutSummary(this@KeyboardAdvancedCustomizationFragment)
-                isSingleLineTitle = false
-                isIconSpaceReserved = false
-                textLayoutFilePreference = this
-                setOnPreferenceClickListener {
-                    startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java))
-                    true
-                }
-            })
-            addPreference(Preference(requireContext()).apply {
-                setTitle(R.string.text_keyboard_layout_manage_title)
-                summary = KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(this@KeyboardAdvancedCustomizationFragment)
-                isSingleLineTitle = false
-                isIconSpaceReserved = false
-                textLayoutFileSelectPreference = this
-                setOnPreferenceClickListener {
-                    startActivity(Intent(requireContext(), TextKeyboardLayoutProfileManagerActivity::class.java))
-                    true
-                }
-            })
-            addPreference(R.string.edit_buttons, R.string.edit_buttons_summary) {
-                startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java))
-            }
-        }
     }
 }

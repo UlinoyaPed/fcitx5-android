@@ -4,8 +4,9 @@
  */
 package org.fxboomk.fcitx5.android.data.prefs
 
+import timber.log.Timber
+
 import android.content.Context
-import android.util.Log
 import org.fxboomk.fcitx5.android.utils.DeviceInfoCollector
 import org.fxboomk.fcitx5.android.utils.DeviceType
 
@@ -34,12 +35,13 @@ object SmartDefaultInitializer {
         prefs.keyboard.splitKeyboardGapPercent.setValue(20)
         prefs.internal.settingsInitialized.setValue(true)
 
-        Log.i(
-            TAG,
-            "Smart init: device=${deviceInfo.deviceType}, " +
-                "model=${deviceInfo.modelName}, " +
-                "smallestWidth=${deviceInfo.smallestWidthDp}dp, " +
-                "enable=$enableSplit, threshold=$threshold"
+        Timber.tag(TAG).i(
+            "Smart init: device=%s, model=%s, smallestWidth=%ddp, enable=%s, threshold=%d",
+            deviceInfo.deviceType,
+            deviceInfo.modelName,
+            deviceInfo.smallestWidthDp,
+            enableSplit,
+            threshold
         )
     }
 

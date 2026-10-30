@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("ClickableViewAccessibility", "NotifyDataSetChanged", "StaticFieldLeak")
+
 package org.fxboomk.fcitx5.android.input.status
 
 import android.content.res.Configuration
@@ -19,6 +21,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.lang.ref.WeakReference
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -64,7 +67,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
 
     private enum class Section { Top, Bottom, Available }
 
-    private data class DragPayload(var section: Section, var index: Int, val sourceView: View)
+    private data class DragPayload(var section: Section, var index: Int, val sourceView: WeakReference<View>)
 
     private val topButtons = mutableListOf<ConfigurableButton>()
     private val bottomButtons = mutableListOf<ConfigurableButton>()
@@ -306,7 +309,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     // Set drag state immediately
                     outer.dragInProgress = true
-                    outer.draggingPayload = DragPayload(section, position, view)
+                    outer.draggingPayload = DragPayload(section, position, WeakReference(view))
                     view.animate()
                         .alpha(0.72f)
                         .scaleX(0.97f)
@@ -453,7 +456,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     // Set drag state immediately
                     dragInProgress = true
-                    draggingPayload = DragPayload(Section.Top, index, view)
+                    draggingPayload = DragPayload(Section.Top, index, WeakReference(view))
                     view.animate()
                         .alpha(0.72f)
                         .scaleX(0.97f)
@@ -735,7 +738,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private fun cleanupDragState(sourceView: View? = null) {
         dragInProgress = false
         // Clear dragging payload state
-        val viewToRestore = sourceView ?: draggingPayload?.sourceView
+        val viewToRestore = sourceView ?: draggingPayload?.sourceView?.get()
         draggingPayload = null
         setDragTargetState(topActive = false, bottomActive = false, availableActive = false)
         clearInsertionIndicator()

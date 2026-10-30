@@ -16,9 +16,11 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.utils.SingleLineSummaryPreference
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
 import org.fxboomk.fcitx5.android.utils.navigateWithAnim
+import org.fxboomk.fcitx5.android.utils.setup
 
 internal object KeyboardSettingsSupport {
 
@@ -39,12 +41,10 @@ internal object KeyboardSettingsSupport {
     val basicBehaviorKeys = listOf(
         "reset_keyboard_on_focus_change",
         "inline_suggestions",
-        "keep_keyboard_letters_uppercase",
-        "show_lang_switch_key",
-        "popup_on_key_press",
         "auto_close_brackets",
         "insert_space_between_chinese_and_english",
-        "expand_keypress_area"
+        "expand_keypress_area",
+        "preferred_voice_input"
     )
 
     val toolbarAndInputKeys = listOf(
@@ -65,7 +65,6 @@ internal object KeyboardSettingsSupport {
         "caps_key_behavior",
         "lang_switch_key_behavior",
         "lang_switch_key_long_press_behavior",
-        "space_key_label_mode",
         "space_long_press_behavior",
         "space_swipe_vertical_behavior",
         "prediction_space_behavior",
@@ -78,9 +77,6 @@ internal object KeyboardSettingsSupport {
     )
 
     val layoutKeys = listOf(
-        "keyboard_height_percent",
-        "keyboard_side_padding",
-        "keyboard_bottom_padding",
         SPLIT_ENABLED_KEY,
         "split_keyboard_use_landscape_layout"
     )
@@ -173,10 +169,16 @@ internal object KeyboardSettingsSupport {
         fragment: ManagedPreferenceFragment,
         @StringRes title: Int,
         summary: String,
-        route: SettingsRoute
+        route: SettingsRoute,
+        key: String? = null
     ) {
-        addPreference(title, summary) {
-            fragment.navigateWithAnim(route)
-        }
+        addPreference(
+            SingleLineSummaryPreference(context).apply {
+                this.key = key
+                setup(context.getString(title), summary) {
+                    fragment.navigateWithAnim(route)
+                }
+            }
+        )
     }
 }

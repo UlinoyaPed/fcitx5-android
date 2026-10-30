@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
+@file:Suppress("SetTextI18n")
 package org.fxboomk.fcitx5.android.ui.main
 
 import android.annotation.SuppressLint

@@ -159,7 +159,7 @@ class PunctuationPositionScopeTest {
             val expectedPosition = if (override == null) PunctuationPosition.Bottom else PunctuationPosition.TopRight
             PunctuationPosition.entries.forEach { position ->
                 applyPosition(key, position)
-                assertSingleLabelPosition(key.altText, expectedPosition)
+                assertSingleLabelPosition(key.altText, expectedPosition, iconLabel = true)
                 assertEquals(expectedLabel, labelState(key.altText))
                 assertEquals(expectedIcon, bounds(key.img))
             }
@@ -217,7 +217,7 @@ class PunctuationPositionScopeTest {
         }
     }
 
-    private fun assertSingleLabelPosition(label: AutoScaleTextView, position: PunctuationPosition) {
+    private fun assertSingleLabelPosition(label: AutoScaleTextView, position: PunctuationPosition, iconLabel: Boolean = false) {
         assertEquals(if (position == PunctuationPosition.None) View.GONE else View.VISIBLE, label.visibility)
         if (position == PunctuationPosition.None) return
         val params = label.layoutParams as ConstraintLayout.LayoutParams
@@ -226,7 +226,11 @@ class PunctuationPositionScopeTest {
             if (position == PunctuationPosition.Bottom) params.bottomToBottom else params.topToTop
         )
         assertEquals(
-            if (position == PunctuationPosition.TopRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.CENTER,
+            when {
+                position == PunctuationPosition.TopRight -> Gravity.END or Gravity.CENTER_VERTICAL
+                iconLabel && position == PunctuationPosition.Bottom -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                else -> Gravity.CENTER
+            },
             label.gravity
         )
     }

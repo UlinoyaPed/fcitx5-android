@@ -46,6 +46,8 @@ import org.fxboomk.fcitx5.android.input.keyboard.CustomGestureView.OnGestureList
 import org.fxboomk.fcitx5.android.input.keyboard.CustomGestureView.SwipeAxis
 import org.fxboomk.fcitx5.android.input.popup.PopupAction
 import org.fxboomk.fcitx5.android.input.popup.PopupActionListener
+import org.fxboomk.fcitx5.android.input.config.KeyIconIds
+import org.fxboomk.fcitx5.android.input.config.KeyIconThemeStore
 import org.fxboomk.fcitx5.android.utils.DeviceInfoCollector
 
 // Import Macro types
@@ -657,11 +659,13 @@ abstract class BaseKeyboard(
                 row.children.forEach { child ->
                     (child as? AltTextKeyView)?.refreshLayout()
                 }
-                // A stable-height global-layout callback runs after onLayout's
-                // row alignment. Restore it before drawing this frame, rather
-                // than leaving the labels at their per-view fallback baseline.
-                // Actual geometry changes are realigned again by onLayout.
-                AltTextKeyView.alignRemainingSpaceMainLabels(row.children.filterIsInstance<AltTextKeyView>().toList())
+            }
+            // A stable-height global-layout callback runs after onLayout's
+            // alignment. Restore keyboard-wide letter scaling before drawing.
+            keyRows.forEach { row ->
+                AltTextKeyView.alignRemainingSpaceMainLabels(
+                    row.children.filterIsInstance<AltTextKeyView>().toList()
+                )
             }
         }
     }
@@ -672,6 +676,8 @@ abstract class BaseKeyboard(
         appearanceOverride: KeyDef.Appearance? = null
     ): KeyView {
         val (activeDef, resolvedAppearance) = resolveComposeActiveDef(def)
+        // Keep the source appearance intact so the icon ID can still be resolved when
+        // a theme supplies an inline SVG rather than a drawable resource.
         val activeAppearance = appearanceOverride ?: resolvedAppearance
         return when (activeAppearance) {
             is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale)
@@ -976,13 +982,15 @@ abstract class BaseKeyboard(
                 altText1 = altText1,
                 character = character,
                 supportsUppercaseHint = supportsUppercaseHint,
+                followsCapsState = followsCapsState,
+                caseAwareCapsState = caseAwareCapsState,
                 textSize = sourceText.textSize,
                 textStyle = sourceText.textStyle,
                 percentWidth = percentWidth,
                 variant = variant,
                 border = border,
                 margin = margin,
-                viewId = viewId,
+                viewId = sourceText.viewId,
                 textColor = textColor,
                 textColorMonet = textColorMonet,
                 altTextColor = altTextColor,
@@ -1001,7 +1009,7 @@ abstract class BaseKeyboard(
                 variant = variant,
                 border = border,
                 margin = margin,
-                viewId = viewId,
+                viewId = sourceText.viewId,
                 textColor = textColor,
                 textColorMonet = textColorMonet,
                 altTextColor = altTextColor,
@@ -1019,7 +1027,7 @@ abstract class BaseKeyboard(
                 variant = variant,
                 border = border,
                 margin = margin,
-                viewId = viewId,
+                viewId = sourceText.viewId,
                 soundEffect = soundEffect,
                 textColor = textColor,
                 textColorMonet = textColorMonet,
@@ -1043,6 +1051,8 @@ abstract class BaseKeyboard(
             altText1 = altText1,
             character = character,
             supportsUppercaseHint = supportsUppercaseHint,
+            followsCapsState = followsCapsState,
+            caseAwareCapsState = caseAwareCapsState,
             textSize = textSize,
             textStyle = textStyle,
             percentWidth = percentWidth,
@@ -1145,20 +1155,132 @@ abstract class BaseKeyboard(
                 view.altText1.text = appearance.altText1.orEmpty()
             }
             is ImageAltTextKeyView -> if (appearance is KeyDef.Appearance.ImageAltText) {
-                view.img.setImageResource(appearance.src)
+                applyKeyIcon(view.img, appearance)
                 view.altText.text = appearance.altText
                 view.altText1.text = appearance.altText1.orEmpty()
             }
             is ImageTextKeyView -> if (appearance is KeyDef.Appearance.ImageText) {
                 view.mainText.text = appearance.displayText
-                view.img.setImageResource(appearance.src)
+                applyKeyIcon(view.img, appearance)
             }
             is TextKeyView -> if (appearance is KeyDef.Appearance.Text) {
                 view.mainText.text = appearance.displayText
             }
             is ImageKeyView -> if (appearance is KeyDef.Appearance.Image) {
-                view.img.setImageResource(appearance.src)
+                applyKeyIcon(view.img, appearance)
             }
+        }
+    }
+
+    private fun applyKeyIcon(view: android.widget.ImageView, appearance: KeyDef.Appearance) {
+        val id = keyIconId(appearance)
+        if (id == null) {
+            view.setImageResource((appearance as? KeyDef.Appearance.Image)?.src
+                ?: (appearance as? KeyDef.Appearance.ImageAltText)?.src
+                ?: (appearance as? KeyDef.Appearance.ImageText)?.src
+                ?: return)
+            return
+        }
+        val fallback = when (appearance) {
+            is KeyDef.Appearance.Image -> appearance.src
+            is KeyDef.Appearance.ImageAltText -> appearance.src
+            is KeyDef.Appearance.ImageText -> appearance.src
+            else -> return
+        }
+        KeyIconThemeStore.resolveDrawableObject(context, id, fallback)?.let(view::setImageDrawable)
+    }
+
+    private fun keyIconId(appearance: KeyDef.Appearance): String? {
+        val src = when (appearance) {
+            is KeyDef.Appearance.Image -> appearance.src
+            is KeyDef.Appearance.ImageAltText -> appearance.src
+            is KeyDef.Appearance.ImageText -> appearance.src
+            else -> null
+        }
+        return when {
+            appearance.viewId == R.id.button_caps || src in setOf(
+                R.drawable.ic_capslock_none, R.drawable.ic_capslock_once, R.drawable.ic_capslock_lock
+            ) -> when (src) {
+                R.drawable.ic_capslock_once -> KeyIconIds.CAPS_ONCE
+                R.drawable.ic_capslock_lock -> KeyIconIds.CAPS_LOCK
+                else -> KeyIconIds.CAPS_NONE
+            }
+            appearance.viewId == R.id.button_backspace -> KeyIconIds.BACKSPACE
+            appearance.viewId == R.id.button_return -> when (src) {
+                R.drawable.ic_baseline_arrow_forward_24 -> KeyIconIds.RETURN_GO
+                R.drawable.ic_baseline_search_24 -> KeyIconIds.RETURN_SEARCH
+                R.drawable.ic_baseline_send_24 -> KeyIconIds.RETURN_SEND
+                R.drawable.ic_baseline_keyboard_tab_24 -> KeyIconIds.RETURN_NEXT
+                R.drawable.ic_baseline_keyboard_tab_reverse_24 -> KeyIconIds.RETURN_PREVIOUS
+                R.drawable.ic_baseline_done_24 -> KeyIconIds.RETURN_DONE
+                else -> KeyIconIds.RETURN
+            }
+            appearance.viewId == R.id.button_lang -> KeyIconIds.LANGUAGE
+            appearance.viewId == R.id.button_space || appearance.viewId == R.id.button_mini_space -> KeyIconIds.SPACE
+            appearance.viewId == R.id.button_quickphrase -> KeyIconIds.QUICKPHRASE
+            else -> when (src) {
+                R.drawable.ic_number_pad -> KeyIconIds.NUMPAD
+                R.drawable.ic_baseline_tag_faces_24 -> KeyIconIds.EMOJI
+                R.drawable.ic_baseline_emoji_symbols_24 -> KeyIconIds.SYMBOLS
+                R.drawable.ic_logo_unicode -> KeyIconIds.UNICODE
+                R.drawable.ic_baseline_arrow_upward_24 -> KeyIconIds.PAGEUP
+                R.drawable.ic_baseline_arrow_downward_24 -> KeyIconIds.PAGEDOWN
+                R.drawable.ic_baseline_keyboard_arrow_up_24 -> KeyIconIds.CURSOR_UP
+                R.drawable.ic_baseline_keyboard_arrow_down_24 -> KeyIconIds.CURSOR_DOWN
+                R.drawable.ic_baseline_keyboard_arrow_left_24 -> KeyIconIds.CURSOR_LEFT
+                R.drawable.ic_baseline_keyboard_arrow_right_24 -> KeyIconIds.CURSOR_RIGHT
+                R.drawable.ic_baseline_first_page_24 -> KeyIconIds.HOME
+                R.drawable.ic_baseline_last_page_24 -> KeyIconIds.END
+                R.drawable.ic_baseline_format_quote_24 -> KeyIconIds.QUICKPHRASE
+                else -> null
+            }
+        }
+    }
+
+    private fun resolveKeyIconAppearance(appearance: KeyDef.Appearance): KeyDef.Appearance {
+        val id = keyIconId(appearance) ?: return appearance
+        val fallback = when (appearance) {
+            is KeyDef.Appearance.Image -> appearance.src
+            is KeyDef.Appearance.ImageAltText -> appearance.src
+            is KeyDef.Appearance.ImageText -> appearance.src
+            else -> return appearance
+        }
+        val resolved = KeyIconThemeStore.resolveDrawable(context, id, fallback)
+        if (resolved == fallback) return appearance
+        return when (appearance) {
+            is KeyDef.Appearance.Image -> KeyDef.Appearance.Image(
+                src = resolved, percentWidth = appearance.percentWidth, variant = appearance.variant,
+                border = appearance.border, margin = appearance.margin, viewId = appearance.viewId,
+                soundEffect = appearance.soundEffect, textColor = appearance.textColor,
+                textColorMonet = appearance.textColorMonet, altTextColor = appearance.altTextColor,
+                altTextColorMonet = appearance.altTextColorMonet, backgroundColor = appearance.backgroundColor,
+                backgroundColorMonet = appearance.backgroundColorMonet, shadowColor = appearance.shadowColor,
+                shadowColorMonet = appearance.shadowColorMonet
+            )
+            is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
+                src = resolved, altText = appearance.altText, altText1 = appearance.altText1,
+                percentWidth = appearance.percentWidth, variant = appearance.variant, border = appearance.border,
+                margin = appearance.margin, viewId = appearance.viewId, soundEffect = appearance.soundEffect,
+                textColor = appearance.textColor, textColorMonet = appearance.textColorMonet,
+                altTextColor = appearance.altTextColor, altTextColorMonet = appearance.altTextColorMonet,
+                backgroundColor = appearance.backgroundColor, backgroundColorMonet = appearance.backgroundColorMonet,
+                shadowColor = appearance.shadowColor, shadowColorMonet = appearance.shadowColorMonet
+            )
+            is KeyDef.Appearance.ImageText -> KeyDef.Appearance.ImageText(
+                displayText = appearance.displayText, textSize = appearance.textSize, textStyle = appearance.textStyle,
+                src = resolved, percentWidth = appearance.percentWidth, variant = appearance.variant,
+                border = appearance.border, margin = appearance.margin, viewId = appearance.viewId,
+                textColor = appearance.textColor, textColorMonet = appearance.textColorMonet,
+                altTextColor = appearance.altTextColor, altTextColorMonet = appearance.altTextColorMonet,
+                backgroundColor = appearance.backgroundColor, backgroundColorMonet = appearance.backgroundColorMonet,
+                shadowColor = appearance.shadowColor, shadowColorMonet = appearance.shadowColorMonet
+            )
+            else -> appearance
+        }.also {
+            it.rowHeightMultiplier = appearance.rowHeightMultiplier
+            it.altTextPositionOverride = appearance.altTextPositionOverride
+            it.altText1PositionOverride = appearance.altText1PositionOverride
+            it.directionalSwipeLabels = appearance.directionalSwipeLabels
         }
     }
 
@@ -2389,12 +2511,22 @@ abstract class BaseKeyboard(
     }
 
     open fun onReturnDrawableUpdate(@DrawableRes returnDrawable: Int) {
-        val drawable = resolveGboardReturnDrawable(returnDrawable)
+        val resolvedReturnId = when (returnDrawable) {
+            R.drawable.ic_baseline_arrow_forward_24 -> KeyIconIds.RETURN_GO
+            R.drawable.ic_baseline_search_24 -> KeyIconIds.RETURN_SEARCH
+            R.drawable.ic_baseline_send_24 -> KeyIconIds.RETURN_SEND
+            R.drawable.ic_baseline_keyboard_tab_24 -> KeyIconIds.RETURN_NEXT
+            R.drawable.ic_baseline_keyboard_tab_reverse_24 -> KeyIconIds.RETURN_PREVIOUS
+            R.drawable.ic_baseline_done_24 -> KeyIconIds.RETURN_DONE
+            else -> KeyIconIds.RETURN
+        }
+        val fallback = resolveGboardReturnDrawable(returnDrawable)
+        val drawable = KeyIconThemeStore.resolveDrawableObject(context, resolvedReturnId, fallback)
         allViews.forEach { view ->
             if (view.tag == R.id.button_return) {
                 when (view) {
-                    is ImageKeyView -> view.img.imageResource = drawable
-                    is ImageAltTextKeyView -> view.img.imageResource = drawable
+                    is ImageKeyView -> drawable?.let(view.img::setImageDrawable)
+                    is ImageAltTextKeyView -> drawable?.let(view.img::setImageDrawable)
                 }
             }
         }
@@ -2413,17 +2545,23 @@ abstract class BaseKeyboard(
 
     protected fun updateGboardStyleIcons() {
         val gboardStyle = org.fxboomk.fcitx5.android.data.theme.ThemeManager.prefs.gboardStyleSideKeys.getValue()
-        val bsRes = if (gboardStyle) R.drawable.ic_outline_backspace_24 else R.drawable.ic_baseline_backspace_24
-        val retRes = if (gboardStyle) R.drawable.ic_rounded_keyboard_return_24 else R.drawable.ic_baseline_keyboard_return_24
+        val bsDrawable = KeyIconThemeStore.resolveDrawableObject(context,
+            KeyIconIds.BACKSPACE,
+            if (gboardStyle) R.drawable.ic_outline_backspace_24 else R.drawable.ic_baseline_backspace_24
+        )
+        val retDrawable = KeyIconThemeStore.resolveDrawableObject(context,
+            KeyIconIds.RETURN,
+            if (gboardStyle) R.drawable.ic_rounded_keyboard_return_24 else R.drawable.ic_baseline_keyboard_return_24
+        )
         allViews.forEach { view ->
             when (view.tag) {
                 R.id.button_backspace -> when (view) {
-                    is ImageKeyView -> view.img.imageResource = bsRes
-                    is ImageAltTextKeyView -> view.img.imageResource = bsRes
+                    is ImageKeyView -> bsDrawable?.let(view.img::setImageDrawable)
+                    is ImageAltTextKeyView -> bsDrawable?.let(view.img::setImageDrawable)
                 }
                 R.id.button_return -> when (view) {
-                    is ImageKeyView -> view.img.imageResource = retRes
-                    is ImageAltTextKeyView -> view.img.imageResource = retRes
+                    is ImageKeyView -> retDrawable?.let(view.img::setImageDrawable)
+                    is ImageAltTextKeyView -> retDrawable?.let(view.img::setImageDrawable)
                 }
             }
         }

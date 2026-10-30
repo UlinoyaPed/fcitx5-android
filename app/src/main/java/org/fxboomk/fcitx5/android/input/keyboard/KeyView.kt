@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
+@file:Suppress("DiscouragedApi")
+
 package org.fxboomk.fcitx5.android.input.keyboard
 
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
@@ -145,7 +147,8 @@ abstract class KeyView(
     var isCircularSideKey: Boolean = false
         private set
     protected val cornerLabelHorizontalSafeInset: Int
-    protected val cornerLabelTopSafeInset: Int
+    protected val cornerLabelVerticalSafeInset: Int
+    protected val cornerLabelTopSafeInset: Int get() = cornerLabelVerticalSafeInset
 
     protected val subLabelPadding: Int
         get() = dp(ThemeManager.prefs.subLabelPadding.getValue().coerceIn(0, 8))
@@ -178,7 +181,7 @@ abstract class KeyView(
         hMargin = if (def.margin) dp(hMarginValue) else 0
         vMargin = if (def.margin) dp(vMarginPref.getValue()) else 0
         cornerLabelHorizontalSafeInset = dp(3)
-        cornerLabelTopSafeInset = dp(1)
+        cornerLabelVerticalSafeInset = dp(1)
     }
 
     private val cachedLocation = intArrayOf(0, 0)
@@ -1891,7 +1894,7 @@ class ImageAltTextKeyView(
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
-            topToTop = parentId; topMargin = vMargin + cornerLabelTopSafeInset
+            topToTop = parentId; topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset; bottomMargin = 0
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
@@ -1914,7 +1917,7 @@ class ImageAltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
+            topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset
             bottomMargin = 0
             leftToLeft = parentId
@@ -1923,27 +1926,23 @@ class ImageAltTextKeyView(
             rightMargin = hMargin
         }
         applyBottomAltTextPadding()
+        altText.useGlyphBounds = false
         altText.gravity = Gravity.CENTER
     }
 
     private fun applyBottomAltTextPosition() {
-        img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            topToTop = parentId; topMargin = vMargin
-            bottomToTop = altText.existingOrNewId
-            bottomToBottom = unset; bottomMargin = 0
-            startToStart = parentId
-            endToEnd = parentId
-        }
+        centerImageOnKey()
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = unset; topMargin = 0
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
-            bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
+            bottomToBottom = parentId; bottomMargin = vMargin
         }
         applyBottomAltTextPadding()
-        altText.gravity = Gravity.CENTER
+        altText.useGlyphBounds = true
+        altText.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
     }
 
     private fun applyNoAltTextPosition() {
@@ -1963,7 +1962,7 @@ class ImageAltTextKeyView(
 
     private fun applyDirectionalSwipeLabelPositions(topRight: Boolean, keyHeight: Int) {
         val labelMaxHeight = if (keyHeight > 0) {
-            ((keyHeight - vMargin * 2 - cornerLabelTopSafeInset * 2 - dp(4)) / 3)
+            ((keyHeight - vMargin * 2 - cornerLabelVerticalSafeInset * 2 - dp(4)) / 3)
                 .coerceAtLeast(1)
         } else {
             Int.MAX_VALUE
@@ -1976,7 +1975,7 @@ class ImageAltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            topMargin = vMargin + cornerLabelTopSafeInset
+            topMargin = vMargin + cornerLabelVerticalSafeInset
             bottomToBottom = unset
             bottomMargin = 0
             leftToLeft = parentId
@@ -1991,24 +1990,26 @@ class ImageAltTextKeyView(
             topToTop = unset
             topMargin = 0
             bottomToBottom = parentId
-            bottomMargin = vMargin + dp(2)
+            bottomMargin = vMargin
             leftToLeft = parentId
             leftMargin = hMargin
             rightToRight = parentId
             rightMargin = hMargin
         }
         altText1.setPadding(0, 0, 0, 0)
-        altText1.gravity = Gravity.CENTER
-        val hasUpLabel = altText.visibility == View.VISIBLE
-        val hasDownLabel = altText1.visibility == View.VISIBLE
+        altText1.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        centerImageOnKey()
+    }
+
+    private fun centerImageOnKey() {
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            constrainedHeight = true
-            topToTop = if (hasUpLabel) unset else parentId
-            topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
-            topMargin = if (hasUpLabel) dp(2) else vMargin
-            bottomToBottom = if (hasDownLabel) unset else parentId
-            bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
-            bottomMargin = if (hasDownLabel) dp(2) else vMargin
+            constrainedHeight = false
+            topToTop = parentId
+            topToBottom = unset
+            topMargin = 0
+            bottomToBottom = parentId
+            bottomToTop = unset
+            bottomMargin = 0
             startToStart = parentId
             endToEnd = parentId
         }
@@ -2047,30 +2048,11 @@ class ImageAltTextKeyView(
         }
         if (keyHeight <= 0) return preferred
 
-        val contentHeight = keyHeight - vMargin * 2
-        val iconHeight = img.measuredHeight.takeIf { it > 0 } ?: dp(24)
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val compactMinHeight = max(iconHeight.toFloat(), altHeight + cornerLabelTopSafeInset.toFloat())
-        val stackedMinHeight = iconHeight + altHeight + dp(1)
-
-        return when (preferred) {
-            AltTextLayoutMode.Bottom -> when {
-                contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.Top -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.Top
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.TopRight -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
-            AltTextLayoutMode.DirectionalTopBottom,
-            AltTextLayoutMode.DirectionalTopRightBottom -> preferred
-            AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
-        }
+        // Labels overlay the centered icon; their font size never selects a
+        // different position or hides the hint. Only the available key geometry
+        // determines whether an overlay can be shown.
+        return if (keyHeight - vMargin * 2 - cornerLabelVerticalSafeInset * 2 > 0)
+            preferred else AltTextLayoutMode.Hidden
     }
 
     private fun applyLayout(keyHeight: Int = appearanceView.height) {

@@ -96,7 +96,7 @@ object AppUtil {
         launchMainToDest(context, SettingsRoute.InputMethodList)
 
     fun launchMainToThemeList(context: Context) =
-        launchMainToDest(context, SettingsRoute.Theme)
+        launchMainToDest(context, SettingsRoute.ThemeList)
 
     fun launchMainToInputMethodConfig(context: Context, uniqueName: String, displayName: String) {
         val route = if (CustomShuangpinSchemeStore.isCustomScheme(uniqueName)) {

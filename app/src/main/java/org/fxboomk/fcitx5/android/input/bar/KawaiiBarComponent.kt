@@ -126,7 +126,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val popup: PopupComponent by manager.must()
 
     var onFloatingToggleListener: (() -> Unit)? = null
-    var onFloatingLongPressListener: (() -> Unit)? = null
 
     fun setFloatingState(isFloating: Boolean) {
         idleUi.buttonsUi.setFloatingState(isFloating)
@@ -160,7 +159,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val clipboardItemTimeout = prefs.clipboard.clipboardItemTimeout
     private val clipboardMaskSensitive by prefs.clipboard.clipboardMaskSensitive
     private val expandedCandidateStyle by prefs.keyboard.expandedCandidateStyle
-    private val compositionAreaStyle = prefs.keyboard.compositionAreaStyle
     private val toolbarNumRowOnPassword by prefs.keyboard.toolbarNumRowOnPassword
     private val showVoiceInputButton by prefs.keyboard.showVoiceInputButton
     private val preferredVoiceInput by prefs.keyboard.preferredVoiceInput
@@ -419,8 +417,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     // Load buttons config from file or use default
     private fun loadButtonsConfig(): List<ConfigurableButton> {
-        val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
-        val config = snapshot?.value ?: ButtonsLayoutConfig.default()
+        val config = loadButtonsLayoutConfig()
 
         // The more button is fixed at the left edge and is rendered by IdleUi.
         // Keep it in the loaded config so its icon can be customized.
@@ -430,6 +427,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
     }
 
+    private fun loadButtonsLayoutConfig(): ButtonsLayoutConfig =
+        ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+            ?: ButtonsLayoutConfig.default()
+
     private var _idleUi: IdleUi? = null
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
 
@@ -437,7 +438,14 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         get() {
             if (_idleUi == null) {
                 currentButtonsConfig = loadButtonsConfig()
-                _idleUi = IdleUi(context, theme, popup, commonKeyActionListener, currentButtonsConfig)
+                _idleUi = IdleUi(
+                    context,
+                    theme,
+                    popup,
+                    commonKeyActionListener,
+                    currentButtonsConfig,
+                    loadButtonsLayoutConfig().resolvedHideKeyboardButton()
+                )
                 setupIdleUiCallbacks(_idleUi!!)
             }
             return _idleUi!!
@@ -528,22 +536,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 }
             }
 
-            // Special handling for floating_toggle long press
-            setOnLongClickListener("floating_toggle") {
-                restoreVirtualKeyboardMode()
-                if (onFloatingLongPressListener != null) {
-                    onFloatingLongPressListener?.invoke()
-                } else {
-                    ButtonAction.fromId("floating_toggle")?.onLongPress(
-                        context = context,
-                        service = service,
-                        fcitx = fcitx,
-                        windowManager = windowManager,
-                        view = ui.buttonsUi.root
-                    )
-                }
-                true
-            }
             setOnLongClickListener("theme_toggle") {
                 ButtonAction.fromId("theme_toggle")?.onLongPress(
                     context = context,
@@ -626,6 +618,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             currentButtonsConfig = newConfig
             // Update the existing IdleUi with new config
             _idleUi?.updateConfig(newConfig)
+            _idleUi?.updateHideKeyboardConfig(loadButtonsLayoutConfig().resolvedHideKeyboardButton())
             updateButtonsState()
         }
     }
@@ -655,7 +648,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     internal val usesInlineCompositionArea: Boolean
-        get() = compositionAreaStyle.getValue() == CompositionAreaStyle.InlineCandidateBar &&
+        get() = org.fxboomk.fcitx5.android.ui.main.settings.PreeditStyleResolver.effectiveStyle == CompositionAreaStyle.InlineCandidateBar &&
             !isFloatingCandidatesActive()
 
     internal val shouldDisplayStandalonePreedit: Boolean
@@ -1008,6 +1001,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private fun updateButtonsState() {
         _idleUi?.buttonsUi?.updateButtonsState(service)
+    }
+
+    fun dispose() {
+        _idleUi?.dispose()
     }
 
     fun onKeyboardLayoutSwitched(isNumber: Boolean) {

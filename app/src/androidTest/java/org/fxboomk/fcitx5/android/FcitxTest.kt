@@ -1,175 +1,103 @@
 /*
  * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
+ * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
 package org.fxboomk.fcitx5.android
 
-import androidx.test.platform.app.InstrumentationRegistry
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
-import org.fxboomk.fcitx5.android.core.Fcitx
+import kotlinx.coroutines.withTimeout
+import org.fxboomk.fcitx5.android.core.CapabilityFlags
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.FcitxEvent
-import org.fxboomk.fcitx5.android.core.RawConfig
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.Assert
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Ignore
+import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
+import org.junit.Assert.*
 import org.junit.Test
-import timber.log.Timber
 
-/**
- * Disabled for now: every case of this class blocks forever and therefore hangs the whole
- * instrumentation run.
- *
- * The engine is driven here without an activated input context, so it never emits preedit,
- * candidate or commit events, and the `receiveFirst` calls waited for them indefinitely. The
- * receives are bounded by a timeout now, so the cases fail fast instead of hanging, but they
- * cannot pass until the test activates an input context (see [FcitxAPI.activate] and
- * [FcitxAPI.focus]).
- */
-@Ignore("Blocks the whole instrumentation run: the engine is driven without an activated " +
-    "input context, so no preedit/candidate/commit event is ever emitted and the test waits " +
-    "forever. The receives are bounded by a timeout now, so it fails fast instead of hanging, " +
-    "but it still cannot pass until an input context is activated.")
+/** Real engine events, collected before input in an activated/focused context. */
 class FcitxTest {
-
-    private companion object {
-
-        /**
-         * Upper bound for waiting for an engine event. Without it a missing event blocks the
-         * instrumentation run forever.
-         */
-        const val EVENT_TIMEOUT_MS = 10_000L
-
-        lateinit var fcitx: Fcitx
-        val fcitxEventChannel = Channel<FcitxEvent<*>>(capacity = Channel.CONFLATED)
-        val scope = MainScope()
-
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-            fcitx = Fcitx(context)
-
-            // forward to our channel for point to point consuming
-            fcitx.eventFlow
-                .onEach { fcitxEventChannel.send(it) }
-                .launchIn(scope)
-            fcitx.start()
-
-            // wait fcitx started
-            runBlocking {
-                receiveFirst<FcitxEvent.ReadyEvent>()
-                fcitx.setEnabledIme(arrayOf("pinyin"))
-                fcitx.setGlobalConfig(
-                    RawConfig(
-                        arrayOf(
-                            RawConfig(
-                                "Behavior", arrayOf(
-                                    RawConfig("ShowInputMethodInformation", false)
-                                )
-                            )
-                        )
-                    )
-                )
+    private suspend fun withEngine(
+        ime: String, block: suspend FcitxAPI.(Channel<FcitxEvent<*>>) -> Unit
+    ) = coroutineScope {
+        val name = "maintenance-event-fixture"
+        val connection = FcitxDaemon.connect(name)
+        try {
+            withTimeout(60000) {
+                connection.runOnReady {
+                    val enabled = enabledIme().map { it.uniqueName }.toTypedArray()
+                    val active = currentIme().uniqueName
+                    val events = Channel<FcitxEvent<*>>(Channel.UNLIMITED)
+                    val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+                        eventFlow.collect { events.send(it) }
+                    }
+                    try {
+                        setEnabledIme((enabled.toList() + ime).distinct().toTypedArray())
+                        activate(12346, "org.ulinoyaped.fcitx5.android.debug")
+                        setCapFlags(CapabilityFlags.DefaultFlags)
+                        focus(true)
+                        activateIme(ime)
+                        reset()
+                        while (events.tryReceive().isSuccess) { /* discard setup events */ }
+                        block(events)
+                    } finally {
+                        reset()
+                        setEnabledIme(enabled)
+                        if (active.isNotBlank()) activateIme(active)
+                        focus(false)
+                        deactivate(12346)
+                        collector.cancel()
+                        events.close()
+                    }
+                }
             }
+        } finally { FcitxDaemon.disconnect(name) }
+    }
+
+    private suspend inline fun <reified T : FcitxEvent<*>> Channel<FcitxEvent<*>>.awaitEvent(
+        crossinline accept: (T) -> Boolean = { true }
+    ): T = withTimeout(10000) {
+        var result: T? = null
+        while (result == null) {
+            val event = receive()
+            if (event is T && accept(event)) result = event
         }
+        result
+    }
 
-        @AfterClass
-        @JvmStatic
-        fun cleanup() {
-            fcitx.stop()
+    @Test fun testWbx(): Unit = runBlocking {
+        withEngine("wbx") { events ->
+            "wqvb".forEach { sendKey(it) }
+            assertTrue(getCandidates(0, 10).isNotEmpty())
+            select(0)
+            assertEquals("你好", events.awaitEvent<FcitxEvent.CommitStringEvent>().data.text)
         }
+    }
 
-        private suspend fun sendString(str: String) {
-            str.forEach { c ->
-                fcitx.sendKey(c)
-                delay(50)
-            }
+    @Test fun testPinyin(): Unit = runBlocking {
+        withEngine("pinyin") { events ->
+            "nihaoshijie".forEach { sendKey(it) }
+            val candidates = getCandidates(0, 50)
+            val target = candidates.indexOfFirst { it.text == "你好世界" }
+            assertTrue("Expected sentence must be selectable: ${candidates.map { it.text }}", target >= 0)
+            select(target)
+            assertEquals("你好世界", events.awaitEvent<FcitxEvent.CommitStringEvent>().data.text)
         }
-
-        private suspend inline fun <reified T : FcitxEvent<*>> receiveFirst(): T? =
-            withTimeoutOrNull(EVENT_TIMEOUT_MS) {
-                fcitxEventChannel.receiveAsFlow().mapNotNull { it as? T }.firstOrNull()
-            }
-
-        private suspend fun receiveFirstCandidateList() =
-            receiveFirst<FcitxEvent.CandidateListEvent>()
-
-        private suspend fun receiveFirstCommitString() =
-            receiveFirst<FcitxEvent.CommitStringEvent>()
-
-        private suspend fun receiveFirstPreedit() = receiveFirst<FcitxEvent.ClientPreeditEvent>()
-
-        private suspend fun receiveFirstInputPanelAux() =
-            receiveFirst<FcitxEvent.InputPanelEvent>()
-
     }
 
-    private var enabledIme: List<String> = listOf()
-
-    @Before
-    fun saveEnabledIME() = runBlocking {
-        enabledIme = fcitx.enabledIme().map { it.uniqueName }
+    @Test fun testInputPanelStatus(): Unit = runBlocking {
+        withEngine("pinyin") { events ->
+            assertTrue(isEmpty())
+            sendKey('a')
+            events.awaitEvent<FcitxEvent.CandidateListEvent> { it.data.candidates.isNotEmpty() }
+            assertFalse(isEmpty())
+            while (events.tryReceive().isSuccess) { /* only inspect events after reset */ }
+            reset()
+            events.awaitEvent<FcitxEvent.CandidateListEvent> { it.data.candidates.isEmpty() }
+            assertTrue(isEmpty())
+        }
     }
-
-    @After
-    fun restoreEnabledIME() = runBlocking {
-        fcitx.setEnabledIme(enabledIme.toTypedArray())
-    }
-
-    @Test
-    fun testWbx(): Unit = runBlocking {
-        fcitx.setEnabledIme(arrayOf("wbx"))
-        sendString("wqvb")
-        val expected = "你好"
-        fcitx.select(0)
-        val commitString = receiveFirstCommitString()?.data
-        Timber.i("commitString is $commitString")
-        Assert.assertEquals(expected, commitString)
-        fcitx.reset()
-    }
-
-    @Test
-    fun testPinyin(): Unit = runBlocking {
-        fcitx.setEnabledIme(arrayOf("pinyin"))
-        sendString("nihaoshijie")
-        val expected = "你好世界"
-        fcitx.select(0)
-        val commitString = receiveFirstCommitString()?.data
-        Timber.i("commitString is $commitString")
-        Assert.assertEquals(expected, commitString)
-        fcitx.reset()
-    }
-
-    @Test
-    fun testInputPanelStatus(): Unit = runBlocking {
-        fcitx.reset()
-        Timber.i("after first reset: ${fcitx.isEmpty()}")
-        Assert.assertEquals(true, fcitx.isEmpty())
-        fcitx.sendKey('a')
-        do {
-            val list = receiveFirstCandidateList()
-        } while (list!!.data.candidates.isNotEmpty())
-        Timber.i("after sending 'a': ${fcitx.isEmpty()}")
-        Assert.assertEquals(false, fcitx.isEmpty())
-        fcitx.reset()
-        do {
-            val list = receiveFirstCandidateList()
-        } while (list!!.data.candidates.isNotEmpty())
-        Timber.i("after second reset: ${fcitx.isEmpty()}")
-        Assert.assertEquals(true, fcitx.isEmpty())
-    }
-
 }

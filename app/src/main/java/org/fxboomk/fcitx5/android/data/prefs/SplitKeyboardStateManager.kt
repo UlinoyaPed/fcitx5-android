@@ -2,11 +2,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2025 Fcitx5 for Android Contributors
  */
+@file:android.annotation.SuppressLint("StaticFieldLeak")
+
 package org.fxboomk.fcitx5.android.data.prefs
+
+import timber.log.Timber
 
 import android.content.Context
 import android.content.res.Configuration
-import android.util.Log
 import org.fxboomk.fcitx5.android.utils.DeviceInfoCollector
 import org.fxboomk.fcitx5.android.utils.DeviceType
 
@@ -60,7 +63,7 @@ class SplitKeyboardStateManager private constructor(private val context: Context
             cachedDeviceInfo = DeviceInfoCollector.collect(context)
             lastOrientation = context.resources.configuration.orientation
             lastSmallestWidthDp = context.resources.configuration.smallestScreenWidthDp
-            Log.d(TAG, "Device info refreshed: orientation=$lastOrientation, smallestWidth=$lastSmallestWidthDp")
+            Timber.tag(TAG).d("Device info refreshed: orientation=$lastOrientation, smallestWidth=$lastSmallestWidthDp")
         }
         return cachedDeviceInfo!!
     }
@@ -80,10 +83,10 @@ class SplitKeyboardStateManager private constructor(private val context: Context
         val screenConfigChanged = currentSmallestWidth != lastSmallestWidthDp
         
         if (orientationChanged) {
-            Log.d(TAG, "Orientation changed: $lastOrientation → $currentOrientation")
+            Timber.tag(TAG).d("Orientation changed: $lastOrientation → $currentOrientation")
         }
         if (screenConfigChanged) {
-            Log.d(TAG, "Smallest width changed: $lastSmallestWidthDp → $currentSmallestWidth")
+            Timber.tag(TAG).d("Smallest width changed: $lastSmallestWidthDp → $currentSmallestWidth")
         }
         
         return orientationChanged || screenConfigChanged
@@ -95,7 +98,7 @@ class SplitKeyboardStateManager private constructor(private val context: Context
      * Call this when you detect a foldable screen state change (inner/outer screen switch).
      */
     fun refreshDeviceInfo() {
-        Log.d(TAG, "Manual device info refresh requested")
+        Timber.tag(TAG).d("Manual device info refresh requested")
         getDeviceInfo(refresh = true)
     }
 
@@ -224,6 +227,7 @@ class SplitKeyboardStateManager private constructor(private val context: Context
         private const val GAP_MAX = 60
 
         @Volatile
+        @android.annotation.SuppressLint("StaticFieldLeak")
         private var instance: SplitKeyboardStateManager? = null
 
         /**

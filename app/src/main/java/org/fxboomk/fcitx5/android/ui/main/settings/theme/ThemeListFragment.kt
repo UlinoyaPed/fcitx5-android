@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.os.Build
@@ -30,6 +31,7 @@ import org.fxboomk.fcitx5.android.utils.isDarkMode
 import org.fxboomk.fcitx5.android.utils.parcelable
 import org.fxboomk.fcitx5.android.utils.queryFileName
 import org.fxboomk.fcitx5.android.utils.toast
+import splitties.dimensions.dp
 import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
 import java.util.UUID
@@ -213,7 +215,10 @@ class ThemeListFragment : Fragment() {
         ThemeManager.refreshThemes()
         themeListAdapter.setThemes(ThemeManager.getAllThemes())
         updateSelectedThemes()
-        return ResponsiveThemeListView(requireContext()).apply {
+        return ResponsiveThemeListView(
+            requireContext(),
+            firstRowTopOffset = requireContext().dp(12)
+        ).apply {
             adapter = themeListAdapter
             applyNavBarInsetsBottomPadding()
         }

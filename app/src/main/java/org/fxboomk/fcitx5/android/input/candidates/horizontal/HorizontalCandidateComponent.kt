@@ -3,6 +3,7 @@
  * SPDX-FileCopyrightText: Copyright 2021-2025 Fcitx5 for Android Contributors
  */
 
+@file:Suppress("NotifyDataSetChanged")
 package org.fxboomk.fcitx5.android.input.candidates.horizontal
 
 import android.content.res.Configuration

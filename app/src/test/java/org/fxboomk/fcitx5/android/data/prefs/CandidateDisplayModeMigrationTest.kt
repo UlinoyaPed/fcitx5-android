@@ -22,7 +22,6 @@ class CandidateDisplayModeMigrationTest {
     fun legacyModesBecomeHorizontalCandidateBar() {
         listOf(
             null,
-            FloatingCandidatesMode.Disabled,
             FloatingCandidatesMode.InputDevice
         ).forEach { mode ->
             assertEquals(

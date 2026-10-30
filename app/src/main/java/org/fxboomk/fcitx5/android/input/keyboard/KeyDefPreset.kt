@@ -701,6 +701,8 @@ class MacroKey(
         altText = altLabel ?: "",
         altText1 = altLabel1,
         character = character,
+        followsCapsState = false,
+        caseAwareCapsState = true,
         textSize = 23f,
         percentWidth = percentWidth,
         variant = variant,

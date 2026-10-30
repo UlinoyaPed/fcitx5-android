@@ -3,10 +3,11 @@
  */
 package org.fxboomk.fcitx5.android.input.font
 
+import timber.log.Timber
+
 import android.graphics.Typeface
 import android.os.Process
 import android.os.SystemClock
-import android.util.Log
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import java.io.File
 
@@ -61,10 +62,7 @@ class DefaultFontProvider : FontProviderApi {
                 val fonts = synchronized(this) {
                     cachedFontTypefaceMap.toMutableMap()
                 }
-                Log.i(
-                    "FcitxColdStart",
-                    "font preload keys=${keys.size} duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-                )
+                Timber.tag("FcitxColdStart").i("font preload keys=${keys.size} duration=${SystemClock.elapsedRealtime() - startedAt}ms")
                 onComplete?.invoke(fonts)
             } finally {
                 synchronized(this) {
@@ -120,11 +118,8 @@ class DefaultFontProvider : FontProviderApi {
             }.getOrNull()
             cachedTypefaceByPaths[validPaths] = loaded
             if (validPaths.isNotEmpty()) {
-                Log.i(
-                    "FcitxColdStart",
-                    "font key=$key files=${validPaths.size} loaded=${loaded != null} " +
-                        "duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-                )
+                Timber.tag("FcitxColdStart").i("font key=$key files=${validPaths.size} loaded=${loaded != null} " +
+                        "duration=${SystemClock.elapsedRealtime() - startedAt}ms")
             }
             loaded
         }

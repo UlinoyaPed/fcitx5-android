@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.input.config
 
+import timber.log.Timber
+
 import android.os.FileObserver
 import android.os.Handler
 import android.os.Looper
@@ -285,7 +287,7 @@ object ConfigProviders {
         // Persist legacy directions once, using the punctuation position at first load.
         val file = provider.textKeyboardLayoutFile()
         DirectionalSwipeMigration.migrateFile(file, ThemeManager.prefs.punctuationPosition.getValue())
-            .onFailure { android.util.Log.e("ConfigProviders", "Swipe migration failed", it) }
+            .onFailure { Timber.tag("ConfigProviders").e(it, "Swipe migration failed") }
         return UserJsonConfigStore.readJson<T>(file).also { ensureWatching() }
     }
 

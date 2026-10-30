@@ -136,6 +136,11 @@ object UserConfigFiles {
      */
     fun buttonsLayoutConfig(): File? = configDir()?.let { File(it, "ButtonsLayout.json") }
 
+    fun buttonsLayoutThemes(): File? = configDir()?.let { File(it, "ButtonsLayoutThemes.json") }
+
+    /** User-selectable virtual keyboard key icon themes. */
+    fun keyIconThemesConfig(): File? = configDir()?.let { File(it, "KeyIconThemes.json") }
+
     fun customShuangpinSchemeJson(): File = File(fcitxConfigDir(), "CustomShuangpinScheme.json")
 
     fun customShuangpinSpDat(): File = File(File(fcitxConfigDir(), "pinyin"), "sp.dat")

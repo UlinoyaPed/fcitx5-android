@@ -22,6 +22,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
+import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeCandidateStyleFragment
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.ui.main.MainActivity
@@ -60,6 +63,68 @@ class SettingsSearchNavigationTest {
     // -------------------------------------------------------------------------------------
     // Bug 1: the custom shuangpin entries must show up in the settings search
     // -------------------------------------------------------------------------------------
+
+    @Test
+    fun candidateControlsRemainBoundForHardwareAndVirtualModes() {
+        val modePreference = AppPrefs.getInstance().candidates.mode
+        val original = modePreference.getValue()
+        try {
+            withActivity { activity ->
+                onMain { navHost(activity)!!.navController.navigateWithAnim(SettingsRoute.ThemeCandidateStyle) }
+                assertTrue(waitUntil(timeoutMs = 20_000) {
+                    onMain { navHost(activity)?.childFragmentManager?.primaryNavigationFragment is
+                        ThemeCandidateStyleFragment }
+                })
+                val page = onMain { navHost(activity)!!.childFragmentManager.primaryNavigationFragment as
+                    ThemeCandidateStyleFragment }
+                FloatingCandidatesMode.entries.forEach { mode ->
+                    onMain { modePreference.setValue(mode) }
+                    assertTrue("Horizontal settings are missing in $mode", waitUntil(timeoutMs = 5_000) {
+                        onMain {
+                            (page.listView.adapter as? PreferenceGroup.PreferencePositionCallback)
+                                ?.getPreferenceAdapterPosition("horizontal_candidate_style")
+                                ?.let { it != RecyclerView.NO_POSITION } == true
+                        }
+                    })
+                    if (mode == FloatingCandidatesMode.InputDevice ||
+                        mode == FloatingCandidatesMode.Always) {
+                        assertTrue("Floating settings are missing in $mode", waitUntil(timeoutMs = 5_000) {
+                            onMain {
+                                (page.listView.adapter as? PreferenceGroup.PreferencePositionCallback)
+                                    ?.getPreferenceAdapterPosition("personal_reverse_above_cursor")
+                                    ?.let { it != RecyclerView.NO_POSITION } == true
+                            }
+                        })
+                    }
+                }
+            }
+        } finally { onMain { modePreference.setValue(original) } }
+    }
+
+    @Test
+    fun groupedCustomPreferenceSearchConsumesItsScrollRequest() = runBlocking {
+        withCustomShuangpinEnabled {
+            val name = CustomShuangpinSchemeStore.currentUniqueName()
+            val item = fcitxConnection.runOnReady {
+                SettingsSearchIndex.fcitxItems(context, this).first {
+                    val route = it.route
+                    route is SettingsRoute.ConfigSection && route.uniqueName == name &&
+                        !route.isAddon && it.preferenceKey == "Prediction"
+                }
+            }
+            assertEquals("A standalone section must not inherit the parent page's tab", null, item.tab)
+            withActivity { activity ->
+                onMain {
+                    activity.viewModel.requestPreferenceScroll(item.preferenceKey!!, item.tab)
+                    navHost(activity)!!.navController.navigateWithAnim(item.route!!)
+                }
+                assertTrue("The grouped preference page did not consume the search jump",
+                    waitUntil(timeoutMs = 20_000) {
+                        onMain { activity.viewModel.peekPendingPreferenceScrollKey() == null }
+                    })
+            }
+        }
+    }
 
     @Test
     fun searchIndexContainsTheCustomShuangpinEntries() = runBlocking {
@@ -129,8 +194,11 @@ class SettingsSearchNavigationTest {
                 assertTrue(
                     "no entry for the custom shuangpin preferences tab",
                     items.any {
-                        it.route == SettingsRoute.CustomShuangpin &&
-                            it.tab == CustomShuangpinFragment.TAB_PREFERENCES
+                        (it.route == SettingsRoute.CustomShuangpin &&
+                            it.tab == CustomShuangpinFragment.TAB_PREFERENCES) ||
+                            (it.route is SettingsRoute.ConfigSection &&
+                                it.route.uniqueName == CustomShuangpinSchemeStore.currentUniqueName() &&
+                                !it.route.isAddon && it.tab == null && it.preferenceKey != null)
                     }
                 )
             }

@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
+@file:Suppress("SetTextI18n")
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
+
+import timber.log.Timber
 
 import android.app.AlertDialog
 import android.content.res.ColorStateList
@@ -512,13 +515,13 @@ class FontsetEditorActivity : AppCompatActivity() {
         
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(8))
+            setPadding(dp(16), dp(16), dp(16), 0)
         }
         
         val seekBar = android.widget.SeekBar(this).apply {
             max = (maxSize - minSize).toInt()
             progress = (currentSize - minSize).toInt().coerceIn(0, max)
-            setPadding(0, dp(16), 0, dp(8))
+            setPadding(0, dp(8), 0, dp(8))
         }
         
         val sizeDisplay = TextView(this).apply {
@@ -544,10 +547,10 @@ class FontsetEditorActivity : AppCompatActivity() {
             setPadding(0, dp(8), 0, 0)
         }
         
-        container.addView(seekBar)
         container.addView(sizeDisplay)
         container.addView(previewText)
         container.addView(hint)
+        container.addView(seekBar)
         
         seekBar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
@@ -603,10 +606,10 @@ class FontsetEditorActivity : AppCompatActivity() {
                     runCatching {
                         fcitxConnection.runIfReady { reloadConfig() }
                     }.onFailure { e ->
-                        android.util.Log.w("FontsetEditor", "Failed to reload Fcitx config after saving fontset", e)
+                        Timber.tag("FontsetEditor").w(e, "Failed to reload Fcitx config after saving fontset")
                     }
                 } else {
-                    android.util.Log.w("FontsetEditor", "Fcitx connection not available, config reload skipped")
+                    Timber.tag("FontsetEditor").w("Fcitx connection not available, config reload skipped")
                 }
                 toast(getString(R.string.fontset_saved_at, file.absolutePath))
                 finish()
@@ -617,7 +620,7 @@ class FontsetEditorActivity : AppCompatActivity() {
                     else -> getString(R.string.fontset_save_failed_unknown_error, e.message.orEmpty())
                 }
                 toast(errorMsg)
-                android.util.Log.e("FontsetEditor", "Failed to save fontset", e)
+                Timber.tag("FontsetEditor").e(e, "Failed to save fontset")
             }
     }
 

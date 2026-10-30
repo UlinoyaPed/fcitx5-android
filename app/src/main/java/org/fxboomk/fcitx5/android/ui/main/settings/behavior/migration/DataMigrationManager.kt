@@ -4,7 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.migration
 
-import android.util.Log
+import timber.log.Timber
+
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
@@ -61,14 +62,14 @@ class DataMigrationManager(
             val backupFile = File(originalFile.parentFile, backupFileName)
 
             originalFile.copyTo(backupFile, overwrite = false)
-            Log.i(TAG, "Backup created: ${backupFile.absolutePath}")
+            Timber.tag(TAG).i("Backup created: ${backupFile.absolutePath}")
 
             this.lastBackupFile = backupFile
             cleanupOldBackups(originalFile)
 
             backupFile
         }.onFailure { e ->
-            Log.e(TAG, "Failed to create backup", e)
+            Timber.tag(TAG).e(e, "Failed to create backup")
         }.getOrNull()
     }
 
@@ -122,12 +123,12 @@ class DataMigrationManager(
             if (backups.size > BACKUP_KEEP_COUNT) {
                 backups.drop(BACKUP_KEEP_COUNT).forEach { oldBackup ->
                     if (oldBackup.delete()) {
-                        Log.i(TAG, "Deleted old backup: ${oldBackup.absolutePath}")
+                        Timber.tag(TAG).i("Deleted old backup: ${oldBackup.absolutePath}")
                     }
                 }
             }
         }.onFailure { e ->
-            Log.e(TAG, "Failed to cleanup old backups", e)
+            Timber.tag(TAG).e(e, "Failed to cleanup old backups")
         }
     }
 
@@ -149,15 +150,15 @@ class DataMigrationManager(
             ?.firstOrNull()
 
         if (latestBackup == null || !latestBackup.exists()) {
-            Log.w(TAG, "No backup file found for restoration")
+            Timber.tag(TAG).w("No backup file found for restoration")
             return
         }
 
         runCatching {
             latestBackup.copyTo(targetFile, overwrite = true)
-            Log.i(TAG, "Restored from backup: ${latestBackup.absolutePath}")
+            Timber.tag(TAG).i("Restored from backup: ${latestBackup.absolutePath}")
         }.onFailure { e ->
-            Log.e(TAG, "Failed to restore from backup", e)
+            Timber.tag(TAG).e(e, "Failed to restore from backup")
         }
     }
 

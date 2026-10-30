@@ -34,9 +34,5 @@ fun ZipInputStream.extract(destDir: File): List<File> {
 }
 
 fun zipInputStream(src: InputStream, charset: Charset? = null): ZipInputStream {
-    return if (charset != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        ZipInputStream(src, charset)
-    } else {
-        ZipInputStream(src)
-    }
+    return if (charset != null) ZipInputStream(src, charset) else ZipInputStream(src)
 }

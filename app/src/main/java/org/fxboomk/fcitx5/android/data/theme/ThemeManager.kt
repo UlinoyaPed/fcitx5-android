@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.Keep
-import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.core.graphics.ColorUtils
 import androidx.preference.PreferenceManager
@@ -53,7 +52,7 @@ object ThemeManager {
     }
 
     private fun loadMonetThemes(): List<Theme.Monet> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !appContext.userManager.isUserUnlocked) {
+        if (!appContext.userManager.isUserUnlocked) {
             return defaultMonetThemes()
         }
         // 检查是否存在自定义映射配置
@@ -429,7 +428,6 @@ object ThemeManager {
         fireThemeListChange()
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun syncToDeviceEncryptedStorage() {
         val ctx = appContext.createDeviceProtectedStorageContext()
         val sp = PreferenceManager.getDefaultSharedPreferences(ctx)

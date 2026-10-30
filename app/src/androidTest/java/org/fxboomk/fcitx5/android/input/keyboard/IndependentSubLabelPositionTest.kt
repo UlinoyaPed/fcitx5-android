@@ -20,6 +20,7 @@ import kotlin.math.roundToInt
 class IndependentSubLabelPositionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext
+    private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
     @Test
     fun hiddenPrimaryDoesNotRenderOrReceiveSwipe() = withTheme(PunctuationPosition.None) {
@@ -63,22 +64,60 @@ class IndependentSubLabelPositionTest {
             single.altText1.left + single.altText1.renderedGlyphBounds().centerX(), 1f)
     }
 
+    @Test
+    fun independentRowLabelsTopAndBottomAreCenteredAgainstKeyInsets() = withTheme(PunctuationPosition.Bottom) {
+        val topKey = createKey(AltTextPosition.Bottom, AltTextPosition.Top)
+        layoutKey(topKey, heightDp = 32)
+        assertEquals(View.VISIBLE, topKey.altText1.visibility)
+        val topInk = topKey.altText1.renderedGlyphBounds()
+        assertEquals(
+            (topKey.vMargin + dp(1 + ThemeManager.prefs.subLabelPadding.getValue())).toFloat(),
+            topKey.altText1.top + topInk.top,
+            1f
+        )
+        assertEquals(
+            topKey.getChildAt(0).width / 2f,
+            topKey.altText1.left + topInk.centerX(),
+            1f
+        )
+
+        val bottomKey = createKey(AltTextPosition.Top, AltTextPosition.Bottom)
+        layoutKey(bottomKey, heightDp = 52)
+        val bottomInk = bottomKey.altText1.renderedGlyphBounds()
+        assertEquals(
+            // Existing bottom safety inset plus the user's independent padding.
+            bottomKey.getChildAt(0).height - bottomKey.vMargin.toFloat() -
+                dp(2 + ThemeManager.prefs.subLabelPadding.getValue()),
+            bottomKey.altText1.top + bottomInk.bottom,
+            1f
+        )
+        assertEquals(
+            bottomKey.getChildAt(0).width / 2f,
+            bottomKey.altText1.left + bottomInk.centerX(),
+            1f
+        )
+    }
+
     private fun createKey(primary: AltTextPosition?, secondary: AltTextPosition, text: String = "?"): AltTextKeyView {
         val appearance = KeyDef.Appearance.AltText("q", text, "q", "!", textSize = 24f).apply {
             altTextPositionOverride = primary
             altText1PositionOverride = secondary
         }
         val key = AltTextKeyView(context, ThemePreset.MaterialLight, appearance)
+        layoutKey(key, 52)
+        return key
+    }
+
+    private fun layoutKey(key: AltTextKeyView, heightDp: Int) {
         val density = context.resources.displayMetrics.density
         val width = (48 * density).roundToInt()
-        val height = (52 * density).roundToInt()
+        val height = (heightDp * density).roundToInt()
         repeat(3) {
             key.refreshLayout()
             key.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
             key.layout(0, 0, width, height)
         }
-        return key
     }
 
     private fun withTheme(position: PunctuationPosition, block: () -> Unit) {

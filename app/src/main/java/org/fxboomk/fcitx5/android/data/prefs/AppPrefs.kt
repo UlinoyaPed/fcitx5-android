@@ -7,7 +7,6 @@ package org.fxboomk.fcitx5.android.data.prefs
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.Keep
-import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.preference.EditTextPreference
@@ -40,12 +39,7 @@ import org.fxboomk.fcitx5.android.utils.vibrator
 
 internal fun normalizeCandidateDisplayMode(
     mode: FloatingCandidatesMode?
-): FloatingCandidatesMode =
-    when (mode) {
-        FloatingCandidatesMode.Always -> FloatingCandidatesMode.Always
-        FloatingCandidatesMode.SystemDefault -> FloatingCandidatesMode.SystemDefault
-        else -> FloatingCandidatesMode.InputDevice
-    }
+): FloatingCandidatesMode = mode ?: FloatingCandidatesMode.InputDevice
 
 class AppPrefs(private val sharedPreferences: SharedPreferences) {
     /** An existing explicit app choice must retain its effect after engine updates. */
@@ -59,6 +53,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val lastPickerType = string("last_picker_type", PickerWindow.Key.Emoji.name)
         val lastNonEnglishIme = string("last_non_english_ime", "")
         val lastNonEnglishSubMode = string("last_non_english_submode", "")
+        val lastRimeChineseSubMode = string("last_rime_chinese_submode", "")
         val verboseLog = bool("verbose_log", false)
         val pid = int("pid", 0)
         val editorInfoInspector = bool("editor_info_inspector", false)
@@ -78,6 +73,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val splitKeyboardMigrated = bool("split_keyboard_migrated", false)
         val lastShareReceiveDirectory = string("last_share_receive_directory", "")
         val lastShareReceiveDirectoryRemembered = bool("last_share_receive_directory_remembered", false)
+        val preeditStyleScopes = stringSet("preedit_style_scopes", emptySet())
     }
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {
@@ -525,38 +521,28 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     inner class Candidates :
         ManagedPreferenceCategory(R.string.candidates_window, sharedPreferences) {
-        init {
-            if (sharedPreferences.contains(CANDIDATE_DISPLAY_MODE_KEY)) {
-                val storedMode = runCatching {
-                    sharedPreferences.getString(CANDIDATE_DISPLAY_MODE_KEY, null)
-                        ?.let(FloatingCandidatesMode::valueOf)
-                }.getOrNull()
-                val normalizedMode = normalizeCandidateDisplayMode(storedMode)
-                if (storedMode != normalizedMode) {
-                    sharedPreferences.edit {
-                        putString(CANDIDATE_DISPLAY_MODE_KEY, normalizedMode.name)
-                    }
-                }
-            }
-        }
-
+        // Decode legacy and future values without rewriting the user's saved choice.
         val mode = list(
             R.string.candidate_display_mode,
             CANDIDATE_DISPLAY_MODE_KEY,
             FloatingCandidatesMode.InputDevice,
             object : ManagedPreference.StringLikeCodec<FloatingCandidatesMode> {
-                override fun decode(raw: String): FloatingCandidatesMode? =
-                    runCatching { FloatingCandidatesMode.valueOf(raw) }.getOrNull()
+                override fun decode(raw: String): FloatingCandidatesMode =
+                    normalizeCandidateDisplayMode(
+                        runCatching { FloatingCandidatesMode.valueOf(raw) }.getOrNull()
+                    )
             },
             listOf(
                 FloatingCandidatesMode.InputDevice,
                 FloatingCandidatesMode.Always,
-                FloatingCandidatesMode.SystemDefault
+                FloatingCandidatesMode.SystemDefault,
+                FloatingCandidatesMode.Disabled
             ),
             listOf(
                 R.string.candidate_display_mode_horizontal,
                 R.string.candidate_display_mode_floating,
-                R.string.system_default
+                R.string.system_default,
+                R.string.disabled
             )
         )
 
@@ -707,7 +693,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             }
         }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun syncToDeviceEncryptedStorage() {
         val ctx = appContext.createDeviceProtectedStorageContext()
         val sp = PreferenceManager.getDefaultSharedPreferences(ctx)

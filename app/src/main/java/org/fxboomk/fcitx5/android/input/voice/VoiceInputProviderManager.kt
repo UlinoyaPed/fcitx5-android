@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
  */
+@file:android.annotation.SuppressLint("StaticFieldLeak")
+
 package org.fxboomk.fcitx5.android.input.voice
 
 import android.content.ComponentName
@@ -84,6 +86,7 @@ object VoiceInputProviderManager {
 
     private var activeConnection: ServiceConnection? = null
     private var activeProvider: IVoiceInputProvider? = null
+    @android.annotation.SuppressLint("StaticFieldLeak")
     private var activeCapture: VoiceInputAudioCapture? = null
     private var activeAudioFeedJob: Job? = null
     private var activeAudioFeedQueue: Channel<QueuedAudio>? = null

@@ -4,83 +4,146 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
+import android.content.Intent
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
-import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
-import org.fxboomk.fcitx5.android.utils.navigateWithAnim
+import org.fxboomk.fcitx5.android.utils.setup
 
 class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInstance().keyboard) {
 
-    private var candidatesPreference: Preference? = null
+    companion object {
+        private const val BASIC_BEHAVIOR_ENTRY_KEY = "virtual_keyboard_basic_entry"
+        private const val TOUCH_AND_SOUND_ENTRY_KEY = "virtual_keyboard_touch_and_sound_entry"
+        private const val KEY_AND_GESTURE_ENTRY_KEY = "virtual_keyboard_key_and_gesture_entry"
+        private const val LAYOUT_AND_SPLIT_ENTRY_KEY = "virtual_keyboard_layout_and_split_entry"
+
+        const val SWIPE_SYMBOL_MAPPING_ENTRY_KEY = "virtual_keyboard_swipe_symbol_mapping_entry"
+        const val POPUP_PRESET_ENTRY_KEY = "virtual_keyboard_popup_preset_entry"
+        const val TEXT_LAYOUT_EDIT_ENTRY_KEY = "virtual_keyboard_text_layout_edit_entry"
+        const val TEXT_LAYOUT_MANAGE_ENTRY_KEY = "virtual_keyboard_text_layout_manage_entry"
+    }
 
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         screen.removeAll()
         buildScreen(screen)
     }
 
-    override fun onResume() {
-        super.onResume()
-        candidatesPreference?.summary = buildCandidatesSummary()
-    }
-
     private fun buildScreen(screen: PreferenceScreen) {
         val keyboardPrefs = AppPrefs.getInstance().keyboard
-        screen.addPreference(
-            R.string.keyboard_settings_basic_behavior,
-            buildBasicBehaviorSummary(keyboardPrefs)
-        ) {
-            navigateWithAnim(SettingsRoute.VirtualKeyboardBasic)
-        }
         KeyboardSettingsSupport.run {
+            screen.addDestinationPreference(
+                this@KeyboardSettingsHomeFragment,
+                R.string.keyboard_settings_basic_behavior,
+                buildBasicBehaviorSummary(keyboardPrefs),
+                SettingsRoute.VirtualKeyboardBasic,
+                BASIC_BEHAVIOR_ENTRY_KEY
+            )
             screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_touch_and_sound,
                 buildTouchAndSoundSummary(keyboardPrefs),
-                SettingsRoute.VirtualKeyboardTouchAndSound
-            )
-            screen.addDestinationPreference(
-                this@KeyboardSettingsHomeFragment,
-                R.string.keyboard_settings_toolbar_and_voice,
-                buildToolbarSummary(keyboardPrefs),
-                SettingsRoute.VirtualKeyboardToolbarAndInput
+                SettingsRoute.VirtualKeyboardTouchAndSound,
+                TOUCH_AND_SOUND_ENTRY_KEY
             )
             screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_key_and_gesture,
                 buildKeyAndGestureSummary(keyboardPrefs),
-                SettingsRoute.VirtualKeyboardKeyAndGesture
+                SettingsRoute.VirtualKeyboardKeyAndGesture,
+                KEY_AND_GESTURE_ENTRY_KEY
             )
             screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_layout_and_split,
                 buildLayoutSummary(keyboardPrefs),
-                SettingsRoute.VirtualKeyboardLayoutAndSplit
+                SettingsRoute.VirtualKeyboardLayoutAndSplit,
+                LAYOUT_AND_SPLIT_ENTRY_KEY
             )
-            screen.addPreference(
-                Preference(requireContext()).apply {
-                    setTitle(R.string.keyboard_settings_candidates)
-                    summary = buildCandidatesSummary()
-                    isIconSpaceReserved = false
-                    isSingleLineTitle = false
-                    setOnPreferenceClickListener {
-                        navigateWithAnim(SettingsRoute.VirtualKeyboardCandidates)
-                        true
+            screen.addCategory(R.string.keyboard_settings_advanced_customization) {
+                addPreference(
+                    Preference(requireContext()).apply {
+                        key = SWIPE_SYMBOL_MAPPING_ENTRY_KEY
+                        setup(
+                            context.getString(R.string.edit_swipe_symbol_mapping),
+                            context.getString(R.string.edit_swipe_symbol_mapping_summary)
+                        ) {
+                            startActivity(
+                                Intent(requireContext(), SwipeSymbolMappingEditorActivity::class.java)
+                            )
+                        }
                     }
-                    candidatesPreference = this
-                }
-            )
-            screen.addDestinationPreference(
-                this@KeyboardSettingsHomeFragment,
-                R.string.keyboard_settings_advanced_customization,
-                getString(R.string.keyboard_advanced_customization_summary),
-                SettingsRoute.VirtualKeyboardAdvancedCustomization
-            )
+                )
+                addPreference(
+                    Preference(requireContext()).apply {
+                        key = POPUP_PRESET_ENTRY_KEY
+                        setup(
+                            context.getString(R.string.edit_popup_preset),
+                            context.getString(R.string.edit_popup_preset_summary)
+                        ) {
+                            startActivity(Intent(requireContext(), PopupEditorActivity::class.java))
+                        }
+                    }
+                )
+                addPreference(
+                    Preference(requireContext()).apply {
+                        key = TEXT_LAYOUT_EDIT_ENTRY_KEY
+                        setup(
+                            context.getString(R.string.edit_text_keyboard_layout),
+                            KeyboardSettingsSupport.buildTextLayoutSummary(this@KeyboardSettingsHomeFragment)
+                        ) {
+                            startActivity(
+                                Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java)
+                            )
+                        }
+                    }
+                )
+                addPreference(
+                    Preference(requireContext()).apply {
+                        key = TEXT_LAYOUT_MANAGE_ENTRY_KEY
+                        setup(
+                            context.getString(R.string.text_keyboard_layout_manage_title),
+                            KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(
+                                this@KeyboardSettingsHomeFragment
+                            )
+                        ) {
+                            startActivity(
+                                Intent(
+                                    requireContext(),
+                                    TextKeyboardLayoutProfileManagerActivity::class.java
+                                )
+                            )
+                        }
+                    }
+                )
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshSummaries()
+    }
+
+    private fun refreshSummaries() {
+        val keyboardPrefs = AppPrefs.getInstance().keyboard
+        findPreference<Preference>(BASIC_BEHAVIOR_ENTRY_KEY)?.summary =
+            buildBasicBehaviorSummary(keyboardPrefs)
+        findPreference<Preference>(TOUCH_AND_SOUND_ENTRY_KEY)?.summary =
+            buildTouchAndSoundSummary(keyboardPrefs)
+        findPreference<Preference>(KEY_AND_GESTURE_ENTRY_KEY)?.summary =
+            buildKeyAndGestureSummary(keyboardPrefs)
+        findPreference<Preference>(LAYOUT_AND_SPLIT_ENTRY_KEY)?.summary =
+            buildLayoutSummary(keyboardPrefs)
+        findPreference<Preference>(TEXT_LAYOUT_EDIT_ENTRY_KEY)?.summary =
+            KeyboardSettingsSupport.buildTextLayoutSummary(this)
+        findPreference<Preference>(TEXT_LAYOUT_MANAGE_ENTRY_KEY)?.summary =
+            KeyboardSettingsSupport.buildCurrentTextLayoutFileSummary(this)
     }
 
     private fun buildBasicBehaviorSummary(keyboardPrefs: AppPrefs.Keyboard): String {
@@ -103,62 +166,17 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
         return "$haptic，$sound"
     }
 
-    private fun buildToolbarSummary(keyboardPrefs: AppPrefs.Keyboard): String {
-        return if (keyboardPrefs.showVoiceInputButton.getValue()) {
-            getString(R.string.voice_input_button_visible_summary)
-        } else {
-            getString(R.string.voice_input_hidden_summary)
-        }
-    }
-
     private fun buildKeyAndGestureSummary(keyboardPrefs: AppPrefs.Keyboard): String {
-        val popupSummary = if (keyboardPrefs.popupOnKeyPress.getValue()) {
-            getString(R.string.popup_preview_visible_summary)
-        } else {
-            getString(R.string.popup_preview_hidden_summary)
-        }
-        val langSwitchSummary = getString(keyboardPrefs.langSwitchKeyBehavior.getValue().stringRes)
-        return "$popupSummary，$langSwitchSummary"
+        val langSwitch = getString(keyboardPrefs.langSwitchKeyBehavior.getValue().stringRes)
+        val spaceLongPress = getString(keyboardPrefs.spaceKeyLongPressBehavior.getValue().stringRes)
+        return "$langSwitch，$spaceLongPress"
     }
 
     private fun buildLayoutSummary(keyboardPrefs: AppPrefs.Keyboard): String {
-        val height = getString(
-            R.string.keyboard_height_summary_compact,
-            keyboardPrefs.keyboardHeightPercent.getValue(),
-            keyboardPrefs.keyboardHeightPercentLandscape.getValue()
-        )
-        val split = if (keyboardPrefs.splitKeyboardEnabled.getValue()) {
+        return if (keyboardPrefs.splitKeyboardEnabled.getValue()) {
             getString(R.string.split_keyboard_enabled_summary_short)
         } else {
             getString(R.string.split_keyboard_disabled_summary)
         }
-        return "$height，$split"
-    }
-
-    private fun buildCandidatesSummary(): String {
-        val prefs = AppPrefs.getInstance()
-        val keyboardPrefs = prefs.keyboard
-        val candidatesPrefs = prefs.candidates
-        when (candidatesPrefs.mode.getValue()) {
-            FloatingCandidatesMode.Always -> {
-                val mode = getString(R.string.candidate_display_mode_floating)
-                val orientation = getString(candidatesPrefs.orientation.getValue().stringRes)
-                val position = getString(candidatesPrefs.virtualKeyboardPosition.getValue().stringRes)
-                return "$mode，$orientation，$position"
-            }
-            FloatingCandidatesMode.SystemDefault -> {
-                return getString(R.string.system_default)
-            }
-            FloatingCandidatesMode.Disabled -> {
-                return getString(R.string.disabled)
-            }
-            FloatingCandidatesMode.InputDevice -> Unit
-        }
-
-        val mode = getString(R.string.candidate_display_mode_horizontal)
-        val composition = getString(keyboardPrefs.compositionAreaStyle.getValue().stringRes)
-        val horizontal = getString(keyboardPrefs.horizontalCandidateStyle.getValue().stringRes)
-        val expanded = getString(keyboardPrefs.expandedCandidateStyle.getValue().stringRes)
-        return "$mode，$composition，$horizontal，$expanded"
     }
 }

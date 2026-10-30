@@ -18,12 +18,16 @@ import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonDisplayNames
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.Const
 import org.fxboomk.fcitx5.android.utils.config.ConfigDescriptor
@@ -296,9 +300,6 @@ object SettingsSearchIndex {
 
     fun androidItems(context: Context): List<SettingsSearchResult> {
         val prefs = AppPrefs.getInstance()
-        val candidateDisplayMode = prefs.candidates.mode.getValue()
-        val includeHorizontalCandidateSettings =
-            candidateDisplayMode == FloatingCandidatesMode.InputDevice
         return buildList {
             addPage(context, R.string.global_options, SettingsRoute.GlobalConfig)
             addPage(context, R.string.addons, SettingsRoute.AddonList)
@@ -310,38 +311,15 @@ object SettingsSearchIndex {
             addPage(context, R.string.plugins, SettingsRoute.Plugin)
             addPage(context, R.string.advanced, SettingsRoute.Advanced)
 
-            addAll(
-                keyboardItems(
-                    context,
-                    prefs.keyboard,
-                    includeHorizontalCandidateSettings = includeHorizontalCandidateSettings
-                )
-            )
-            addAll(managedItems(context, ThemeManager.prefs, SettingsRoute.Theme, R.string.theme_appearance))
-            val (appearanceItems, candidateItems) = managedItems(
-                context,
-                prefs.candidates,
-                SettingsRoute.VirtualKeyboardCandidates,
-                R.string.keyboard_settings_candidates
-            ).partition { it.preferenceKey in ThemePrefs.CandidateAppearancePreferenceKeys }
-            addAll(appearanceItems.map {
-                it.copy(
-                    route = SettingsRoute.Theme,
-                    path = listOf(context.getString(R.string.theme_appearance))
-                )
-            })
-            addAll(
-                when (candidateDisplayMode) {
-                    FloatingCandidatesMode.Always -> candidateItems
-                    FloatingCandidatesMode.InputDevice,
-                    FloatingCandidatesMode.SystemDefault,
-                    FloatingCandidatesMode.Disabled -> candidateItems.filter {
-                        it.preferenceKey == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY
-                    }
-                }
-            )
+            addAll(keyboardItems(context, prefs.keyboard))
+            addAll(themeItems(context))
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
-            addAll(managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced))
+            addAll(
+                managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced)
+                    .filterNot {
+                        it.preferenceKey in ThemeSettingsSupport.advancedMovedKeys
+                    }
+            )
             addAll(advancedExtraItems(context))
             addAll(llmItems(context))
             addAll(toolbarMenuItems(context))
@@ -378,6 +356,10 @@ object SettingsSearchIndex {
                             tab = CustomShuangpinFragment.TAB_PREFERENCES,
                             extraPath = listOf(
                                 context.getString(R.string.custom_shuangpin_tab_preferences)
+                            ),
+                            layout = AddonConfigLayouts.getForInputMethod(
+                                context,
+                                ime.uniqueName
                             )
                         )
                     )
@@ -388,21 +370,27 @@ object SettingsSearchIndex {
                         context,
                         ime.displayName,
                         SettingsRoute.InputMethodConfig(ime.displayName, ime.uniqueName),
-                        fcitx.getImConfig(ime.uniqueName)
+                        fcitx.getImConfig(ime.uniqueName),
+                        layout = AddonConfigLayouts.getForInputMethod(
+                            context,
+                            ime.uniqueName
+                        )
                     )
                 )
             }
             fcitx.addons()
-                .filter { it.enabled && it.isConfigurable && it.uniqueName != "pinyinhelper" }
+                .filter { it.enabled && it.isConfigurable }
                 .forEach { addon ->
                     val raw = fcitx.getAddonConfig(addon.uniqueName)
                     if (PreferenceScreenFactory.hasVisibleOptions(raw)) {
+                        val addonName = AddonDisplayNames.of(context, addon)
                         addAll(
                             rawConfigItems(
                                 context,
-                                addon.displayName,
-                                SettingsRoute.AddonConfig(addon.displayName, addon.uniqueName),
-                                raw
+                                addonName,
+                                SettingsRoute.AddonConfig(addonName, addon.uniqueName),
+                                raw,
+                                layout = AddonConfigLayouts.get(context, addon.uniqueName)
                             )
                         )
                     }
@@ -440,10 +428,165 @@ object SettingsSearchIndex {
         add(SettingsSearchResult(label, listOf(label), route))
     }
 
+    private fun themeItems(context: Context): List<SettingsSearchResult> = buildList {
+        val prefs = AppPrefs.getInstance()
+        val pageTitle = context.getString(R.string.theme_appearance)
+        val pagePath = listOf(pageTitle)
+        val candidatePath = pagePath + context.getString(R.string.theme_category_candidate_style)
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.keyboard_theme),
+                path = pagePath,
+                route = SettingsRoute.ThemeList,
+                summary = ThemeManager.activeTheme.name
+            )
+        )
+        listOf(
+            R.string.theme_category_theme_mode to SettingsRoute.ThemeMode,
+            R.string.theme_category_key_style to SettingsRoute.ThemeKeyStyle,
+            R.string.theme_category_candidate_style to SettingsRoute.ThemeCandidateStyle,
+            R.string.theme_category_toolbar_style to SettingsRoute.ThemeToolbarStyle,
+            R.string.theme_category_animation to SettingsRoute.ThemeAnimation,
+            R.string.theme_category_other_style to SettingsRoute.ThemeOtherStyle
+        ).forEach { (title, route) ->
+            add(SettingsSearchResult(context.getString(title), pagePath, route))
+        }
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.edit_buttons),
+                path = pagePath,
+                route = SettingsRoute.Theme,
+                preferenceKey = ThemeAppearanceFragment.BUTTON_STYLE_ENTRY_KEY,
+                summary = context.getString(R.string.edit_buttons_summary)
+            )
+        )
+        add(
+            SettingsSearchResult(
+                title = context.getString(R.string.edit_fontset),
+                path = pagePath,
+                route = SettingsRoute.Theme,
+                summary = context.getString(R.string.edit_fontset_summary)
+            )
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeMode,
+            pagePath,
+            R.string.theme_category_theme_mode,
+            ThemeSettingsSupport.themeModeKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeKeyStyle,
+            pagePath,
+            R.string.theme_category_key_style,
+            ThemeSettingsSupport.keyStyleThemeKeys
+        )
+        addThemeSection(
+            context,
+            prefs.keyboard,
+            SettingsRoute.ThemeKeyStyle,
+            pagePath,
+            R.string.theme_category_key_style,
+            ThemeSettingsSupport.keyStyleKeyboardKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeToolbarStyle,
+            pagePath,
+            R.string.theme_category_toolbar_style,
+            ThemeSettingsSupport.toolbarStyleThemeKeys
+        )
+        addThemeSection(
+            context,
+            prefs.keyboard,
+            SettingsRoute.ThemeToolbarStyle,
+            pagePath,
+            R.string.theme_category_toolbar_style,
+            ThemeSettingsSupport.toolbarStyleKeyboardKeys
+        )
+        addThemeSection(
+            context,
+            prefs.candidates,
+            SettingsRoute.ThemeCandidateStyle,
+            candidatePath,
+            null,
+            listOf(AppPrefs.CANDIDATE_DISPLAY_MODE_KEY)
+        )
+        addThemeSection(
+            context,
+            prefs.advanced,
+            SettingsRoute.ThemeCandidateStyle,
+            candidatePath,
+            R.string.emoji_and_symbols,
+            ThemeSettingsSupport.candidateEmojiKeys
+        )
+        addThemeSection(context, prefs.keyboard, SettingsRoute.ThemeCandidateStyle,
+            candidatePath, null, ThemeSettingsSupport.candidateSharedKeyboardKeys)
+        addThemeSection(context, prefs.keyboard, SettingsRoute.ThemeCandidateStyle,
+            candidatePath, R.string.candidate_display_mode_horizontal,
+            ThemeSettingsSupport.candidateHorizontalKeysBeforeAppearance)
+        addThemeSection(context, prefs.candidates, SettingsRoute.ThemeCandidateStyle,
+            candidatePath, R.string.candidate_display_mode_horizontal,
+            ThemeSettingsSupport.candidateHorizontalAppearanceKeys)
+        addThemeSection(context, prefs.keyboard, SettingsRoute.ThemeCandidateStyle,
+            candidatePath, R.string.candidate_display_mode_horizontal,
+            ThemeSettingsSupport.candidateHorizontalKeysAfterAppearance)
+        val candidateMode = prefs.candidates.mode.getValue()
+        if (candidateMode == FloatingCandidatesMode.InputDevice || candidateMode == FloatingCandidatesMode.Always) {
+            addThemeSection(context, prefs.candidates, SettingsRoute.ThemeCandidateStyle,
+                candidatePath, R.string.candidates_window, ThemeSettingsSupport.candidateWindowKeys)
+            addThemeSection(context, prefs.candidates, SettingsRoute.ThemeCandidateStyle,
+                candidatePath, R.string.candidates_items, ThemeSettingsSupport.candidateItemKeys)
+        }
+
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeAnimation,
+            pagePath,
+            R.string.theme_category_animation,
+            ThemeSettingsSupport.animationThemeKeys
+        )
+        addThemeSection(
+            context,
+            prefs.advanced,
+            SettingsRoute.ThemeAnimation,
+            pagePath,
+            R.string.theme_category_animation,
+            ThemeSettingsSupport.animationAdvancedKeys
+        )
+        addThemeSection(
+            context,
+            ThemeManager.prefs,
+            SettingsRoute.ThemeOtherStyle,
+            pagePath,
+            R.string.theme_category_other_style,
+            ThemeSettingsSupport.otherStyleThemeKeys
+        )
+    }
+
+    private fun MutableList<SettingsSearchResult>.addThemeSection(
+        context: Context,
+        provider: ManagedPreferenceProvider,
+        route: SettingsRoute,
+        basePath: List<String>,
+        @StringRes sectionTitle: Int?,
+        keys: List<String>
+    ) {
+        val uiByKey = provider.managedPreferencesUi.associateBy { it.key }
+        val path = sectionTitle?.let { basePath + context.getString(it) } ?: basePath
+        keys.mapNotNull(uiByKey::get).forEach { ui ->
+            add(ui.toSearchResult(context, route, path))
+        }
+    }
+
     private fun keyboardItems(
         context: Context,
-        keyboardPrefs: AppPrefs.Keyboard,
-        includeHorizontalCandidateSettings: Boolean
+        keyboardPrefs: AppPrefs.Keyboard
     ): List<SettingsSearchResult> = buildList {
         addKeyboardSection(
             context,
@@ -458,13 +601,6 @@ object SettingsSearchIndex {
             R.string.keyboard_settings_touch_and_sound,
             SettingsRoute.VirtualKeyboardTouchAndSound,
             KeyboardSettingsSupport.touchAndSoundKeys
-        )
-        addKeyboardSection(
-            context,
-            keyboardPrefs,
-            R.string.keyboard_settings_toolbar_and_voice,
-            SettingsRoute.VirtualKeyboardToolbarAndInput,
-            KeyboardSettingsSupport.toolbarAndInputKeys
         )
         addKeyboardSection(
             context,
@@ -492,24 +628,30 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
-        if (includeHorizontalCandidateSettings) {
-            addKeyboardSection(
-                context,
-                keyboardPrefs,
-                R.string.keyboard_settings_candidates,
-                SettingsRoute.VirtualKeyboardCandidates,
-                KeyboardSettingsSupport.horizontalCandidateKeys
-            )
-        }
-        addAdvancedKeyboardItem(context, R.string.edit_fontset, R.string.edit_fontset_summary)
-        addAdvancedKeyboardItem(context, R.string.edit_swipe_symbol_mapping, R.string.edit_swipe_symbol_mapping_summary)
-        addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
-        addAdvancedKeyboardItem(context, R.string.edit_text_keyboard_layout, R.string.edit_text_keyboard_layout_summary)
         addAdvancedKeyboardItem(
             context,
-            R.string.text_keyboard_layout_manage_title
+            R.string.edit_swipe_symbol_mapping,
+            R.string.edit_swipe_symbol_mapping_summary,
+            KeyboardSettingsHomeFragment.SWIPE_SYMBOL_MAPPING_ENTRY_KEY
         )
-        addAdvancedKeyboardItem(context, R.string.edit_buttons, R.string.edit_buttons_summary)
+        addAdvancedKeyboardItem(
+            context,
+            R.string.edit_popup_preset,
+            R.string.edit_popup_preset_summary,
+            KeyboardSettingsHomeFragment.POPUP_PRESET_ENTRY_KEY
+        )
+        addAdvancedKeyboardItem(
+            context,
+            R.string.edit_text_keyboard_layout,
+            R.string.edit_text_keyboard_layout_summary,
+            KeyboardSettingsHomeFragment.TEXT_LAYOUT_EDIT_ENTRY_KEY
+        )
+        addAdvancedKeyboardItem(
+            context,
+            R.string.text_keyboard_layout_manage_title,
+            null,
+            KeyboardSettingsHomeFragment.TEXT_LAYOUT_MANAGE_ENTRY_KEY
+        )
     }
 
     private fun MutableList<SettingsSearchResult>.addKeyboardSection(
@@ -529,7 +671,8 @@ object SettingsSearchIndex {
     private fun MutableList<SettingsSearchResult>.addAdvancedKeyboardItem(
         context: Context,
         @StringRes title: Int,
-        @StringRes summary: Int? = null
+        @StringRes summary: Int?,
+        preferenceKey: String
     ) {
         add(
             SettingsSearchResult(
@@ -538,8 +681,9 @@ object SettingsSearchIndex {
                     context.getString(R.string.virtual_keyboard),
                     context.getString(R.string.keyboard_settings_advanced_customization)
                 ),
-                SettingsRoute.VirtualKeyboardAdvancedCustomization,
-                summary = summary?.let(context::getString)
+                SettingsRoute.VirtualKeyboard,
+                preferenceKey,
+                summary?.let(context::getString)
             )
         )
     }
@@ -638,12 +782,61 @@ object SettingsSearchIndex {
         route: SettingsRoute,
         raw: RawConfig,
         tab: Int? = null,
-        extraPath: List<String> = emptyList()
+        extraPath: List<String> = emptyList(),
+        layout: ConfigLayout? = null
     ): List<SettingsSearchResult> {
         val desc = raw.findByName("desc") ?: return emptyList()
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { return emptyList() }
         val path = (listOf(pageTitle) + extraPath + listOf(topLevelDesc.name)).distinct()
-        return topLevelDesc.values.flatMap { descriptorItems(context, route, path, it, tab) }
+        val groupedLayout = layout?.takeIf { it.sectionNavigation }
+        return topLevelDesc.values.flatMap { descriptor ->
+            val sectionIndex = groupedLayout?.sections?.indexOfFirst {
+                descriptor.name in it.options
+            }?.takeIf { it >= 0 } ?: groupedLayout?.sections?.size
+            val sectionTitle = sectionIndex?.let { index ->
+                groupedLayout?.sectionTitle(context, index)
+                    ?: groupedLayout?.fallbackSectionTitle?.let(context::getString)
+            }
+            val destination = if (sectionIndex != null && sectionTitle != null) {
+                if (groupedLayout != null && AddonConfigLayouts.isFuzzySection(groupedLayout, sectionIndex)) {
+                    SettingsRoute.FuzzyConfig(
+                        pageTitle = path.first(),
+                        uniqueName = when (route) {
+                            is SettingsRoute.AddonConfig -> route.uniqueName
+                            is SettingsRoute.InputMethodConfig -> route.uniqueName
+                            is SettingsRoute.CustomShuangpin -> CustomShuangpinSchemeStore.currentUniqueName()
+                            else -> ""
+                        },
+                        isAddon = route is SettingsRoute.AddonConfig,
+                        sectionTitle = sectionTitle
+                    )
+                } else SettingsRoute.ConfigSection(
+                    pageTitle = path.first(),
+                    uniqueName = when (route) {
+                        is SettingsRoute.AddonConfig -> route.uniqueName
+                        is SettingsRoute.InputMethodConfig -> route.uniqueName
+                        is SettingsRoute.CustomShuangpin ->
+                            CustomShuangpinSchemeStore.currentUniqueName()
+                        else -> ""
+                    },
+                    isAddon = route is SettingsRoute.AddonConfig,
+                    sectionIndex = sectionIndex,
+                    sectionTitle = sectionTitle
+                )
+            } else {
+                route
+            }
+            descriptorItems(
+                context,
+                destination,
+                if (sectionTitle != null) path + sectionTitle else path,
+                descriptor,
+                // A section destination is its own screen, not the source page's tab.
+                // FuzzyConfig's real child tabs are assigned by descriptorItems.
+                if (destination == route) tab else null,
+                groupedLayout?.children?.get(descriptor.name) ?: layout
+            )
+        }
     }
 
     private fun descriptorItems(
@@ -651,20 +844,27 @@ object SettingsSearchIndex {
         route: SettingsRoute,
         path: List<String>,
         descriptor: ConfigDescriptor<*, *>,
-        tab: Int? = null
+        tab: Int? = null,
+        layout: ConfigLayout? = null
     ): List<SettingsSearchResult> {
         if (hideKeyConfig && ConfigType.pretty(descriptor.ty).contains("Key")) {
             return emptyList()
         }
         return if (descriptor is ConfigCustom) {
-            val section = descriptor.description ?: descriptor.name
+            val section = layout?.titleOverride(context, descriptor.name)
+                ?: descriptor.description ?: descriptor.name
+            val childLayout = layout?.children?.get(descriptor.name)
             descriptor.customTypeDef?.values.orEmpty().flatMap {
-                descriptorItems(context, route, path + section, it, tab)
+                val fuzzyTab = if (descriptor.name == "Fuzzy") {
+                    if (it.name in AddonConfigLayouts.FUZZY_MAPPING_OPTIONS) 1 else 0
+                } else tab
+                descriptorItems(context, route, path + section, it, fuzzyTab, childLayout)
             }
         } else {
             listOf(
                 SettingsSearchResult(
-                    title = descriptorTitle(context, descriptor),
+                    title = layout?.titleOverride(context, descriptor.name)
+                        ?: descriptorTitle(context, descriptor),
                     path = path,
                     route = route,
                     preferenceKey = descriptor.name,

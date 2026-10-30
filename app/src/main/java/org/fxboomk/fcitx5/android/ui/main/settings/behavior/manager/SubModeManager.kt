@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.manager
 
+import timber.log.Timber
+
 import kotlinx.serialization.json.JsonObject
 import org.fxboomk.fcitx5.android.core.Action
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
@@ -146,7 +148,7 @@ class SubModeManager(
                 // be an unrelated engine while the user edits a Rime layout.
                 if (rimeLabels.isNotEmpty()) {
                     val ime = runCatching { currentIme() }.getOrElse {
-                        android.util.Log.w("SubModeManager", "Failed to get current IME, using cached")
+                        Timber.tag("SubModeManager").w("Failed to get current IME, using cached")
                         inputMethodEntryCached
                     }
                     val currentLabel = ime.subMode.label.ifEmpty { ime.subMode.name }.trim()
@@ -168,12 +170,12 @@ class SubModeManager(
                 try {
                     if (targetImeUniqueName != null) {
                         runCatching { activateIme(targetImeUniqueName) }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to activate IME: $targetImeUniqueName", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to activate IME: $targetImeUniqueName")
                         }
                     }
 
                     val ime = runCatching { currentIme() }.getOrElse {
-                        android.util.Log.w("SubModeManager", "Failed to get current IME, using cached")
+                        Timber.tag("SubModeManager").w("Failed to get current IME, using cached")
                         inputMethodEntryCached
                     }
                     val currentLabel = ime.subMode.label.ifEmpty { ime.subMode.name }.trim()
@@ -181,33 +183,33 @@ class SubModeManager(
                     var actions = runCatching {
                         statusArea()
                     }.onFailure { e ->
-                        android.util.Log.w("SubModeManager", "Failed to get status area, using cached", e)
+                        Timber.tag("SubModeManager").w(e, "Failed to get status area, using cached")
                     }.getOrNull() ?: statusAreaActionsCached
 
                     var fromStatusMenu = extractLabelsFromStatusArea(actions, currentLabel)
 
                     if (fromStatusMenu.isEmpty() && targetImeUniqueName != null) {
-                        android.util.Log.d("SubModeManager", "First attempt returned empty, retrying IME activation")
+                        Timber.tag("SubModeManager").d("First attempt returned empty, retrying IME activation")
                         runCatching { activateIme(targetImeUniqueName) }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to activate IME on retry: $targetImeUniqueName", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to activate IME on retry: $targetImeUniqueName")
                         }
                         actions = runCatching {
                             statusArea()
                         }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to get status area on retry", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to get status area on retry")
                         }.getOrNull() ?: statusAreaActionsCached
                         fromStatusMenu = extractLabelsFromStatusArea(actions, currentLabel)
                     }
 
                     if (fromStatusMenu.isEmpty()) {
-                        android.util.Log.d("SubModeManager", "Second attempt returned empty, trying focusOutIn")
+                        Timber.tag("SubModeManager").d("Second attempt returned empty, trying focusOutIn")
                         runCatching { focusOutIn() }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to execute focusOutIn", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to execute focusOutIn")
                         }
                         actions = runCatching {
                             statusArea()
                         }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to get status area after focusOutIn", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to get status area after focusOutIn")
                         }.getOrNull() ?: statusAreaActionsCached
                         fromStatusMenu = extractLabelsFromStatusArea(actions, currentLabel)
                     }
@@ -215,7 +217,7 @@ class SubModeManager(
                     val baseLabels = when {
                         fromStatusMenu.isNotEmpty() -> fromStatusMenu
                         else -> {
-                            android.util.Log.d("SubModeManager", "No submode labels found for layout: $layoutName")
+                            Timber.tag("SubModeManager").d("No submode labels found for layout: $layoutName")
                             emptyList()
                         }
                     }
@@ -234,13 +236,13 @@ class SubModeManager(
                         originalImeUniqueName != targetImeUniqueName
                     ) {
                         runCatching { activateIme(originalImeUniqueName) }.onFailure { e ->
-                            android.util.Log.w("SubModeManager", "Failed to restore original IME: $originalImeUniqueName", e)
+                            Timber.tag("SubModeManager").w(e, "Failed to restore original IME: $originalImeUniqueName")
                         }
                     }
                 }
             }
         }.onFailure { e ->
-            android.util.Log.e("SubModeManager", "Failed to fetch current IME and submode labels for layout: $layoutName", e)
+            Timber.tag("SubModeManager").e(e, "Failed to fetch current IME and submode labels for layout: $layoutName")
         }.getOrElse {
             null to emptyList()
         }

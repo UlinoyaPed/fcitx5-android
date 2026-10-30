@@ -20,10 +20,6 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     companion object {
         const val DefaultMainKeyOpacity = 100
         const val DefaultNonMainKeyOpacity = 100
-        val CandidateAppearancePreferenceKeys = setOf(
-            "candidates_item_padding_vertical",
-            "candidate_highlight_radius"
-        )
         private const val GboardOpacitySemanticsMigratedKey =
             "gboard_key_opacity_semantics_migrated"
     }

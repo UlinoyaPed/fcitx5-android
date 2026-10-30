@@ -17,7 +17,7 @@ PREBUILT_DIR="${PROJECT_ROOT}/lib/fcitx5/src/main/cpp/prebuilt"
 
 # Patch files
 FCITX5_GLOBAL_OPTIONS_UI_PATCH="${FCITX5_GLOBAL_OPTIONS_UI_PATCH:-${PROJECT_ROOT}/lib/fcitx5/fcitx5-global-options-ui.patch}"
-# RIME_PREEDIT_LABEL_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-preedit-cursor-label.patch"
+RIME_PER_IM_RUNTIME_PATCH="${RIME_PER_IM_RUNTIME_PATCH:-${PROJECT_ROOT}/plugin/rime/fcitx5-rime-per-im-runtime.patch}"
 
 apply_patch() {
     local repository="$1"
@@ -75,7 +75,7 @@ gitlink_commit() {
 
 RIME_COMMIT="$(gitlink_commit plugin/rime/src/main/cpp/fcitx5-rime)"
 checkout_pinned_submodule "${RIME_DIR}" "${FCITX5_RIME_REPO}" "${RIME_COMMIT}" "fcitx5-rime"
-# apply_patch "${RIME_DIR}" "${RIME_PREEDIT_LABEL_PATCH}" "preedit cursor label"
+apply_patch "${RIME_DIR}" "${RIME_PER_IM_RUNTIME_PATCH}" "per-input-method runtime"
 
 # apply fcitx5 patches
 echo "applying fcitx5 patches"

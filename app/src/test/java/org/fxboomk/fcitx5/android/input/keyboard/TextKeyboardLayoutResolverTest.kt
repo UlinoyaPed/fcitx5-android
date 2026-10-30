@@ -11,6 +11,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.fxboomk.fcitx5.android.core.InputMethodEntry
+import org.fxboomk.fcitx5.android.core.InputMethodSubMode
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -32,6 +33,76 @@ class TextKeyboardLayoutResolverTest {
 
         assertEquals(realIme, realState.ime)
         assertEquals(previewIme, previewState.ime)
+    }
+
+    @Test
+    fun rimeAsciiModeKeepsTheLastChineseSubModeForRowsAndHeight() {
+        val chineseSubMode = InputMethodSubMode("朙月拼音", "朙", "fcitx-rime")
+        val chineseIme = rimeIme(chineseSubMode)
+        val asciiIme = rimeIme(InputMethodSubMode("Latin Mode", "custom-latin", "fcitx_rime_latin"))
+        val store = MemoryRimeSubModeLayoutStore()
+        val tracker = RimeSubModeLayoutTracker(store).apply { observe(chineseIme) }
+        val effectiveSubMode = tracker.resolve(asciiIme)
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "rime": {
+                "朙": {
+                  "rows": [[{"type":"AlphabetKey","main":"c"}]],
+                  "__meta__": {"keyboard_height_percent": 33}
+                },
+                "custom-latin": {
+                  "rows": [[{"type":"AlphabetKey","main":"a"}]],
+                  "__meta__": {"keyboard_height_percent": 70}
+                },
+                "default": [[{"type":"AlphabetKey","main":"d"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val resolution = resolveTextKeyboardLayout(
+            json = json,
+            uniqueName = asciiIme.uniqueName,
+            displayName = asciiIme.displayName,
+            subModeLabel = effectiveSubMode.label,
+        )
+
+        assertEquals(chineseSubMode, effectiveSubMode)
+        assertEquals("c", resolution!!.rows!!.firstKeyMain())
+        assertEquals(33, resolution.keyboardHeightPercentOverride(landscape = false))
+        assertEquals(
+            KeyboardHeightOverrideTarget.SubMode("rime", "朙"),
+            resolution.keyboardHeightOverrideTarget(landscape = false),
+        )
+    }
+
+    @Test
+    fun rimeAsciiCapsIndicatorKeepsTheRememberedSubModeAndColdStartFallsBack() {
+        val chineseIme = rimeIme(InputMethodSubMode("朙月拼音", "朙", "fcitx-rime"))
+        val uppercaseAsciiIme = rimeIme(InputMethodSubMode("Latin Mode", "ABC", "fcitx_rime_latin_upper"))
+        val store = MemoryRimeSubModeLayoutStore()
+        val tracker = RimeSubModeLayoutTracker(store).apply { observe(chineseIme) }
+        val state = TextKeyboardLayoutState(chineseIme, store)
+        state.ime = uppercaseAsciiIme
+
+        assertEquals(chineseIme.subMode, tracker.resolve(uppercaseAsciiIme))
+        assertEquals(chineseIme.subMode, state.layoutSubMode())
+        assertEquals(
+            InputMethodSubMode(),
+            RimeSubModeLayoutTracker(MemoryRimeSubModeLayoutStore()).resolve(uppercaseAsciiIme),
+        )
+
+        val recreatedTracker = RimeSubModeLayoutTracker(store)
+        assertEquals(chineseIme.subMode, recreatedTracker.resolve(uppercaseAsciiIme))
+    }
+
+    @Test
+    fun rimeSubModePersistenceRoundTripsAllFieldsAndIgnoresInvalidData() {
+        val subMode = InputMethodSubMode("朙月拼音", "朙", "fcitx-rime")
+
+        assertEquals(subMode, decodeRimeSubMode(encodeRimeSubMode(subMode)))
+        assertEquals(null, decodeRimeSubMode("not-json"))
     }
 
     @Test
@@ -412,6 +483,223 @@ class TextKeyboardLayoutResolverTest {
         assertEquals(49, objectResolution.keyboardHeightPercentOverride(landscape = true))
     }
 
+    @Test
+    fun keyboardHeightOverrideTargetFollowsEffectiveOverridePriority() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "default": {
+                "__meta__": {"keyboard_height_percent": 34},
+                "default": [[{"type": "AlphabetKey", "main": "g"}]]
+              },
+              "pinyin": {
+                "__meta__": {
+                  "keyboard_height_percent": 40,
+                  "keyboard_height_percent_landscape": 50
+                },
+                "double_pinyin": {
+                  "__meta__": {"keyboard_height_percent_landscape": 60},
+                  "rows": [[{"type": "AlphabetKey", "main": "w"}]]
+                },
+                "default": [[{"type": "AlphabetKey", "main": "e"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+        val resolution = requireNotNull(
+            resolveTextKeyboardLayout(json, "pinyin", "Pinyin", "double_pinyin")
+        )
+
+        assertEquals(
+            KeyboardHeightOverrideTarget.Layout("pinyin"),
+            resolution.keyboardHeightOverrideTarget(landscape = false)
+        )
+        assertEquals(
+            KeyboardHeightOverrideTarget.SubMode("pinyin", "double_pinyin"),
+            resolution.keyboardHeightOverrideTarget(landscape = true)
+        )
+    }
+
+    @Test
+    fun keyboardHeightOverrideTargetUsesEligibleFallbackInsteadOfTheRowSource() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "default": {
+                "__meta__": {"keyboard_height_percent": 34},
+                "default": [[{"type": "AlphabetKey", "main": "g"}]]
+              },
+              "rime": {
+                "A": [[{"type": "AlphabetKey", "main": "r"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+        val resolution = requireNotNull(
+            resolveTextKeyboardLayout(json, "rime", "Rime", "A")
+        )
+
+        assertEquals("rime", resolution.sourceKey)
+        assertEquals("rime", resolution.layoutKey)
+        assertEquals(
+            KeyboardHeightOverrideTarget.Layout("default"),
+            resolution.keyboardHeightOverrideTarget(landscape = false)
+        )
+    }
+
+    @Test
+    fun keyboardHeightOverrideTargetIsNullWhenCurrentOrientationHasNoExplicitOverride() {
+        val json = Json.parseToJsonElement(
+            """
+            {
+              "rime": {
+                "__meta__": {"keyboard_height_percent": 40},
+                "default": [[{"type": "AlphabetKey", "main": "r"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+        val resolution = requireNotNull(resolveTextKeyboardLayout(json, "rime", "Rime", ""))
+
+        assertEquals(
+            KeyboardHeightOverrideTarget.Layout("rime"),
+            resolution.keyboardHeightOverrideTarget(landscape = false)
+        )
+        assertNull(resolution.keyboardHeightOverrideTarget(landscape = true))
+    }
+
+    @Test
+    fun withKeyboardHeightPercentOverridePreservesRowsUnknownFieldsAndOtherOrientation() {
+        val original = Json.parseToJsonElement(
+            """
+            {
+              "rime": {
+                "custom": true,
+                "__meta__": {
+                  "keyboard_height_percent_landscape": 49,
+                  "other": "kept"
+                },
+                "default": [[{"type": "AlphabetKey", "main": "r"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val updated = requireNotNull(original.withKeyboardHeightPercentOverride(
+            KeyboardHeightOverrideTarget.Layout("rime"),
+            landscape = false,
+            percent = 56,
+        ))
+        val layout = updated.getValue("rime").jsonObject
+        val metadata = layout.getValue("__meta__").jsonObject
+
+        assertEquals(true, layout.getValue("custom").jsonPrimitive.content.toBoolean())
+        assertEquals(56, metadata.getValue("keyboard_height_percent").jsonPrimitive.content.toInt())
+        assertEquals(49, metadata.getValue("keyboard_height_percent_landscape").jsonPrimitive.content.toInt())
+        assertEquals("kept", metadata.getValue("other").jsonPrimitive.content)
+        assertEquals("r", layout.getValue("default").jsonArray.firstKeyMain())
+    }
+
+    @Test
+    fun withKeyboardHeightPercentOverrideWrapsArrayLayoutWithoutChangingItsRows() {
+        val rows = Json.parseToJsonElement(
+            """[[{"type": "AlphabetKey", "main": "r"}]]"""
+        ).jsonArray
+        val original = JsonObject(mapOf("rime" to rows))
+
+        val updated = requireNotNull(original.withKeyboardHeightPercentOverride(
+            KeyboardHeightOverrideTarget.Layout("rime"),
+            landscape = false,
+            percent = 52,
+        ))
+        val layout = updated.getValue("rime").jsonObject
+
+        assertEquals("r", layout.getValue("default").jsonArray.firstKeyMain())
+        assertEquals(
+            52,
+            layout.getValue("__meta__").jsonObject
+                .getValue("keyboard_height_percent").jsonPrimitive.content.toInt()
+        )
+    }
+
+    @Test
+    fun withKeyboardHeightPercentOverrideWrapsArrayLayoutsAndPreservesSubModeRows() {
+        val original = Json.parseToJsonElement(
+            """
+            {
+              "pinyin": {
+                "__meta__": {"keyboard_height_percent_landscape": 48},
+                "double_pinyin": [[{"type": "AlphabetKey", "main": "w"}]],
+                "default": [[{"type": "AlphabetKey", "main": "e"}]]
+              }
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val updated = requireNotNull(original.withKeyboardHeightPercentOverride(
+            KeyboardHeightOverrideTarget.SubMode("pinyin", "double_pinyin"),
+            landscape = false,
+            percent = 58,
+        ))
+        val layout = updated.getValue("pinyin").jsonObject
+        val subMode = layout.getValue("double_pinyin").jsonObject
+        val metadata = subMode.getValue("__meta__").jsonObject
+
+        assertEquals(58, metadata.getValue("keyboard_height_percent").jsonPrimitive.content.toInt())
+        assertEquals("w", subMode.getValue("default").jsonArray.firstKeyMain())
+        assertEquals(48, layout.getValue("__meta__").jsonObject
+            .getValue("keyboard_height_percent_landscape").jsonPrimitive.content.toInt())
+        assertEquals("e", layout.getValue("default").jsonArray.firstKeyMain())
+    }
+
+    @Test
+    fun withKeyboardHeightPercentOverrideUpdatesProfileMetadataWithoutDroppingOtherFields() {
+        val original = Json.parseToJsonElement(
+            """
+            {
+              "__profile__": {
+                "name": "work",
+                "__meta__": {
+                  "keyboard_height_percent": 44,
+                  "keyboard_height_percent_landscape": 53,
+                  "other": "kept"
+                }
+              },
+              "rime": [[{"type": "AlphabetKey", "main": "r"}]]
+            }
+            """.trimIndent()
+        ) as JsonObject
+
+        val updated = requireNotNull(original.withKeyboardHeightPercentOverride(
+            KeyboardHeightOverrideTarget.Profile,
+            landscape = true,
+            percent = 100,
+        ))
+        val profile = updated.getValue("__profile__").jsonObject
+        val metadata = profile.getValue("__meta__").jsonObject
+
+        assertEquals("work", profile.getValue("name").jsonPrimitive.content)
+        assertEquals(44, metadata.getValue("keyboard_height_percent").jsonPrimitive.content.toInt())
+        assertEquals(90, metadata.getValue("keyboard_height_percent_landscape").jsonPrimitive.content.toInt())
+        assertEquals("kept", metadata.getValue("other").jsonPrimitive.content)
+        assertEquals("r", updated.getValue("rime").jsonArray.firstKeyMain())
+    }
+
+    @Test
+    fun withKeyboardHeightPercentOverrideReturnsNullWhenTargetNoLongerExists() {
+        val original = Json.parseToJsonElement(
+            """{"rime": [[{"type": "AlphabetKey", "main": "r"}]]}"""
+        ) as JsonObject
+
+        assertNull(
+            original.withKeyboardHeightPercentOverride(
+                KeyboardHeightOverrideTarget.Layout("missing"),
+                landscape = false,
+                percent = 52,
+            )
+        )
+    }
+
     private fun layoutJson(): JsonObject {
         return Json.parseToJsonElement(
             """
@@ -426,6 +714,28 @@ class TextKeyboardLayoutResolverTest {
             }
             """.trimIndent()
         ) as JsonObject
+    }
+
+    private fun rimeIme(subMode: InputMethodSubMode) = InputMethodEntry(
+        uniqueName = "rime",
+        name = "中州韵",
+        icon = "",
+        nativeName = "",
+        label = "",
+        languageCode = "zh_CN",
+        addon = "rime",
+        isConfigurable = false,
+        subMode = subMode,
+    )
+
+    private class MemoryRimeSubModeLayoutStore : RimeSubModeLayoutStore {
+        private var subMode: InputMethodSubMode? = null
+
+        override fun read(): InputMethodSubMode? = subMode
+
+        override fun write(subMode: InputMethodSubMode) {
+            this.subMode = subMode
+        }
     }
 
     private fun childOnlyLayoutJson(): JsonObject {

@@ -4,23 +4,50 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.addon
 
+import android.content.Context
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 import org.fxboomk.fcitx5.android.core.RawConfig
+import org.fxboomk.fcitx5.android.ui.main.settings.ConfigLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.PreeditStyleScope
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.lazyRoute
 
 class AddonConfigFragment : FcitxPreferenceFragment() {
+
     companion object {
         private const val tableAddon = "table"
-        private const val pinyinAddon = "pinyin"
-        private const val pinyinHelperAddon = "pinyinhelper"
         private const val androidTableOption = "AndroidTable"
-        private const val androidPinyinHelperOption = "AndroidPinyinHelper"
+        private const val PINYIN_ADDON = "pinyin"
+        private const val PINYIN_HELPER_ADDON = "pinyinhelper"
+        private const val ANDROID_PINYIN_HELPER_OPTION = "AndroidPinyinHelper"
     }
 
     private val args by lazyRoute<SettingsRoute.AddonConfig>()
+
+    override fun getPageTitle(): String = args.name
+
+    override fun getConfigLayout(context: Context): ConfigLayout? =
+        AddonConfigLayouts.get(context, args.uniqueName)
+
+    override fun getPreeditStyleScope(): PreeditStyleScope =
+        PreeditStyleScope.addon(args.uniqueName)
+
+    override fun getConfigSectionRoute(
+        context: Context,
+        sectionIndex: Int
+    ): SettingsRoute? = AddonConfigLayouts.get(context, args.uniqueName)
+        ?.let { layout ->
+            val sectionTitle = layout.sectionTitle(context, sectionIndex)
+                ?: layout.fallbackSectionTitle?.let(context::getString)
+                ?: return@let null
+            if (AddonConfigLayouts.isFuzzySection(layout, sectionIndex)) {
+                SettingsRoute.FuzzyConfig(args.name, args.uniqueName, true, sectionTitle)
+            } else SettingsRoute.ConfigSection(
+                args.name, args.uniqueName, true, sectionIndex, sectionTitle
+            )
+        }
 
     private fun RawConfig.appendIfMissing(option: RawConfig) {
         if (findByName(option.name) == null) {
@@ -35,8 +62,6 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
         }
     }
 
-    override fun getPageTitle(): String = args.name
-
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
         val addon = args.uniqueName
         val raw = fcitx.getAddonConfig(addon)
@@ -50,12 +75,17 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
                     )
                 )
             }
-        } else if (addon == pinyinAddon) {
-            val enabled = fcitx.addons().firstOrNull { it.uniqueName == pinyinHelperAddon }?.enabled ?: false
-            raw.findByName("cfg")?.appendIfMissing(RawConfig(androidPinyinHelperOption, enabled))
+        } else if (addon == PINYIN_ADDON) {
+            val enabled = fcitx.addons()
+                .firstOrNull { it.uniqueName == PINYIN_HELPER_ADDON }
+                ?.enabled ?: false
+            raw.findByName("cfg")?.appendIfMissing(
+                RawConfig(ANDROID_PINYIN_HELPER_OPTION, enabled)
+            )
             raw.findByName("desc")?.appendToTopLevelDescriptionIfMissing(
                 RawConfig(
-                    androidPinyinHelperOption, subItems = arrayOf(
+                    ANDROID_PINYIN_HELPER_OPTION,
+                    subItems = arrayOf(
                         RawConfig("Type", "Boolean"),
                         RawConfig(
                             "Description",
@@ -69,48 +99,32 @@ class AddonConfigFragment : FcitxPreferenceFragment() {
     }
 
     override suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig) {
-        if (args.uniqueName == pinyinAddon) {
-            val cfg = newConfig.findByName("cfg")
-            val pinyinHelperEnabled = cfg?.findByName(androidPinyinHelperOption)?.value?.toBoolean() ?: false
-            val config = newConfig.copy(
-                subItems = newConfig.subItems?.map { item ->
-                    when (item.name) {
-                        "cfg" -> item.copy(
-                            subItems = item.subItems
-                                ?.filterNot { it.name == androidPinyinHelperOption }
-                                ?.toTypedArray()
-                        )
-                        "desc" -> item.copy(
-                            subItems = item.subItems?.mapIndexed { index, descItem ->
-                                if (index == 0) {
-                                    descItem.copy(
-                                        subItems = descItem.subItems
-                                            ?.filterNot { it.name == androidPinyinHelperOption }
-                                            ?.toTypedArray()
-                                    )
-                                } else {
-                                    descItem
-                                }
-                            }?.toTypedArray()
-                        )
-                        else -> item
-                    }
-                }?.toTypedArray()
-            )
-            fcitx.setAddonConfig(args.uniqueName, config)
-
-            val requiredDependents = if (!pinyinHelperEnabled) {
-                fcitx.getAddonReverseDependencies(pinyinHelperAddon)
-                    .filter { it.second == FcitxAPI.AddonDep.Required }
-                    .map { it.first }
-            } else {
-                emptyList()
-            }
-            val addonNames = arrayOf(pinyinHelperAddon, *requiredDependents.toTypedArray())
-            val addonStates = BooleanArray(addonNames.size) { pinyinHelperEnabled }
-            fcitx.setAddonState(addonNames, addonStates)
+        if (args.uniqueName != PINYIN_ADDON) {
+            fcitx.setAddonConfig(args.uniqueName, newConfig)
             return
         }
-        fcitx.setAddonConfig(args.uniqueName, newConfig)
+        val helperEnabled = newConfig.findByName(ANDROID_PINYIN_HELPER_OPTION)
+            ?.value?.equals("True", ignoreCase = true) ?: false
+        // FcitxPreferenceFragment passes only the editable `cfg` subtree here.
+        // Keep the synthetic Android-only switch out of the daemon payload.
+        val config = newConfig.withoutAndroidPinyinHelperOption()
+        fcitx.setAddonConfig(PINYIN_ADDON, config)
+
+        val requiredDependents = if (!helperEnabled) {
+            fcitx.getAddonReverseDependencies(PINYIN_HELPER_ADDON)
+                .filter { it.second == FcitxAPI.AddonDep.Required }
+                .map { it.first }
+        } else {
+            emptyList()
+        }
+        val addonNames = arrayOf(PINYIN_HELPER_ADDON, *requiredDependents.toTypedArray())
+        fcitx.setAddonState(addonNames, BooleanArray(addonNames.size) { helperEnabled })
     }
 }
+
+internal fun RawConfig.withoutAndroidPinyinHelperOption(): RawConfig =
+    copy(
+        subItems = subItems
+            ?.filterNot { it.name == "AndroidPinyinHelper" }
+            ?.toTypedArray()
+    )

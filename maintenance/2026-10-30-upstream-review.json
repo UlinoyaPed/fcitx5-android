@@ -1,0 +1,675 @@
+{
+  "review_date": "2026-10-30",
+  "timezone": "Asia/Shanghai",
+  "personal_base_sha": "ce1d61af56bc25215d76a06ab6c2705d97765a40",
+  "previous_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
+  "reviewed_upstream_sha": "939a8ed546959a3120d1418e5215ca762071087e",
+  "commit_count": 39,
+  "status": "validated_candidate",
+  "commits": [
+    {
+      "sha": "0e97ecc807032f46ecbe2118634d68e981ee8f92",
+      "title": "Fix keyboard main label vertical placement",
+      "decision": "adjusted",
+      "review": "保留主字符整键稳定字体框居中，不采用按字形／x-height 重新定位。"
+    },
+    {
+      "sha": "8533ff905cba921fbfb666c13c7f31605adc1f12",
+      "title": "Unify alphabet key label scaling",
+      "decision": "adjusted",
+      "review": "不采用按整行字形共同缩放或主副字符预留带；保留独立字号与固定框。"
+    },
+    {
+      "sha": "d45d0fe31b929d29d1b1ba6f0f9163a64ea24ae5",
+      "title": "fix(behavior): flatten shuangpin layouts in editor",
+      "decision": "accepted",
+      "review": "双拼编辑器扁平显示；保留个人继承、用户条目和重命名保护。"
+    },
+    {
+      "sha": "05d802cba141a28b591d6ee3a6ce6f3aabf5fd6f",
+      "title": "refactor(settings): regroup candidate appearance options",
+      "decision": "accepted",
+      "review": "候选外观重新分组，个人选项重新接入，配置键不变。"
+    },
+    {
+      "sha": "6f25877e15199144a5220740e69a0fe107bd0bdf",
+      "title": "refactor(settings): split theme appearance into theme and configure pages",
+      "decision": "accepted",
+      "review": "主题外观拆分主题／配置页，保留旧选择。"
+    },
+    {
+      "sha": "3313ec1a81b79ece1f1a0a21f6e8693cdb4d0ce3",
+      "title": "refactor(settings): promote theme appearance groups to sub-pages",
+      "decision": "accepted",
+      "review": "外观组提升为子页面，搜索路由同步。"
+    },
+    {
+      "sha": "d59d4957c937599f19c8330c76c5d791416ab0aa",
+      "title": "refactor(settings): move keyboard appearance settings into theme pages",
+      "decision": "adjusted",
+      "review": "按键外观移到主题页；恢复个人边距、副字符二位置及控制入口。"
+    },
+    {
+      "sha": "78d555316f4d6280004f1e88a9d553e24e6af1dc",
+      "title": "refactor(settings): refine theme and behavior grouping",
+      "decision": "adjusted",
+      "review": "设置分组调整；个人输入控制和原有默认值保留。"
+    },
+    {
+      "sha": "0843c09f5b01a1cd74f1350b869e5a1cf2db67d3",
+      "title": "feat(settings): add dynamic summaries to appearance groups",
+      "decision": "accepted",
+      "review": "外观组动态摘要，使用现有值展示。"
+    },
+    {
+      "sha": "b7e5570348266d2787256934f90935f5b860f12b",
+      "title": "refactor(settings): move ripple effect and composition style between groups",
+      "decision": "adjusted",
+      "review": "波纹分组采用；全局预编辑样式保留为无覆盖输入法的默认选择。"
+    },
+    {
+      "sha": "d98ee5706e65014ee6668d01595f2ad773f3a3a9",
+      "title": "refactor(settings): regroup pinyin addon configuration",
+      "decision": "accepted",
+      "review": "拼音设置分组，不改写用户引擎数据。"
+    },
+    {
+      "sha": "fe402f1f4e56cc4c84ef669e6db1f650b4aca894",
+      "title": "fix(settings): align shuangpin config pages",
+      "decision": "accepted",
+      "review": "双拼配置页对齐，并保留 conf/pinyin 每方案路径。"
+    },
+    {
+      "sha": "2f1459a9ea708f3de117f92fc21c5d83ce89bfc3",
+      "title": "feat(settings): regroup pinyin configuration",
+      "decision": "accepted",
+      "review": "拼音配置细分及模式摘要。"
+    },
+    {
+      "sha": "d586fc60d5d313cd877e180d61554a52f58a2a9c",
+      "title": "fix：修复拼音设置评审遗留问题",
+      "decision": "accepted",
+      "review": "拼音设置审查修正。"
+    },
+    {
+      "sha": "75101039796d448c46dc0e4b4045ad9a041effca",
+      "title": "build: upgrade ONNX Runtime GenAI Android to 0.17.0",
+      "decision": "adjusted",
+      "review": "GenAI 0.17.0；补齐损坏缓存重建与 SDK 版本排序，固定 AAR 校验。"
+    },
+    {
+      "sha": "f7df3e7c8c504efb469a73c17ebd2b1369bcd580",
+      "title": "feat(settings): reorganize theme and advanced options",
+      "decision": "adjusted",
+      "review": "主题／高级设置重组；不采用原版插件默认开启及键盘高度 30%，恢复插件开关入口。"
+    },
+    {
+      "sha": "f6b5a7c581740e39d559d68f603b8bd3344911d0",
+      "title": "chore(resources): clean Android resources and translations",
+      "decision": "adjusted",
+      "review": "清理资源与翻译；保留规范术语、个人设置文案及个人 AI 页面仍引用的模型数量摘要。"
+    },
+    {
+      "sha": "56405e6248dc8765ef2e3da1925aa681ef06a3d9",
+      "title": "chore(settings): clean settings UI lint issues",
+      "decision": "accepted",
+      "review": "设置 UI lint 清理，与个人行为保留兼容。"
+    },
+    {
+      "sha": "5aa42a5b547000da4872c8ce05cce77b84992dcc",
+      "title": "chore(app): clean runtime lint issues",
+      "decision": "adjusted",
+      "review": "运行时 lint 清理采用；成对删除保留删除失败返回检查，不能提前预测光标。"
+    },
+    {
+      "sha": "763788948e75c6575d09ce9f45e065142f2f281d",
+      "title": "fix(build): silence Kotlin compatibility warnings",
+      "decision": "accepted",
+      "review": "Kotlin 兼容警告清理。"
+    },
+    {
+      "sha": "2c23f4575a2b11e871f059c2c3f705bd63fda17c",
+      "title": "feat: add toolbar and key icon theme infrastructure",
+      "decision": "adjusted",
+      "review": "工具栏与按键图标主题可显式选择；不覆盖旧主题、布局或图标；组合 Shift 按当前动作主题化。"
+    },
+    {
+      "sha": "a7419c36066e8288488b1abe86778ab7e9ba2fc4",
+      "title": "feat: add themed button editor and icon previews",
+      "decision": "accepted",
+      "review": "主题按钮编辑器和图标预览。"
+    },
+    {
+      "sha": "feb483174e137a59ba4a2ada9893c308ec2a95aa",
+      "title": "fix: refresh themed toolbar icons in runtime windows",
+      "decision": "accepted",
+      "review": "运行窗口刷新主题图标。"
+    },
+    {
+      "sha": "7f5b33ef9cf83ab84057ae0ec6a23df5d8bd17b6",
+      "title": "feat: refine theme appearance settings",
+      "decision": "accepted",
+      "review": "主题外观页细化，设置键不变。"
+    },
+    {
+      "sha": "0560eb7ca31a1789f3049bc47080c5a18bba16ad",
+      "title": "fix: address theme review findings",
+      "decision": "adjusted",
+      "review": "主题审查修正并入；保留内置同名主题的用户图标修改。"
+    },
+    {
+      "sha": "7f93bfecb5bac586e4fe5b1ac6c7822ea7b9b756",
+      "title": "Update button and icon theme settings",
+      "decision": "accepted",
+      "review": "工具栏／图标主题设置完善。"
+    },
+    {
+      "sha": "9ade52a2d49acf4eb3ea87d25943f828e8d68e4b",
+      "title": "Add theme management for button and icon themes",
+      "decision": "adjusted",
+      "review": "主题管理、导入导出；读取仅补缺失预设，不能替换现有同名主题。"
+    },
+    {
+      "sha": "b6a3056efee80c019bf941023e4cbbda85e367c9",
+      "title": "Refine theme preview and virtual keyboard settings",
+      "decision": "accepted",
+      "review": "主题预览和虚拟键盘设置优化。"
+    },
+    {
+      "sha": "d520afd44cb1c0989111472c4c85ac04549b8dc7",
+      "title": "Refine keyboard sublabel alignment",
+      "decision": "adjusted",
+      "review": "不采用挤占主字空间的副字符带；保留独立叠放和已有边距。"
+    },
+    {
+      "sha": "b08e4e5fbad1e097466844b6f84ea64532ca394a",
+      "title": "Fix custom keyboard height adjustment",
+      "decision": "adjusted",
+      "review": "自定义键盘高度调整修复采用，保留个人 33% 默认值。"
+    },
+    {
+      "sha": "35ce038291b07576f084e5abd4ca3e92c424d95b",
+      "title": "Restore uppercase hint alignment in tall keys",
+      "decision": "adjusted",
+      "review": "不采用依赖主字字号移动／隐藏大写提示的定位；保留稳定独立提示。"
+    },
+    {
+      "sha": "eb0965b1490a114307f74449199ea5a60339f470",
+      "title": "Align row-level sublabels with key edges",
+      "decision": "adjusted",
+      "review": "行级位置优先保留；边缘对齐沿用可调 padding，不贴到键边。"
+    },
+    {
+      "sha": "df4e771ecc62c88e749156e0003706f3ec44c589",
+      "title": "Consolidate uppercase hint into secondary sublabel slot",
+      "decision": "not_adopted_effect",
+      "review": "不合并原有大写提示视图到副字符二槽位，不改变现有大写提示设置行为。"
+    },
+    {
+      "sha": "052631282dc58f92a89309039fb66e4082497d40",
+      "title": "feat: add keyboard height adjustment overlay",
+      "decision": "accepted",
+      "review": "显式键盘高度调整浮层；不增加无用途总开关。"
+    },
+    {
+      "sha": "d021f53d66e03a2b3cdac1a2ec0e19ec01efb52d",
+      "title": "fix test",
+      "decision": "adjusted",
+      "review": "测试修正结合个人排版契约；不采用仅断言已拒绝算法的测试，保留渲染几何与独立字号回归。"
+    },
+    {
+      "sha": "80e8b499892b84ca6d6814a01685c5486a159c03",
+      "title": "feat(settings): add grouped preedit style options",
+      "decision": "adjusted",
+      "review": "分组预编辑样式入口采用，保留可见的全局默认设置及原有码表入口。"
+    },
+    {
+      "sha": "ccc71e01823231409322cd19408b602e7ebf4539",
+      "title": "feat(settings): isolate preedit style per input method",
+      "decision": "adjusted",
+      "review": "按输入法／插件范围保存样式；只覆盖运行时显示，不改写全局选项，通知主线程执行。原生 Rime 补同步策略。"
+    },
+    {
+      "sha": "a21d9df1739d11d21e0f9b42b83c3e6659240836",
+      "title": "fix: 保持用户自定义按键标签的原始大小写",
+      "decision": "accepted",
+      "review": "自定义按键标签保留原始大小写，同时保留普通字母 Shift 行为。"
+    },
+    {
+      "sha": "939a8ed546959a3120d1418e5215ca762071087e",
+      "title": "fix: stabilize keyboard labels and Rime ASCII layout",
+      "decision": "adjusted",
+      "review": "Rime ASCII 布局状态和稳定图标居中采用；主字符仍整键固定字体框，提示只按几何／用户选项显示。"
+    }
+  ],
+  "personal_history_checked": {
+    "default_branch": "main",
+    "through_sha": "ce1d61af56bc25215d76a06ab6c2705d97765a40",
+    "sources": [
+      "available conversation",
+      "personal main commit history",
+      "MAINTENANCE.md",
+      "all maintenance/ review records"
+    ],
+    "previous_nightly": {
+      "run_id": 39869994938,
+      "conclusion": "success"
+    }
+  },
+  "deferred": [
+    {
+      "sha": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "branch": "maintenance/deferred-ai-2026-10-23",
+      "reason": "Do not replace LongForm with polishing, remove CandidateBar, reset existing thinking choices, or add newline/replace-input semantics implicitly. Full AI UI/effort batch retained for isolated compatibility work.",
+      "required_before_adoption": "Keep existing long-form and candidate-bar behavior and saved thinking settings; introduce polishing as its own explicit action. Verify each request/commit/display path on Android before adoption.",
+      "branch_url": "https://github.com/UlinoyaPed/fcitx5-android/tree/maintenance/deferred-ai-2026-10-23",
+      "branch_head": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "branch_content": "Original upstream proposal only; not a validated personal build. Branch created and SHA verified."
+    }
+  ],
+  "settings_changes": [
+    "Theme/keyboard appearance reorganized using the same persisted keys. Personal controls rehomed and searchable. No added switch for ordinary layout fixes.",
+    "Global preedit style and candidate index label control remain available across candidate modes. Per-IME/addon preedit overrides do not rewrite the global default.",
+    "Existing keyboard height default 33% and original-plugin opt-in false retained; restore original-plugin setting in Advanced. Existing saved values untouched.",
+    "Toolbar and key icon themes and keyboard-height overlay are explicit user actions. Existing layouts, chosen themes, labels and edited builtin-name icons survive reads.",
+    "Restore the existing Disabled candidate-mode choice and stop upgrade-time preference rewrites. Unknown future mode strings remain intact. This does not infer/recover a Disabled value already overwritten by an older version."
+  ],
+  "personal_adjustments": [
+    "Retain personal AutoScaleTextView and AltTextKeyView implementation: whole-key stable font frame, independent overlay label sizes, row precedence, physical lower-right, padding and physical swipe directions.",
+    "Keep existing uppercase hint slot/settings; reject upstream shared font scaling/x-height/reserved bands/uppercase-slot consolidation. Tests that only assert rejected semantics are explicitly not adopted, rather than counted as successful. The new physical-edge regression includes the user padding.",
+    "Keep compose Shift role resolution and synchronized themed caps icons. Image function-key hints overlay centered icons; font size does not change hint position/visibility.",
+    "Retain table/Wubi engine, user data, ShowPicker, explicit Android backspace, safe custom shuangpin migration/rename, AI protocol and saved provider/LongForm/CandidateBar/thinking settings.",
+    "Per-input-method pinyin/Rime configs use native conf/<addon>/<uniqueName>.conf. Rime tracked runtime patch reapplies session-sharing policy and hotkey presentation after switching/saving an override without restarting the runtime.",
+    "ONNX GenAI 0.17 download checks the pinned raw SHA and regenerates aligned cache; SDK tool version sorting is numeric. Tampered generated AAR was rebuilt to the expected digest.",
+    "Grouped configuration search destinations clear the source tab; real fuzzy sub-tabs remain assigned by descriptorItems. Android navigation regression verifies a custom scheme Prediction result is found and its jump consumed. Validation is recorded separately once run.",
+    "Historical candidate-mode normalization previously rewrote saved Disabled to InputDevice at category creation. Preserve all known values and keep unknown future strings on disk while falling back only at runtime. Disabled remains a real selectable mode; existing InputDevice values are not guessed/reverted.",
+    "Candidate appearance groups and search reflect actual runtime consumers: horizontal bar controls remain available in every mode (virtual keyboard/hardware dock); floating-window controls remain available in InputDevice and Always. No new feature switch."
+  ],
+  "native_sources": {
+    "prebuilt": "ac06fa1bfc7f11531c3ef005fdbf26fb55cbc990",
+    "pinyin_gitlink": "cc658e18360b604fcf05439a639bc4dbb7ee3300",
+    "rime_gitlink": "f2119bbd41cafe694a9f30683a2085d1df7de3e2",
+    "rime_patch": "plugin/rime/fcitx5-rime-per-im-runtime.patch",
+    "rime_patch_sha256": "65eaab1b71c684f019a32327e2d824dee375e7fd7dbc5c874ae043025b71c09c",
+    "global_options_patch": "lib/fcitx5/fcitx5-global-options-ui.patch",
+    "gitlink_policy": "fixed reviewed commits, never remote master"
+  },
+  "validation": {
+    "status": "passed",
+    "unit_tests": {
+      "tests": 734,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "debug_build": "x86_64 app, test APK and Rime plugin passed",
+    "aar_cache": {
+      "sha256": "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50",
+      "version": "0.17.0",
+      "tampered_output_recovery": "passed"
+    },
+    "pinned_source_fixture": "passed including repeated Rime runtime patch and dirty-move refusal",
+    "workflows": {
+      "actionlint": "1.7.12",
+      "result": "passed"
+    },
+    "android_instrumentation": {
+      "status": "passed",
+      "api": 29,
+      "device": "x86_64 software emulator",
+      "unique_tests": 220,
+      "failures": 0,
+      "skipped": 0,
+      "groups": [
+        {
+          "label": "core",
+          "tests": 127,
+          "seconds": 202.539
+        },
+        {
+          "label": "ui1",
+          "tests": 26,
+          "seconds": 297.872
+        },
+        {
+          "label": "ui2",
+          "tests": 22,
+          "seconds": 309.443
+        },
+        {
+          "label": "ui3_final",
+          "tests": 42,
+          "seconds": 239.463
+        },
+        {
+          "label": "picker_no_plugin",
+          "tests": 2,
+          "seconds": 19.722
+        },
+        {
+          "label": "compat_final",
+          "tests": 4,
+          "seconds": 20.773
+        }
+      ],
+      "recovered_fcitx_tests": 3,
+      "missing_plugin": "two tests run with the Rime plugin actually uninstalled",
+      "prior_attempts": "Initial layout/engine fixture assumptions failed and were corrected; search highlight failed once on a cold emulator and subsequently passed in isolation and in the complete group. A row-editor attempt encountered a System UI ANR dialog; subsequent attempts exposed test window selection, accessibility and asynchronous dispatch timing. The actual dialog and save outcome were rechecked, and the corrected test passed. Interrupted and failed attempts are not counted as passed."
+    },
+    "release": {
+      "status": "passed",
+      "apk_count": 11,
+      "temporary_local_certificate_sha256": "372f904db4d970e24ef785b69513b7df750f2d46e038cb5977013c20d85ab94a",
+      "production_signing_secrets": "not accessed or changed",
+      "apks": [
+        {
+          "apk": "app/build/outputs/apk/release/org.ulinoyaped.fcitx5.android-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android",
+          "version_code": 298888262,
+          "sha256": "79a9b656096acdc2f759fb180944ba8f919fb2776b861af5c18ba5738d02cf09",
+          "arm64_native_libraries": 29,
+          "model_sha256": {
+            "assets/usr/share/libime/zh_CN.lm": "df62f5880141a5435334c82fc66db9fd0a2e0d28a02148ec5fb577c9e30e58cd",
+            "assets/usr/share/libime/zh_CN.lm.predict": "eb90df84d26b4aace54a61104b04d8acbdde07aa722dbec1741caf6d31e3c3ad"
+          }
+        },
+        {
+          "apk": "plugin/anthy/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.anthy-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.anthy",
+          "version_code": 298888262,
+          "sha256": "2ac60a788fb8a3e8abdf74ff4ebec226835989f8d84b89a8006fbeb2508ccb2d",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/chewing/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.chewing-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.chewing",
+          "version_code": 298888262,
+          "sha256": "c8e8f53621bbf8d23d16c6d0709c25992ae41f1882fc640183cb69d5972d7961",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/clipboard-filter/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.clipboard_filter-20261030-ce1d61af-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_filter",
+          "version_code": 298888262,
+          "sha256": "7482ba8b8cddab8afbe32cfd36b1ae34d6af8cea145ece0ab89c8416c323bfec",
+          "arm64_native_libraries": 0,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/clipboard-sync/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.clipboard_sync-20261030-ce1d61af-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_sync",
+          "version_code": 298888262,
+          "sha256": "a244fed310a12989c28211539adcdaf90e1ee03699d3075f1502271a2b5a3ee7",
+          "arm64_native_libraries": 0,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/hangul/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.hangul-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.hangul",
+          "version_code": 298888262,
+          "sha256": "4ff6c718ffed21102e412d57c4069d75744ea372e08b6c12c0450d228741ac91",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/jyutping/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.jyutping-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.jyutping",
+          "version_code": 298888262,
+          "sha256": "573f83dedb0ec5b36178fc0adaba5cb0d8a9a9fd142e0864bf1d11739150a32f",
+          "arm64_native_libraries": 3,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/rime/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.rime-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.rime",
+          "version_code": 298888262,
+          "sha256": "465d1b8c18c9c4c2cbce70e1169a60f0bc9199f412f9674c96fb845b905d6e29",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/sayura/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.sayura-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.sayura",
+          "version_code": 298888262,
+          "sha256": "f163fbfeff9f5feb09febe0f20d38c593c9fa562ddf05e077d58b7cb48908ad3",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/thai/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.thai-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.thai",
+          "version_code": 298888262,
+          "sha256": "848b481600bafd6e678039ecbf26173c6035b0775d4b80e93beda12a635c1ba6",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        },
+        {
+          "apk": "plugin/unikey/build/outputs/apk/release/org.ulinoyaped.fcitx5.android.plugin.unikey-20261030-ce1d61af-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.unikey",
+          "version_code": 298888262,
+          "sha256": "2b5c673f049a792454e992651ba1c29bc342d8ff5d6247a0e3619fd29744bb34",
+          "arm64_native_libraries": 1,
+          "model_sha256": {}
+        }
+      ]
+    },
+    "gitnexus": {
+      "status": "full_listing_checked_with_documented_coverage_limits",
+      "index_stats": {
+        "files": 3514,
+        "nodes": 66761,
+        "edges": 112279,
+        "communities": 1593,
+        "processes": 846,
+        "embeddings": 0
+      },
+      "initial_scopes": {
+        "all": {
+          "summary": {
+            "changed_count": 1786,
+            "affected_count": 247,
+            "changed_files": 179,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1786,
+          "listed_processes": 247,
+          "partial": false,
+          "truncated": false
+        },
+        "compare": {
+          "summary": {
+            "changed_count": 1786,
+            "affected_count": 247,
+            "changed_files": 179,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1786,
+          "listed_processes": 247,
+          "partial": false,
+          "truncated": false
+        }
+      },
+      "pre_edit": {
+        "UNKNOWN": 95,
+        "LOW": 39,
+        "MEDIUM": 38,
+        "HIGH": 7,
+        "CRITICAL": 3
+      },
+      "high_risk_warning": "Issued before merge/edits for FcitxApplication, AppPrefs, ThemeManager, ThemePrefs, AutoScaleTextView, FcitxInputMethodService, ConfigProvider, UserConfigFiles and KeyDef.",
+      "unknown_confirmation": "All 95 UNKNOWN upstream paths resolved through declarations, import/asset/resource/JUnit/JNI semantics and literal references. New test classes selected explicitly by runner. Maintenance record is a new linked audit file.",
+      "coverage": "Lower bound: one BaseDynamicListUi scope extraction failure; cross-language property linking and process discovery limits; no assertion of complete graph coverage.",
+      "process_discovery_limits": {
+        "candidate_entrypoints_dropped": 6407,
+        "candidate_entrypoints_total": 6607,
+        "walks_cut_by_budget": 62,
+        "traces_depth_capped": 16,
+        "callees_dropped": 1603,
+        "processes_dropped": 0
+      },
+      "listing_adjustment": {
+        "original_sha256": "c421d9cfd6af419ee3ad210a27f1158385a35f73f22cd2aeafc49ca3cd3ec506",
+        "expanded_sha256": "2e870006a7f78c10ecf9faf87e0779797582a1d38525c3672f7d1d7312e44c55",
+        "change": "Only listing cap 1000 -> 10000; original module and all analysis/flags unchanged."
+      },
+      "index_recovery": "First candidate analysis refused metadata because a separate full-listing backend copy was installed while analysis was running. No failure suppressed. Retried using a stable pinned 1.6.12 installation and rebuilt graph/FTS successfully.",
+      "final_index_stats": {
+        "nodes": 66803,
+        "edges": 112387,
+        "communities": 1596,
+        "processes": 858
+      },
+      "final_index_recovery": "Incremental graph rebuilt but FTS failed with Invalid UTF-8; force rebuild completed successfully including FTS. Graph process discovery is still limited (6412 entrypoints dropped, 64 budget cuts, 16 depth cuts, 1637 callees dropped) and cross-language field links may be missing.",
+      "final_scopes": {
+        "all": {
+          "summary": {
+            "changed_count": 1852,
+            "affected_count": 263,
+            "changed_files": 188,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1852,
+          "listed_processes": 263,
+          "partial": false,
+          "truncated": false
+        },
+        "compare": {
+          "summary": {
+            "changed_count": 1852,
+            "affected_count": 263,
+            "changed_files": 188,
+            "risk_level": "critical"
+          },
+          "listed_symbols": 1852,
+          "listed_processes": 263,
+          "partial": false,
+          "truncated": false
+        }
+      }
+    },
+    "lint": {
+      "result": "passed",
+      "debug": {
+        "errors": 0,
+        "warnings": 35
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 33
+      }
+    },
+    "native_and_compatibility": {
+      "group": "native",
+      "label": "native-final",
+      "classes": [
+        "FcitxTest",
+        "input.NativeEngineMaintenanceTest",
+        "ui.main.settings.PersonalUpdateCompatibilityTest"
+      ],
+      "seconds": 81.439,
+      "process_exit": 0,
+      "tests": 9,
+      "cases": [
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testWbx",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testInputPanelStatus",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testPinyin",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "genAi017LoadsJniAndReportsAnInvalidModelAsAnApiError",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinModelProducesCandidatesAndTableEngineRemainsAvailable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinAndRimeOverridesStayIndependentOfAddonDefaults",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "retainedPluginAndTypographyControlsRemainSearchable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "bundledThemeNamesPreserveSavedIconsAndLegacyLayout",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "scopedPreeditNeverRewritesTheGlobalChoice",
+          "code": 0
+        }
+      ],
+      "status": "passed",
+      "fixture_retries": [
+        "Initial restored commit assertion compared CommitStringEvent.Data to a String; use data.text.",
+        "Select 你好世界 explicitly from native candidates rather than assert rank zero under the Q8 model.",
+        "Native configuration enums use stored names Commit preview / Do not show, not C++ enum identifiers; corrected before final passing run."
+      ]
+    },
+    "legacy_FcitxTest": {
+      "status": "restored_and_passed",
+      "tests": 3,
+      "ignored": 0,
+      "fixture": "shared daemon, activated/focused context, preserve/restore enabled engines, collect events before input in an unlimited channel with bounded receives; choose target sentence explicitly"
+    },
+    "late_search_route_impact": {
+      "risk": "LOW",
+      "direct": 1,
+      "processes_affected": 2,
+      "modules_affected": 2,
+      "function": "SettingsSearchIndex.rawConfigItems"
+    },
+    "layout_fixture_retries": [
+      "Do not adopt generated-uppercase slot consolidation or shared-band gravity assertions. Restore the stronger original uppercase font test covering all three label views.",
+      "Independent overlay edge test includes the user padding and existing 2dp bottom safety inset.",
+      "Image hint gravity is asserted separately from the preserved ordinary text-key layout. Final core rerun: 127 cases passed."
+    ],
+    "final_build": "x86_64 debug/test APK and arm64-v8a app + 10 plugins, debug/release lint completed; signed with temporary local validation key"
+  },
+  "limitations": [
+    "No physical-phone, physical-keyboard or online model quality evaluation; offline protocol/JNI samples do not establish online model quality.",
+    "GitNexus coverage remains a lower bound: BaseDynamicListUi scope extraction, cross-language field links and process discovery caps are incomplete. UNKNOWN paths confirmed by declarations/imports, Android/JUnit/resource/JNI semantics and literal references.",
+    "Disabled values already overwritten by the historical normalizer cannot be inferred. Current saved selections are not automatically reversed; the Disabled choice is available again.",
+    "Real-phone, physical-keyboard, and multi-app Rime session-sharing behavior were not exercised; Rime runtime policy/hotkeys were source-reviewed and compiled and independent native configuration tested."
+  ],
+  "maintenance_prompt": {
+    "repository_file": "maintenance/task-prompt.txt",
+    "update_status": "Replacement enabled for Friday 01:00 Asia/Shanghai; prompt update pending after validated commit.",
+    "requested_schedule": "Friday 01:00 Asia/Shanghai (user confirmed 2026-10-30)",
+    "prior_task_access": "Prior task ID inaccessible in current context; private lookup found no matching task. Its deletion is not established; duplicate scheduling remains possible.",
+    "prior_automation_id": "6ac9065509e0819184f9503d7939ab90",
+    "replacement_automation_id": "6ae409efcc048191b14c40be2839e021",
+    "file_sha256": "58b5fea9648e206d5401eff9973b2b2a0131da29383a2d08a3d0ef29fb98039b",
+    "automation_prompt_sha256": "3892d7dfa8a95a7315da16a37ef2ef25a9498ce7786589e723262424e5e6cb76"
+  },
+  "personal_source_preservation": {
+    "AutoScaleTextView": {
+      "unchanged_from_personal_base": true,
+      "sha256": "86d4ed759bc1aba05a3b8f04c0c583274f93855605cda8c336766c98b5665ae7"
+    },
+    "AltTextKeyView_class": {
+      "unchanged_from_personal_base": true,
+      "sha256": "45ecc951a04ad9768924362ba8d6f9bbe84d3c70bdc84700aec62b4a64d085e3"
+    },
+    "other_KeyView_changes": "Themed images/function-icon centering and geometry-only hint visibility; independent personal text layout retained."
+  }
+}

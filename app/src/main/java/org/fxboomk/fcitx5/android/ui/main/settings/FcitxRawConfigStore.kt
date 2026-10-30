@@ -7,15 +7,31 @@ package org.fxboomk.fcitx5.android.ui.main.settings
 import androidx.preference.PreferenceDataStore
 import org.fxboomk.fcitx5.android.core.RawConfig
 
-class FcitxRawConfigStore(private var cfg: RawConfig) : PreferenceDataStore() {
+class FcitxRawConfigStore(
+    private var cfg: RawConfig,
+    /**
+     * Boolean switches backed by enum options: option name to (on, off) values.
+     */
+    private val booleanAliases: Map<String, Pair<String, String>> = emptyMap()
+) : PreferenceDataStore() {
     override fun getBoolean(key: String?, defValue: Boolean): Boolean {
         if (key == null) return defValue
-        return cfg[key].value == "True"
+        val alias = booleanAliases[key]
+        return if (alias != null) {
+            cfg[key].value.equals(alias.first, ignoreCase = true)
+        } else {
+            cfg[key].value == "True"
+        }
     }
 
     override fun putBoolean(key: String?, value: Boolean) {
         if (key == null) return
-        cfg[key].value = if (value) "True" else "False"
+        val alias = booleanAliases[key]
+        cfg[key].value = if (alias != null) {
+            if (value) alias.first else alias.second
+        } else {
+            if (value) "True" else "False"
+        }
     }
 
     override fun getInt(key: String?, defValue: Int): Int {

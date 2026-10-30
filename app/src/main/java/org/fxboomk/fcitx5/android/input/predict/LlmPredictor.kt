@@ -1,6 +1,7 @@
 package org.fxboomk.fcitx5.android.input.predict
 
-import android.util.Log
+import timber.log.Timber
+
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -152,7 +153,7 @@ internal class LlmPredictor(
             runCatching {
                 warmable.prewarm(config)
             }.onFailure { error ->
-                Log.w(TAG, "local prewarm failed: ${error.message}", error)
+                Timber.tag(TAG).w(error, "local prewarm failed: ${error.message}")
             }
         }.also { job ->
             job.invokeOnCompletion {

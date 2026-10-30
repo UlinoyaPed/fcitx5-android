@@ -1,0 +1,16 @@
+diff --git a/src/rimeengine.cpp b/src/rimeengine.cpp
+index 20a53b6..17c176e 100644
+--- a/src/rimeengine.cpp
++++ b/src/rimeengine.cpp
+@@ -470,2 +470,5 @@ void RimeEngine::applyActiveEntryConfig(const InputMethodEntry &entry) {
+     activeConfigName_ = entry.uniqueName();
++    refreshSessionPoolPolicy();
++    deployAction_.setHotkey(config_.deploy.value());
++    syncAction_.setHotkey(config_.synchronize.value());
+ }
+@@ -504,2 +507,5 @@ void RimeEngine::setConfigForInputMethod(const InputMethodEntry &entry,
+         activeConfigName_ = entry.uniqueName();
++        refreshSessionPoolPolicy();
++        deployAction_.setHotkey(config_.deploy.value());
++        syncAction_.setHotkey(config_.synchronize.value());
+     }
