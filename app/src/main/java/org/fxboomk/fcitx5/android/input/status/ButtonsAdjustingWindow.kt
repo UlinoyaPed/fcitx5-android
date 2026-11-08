@@ -697,8 +697,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     private fun loadState() {
-        val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
-            ?: ButtonsLayoutConfig.default()
+        val config = (ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+            ?: ButtonsLayoutConfig.default()).withKeyboardHeightAdjustButton()
         moreButtonConfig = ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons)
         inputMethodOptionsConfig = config.statusAreaButtons
             .firstOrNull { it.id == "input_method_options" }
@@ -895,7 +895,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     private fun resolvedBackgroundDrawable(theme: Theme): android.graphics.drawable.Drawable {
-        return if (theme is Theme.Custom && theme.shouldApplyBlur()) {
+        return if (theme.shouldApplyBlur()) {
             theme.blurredBackgroundDrawable(keyBorder, enableBlur = true)
         } else {
             theme.backgroundDrawable(keyBorder)

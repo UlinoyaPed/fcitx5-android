@@ -10,6 +10,7 @@ import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
+import org.fxboomk.fcitx5.android.input.voice.VoiceInputChoices
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
@@ -19,9 +20,11 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
 
     companion object {
         private const val BASIC_BEHAVIOR_ENTRY_KEY = "virtual_keyboard_basic_entry"
+        private const val VOICE_ENTRY_KEY = "virtual_keyboard_voice_entry"
         private const val TOUCH_AND_SOUND_ENTRY_KEY = "virtual_keyboard_touch_and_sound_entry"
         private const val KEY_AND_GESTURE_ENTRY_KEY = "virtual_keyboard_key_and_gesture_entry"
         private const val LAYOUT_AND_SPLIT_ENTRY_KEY = "virtual_keyboard_layout_and_split_entry"
+        private const val SYMBOL_ENTRY_KEY = "virtual_keyboard_symbol_entry"
 
         const val SWIPE_SYMBOL_MAPPING_ENTRY_KEY = "virtual_keyboard_swipe_symbol_mapping_entry"
         const val POPUP_PRESET_ENTRY_KEY = "virtual_keyboard_popup_preset_entry"
@@ -46,6 +49,13 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
             )
             screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
+                R.string.keyboard_category_voice,
+                buildVoiceSummary(keyboardPrefs),
+                SettingsRoute.VirtualKeyboardVoice,
+                VOICE_ENTRY_KEY
+            )
+            screen.addDestinationPreference(
+                this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_touch_and_sound,
                 buildTouchAndSoundSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardTouchAndSound,
@@ -64,6 +74,13 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
                 buildLayoutSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardLayoutAndSplit,
                 LAYOUT_AND_SPLIT_ENTRY_KEY
+            )
+            screen.addDestinationPreference(
+                this@KeyboardSettingsHomeFragment,
+                R.string.emoji_and_symbols,
+                buildSymbolSummary(),
+                SettingsRoute.Symbol,
+                SYMBOL_ENTRY_KEY
             )
             screen.addCategory(R.string.keyboard_settings_advanced_customization) {
                 addPreference(
@@ -134,12 +151,15 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
         val keyboardPrefs = AppPrefs.getInstance().keyboard
         findPreference<Preference>(BASIC_BEHAVIOR_ENTRY_KEY)?.summary =
             buildBasicBehaviorSummary(keyboardPrefs)
+        findPreference<Preference>(VOICE_ENTRY_KEY)?.summary =
+            buildVoiceSummary(keyboardPrefs)
         findPreference<Preference>(TOUCH_AND_SOUND_ENTRY_KEY)?.summary =
             buildTouchAndSoundSummary(keyboardPrefs)
         findPreference<Preference>(KEY_AND_GESTURE_ENTRY_KEY)?.summary =
             buildKeyAndGestureSummary(keyboardPrefs)
         findPreference<Preference>(LAYOUT_AND_SPLIT_ENTRY_KEY)?.summary =
             buildLayoutSummary(keyboardPrefs)
+        findPreference<Preference>(SYMBOL_ENTRY_KEY)?.summary = buildSymbolSummary()
         findPreference<Preference>(TEXT_LAYOUT_EDIT_ENTRY_KEY)?.summary =
             KeyboardSettingsSupport.buildTextLayoutSummary(this)
         findPreference<Preference>(TEXT_LAYOUT_MANAGE_ENTRY_KEY)?.summary =
@@ -160,6 +180,19 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
         return "$focusSummary，$inlineSummary"
     }
 
+    private fun buildVoiceSummary(keyboardPrefs: AppPrefs.Keyboard): String {
+        val preferred = keyboardPrefs.preferredVoiceInput.getValue()
+        val label = VoiceInputChoices.list(requireContext())
+            .firstOrNull { it.id == preferred }
+            ?.label
+            ?: getString(R.string.system_default)
+        return if (keyboardPrefs.showVoiceInputButton.getValue()) {
+            label
+        } else {
+            "${getString(R.string.show_voice_input_button)}: ${getString(R.string.disabled)} · $label"
+        }
+    }
+
     private fun buildTouchAndSoundSummary(keyboardPrefs: AppPrefs.Keyboard): String {
         val haptic = getString(keyboardPrefs.hapticOnKeyPress.getValue().stringRes)
         val sound = getString(keyboardPrefs.soundOnKeyPress.getValue().stringRes)
@@ -171,6 +204,9 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
         val spaceLongPress = getString(keyboardPrefs.spaceKeyLongPressBehavior.getValue().stringRes)
         return "$langSwitch，$spaceLongPress"
     }
+
+    private fun buildSymbolSummary(): String =
+        getString(AppPrefs.getInstance().symbols.symbolPanelStyle.getValue().stringRes)
 
     private fun buildLayoutSummary(keyboardPrefs: AppPrefs.Keyboard): String {
         return if (keyboardPrefs.splitKeyboardEnabled.getValue()) {

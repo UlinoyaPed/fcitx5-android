@@ -24,6 +24,36 @@ import java.util.zip.ZipOutputStream
 class ThemeFilesManagerTest {
 
     @Test
+    fun listingThemesPreservesMarkedUserEditedBuiltinAndImage() {
+        val marker = File(themeDirectory, ".bundled-themes-v1")
+        val theme = File(themeDirectory, "指尖生花日间.json")
+        val image = File(imagesDirectory, "指尖生花日间-cropped.png")
+        val touched = listOf(marker, theme, image)
+        val originals = touched.associateWith { if (it.isFile) it.readBytes() else null }
+        val themeBytes = Json.encodeToString(CustomThemeSerializer,
+            ThemePreset.PixelLight.deriveCustomNoBackground("指尖生花日间")).toByteArray()
+        val imageBytes = png(Color.RED)
+        try {
+            marker.parentFile?.mkdirs()
+            image.parentFile?.mkdirs()
+            marker.writeText("指尖生花日间.json\n指尖生花夜间.json\n")
+            theme.writeBytes(themeBytes)
+            image.writeBytes(imageBytes)
+            assertTrue("指尖生花夜间.json" in ThemeFilesManager.legacyInstalledAssetNames())
+            assertTrue(ThemeFilesManager.listThemes().any { it.name == "指尖生花日间" })
+            assertArrayEquals(themeBytes, theme.readBytes())
+            assertArrayEquals(imageBytes, image.readBytes())
+            assertTrue(marker.isFile)
+            marker.delete()
+            assertTrue("指尖生花日间.json" in ThemeFilesManager.legacyInstalledAssetNames())
+        } finally {
+            originals.forEach { (file, bytes) ->
+                if (bytes == null) file.delete() else file.writeBytes(bytes)
+            }
+        }
+    }
+
+    @Test
     fun importingJsonWithCustomCollisionPreservesExistingThemeAndBackground() {
         val name = uniqueThemeName()
         val importedName = "$name (imported)"
@@ -61,6 +91,39 @@ class ThemeFilesManagerTest {
             assertTrue(reloaded.single { it.name == importedName }.backgroundImage == null)
         } finally {
             removeTestOwnedFiles(importedName)
+            removeTestOwnedFiles(name)
+            ThemeManager.refreshThemes()
+        }
+    }
+
+    @Test
+    fun duplicatingImageBuiltinCopiesBothImagesAndPreservesBackgroundSettings() {
+        val builtin = requireNotNull(ThemeManager.BuiltinThemes
+            .filterIsInstance<Theme.Builtin>()
+            .find { it.name == "指尖生花日间" })
+        val name = uniqueThemeName()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val expectedCropped = context.assets.open(requireNotNull(builtin.backgroundAssetPath)).use { it.readBytes() }
+        val expectedSource = context.assets.open(requireNotNull(builtin.backgroundSourceAssetPath)).use { it.readBytes() }
+
+        try {
+            val duplicate = ThemeFilesManager.duplicateBuiltinTheme(builtin, name)
+            val background = requireNotNull(duplicate.backgroundImage)
+
+            assertBackgroundFiles(duplicate, expectedCropped, expectedSource)
+            assertEquals(builtin.backgroundBrightness, background.brightness)
+            assertEquals(builtin.backgroundCropRect, background.cropRect)
+            assertEquals(builtin.backgroundCropRotation, background.cropRotation)
+            assertEquals(builtin.backgroundBlurRadius, background.blurRadius)
+
+            ThemeFilesManager.saveThemeFiles(duplicate)
+            val reloaded = ThemeFilesManager.listThemes().single { it.name == name }
+            assertBackgroundFiles(reloaded, expectedCropped, expectedSource)
+            assertEquals(background.copy(
+                croppedFilePath = reloaded.backgroundImage!!.croppedFilePath,
+                srcFilePath = reloaded.backgroundImage.srcFilePath
+            ), reloaded.backgroundImage)
+        } finally {
             removeTestOwnedFiles(name)
             ThemeManager.refreshThemes()
         }

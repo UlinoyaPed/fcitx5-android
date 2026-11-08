@@ -1,0 +1,915 @@
+{
+  "review_started": "2026-11-06 Asia/Shanghai",
+  "resumed": "2026-11-08",
+  "status": "isolated_candidate_validation_incomplete",
+  "personal_base_sha": "2e6c5676073f1d4666c6ab05700aae7c4b9bfad6",
+  "adopted_upstream_baseline": "939a8ed546959a3120d1418e5215ca762071087e",
+  "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+  "latest_observed_upstream_sha": "52bbe0e052b231a066befc4308f7be6aae425b68",
+  "candidate_branch": "maintenance/2026-11-05-review",
+  "commits": [
+    {
+      "sha": "d69a39d5459ffb85f2a4c7959f56d627885d7757",
+      "title": "fix: 文本编辑与符号盘图标跟随按键图标主题",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "20a70a9a1c356b55332804eee2ea755c40874514",
+      "title": "fix: 键高调整按钮加入状态菜单配置",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "4760107f01fdcb4ac2673d47755963c618ee95f1",
+      "title": "fix: preserve macro caps lock through typing",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "e6d65c41232459b275f915892caad895f2d104ba",
+      "title": "fix: preserve macro caps lock through typing",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "cea78943513b152e6b8199c656775e1b285566f3",
+      "title": "fix: 按输入法能力控制文本按键多模式选项",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "ed4870db9abe1f982177b2ca2f8ad5276f5d7236",
+      "title": "feat: 布局配置支持 JSON / ZIP 导入与多配置导出",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Added create-new import protection against profile collisions after confirmation and archive roundtrip/collision tests. Full Android import/export flow pending."
+    },
+    {
+      "sha": "62eb8202be8143bbc9b0a2f162a6d37668dfa9d3",
+      "title": "feat: 内置主题改为只读资产加载，支持资产背景与模糊",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Adjusted destructive theme migration: retain marked user files, backups, images and deleted legacy presets. New installs may use read-only assets; custom names remain authoritative."
+    },
+    {
+      "sha": "c76b80061d9c30ac9c364ca4c846f66da732b8de",
+      "title": "fix: 图片主题下剪贴板搜索界面改为磨砂底色保证可读",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "ff1122c4407831f955d9c92a5a221dcb5cb48996",
+      "title": "fix: refresh custom layouts and macro popup presets",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "9e216aae353801a84b06f3b35e7f6580e430bbd1",
+      "title": "feat: split keyboard layout list and management actions",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "33e6e37dfa7516269bef5c1dbf40080e5f2e5354",
+      "title": "fix: 模糊配置保存前解开 cfg 包装避免选项丢失",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "b5c271ec2f98ea9af0480d15dfe68be52e01f2a6",
+      "title": "i18n: 细化拼音模糊匹配小写字母选项的说明文案",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "49bd32d72ba40238d7b95493d3893a1c34d203c5",
+      "title": "feat: 拼音文本设置按标点与简繁转换分页展示",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "3aa1ef3c18408c8ccaba330b1a1fb88db09dcd03",
+      "title": "perf: 主题列表切换选中态时按载荷局部刷新避免整表重绘",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "4ecb892d4ba5363614559992f41c294022655747",
+      "title": "feat: Rime 方案选择器支持用户顺序与选择状态持久化",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "304c2f21fa919d86bf4db945ca73fe3f89f11cf7",
+      "title": "chore(rime): 更新 fcitx5-rime 子模块到 b3a0123",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Rime gitlink b3a01235 plus personal per-IM runtime patch compiled; native independent configuration test passed. Schema order/deploy path still needs dedicated UI verification."
+    },
+    {
+      "sha": "d1f167f606ac49cd260db0fe0eade5a2086c9f00",
+      "title": "refactor: 主标签改为按可见墨迹居中于键面",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Rejected visible-ink centering and cross-row label scaling; personal stable font frame and independent overlays retained."
+    },
+    {
+      "sha": "32d5f3e1e7f20ef3c598504f72745d2d6e14c90b",
+      "title": "feat: 符号面板重写为 Foxy 风格，支持自备 catalog 与两种布局",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "52511b7219ab800a280597455e7e9b6204243af3",
+      "title": "feat: 布局与分体改名分体与浮动，迁移浮动键盘完整实现",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Adjusted renamed floating-mode reference and retained candidate-index control; saved-mode migration passed, full resize/orientation/input regression pending."
+    },
+    {
+      "sha": "14072f1c2b71169cc47c565c3eb61a9a7631e888",
+      "title": "feat: 工具栏新增符号面板与语音输入快捷操作",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "c474576f7a813d3324be790fe9c0f9bc18efe427",
+      "title": "i18n: 补齐浮动键盘文案，删除废弃字符串并优化候选窗标签",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "517abe3b750ec808ae2be0eb573976e16a14a0a7",
+      "title": "i18n: 符号面板补充韩文字符集，调整分组顺序并后置 ASCII 数字",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "e0855e280d7527754c634f5639c326780da33b26",
+      "title": "feat: 工具栏语音输入改为常规按钮，支持活动图标与按键主题",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "f19b2a3d67c03a5efb28e48086648b2b9926f353",
+      "title": "feat: 符号面板退格键改用按键图标主题，并随窗口挂载管理监听",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "dc6bed549799562ac0d18777dec1421ade82d969",
+      "title": "fix: 内置按钮布局主题只补缺不覆盖用户已保存主题",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Retain fill-missing-only behavior for saved toolbar themes; helper extracted by upstream keeps user icons/layouts authoritative."
+    },
+    {
+      "sha": "665911533bab9c29a2a1ecd0b191cc658ef4f2b9",
+      "title": "chore(submodule): bump libime to f5a-swan",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "libime pinned to 8a1b8f93; native pinyin/Wubi smoke passed; full release validation pending."
+    },
+    {
+      "sha": "1830209de8ddc8ad44f0671e6e9a1a2654067003",
+      "title": "refactor: 符号面板退格键改为动态应用按键图标主题",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    },
+    {
+      "sha": "582f77c3b7e2ad2f6828282d994055460576a0d2",
+      "title": "feat(voice): 迁移语音输入并修复引擎选择与按住说话",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Keep ShowPicker and saved values; old VoiceInput decodes to VoiceHold without rewriting raw values. Local script load/consent smoke passed; actual recording, result display/commit and provider fallback remain unverified."
+    },
+    {
+      "sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+      "title": "fix(voice): 适配 JS 语音插件文案与设置摘要",
+      "status": "proposed_in_isolated_candidate_not_adopted_on_main",
+      "review": "Integration candidate; final UI, release and input validation incomplete."
+    }
+  ],
+  "additional_unreviewed": [
+    {
+      "sha": "5e45f9aca158040e11b4bcd03d4a1c1b2b05c918",
+      "title": "feat(voice): 重构 JS 语音插件清单页、支持卸载内置与覆盖升级"
+    },
+    {
+      "sha": "1f19d04cd2d2e1bda987dfc13c9c811642cd0890",
+      "title": "feat(voice): 新增内置 AI Assistant JS 应用插件与 JsApp 宿主 API"
+    },
+    {
+      "sha": "d2895268e267918694225b24581b7b9222b5a82f",
+      "title": "feat(ui): 插件页拆分为 Fcitx / JS 两个标签页，JS 添加按钮仅在 JS 标签可见"
+    },
+    {
+      "sha": "79f4de2549f2cac10ac5b0a8be07740366a1a746",
+      "title": "chore: 升级 OkHttp 5 并清理录音/日志/文案"
+    },
+    {
+      "sha": "79cce72223bc018a1d82f14790e98a90cc12d44f",
+      "title": "refactor(ui): 简化插件页，移除可折叠分类分组"
+    },
+    {
+      "sha": "f1cb8c2e371bd92241481f81a2d10ca8dafcc3a9",
+      "title": "test(voice): 补 VoiceInputPickerDialog 与 JsAppDialog 仪表化测试；改进 AI 助手提供商下拉与设置入口"
+    },
+    {
+      "sha": "075c263888dd97e6efee18d5ac6840dc1d939207",
+      "title": "refactor(plugin): 将 JS 语音插件子系统重构为通用 plugin + assistant 架构"
+    },
+    {
+      "sha": "b7c573074be3f8e22fc6abcba5142764ec949481",
+      "title": "fix(ui): JS 插件列表将 AI 助手置顶"
+    },
+    {
+      "sha": "df577222ee81a75f8b8c20a92f7139d798271535",
+      "title": "fix(js-app): 面板展示后键盘布局请求不再隐藏窗口"
+    },
+    {
+      "sha": "66de1cbe708ef345aa2bf52031141d0578f6a94b",
+      "title": "feat(js-app): 新增滑杆控件、输入框自适应高度与设置项恢复默认"
+    },
+    {
+      "sha": "0faba91b2de4d412c19be49527494fb7bccc0805",
+      "title": "feat(button): 将 AI 助手注册为可配置按键"
+    },
+    {
+      "sha": "3b4bb81ed02a6a7091f1276a26a17b357dcc31c5",
+      "title": "feat(llm): 长按 AI 候选键打开快捷设置"
+    },
+    {
+      "sha": "62774d96d59d64f516a36c33a60c43880bc518df",
+      "title": "feat(ai): 长按 AI 候选键弹出操作菜单并新增简短问答模式"
+    },
+    {
+      "sha": "52bbe0e052b231a066befc4308f7be6aae425b68",
+      "title": "feat(ui): 新增工具栏定制按键并将 KawaiiBar 改用 LinearLayoutManager"
+    }
+  ],
+  "validation": {
+    "unit_tests": {
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core_android": {
+      "name": "core",
+      "status": "passed",
+      "tests": 114,
+      "seconds": 372.5,
+      "cases": [
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "explicitRowPositionTakesPriorityOverGlobalBottomRight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "mixedEdgesKeepSecondHintAtBottomRightAndMainCentered",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "enabledUppercaseHintCanUseBottomRight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "bottomPairKeepsBothCornersAndItsExistingSwipeOrder",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "rightMeansPhysicalRightInRtlLayouts",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.BottomRightSubLabelTest",
+          "test": "hiddenFirstHintKeepsSecondAtBottomRightWithAdjustableInset",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "clearingCompositionRestoresLowercaseAndLanguageIconForOnceAndLock",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "repeatedEmptyNotificationsKeepShiftChosenOutsideComposition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "bothShiftKeysShowFilledAndUnderlinedStatesDuringComposition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "originalShiftIdentityDoesNotOverwriteItsActiveLanguageRole",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "rowSecondPositionOverridesGlobalAndFollowLayoutPreservesExistingCorners",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "bothControlsAreDiscoverableInSettingsSearch",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "uppercaseHintUsesSecondPositionWithoutEnablingHiddenUppercaseHints",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "paddingInsetsFunctionKeyHintsToo",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "globalSecondPositionKeepsPhysicalEdgeAndSwipeTargets",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "paddingMovesBothHintsInwardWithoutMovingOrShrinkingMain",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "hidingSecondHintKeepsFirstHintAndCenteredMain",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SubLabelControlsTest",
+          "test": "functionSwipeLabelsKeepTheirDirectionsWhenGlobalSecondPositionChanges",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.IndependentSubLabelPositionTest",
+          "test": "independentEdgesKeepTheirSwipeAndCollisionBehavior",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.IndependentSubLabelPositionTest",
+          "test": "hiddenPrimaryDoesNotRenderOrReceiveSwipe",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.IndependentSubLabelPositionTest",
+          "test": "independentRowLabelsTopAndBottomAreCenteredAgainstKeyInsets",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "mainFontChangesKeepSecondarySizesPositionsAndVisibility",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "normalKeysRenderConfiguredMain23AndSecondary20WithoutShrinking",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "secondaryFontChangesKeepTheMainSizeAndPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "hidingAndRestoringASublabelKeepsTheMainFrameOnNormalKeys",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "stableHeightRefreshKeepsTheComputedPlacement",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "shiftAndCapsKeepTheSameTypographicBaseline",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "accentedSecondRowHasTheSameFontSizeAsOtherLetterRows",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "changingPunctuationBetweenLanguagesKeepsMainSizeAndBaseline",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "changingNeighbouringLettersDoesNotMoveOrResizeTheSameKey",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "independentPairsCoverBothOrdersAndTopRightCollision",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "stableHeightRefreshPreservesRowPlacementInTheImmediateDraw",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "onlySecondaryRemainsCenteredWithEmptyOrThemeHiddenPrimary",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "representativeRowsKeepNormalGapsAndCompactOverlaysInsideKey",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "switchingEdgesAndHidingLabelsClearsPlacementBeforeRestoringIt",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "mixedRowSharesBaselinesOnlyWithinEachOccupiedEdgeBand",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "themeUppercaseCoversCornerMixedAndUppercaseOnlyLayouts",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "defaultThemePairsAndMixedEdgesBalanceVisibleInk",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "unchangedOrdinaryLabelsDoNotRequestAnotherLayout",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "wholeKeyCenterDoesNotMoveWithTopOrBottomSublabels",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "singlePrimaryUsesThemeOrExplicitTopBottomAndTopRight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.RemainingSpaceSubLabelLayoutTest",
+          "test": "independentUppercaseCoversBothEdgesAndUppercaseOnlyTopRight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SameEdgeSubLabelLayoutTest",
+          "test": "centeredMainAndEdgeHintsAdaptIndependentlyToDensityAndFonts",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SameEdgeSubLabelLayoutTest",
+          "test": "independentSameEdgeLabelsKeepLegacyMainLabelPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SameEdgeSubLabelLayoutTest",
+          "test": "keyboardRowUsesOneBaselineAndRecomputesAfterTextAndFontChanges",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.SameEdgeSubLabelLayoutTest",
+          "test": "topCornersBalanceVisibleGapsAndResetWhenHidden",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.VerticalSubLabelLayoutTest",
+          "test": "shortRowsAndLargeFontsKeepCenteredMainAndIndependentEdgeHints",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.VerticalSubLabelLayoutTest",
+          "test": "bothOrdersStayAtEdgesWithSeparateMainLabel",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.VerticalSubLabelLayoutTest",
+          "test": "changingToCornerOrSingleLabelRestoresNormalMainLabelLayout",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "eachKeyTypeDispatchesItsPhysicalUpAndDownMacros",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "backspaceConsumedOrRepeatReleaseDoesNotTriggerDirectSwipeMacros",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "physicalMacrosWorkWithoutLabelsAndWithPunctuationHidden",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "backspaceKeepsHorizontalSelectionAfterLaterVerticalMovement",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "explicitMacrosOverrideGlobalSwipeDirectionForEveryKeyType",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "backspaceHorizontalSwipeStillSelectsAndDeletesWithoutFiringVerticalMacros",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "compositionSwitchesBothMacrosAndBothLabelsForEveryKeyType",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "backspaceVerticalSwipeWithHorizontalDriftOnlyDispatchesItsMacro",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeBehaviorTest",
+          "test": "backspaceUnboundVerticalDirectionDoesNotDeleteSelection",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "hiddenLetterPunctuationKeepsFunctionLabelsAndTheirSwipeTargets",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "imageLabelsKeepCustomColorAndScaleTogetherWhileIconCanChange",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "allFiveKeyTypesKeepUpAboveDownRegardlessOfRowPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "changingDirectionalLabelContentRefreshesVisibilityAtTheSameHeight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "downOnlyLabelRemainsAtBottomWhenGlobalPositionIsTop",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "returnIconAndBothLabelsKeepAccentColorsAfterThemeChanges",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.DirectionalSwipeLabelTest",
+          "test": "legacySingleLabelViewsStillFollowBottomPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "unspecifiedSecondLabelOnNonletterKeepsBottomWithPrimaryOverride",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "explicitTextLabelPositionsSurviveEveryGlobalPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "macroSecondaryLabelsKeepTheirLayoutAndSwipeTargets",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "all26LettersInBothCasesFollowEveryPunctuationPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "iconLabelsKeepTheirLayoutAndExplicitPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "nonletterCharactersKeepSingleLabelsAtBottomEvenWhenDisplayedAsLetters",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "turningLetterOnlyOffRestoresGlobalNonletterPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.PunctuationPositionScopeTest",
+          "test": "letterIdentitySurvivesCustomAndChangingDisplayText",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ImageAltTextIconLayoutTest",
+          "test": "directionalBackspaceIconStaysCenteredWithUnevenLabels",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ImageAltTextIconLayoutTest",
+          "test": "bottomBackspaceSublabelDoesNotShiftIcon",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeOverrideTextMetricsTest",
+          "test": "layoutSwitchMacroOverrideKeepsBaseFontSizeAndWeight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.UppercaseSubLabelTypefaceTest",
+          "test": "uppercaseHintIsNormalWithoutChangingOtherLabelStyles",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.bar.CandidateBarHeightTest",
+          "test": "fixedHeightDoesNotNotifyAndRetainsRequirementForDynamicHeight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.bar.CandidateBarHeightTest",
+          "test": "candidatesWithinConfiguredHeightDoNotNotifyOnEntryUpdateOrExit",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.bar.CandidateBarHeightTest",
+          "test": "oversizedCandidatesNotifyOnlyForActualGrowthAndShrink",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "newControlsDefaultOffAndCanBeChangedIndependently",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "everyControlIsDiscoverableInSettingsSearch",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "correctedTypographyDoesNotAddASettingsSwitch",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "legacySpacePickerAndBackspaceChoicesSurviveUpgrade",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "storedAiSpacePreferenceSurvivesTheUpdate",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "retainedPluginAndTypographyControlsRemainSearchable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "bundledThemeNamesPreserveSavedIconsAndLegacyLayout",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "floatingAndSymbolPreferencesAndLongPressChoicesSurviveUpgrade",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "candidateModesAndHardwareSettingsSurviveUpgrade",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "scopedPreeditNeverRewritesTheGlobalChoice",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.voice.js.JsVoiceCompatibilityTest",
+          "test": "bundledAsrScriptsLoadInQuickJsAndDoNotGrantNetworkConsent",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "listThemesCollapsesDifferentFilesWithTheSameThemeName",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "deletingThemeRemovesAliasedConfigurationsAndSurvivesRefresh",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "listThemesUsesBackupTimestampWhenChoosingNewestTheme",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "listThemesRecoversAValidAtomicFileBackup",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importingJsonRetainsThemeNameValidation",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "rejectedMissingSourceLeavesNoConfigurationOrNewImages",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importingValidJsonWithoutBackgroundSavesTheme",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "deletingAliasedConfigurationsRemovesAllDistinctBackgroundImages",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importsRepairsReloadsAndRoundTripsBackgroundTheme",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "deletingValidAliasAlsoRemovesCorruptedCanonicalConfiguration",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "listingThemesPreservesMarkedUserEditedBuiltinAndImage",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importingJsonWithCustomCollisionPreservesExistingThemeAndBackground",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importingJsonWithBackgroundIsRejectedWithoutWritingTheme",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "deletingAliasedConfigurationsRetainsImagesUsedByAnotherTheme",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "importingJsonRejectsNonCustomThemeNameCollisions",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "duplicatingImageBuiltinCopiesBothImagesAndPreservesBackgroundSettings",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.data.theme.ThemeFilesManagerTest",
+          "test": "deletingThemeRemovesAtomicFileRecoveryFiles",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testWbx",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testInputPanelStatus",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testPinyin",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "genAi017LoadsJniAndReportsAnInvalidModelAsAnApiError",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinModelProducesCandidatesAndTableEngineRemainsAvailable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinAndRimeOverridesStayIndependentOfAddonDefaults",
+          "code": 0
+        }
+      ],
+      "classes": [
+        "input.keyboard.BottomRightSubLabelTest",
+        "input.keyboard.ComposeShiftPresentationTest",
+        "input.keyboard.SubLabelControlsTest",
+        "input.keyboard.IndependentSubLabelPositionTest",
+        "input.keyboard.KeyLabelFontIndependenceTest",
+        "input.keyboard.KeyLabelStabilityTest",
+        "input.keyboard.RemainingSpaceSubLabelLayoutTest",
+        "input.keyboard.SameEdgeSubLabelLayoutTest",
+        "input.keyboard.VerticalSubLabelLayoutTest",
+        "input.keyboard.DirectionalSwipeBehaviorTest",
+        "input.keyboard.DirectionalSwipeLabelTest",
+        "input.keyboard.PunctuationPositionScopeTest",
+        "input.keyboard.ImageAltTextIconLayoutTest",
+        "input.keyboard.ComposeOverrideTextMetricsTest",
+        "input.keyboard.UppercaseSubLabelTypefaceTest",
+        "input.bar.CandidateBarHeightTest",
+        "ui.main.settings.PersonalFeatureControlsTest",
+        "ui.main.settings.PersonalUpdateCompatibilityTest",
+        "input.voice.js.JsVoiceCompatibilityTest",
+        "data.theme.ThemeFilesManagerTest",
+        "FcitxTest",
+        "input.NativeEngineMaintenanceTest"
+      ]
+    },
+    "ui_group": {
+      "status": "interrupted",
+      "planned_tests": 64,
+      "completed_status_records": 41,
+      "note": "Log ended after case 41 passed; no final JUnit result. Not counted as a completed pass."
+    },
+    "release": "not performed on final candidate",
+    "lint": "not performed on final candidate",
+    "environment_attempts": [
+      "Initial JRE lacked javac; full JDK installed.",
+      "Remote ONNX package returned HTTP 401; fixed-SHA local bootstrap passed.",
+      "ECM/gettext library and ITS resource paths configured; subsequent debug build passed."
+    ],
+    "final_debug_log": "nov-final-debug.log",
+    "final_debug": "Passed x86_64 app/test build and 797 unit tests after profile import protection change; no final release/lint verification."
+  },
+  "blockers": [
+    "Complete UI suite after interruption and rerun affected profile-manager flow after create-new import fix.",
+    "Validate actual voice request/result display/commit and fallback with controlled provider; local QuickJS inspection is not online recognition quality.",
+    "Validate both symbol layouts and floating keyboard resize/orientation/input.",
+    "Run final arm64 app/plugins release build, lint and APK verification.",
+    "Review 14 newer upstream commits independently, especially JS/AI migration compatibility."
+  ],
+  "preserved_deferred_ai": "adac7f1946e11bca39e283ca61c8c11abbaba2a3 on maintenance/deferred-ai-2026-10-23 remains deferred",
+  "gitnexus": {
+    "preflight": {
+      "UNKNOWN": 53,
+      "LOW": 28,
+      "MEDIUM": 23,
+      "HIGH": 13,
+      "CRITICAL": 3
+    },
+    "coverage": "Lower bound: scope extraction, cross-language field linking and process discovery caps; unknown Kotlin paths checked by declarations and literal references.",
+    "listing": "Original backend preserved; separate copy changes only symbol-list cap 1000 to 10000.",
+    "final_scopes": {
+      "all": {
+        "summary": {
+          "changed_count": 3326,
+          "affected_count": 177,
+          "changed_files": 189,
+          "risk_level": "critical"
+        },
+        "listed_symbols": 3326,
+        "listed_flows": 177,
+        "partial": false,
+        "truncated": false
+      },
+      "compare": {
+        "summary": {
+          "changed_count": 3326,
+          "affected_count": 177,
+          "changed_files": 189,
+          "risk_level": "critical"
+        },
+        "listed_symbols": 3326,
+        "listed_flows": 177,
+        "partial": false,
+        "truncated": false
+      }
+    }
+  },
+  "default_branch_policy": "No candidate application code is authorized for main until validation passes. A documentation-only audit and prompt update may be fast-forwarded."
+}

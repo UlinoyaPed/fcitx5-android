@@ -30,7 +30,10 @@ import org.fxboomk.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.SpaceSwipeVerticalBehavior
 import org.fxboomk.fcitx5.android.input.keyboard.SwipeSymbolDirection
+import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.input.picker.PickerWindow
+import org.fxboomk.fcitx5.android.input.picker.SymbolCatalogType
+import org.fxboomk.fcitx5.android.input.picker.SymbolPanelStyle
 import org.fxboomk.fcitx5.android.input.popup.EmojiModifier
 import org.fxboomk.fcitx5.android.input.preedit.CompositionAreaStyle
 import org.fxboomk.fcitx5.android.utils.DeviceUtil
@@ -58,9 +61,21 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val pid = int("pid", 0)
         val editorInfoInspector = bool("editor_info_inspector", false)
         val needNotifications = bool("need_notifications", true)
-        val floatingKeyboardEnabled = bool("floating_keyboard_enabled", false)
-        val floatingKeyboardWidth = int("floating_keyboard_width", 0)
-        val floatingKeyboardHeight = int("floating_keyboard_height", 0)
+        val floatingModeEnabled = bool("floating_mode_enabled", false)
+        val autoHideFloatingMoveHandle = bool("auto_hide_floating_move_handle", false)
+        val autoFloatingLandscape = bool("auto_floating_landscape", false)
+        val floatingKeyboardWidthPortraitRatio = float("floating_keyboard_width_portrait_ratio", 0f)
+        val floatingKeyboardWidthLandscapeRatio = float("floating_keyboard_width_landscape_ratio", 0f)
+        val floatingKeyboardHeightPortraitRatio = float("floating_keyboard_height_portrait_ratio", 0f)
+        val floatingKeyboardHeightLandscapeRatio = float("floating_keyboard_height_landscape_ratio", 0f)
+        val floatingKeyboardWidthRatio = float("floating_keyboard_width_ratio", 0f)
+        val floatingKeyboardHeightRatio = float("floating_keyboard_height_ratio", 0f)
+        val floatingKeyboardWidthLegacy = int("floating_keyboard_width", 0)
+        val floatingKeyboardHeightLegacy = int("floating_keyboard_height", 0)
+        val floatingKeyboardXPortraitRatio = float("floating_keyboard_x_portrait_ratio", -1f)
+        val floatingKeyboardYPortraitRatio = float("floating_keyboard_y_portrait_ratio", -1f)
+        val floatingKeyboardXLandscapeRatio = float("floating_keyboard_x_landscape_ratio", -1f)
+        val floatingKeyboardYLandscapeRatio = float("floating_keyboard_y_landscape_ratio", -1f)
         val floatingKeyboardXPortrait = int("floating_keyboard_x_portrait", -1)
         val floatingKeyboardYPortrait = int("floating_keyboard_y_portrait", -1)
         val floatingKeyboardXLandscape = int("floating_keyboard_x_landscape", -1)
@@ -74,6 +89,22 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val lastShareReceiveDirectory = string("last_share_receive_directory", "")
         val lastShareReceiveDirectoryRemembered = bool("last_share_receive_directory_remembered", false)
         val preeditStyleScopes = stringSet("preedit_style_scopes", emptySet())
+
+        init {
+            // 旧版本只持久化 floating_keyboard_enabled；新版拆出浮动模式开关后，
+            // 首次升级时把旧值迁移到 floating_mode_enabled，避免用户的浮动状态被静默关闭。
+            if (!sharedPreferences.contains("floating_mode_enabled") &&
+                sharedPreferences.contains("floating_keyboard_enabled")
+            ) {
+                sharedPreferences.edit {
+                    putBoolean(
+                        "floating_mode_enabled",
+                        sharedPreferences.getBoolean("floating_keyboard_enabled", false)
+                    )
+                    remove("floating_keyboard_enabled")
+                }
+            }
+        }
     }
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {
@@ -100,18 +131,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "blocked_plugin_packages",
             emptySet()
         ).apply { register() }
-
-        val hideUnsupportedEmojis = switch(
-            R.string.hide_unsupported_emojis,
-            "hide_unsupported_emojis",
-            true
-        )
-
-        val defaultEmojiSkinTone = enumList(
-            R.string.default_emoji_skin_tone,
-            "default_emoji_skin_tone",
-            EmojiModifier.SkinTone.Default,
-        )
     }
 
     inner class Keyboard : ManagedPreferenceCategory(R.string.virtual_keyboard, sharedPreferences) {
@@ -254,12 +273,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
         val showVoiceInputButton =
             switch(R.string.show_voice_input_button, "show_voice_input_button", false)
+        // Long-press space also uses the preferred voice input, independent of the toolbar
+        // button, so this entry must stay editable even when the button is hidden.
         val preferredVoiceInput = voiceInputPreference(
             R.string.preferred_voice_input, "preferred_voice_input", ""
-        ) {
-            showVoiceInputButton.getValue() ||
-            spaceKeyLongPressBehavior.getValue() == SpaceLongPressBehavior.VoiceInput
-        }
+        )
 
         val expandKeypressArea =
             switch(R.string.expand_keypress_area, "expand_keypress_area", false)
@@ -283,23 +301,14 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             10
         )
         val spaceKeyLongPressBehavior = run {
-            val entryValues = listOf(
-                SpaceLongPressBehavior.None,
-                SpaceLongPressBehavior.Enumerate,
-                SpaceLongPressBehavior.ShowPicker,
-                SpaceLongPressBehavior.RepeatSpace,
-                SpaceLongPressBehavior.VoiceInput,
-                SpaceLongPressBehavior.SwitchToEnglish
-            )
+            val entryValues = SpaceLongPressBehavior.settingsEntries
             list(
                 R.string.space_long_press_behavior,
                 "space_long_press_behavior",
                 SpaceLongPressBehavior.None,
                 object : ManagedPreference.StringLikeCodec<SpaceLongPressBehavior> {
-                    override fun decode(raw: String): SpaceLongPressBehavior = when (raw) {
-                        SpaceLongPressBehavior.ToggleActivate.name -> SpaceLongPressBehavior.Enumerate
-                        else -> enumValueOf(raw)
-                    }
+                    override fun decode(raw: String): SpaceLongPressBehavior =
+                        SpaceLongPressBehavior.fromPersistedName(raw)
                 },
                 entryValues,
                 entryValues.map { it.stringRes }
@@ -658,6 +667,78 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         ) { clipboardListening.getValue() }
     }
 
+    inner class Symbols : ManagedPreferenceCategory(R.string.emoji_and_symbols, sharedPreferences) {
+        val hideUnsupportedEmojis = switch(
+            R.string.hide_unsupported_emojis,
+            "hide_unsupported_emojis",
+            true
+        )
+
+        val defaultEmojiSkinTone = enumList(
+            R.string.default_emoji_skin_tone,
+            "default_emoji_skin_tone",
+            EmojiModifier.SkinTone.Default,
+        )
+
+        /**
+         * 符号 / 表情 / 颜文字面板的呈现风格，见 [SymbolPanelStyle]。
+         *
+         * 默认 [SymbolPanelStyle.Sidebar]（新版左侧分组栏）：沿用既有外观，老用户升级后
+         * 第一眼不变；想换旧版顶部分组栏的用户自己到「便捷功能 → 表情和符号」切。
+         *
+         * 这里不用 [enumList]：旧版本把 [SymbolPanelStyle.TopBar] 存成 `BottomBar`，
+         * 枚举改名后必须继续能解码，否则存量用户的偏好会被静默重置。
+         */
+        private val symbolPanelStyleCodec =
+            object : ManagedPreference.StringLikeCodec<SymbolPanelStyle> {
+                override fun decode(raw: String): SymbolPanelStyle =
+                    SymbolPanelStyle.fromStored(raw)
+            }
+
+        val symbolPanelStyle = ManagedPreference.PStringLike(
+            sharedPreferences,
+            "symbol_panel_style",
+            SymbolPanelStyle.Sidebar,
+            symbolPanelStyleCodec
+        ).apply {
+            register()
+            val ui = ManagedPreferenceUi.StringList(
+                R.string.symbol_panel_style,
+                "symbol_panel_style",
+                SymbolPanelStyle.Sidebar,
+                symbolPanelStyleCodec,
+                SymbolPanelStyle.entries,
+                SymbolPanelStyle.entries.map { it.stringRes }
+            )
+            ui.registerUi()
+        }
+
+        /**
+         * 三份符号 catalog 当前选中的文件；[UserConfigFiles.SYMBOL_CATALOG_BUILTIN]
+         * 表示使用 APK 内置数据，否则是用户自备 catalog 的文件名。
+         *
+         * 这里不注册 UI：选项来自目录扫描，用 [ManagedPreference.PString] + 自定义入口。
+         */
+        val symbolCatalogSymbols = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_symbols", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        val symbolCatalogEmoji = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_emoji", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        val symbolCatalogKaomoji = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_kaomoji", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        /** 按 catalog 种类取对应的选择偏好。 */
+        fun catalogPreference(type: SymbolCatalogType): ManagedPreference.PString = when (type) {
+            SymbolCatalogType.Symbols -> symbolCatalogSymbols
+            SymbolCatalogType.Emoji -> symbolCatalogEmoji
+            SymbolCatalogType.Kaomoji -> symbolCatalogKaomoji
+        }
+    }
+
     private val providers = mutableListOf<ManagedPreferenceProvider>()
 
     fun <T : ManagedPreferenceProvider> registerProvider(
@@ -682,6 +763,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
     val keyboard = Keyboard().register()
     val candidates = Candidates().register()
     val clipboard = Clipboard().register()
+    val symbols = Symbols().register()
     val advanced = Advanced().register()
 
     @Keep
@@ -703,8 +785,21 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 advanced.ignoreSystemCursor,
                 advanced.disableAnimation,
                 advanced.vivoKeypressWorkaround,
-                internal.floatingKeyboardWidth,
-                internal.floatingKeyboardHeight,
+                internal.floatingModeEnabled,
+                internal.autoHideFloatingMoveHandle,
+                internal.autoFloatingLandscape,
+                internal.floatingKeyboardWidthPortraitRatio,
+                internal.floatingKeyboardWidthLandscapeRatio,
+                internal.floatingKeyboardHeightPortraitRatio,
+                internal.floatingKeyboardHeightLandscapeRatio,
+                internal.floatingKeyboardWidthRatio,
+                internal.floatingKeyboardHeightRatio,
+                internal.floatingKeyboardWidthLegacy,
+                internal.floatingKeyboardHeightLegacy,
+                internal.floatingKeyboardXPortraitRatio,
+                internal.floatingKeyboardYPortraitRatio,
+                internal.floatingKeyboardXLandscapeRatio,
+                internal.floatingKeyboardYLandscapeRatio,
                 internal.floatingKeyboardXPortrait,
                 internal.floatingKeyboardYPortrait,
                 internal.floatingKeyboardXLandscape,

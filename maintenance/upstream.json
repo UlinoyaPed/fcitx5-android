@@ -63,5 +63,12 @@
       }
     },
     "details": "maintenance/2026-10-30-upstream-review.json"
+  },
+  "pending_review": {
+    "record": "maintenance/2026-11-08-pending-review.json",
+    "branch": "maintenance/2026-11-05-review",
+    "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+    "latest_observed_upstream_sha": "52bbe0e052b231a066befc4308f7be6aae425b68",
+    "status": "isolated_candidate_validation_incomplete"
   }
 }

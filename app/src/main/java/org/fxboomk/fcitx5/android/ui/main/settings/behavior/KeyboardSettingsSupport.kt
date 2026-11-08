@@ -43,8 +43,7 @@ internal object KeyboardSettingsSupport {
         "inline_suggestions",
         "auto_close_brackets",
         "insert_space_between_chinese_and_english",
-        "expand_keypress_area",
-        "preferred_voice_input"
+        "expand_keypress_area"
     )
 
     val toolbarAndInputKeys = listOf(
@@ -113,12 +112,14 @@ internal object KeyboardSettingsSupport {
     fun ManagedPreferenceFragment.addKeyboardSection(
         screen: PreferenceScreen,
         @StringRes title: Int,
-        keys: List<String>
+        keys: List<String>,
+        extraPreference: Preference? = null
     ) {
         screen.addCategory(title) {
             keys.forEach { key ->
                 addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
             }
+            extraPreference?.let(::addPreference)
         }
     }
 

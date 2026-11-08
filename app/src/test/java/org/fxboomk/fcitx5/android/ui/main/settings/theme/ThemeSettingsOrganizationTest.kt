@@ -131,10 +131,6 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.otherStyleKeys
         )
         assertEquals(
-            listOf("hide_unsupported_emojis", "default_emoji_skin_tone"),
-            ThemeSettingsSupport.candidateEmojiKeys
-        )
-        assertEquals(
             listOf(
                 "follow_system_dark_mode",
                 "light_mode_themes",
@@ -180,7 +176,7 @@ class ThemeSettingsOrganizationTest {
             ThemeSettingsSupport.candidateItemKeys
         )
         assertEquals(
-            ThemeSettingsSupport.candidateSharedKeyboardKeys + ThemeSettingsSupport.candidateEmojiKeys +
+            ThemeSettingsSupport.candidateSharedKeyboardKeys +
                 ThemeSettingsSupport.candidateHorizontalKeys +
                 ThemeSettingsSupport.candidateWindowKeys +
                 ThemeSettingsSupport.candidateItemKeys,
@@ -191,11 +187,7 @@ class ThemeSettingsOrganizationTest {
     @Test
     fun candidateAndAnimationSettingsMoveOutOfAdvanced() {
         assertEquals(
-            listOf(
-                "hide_unsupported_emojis",
-                "default_emoji_skin_tone",
-                "disable_animation"
-            ),
+            listOf("disable_animation"),
             ThemeSettingsSupport.advancedMovedKeys
         )
     }
@@ -249,7 +241,9 @@ class ThemeSettingsOrganizationTest {
         val appearanceKeys = groups.flatten()
         assertEquals(appearanceKeys.size, appearanceKeys.toSet().size)
         assertTrue(ThemeSettingsSupport.animationKeys.none { it in appearanceKeys })
-        assertTrue(ThemeSettingsSupport.candidateEmojiKeys.all { it in ThemeSettingsSupport.candidateStyleKeys })
+        // Emoji 相关偏好已迁到「便捷功能 → 表情和符号」，不再出现在外观分组里
+        assertTrue("hide_unsupported_emojis" !in appearanceKeys)
+        assertTrue("default_emoji_skin_tone" !in appearanceKeys)
         assertFalse("show_lang_switch_key" in KeyboardSettingsSupport.basicBehaviorKeys)
     }
 }

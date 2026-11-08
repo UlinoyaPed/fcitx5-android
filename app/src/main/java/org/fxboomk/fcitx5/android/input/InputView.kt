@@ -7,6 +7,7 @@
 package org.fxboomk.fcitx5.android.input
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -25,6 +26,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.SystemClock
+import android.view.GestureDetector
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
@@ -43,6 +45,7 @@ import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceManager
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import org.fxboomk.fcitx5.android.R
@@ -96,7 +99,7 @@ import org.fxboomk.fcitx5.android.input.keyboard.resolveTextKeyboardLayout
 import org.fxboomk.fcitx5.android.input.keyboard.withKeyboardHeightPercentOverride
 import org.fxboomk.fcitx5.android.input.picker.PickerWindow
 import org.fxboomk.fcitx5.android.input.picker.emojiPicker
-import org.fxboomk.fcitx5.android.input.picker.emoticonPicker
+import org.fxboomk.fcitx5.android.input.picker.kaomojiPicker
 import org.fxboomk.fcitx5.android.input.picker.symbolPicker
 import org.fxboomk.fcitx5.android.input.popup.PopupComponent
 import org.fxboomk.fcitx5.android.input.preedit.PreeditComponent
@@ -151,13 +154,14 @@ class InputView(
 ) : BaseInputView(service, fcitx, theme) {
     private companion object {
         const val AI_CANDIDATE_EXPAND_DELAY_MS = 160L
+        const val FLOATING_MOVE_HANDLE_AUTO_HIDE_DELAY_MS = 3_000L
     }
 
     private val keyBorder by ThemeManager.prefs.keyBorder
 
     private fun resolveKeyboardBackgroundDrawable(): Drawable {
         val baseDrawable = theme.backgroundDrawable(keyBorder)
-        if ((theme as? Theme.Custom)?.backgroundImage != null) {
+        if (theme.hasBackgroundImage) {
             return baseDrawable
         }
         val baseColor = if (keyBorder) theme.backgroundColor else theme.keyboardColor
@@ -245,8 +249,8 @@ class InputView(
             }
 
             val currentWindow = windowManager.currentWindowOrNull()
-            if (currentWindow is PickerWindow && currentWindow.key == PickerWindow.Key.Emoji) {
-                // Emoji pager contains large non-key areas; use full-layer blur to avoid transparent gaps.
+            if (currentWindow is PickerWindow) {
+                // Picker panels contain large non-key areas; use full-layer blur to avoid transparent gaps.
                 canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
                 redrawRetryCount = 0
                 return
@@ -459,34 +463,25 @@ class InputView(
         blurUpdateGeneration++
         val generation = blurUpdateGeneration
         blurUpdateJob?.cancel()
-        val customTheme = theme as? Theme.Custom ?: run {
-            keyBlurMaskView.setBlurBitmap(null)
-            return
-        }
-        val bg = customTheme.backgroundImage
-        if (bg == null || bg.blurRadius <= 0f) {
+        if (!theme.shouldApplyBlur()) {
             keyBlurMaskView.setBlurBitmap(null)
             return
         }
         val useGpuBlur = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !keyBorder
         blurUpdateJob = blurUpdateScope.launch {
             val bitmap = withContext(Dispatchers.Default) {
-                if (useGpuBlur) {
-                    bg.loadBitmapForRendering()
-                } else {
-                    bg.loadBlurredBitmapForRendering()
-                }
+                if (useGpuBlur) theme.loadBackgroundBitmap() else theme.loadBlurredBackgroundBitmap()
             }
             if (generation != blurUpdateGeneration) return@launch
             if (useGpuBlur) {
                 keyBlurMaskView.setBlurBitmap(
                     bitmap = bitmap,
-                    brightness = bg.brightness,
-                    blurRadius = bg.blurRadius,
+                    brightness = theme.backgroundBrightness,
+                    blurRadius = theme.backgroundBlurRadius,
                     useRenderEffect = true
                 )
             } else {
-                keyBlurMaskView.setBlurBitmap(bitmap, bg.brightness)
+                keyBlurMaskView.setBlurBitmap(bitmap, theme.backgroundBrightness)
             }
             refreshKeyboardBounds()
         }
@@ -583,13 +578,28 @@ class InputView(
             height = viewThickness
         }
 
-        // Move handle (centered horizontally above keyboard)
+        // Move handle: centered horizontally; above the keyboard by default, but flipped
+        // below it when there is no room on top. See FloatingMoveHandlePlacement.
         val moveHandleSize = dp(24)
+        val moveGapAbove = dp(8)
+        // Keep extra clearance below to avoid the bottom resize handle's touch area.
+        val moveGapBelow = dp(20)
+        val containerHeight =
+            if (height > 0) height.toFloat() else resources.displayMetrics.heightPixels.toFloat()
+        floatingMoveHandleAbove = FloatingMoveHandlePlacement.placement(
+            keyboardTop = kY,
+            keyboardHeight = kHeight.toFloat(),
+            containerHeight = containerHeight,
+            needAbove = (moveHandleSize + moveGapAbove).toFloat(),
+            needBelow = (moveHandleSize + moveGapBelow).toFloat(),
+            currentlyAbove = floatingMoveHandleAbove
+        ) == FloatingMoveHandlePlacement.ABOVE
         adjustableHandle.translationX = kX + (kWidth - moveHandleSize) / 2
-        val moveHandleMargin = dp(8).toFloat()
-        val preferredMoveHandleY = kY - moveHandleSize - moveHandleMargin
-        adjustableHandle.translationY =
-            if (preferredMoveHandleY >= 0f) preferredMoveHandleY else kY + moveHandleMargin
+        adjustableHandle.translationY = if (floatingMoveHandleAbove != false) {
+            kY - moveHandleSize - moveGapAbove
+        } else {
+            kY + kHeight + moveGapBelow
+        }
 
         val moveBgDrawable = createHandleDrawable(moveHandleSize / 2f)
         val moveIconDrawable = ContextCompat.getDrawable(context, R.drawable.ic_move_handle_cross)?.mutate()
@@ -633,16 +643,36 @@ class InputView(
         preedit.ui.root.translationY = keyboardView.translationY
     }
 
+    private fun createFloatingResizeHandleGestureDetector() =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent): Boolean = true
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                showFloatingMoveHandle()
+                return true
+            }
+        })
+
+    private val floatingRightHandleGestureDetector by lazy(LazyThreadSafetyMode.NONE) {
+        createFloatingResizeHandleGestureDetector()
+    }
+
+    private val floatingBottomHandleGestureDetector by lazy(LazyThreadSafetyMode.NONE) {
+        createFloatingResizeHandleGestureDetector()
+    }
+
     private val floatingRightHandle = view(::View) {
         // background set in updateHandlePosition
         visibility = GONE
         // No initial translation needed, controlled by updateHandlePosition
         setOnTouchListener { v, event ->
+            floatingRightHandleGestureDetector.onTouchEvent(event)
             if (!isFloating) return@setOnTouchListener false
             // Expand touch area check if needed, but since we're using padding,
             // the view itself is larger.
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    flushPendingSizeCommit()
                     floatingResizeStartWidth = resolveFloatingWidth()
                     lastResizeTouchX = event.rawX
                     v.parent?.requestDisallowInterceptTouchEvent(true)
@@ -654,15 +684,18 @@ class InputView(
                     val delta = (event.rawX - lastResizeTouchX).toInt()
                     floatingWidthPx =
                         (floatingResizeStartWidth + delta).coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
-                    applyFloatingWidth()
-                    // Handle position update is called in applyFloatingWidth
+                    pendingFloatingWidthCommit = true
+                    schedulePendingSizeCommit()
+                    // Handle position update happens in applyFloatingWidth on the next frame
                     true
                 }
 
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
-                    // Width is already saved via delegate property set in ACTION_MOVE
+                    // The final adjustment must land before persisting.
+                    flushPendingSizeCommit()
+                    persistFloatingWidth()
                     // Also save position as resizing might have moved handlers
                     saveFloatingPosition(
                         keyboardView.translationX.toInt(),
@@ -681,9 +714,11 @@ class InputView(
         visibility = GONE
         // No initial translation needed
         setOnTouchListener { v, event ->
+            floatingBottomHandleGestureDetector.onTouchEvent(event)
             if (!isEffectiveFloating) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    flushPendingSizeCommit()
                     floatingResizeStartHeight = resolveFloatingHeight()
                     lastResizeTouchY = event.rawY
                     v.parent?.requestDisallowInterceptTouchEvent(true)
@@ -695,15 +730,18 @@ class InputView(
                     val delta = (event.rawY - lastResizeTouchY).toInt()
                     floatingHeightPx =
                         (floatingResizeStartHeight + delta).coerceIn(minFloatingHeightPx, maxFloatingHeightPx)
-                    applyFloatingHeight()
-                    // Handle position update is called in applyFloatingHeight
+                    pendingFloatingHeightCommit = true
+                    schedulePendingSizeCommit()
+                    // Handle position update happens in applyFloatingHeight on the next frame
                     true
                 }
 
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
-                    // Height is already saved via delegate property set in ACTION_MOVE
+                    // The final adjustment must land before persisting.
+                    flushPendingSizeCommit()
+                    persistFloatingHeight()
                     // Also save position as resizing might have moved handlers
                     saveFloatingPosition(
                         keyboardView.translationX.toInt(),
@@ -1066,6 +1104,7 @@ class InputView(
             uniqueName = ime.uniqueName,
             displayName = ime.displayName,
             subModeLabel = TextKeyboard.layoutSubModeForIme(ime).label,
+            subModeName = TextKeyboard.layoutSubModeForIme(ime).name,
         )?.keyboardHeightPercentOverride(isLayoutLandscape)
             ?: json.fileLevelKeyboardHeightPercentOverride(isLayoutLandscape)
     }
@@ -1078,6 +1117,7 @@ class InputView(
             uniqueName = ime.uniqueName,
             displayName = ime.displayName,
             subModeLabel = TextKeyboard.layoutSubModeForIme(ime).label,
+            subModeName = TextKeyboard.layoutSubModeForIme(ime).name,
         )
         return resolution?.keyboardHeightOverrideTarget(landscape)
             ?: json.fileLevelKeyboardHeightPercentOverride(landscape)
@@ -1138,9 +1178,13 @@ class InputView(
             uniqueName = ime.uniqueName,
             displayName = ime.displayName,
             subModeLabel = TextKeyboard.layoutSubModeForIme(ime).label,
+            subModeName = TextKeyboard.layoutSubModeForIme(ime).name,
         ) ?: return null
         return if (resolution.subMode != null) {
-            KeyboardHeightOverrideTarget.SubMode(resolution.layoutKey, resolution.subModeLabel)
+            KeyboardHeightOverrideTarget.SubMode(
+                resolution.layoutKey,
+                resolution.subModeKey ?: resolution.subModeLabel,
+            )
         } else {
             KeyboardHeightOverrideTarget.Layout(resolution.layoutKey)
         }
@@ -1434,7 +1478,7 @@ class InputView(
     private val keyboardWindow = KeyboardWindow()
     private val symbolPicker = symbolPicker()
     private val emojiPicker = emojiPicker()
-    private val emoticonPicker = emoticonPicker()
+    private val kaomojiPicker = kaomojiPicker()
     private val buttonsAdjustingOverlayView by lazy {
         ButtonsAdjustingWindow.onCreateView().apply {
             visibility = GONE
@@ -1610,18 +1654,82 @@ class InputView(
     // Persistent storage for floating state and one-handed mode
     private val internalPrefs = AppPrefs.getInstance().internal
 
-    private var floatingWidthPx by internalPrefs.floatingKeyboardWidth
-    private var floatingHeightPx by internalPrefs.floatingKeyboardHeight
-    private var floatingKeyboardEnabled by internalPrefs.floatingKeyboardEnabled
+    private var floatingWidthPortraitRatioPref by internalPrefs.floatingKeyboardWidthPortraitRatio
+    private var floatingWidthLandscapeRatioPref by internalPrefs.floatingKeyboardWidthLandscapeRatio
+    private var floatingHeightPortraitRatioPref by internalPrefs.floatingKeyboardHeightPortraitRatio
+    private var floatingHeightLandscapeRatioPref by internalPrefs.floatingKeyboardHeightLandscapeRatio
+    private var floatingWidthRatioLegacyPref by internalPrefs.floatingKeyboardWidthRatio
+    private var floatingHeightRatioLegacyPref by internalPrefs.floatingKeyboardHeightRatio
+    private var floatingWidthLegacyPref by internalPrefs.floatingKeyboardWidthLegacy
+    private var floatingHeightLegacyPref by internalPrefs.floatingKeyboardHeightLegacy
+    private var floatingWidthPx = 0
+    private var floatingHeightPx = 0
+    private var floatingSizeConfigurationKey: FloatingSizeConfigurationKey? = null
+    private var floatingToggleRefreshPending = false
+
+    private data class FloatingSizeConfigurationKey(
+        val orientation: Int,
+        val widthPixels: Int,
+        val heightPixels: Int,
+        val densityDpi: Int,
+    )
+
+    private var floatingXPortraitRatio by internalPrefs.floatingKeyboardXPortraitRatio
+    private var floatingYPortraitRatio by internalPrefs.floatingKeyboardYPortraitRatio
+    private var floatingXLandscapeRatio by internalPrefs.floatingKeyboardXLandscapeRatio
+    private var floatingYLandscapeRatio by internalPrefs.floatingKeyboardYLandscapeRatio
     private var floatingXPortrait by internalPrefs.floatingKeyboardXPortrait
     private var floatingYPortrait by internalPrefs.floatingKeyboardYPortrait
     private var floatingXLandscape by internalPrefs.floatingKeyboardXLandscape
     private var floatingYLandscape by internalPrefs.floatingKeyboardYLandscape
     private var oneHandOnRightPortrait by internalPrefs.oneHandOnRightPortrait
     private var oneHandOnRightLandscape by internalPrefs.oneHandOnRightLandscape
+    private var floatingModeEnabledPref by internalPrefs.floatingModeEnabled
+    private var autoHideFloatingMoveHandlePref by internalPrefs.autoHideFloatingMoveHandle
+    private var lastAutoHideFloatingMoveHandlePref = false
+    private var floatingHandlesWereEffective = false
+    private val autoHideMoveHandlePreferenceListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == internalPrefs.autoHideFloatingMoveHandle.key) {
+                post {
+                    if (isAttachedToWindow) updateFloatingHandlesVisibility()
+                }
+            }
+        }
+    private val autoFloatingLandscapePref = internalPrefs.autoFloatingLandscape
+    private var autoFloatingActive = false
 
     private val isLandscapeOrientation: Boolean
         get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private var floatingWidthRatioPref: Float
+        get() = if (isLandscapeOrientation) floatingWidthLandscapeRatioPref else floatingWidthPortraitRatioPref
+        set(value) {
+            if (isLandscapeOrientation) floatingWidthLandscapeRatioPref = value
+            else floatingWidthPortraitRatioPref = value
+        }
+
+    private var floatingHeightRatioPref: Float
+        get() = if (isLandscapeOrientation) floatingHeightLandscapeRatioPref else floatingHeightPortraitRatioPref
+        set(value) {
+            if (isLandscapeOrientation) floatingHeightLandscapeRatioPref = value
+            else floatingHeightPortraitRatioPref = value
+        }
+
+    private fun invalidateSizeCachesIfConfigurationChanged() {
+        val metrics = resources.displayMetrics
+        val currentKey = FloatingSizeConfigurationKey(
+            orientation = resources.configuration.orientation,
+            widthPixels = metrics.widthPixels,
+            heightPixels = metrics.heightPixels,
+            densityDpi = metrics.densityDpi,
+        )
+        if (floatingSizeConfigurationKey != currentKey) {
+            floatingWidthPx = 0
+            floatingHeightPx = 0
+            floatingSizeConfigurationKey = currentKey
+        }
+    }
 
     // Whether layout-related preferences should be treated as landscape.
     // Enabled when device is landscape OR when "use landscape layout when split" is enabled and split keyboard is active.
@@ -1681,20 +1789,53 @@ class InputView(
         get() = isFloating && !isPhysicalCandidateBarMode
 
     private fun getStoredFloatingPosition(): Pair<Int, Int> {
-        return if (isLandscapeOrientation) {
-            floatingXLandscape to floatingYLandscape
+        val w = resources.displayMetrics.widthPixels
+        val h = resources.displayMetrics.heightPixels
+        val xRatio: Float
+        val yRatio: Float
+        val legacyX: Int
+        val legacyY: Int
+        if (isLandscapeOrientation) {
+            xRatio = floatingXLandscapeRatio
+            yRatio = floatingYLandscapeRatio
+            legacyX = floatingXLandscape
+            legacyY = floatingYLandscape
         } else {
-            floatingXPortrait to floatingYPortrait
+            xRatio = floatingXPortraitRatio
+            yRatio = floatingYPortraitRatio
+            legacyX = floatingXPortrait
+            legacyY = floatingYPortrait
         }
+        if (xRatio >= 0f && yRatio >= 0f) {
+            return (w * xRatio).toInt() to (h * yRatio).toInt()
+        }
+        // Migrate legacy pixel coordinates to ratios and clear them afterwards.
+        if (legacyX != -1 && legacyY != -1 && w > 0 && h > 0) {
+            saveFloatingPosition(legacyX, legacyY)
+            if (isLandscapeOrientation) {
+                floatingXLandscape = -1
+                floatingYLandscape = -1
+            } else {
+                floatingXPortrait = -1
+                floatingYPortrait = -1
+            }
+            return legacyX to legacyY
+        }
+        return -1 to -1
     }
 
     private fun saveFloatingPosition(x: Int, y: Int) {
+        val w = resources.displayMetrics.widthPixels
+        val h = resources.displayMetrics.heightPixels
+        if (w <= 0 || h <= 0) return
+        val xRatio = x.toFloat() / w
+        val yRatio = y.toFloat() / h
         if (isLandscapeOrientation) {
-            floatingXLandscape = x
-            floatingYLandscape = y
+            floatingXLandscapeRatio = xRatio
+            floatingYLandscapeRatio = yRatio
         } else {
-            floatingXPortrait = x
-            floatingYPortrait = y
+            floatingXPortraitRatio = xRatio
+            floatingYPortraitRatio = yRatio
         }
     }
 
@@ -1731,6 +1872,51 @@ class InputView(
     private var floatingResizeStartHeight = 0
     private var lastResizeTouchX = 0f
     private var lastResizeTouchY = 0f
+    private var floatingMoveHandleAbove: Boolean? = null
+
+    private val floatingMoveHandleAutoHideRunnable = Runnable {
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating && !isAdjustingMode) {
+            setFloatingMoveHandleVisibility(GONE)
+        }
+    }
+
+    // Coalesce resize-handle ACTION_MOVE updates into at most one size commit per frame.
+    private var pendingFloatingWidthCommit = false
+    private var pendingFloatingHeightCommit = false
+    private var sizeCommitScheduled = false
+    private val sizeCommitRunnable = Runnable {
+        sizeCommitScheduled = false
+        commitPendingSize()
+    }
+
+    private fun schedulePendingSizeCommit() {
+        if (sizeCommitScheduled) return
+        sizeCommitScheduled = true
+        postOnAnimation(sizeCommitRunnable)
+    }
+
+    private fun commitPendingSize() {
+        val commitFloatingWidth = pendingFloatingWidthCommit
+        val commitFloatingHeight = pendingFloatingHeightCommit
+        pendingFloatingWidthCommit = false
+        pendingFloatingHeightCommit = false
+        if (commitFloatingWidth) applyFloatingWidth()
+        if (commitFloatingHeight) applyFloatingHeight()
+    }
+
+    private fun flushPendingSizeCommit() {
+        if (!pendingFloatingWidthCommit && !pendingFloatingHeightCommit) return
+        removeCallbacks(sizeCommitRunnable)
+        sizeCommitScheduled = false
+        commitPendingSize()
+    }
+
+    private fun cancelPendingSizeCommit() {
+        removeCallbacks(sizeCommitRunnable)
+        sizeCommitScheduled = false
+        pendingFloatingWidthCommit = false
+        pendingFloatingHeightCommit = false
+    }
 
     private val minFloatingWidthPx: Int
         get() = dp(180).coerceAtMost(resources.displayMetrics.widthPixels)
@@ -1761,22 +1947,63 @@ class InputView(
     }
 
     private fun resolveFloatingWidth(): Int {
-        val stored = floatingWidthPx.takeIf { it > 0 } ?: run {
-            val default = (resources.displayMetrics.widthPixels * 0.8).toInt()
-            floatingWidthPx = default.coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
-            floatingWidthPx
+        invalidateSizeCachesIfConfigurationChanged()
+        if (floatingWidthPx <= 0) {
+            val legacyRatio = floatingWidthRatioLegacyPref
+            val legacyPx = floatingWidthLegacyPref
+            floatingWidthPx = when {
+                floatingWidthRatioPref > 0f ->
+                    (resources.displayMetrics.widthPixels * floatingWidthRatioPref).toInt()
+                legacyRatio > 0f ->
+                    (resources.displayMetrics.widthPixels * legacyRatio).toInt()
+                legacyPx > 0 -> legacyPx
+                else -> (resources.displayMetrics.widthPixels * 0.8f).toInt()
+            }
+            if (floatingWidthRatioPref <= 0f && (legacyRatio > 0f || legacyPx > 0)) {
+                persistFloatingWidth()
+            }
         }
-        floatingWidthPx = stored.coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
+        floatingWidthPx = floatingWidthPx.coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
         return floatingWidthPx
     }
 
-    private fun resolveFloatingHeight(): Int {
-        val stored = floatingHeightPx.takeIf { it > 0 } ?: run {
-            floatingHeightPx = keyboardHeightPx.coerceIn(minFloatingHeightPx, maxFloatingHeightPx)
-            floatingHeightPx
+    private fun persistFloatingWidth() {
+        val screenWidth = resources.displayMetrics.widthPixels
+        if (screenWidth <= 0 || floatingWidthPx <= 0) return
+        val ratio = floatingWidthPx.toFloat() / screenWidth
+        if (ratio != floatingWidthRatioPref) {
+            floatingWidthRatioPref = ratio
         }
-        floatingHeightPx = stored.coerceIn(minFloatingHeightPx, maxFloatingHeightPx)
+    }
+
+    private fun resolveFloatingHeight(): Int {
+        invalidateSizeCachesIfConfigurationChanged()
+        if (floatingHeightPx <= 0) {
+            val legacyRatio = floatingHeightRatioLegacyPref
+            val legacyPx = floatingHeightLegacyPref
+            floatingHeightPx = when {
+                floatingHeightRatioPref > 0f ->
+                    (resources.displayMetrics.heightPixels * floatingHeightRatioPref).toInt()
+                legacyRatio > 0f ->
+                    (resources.displayMetrics.heightPixels * legacyRatio).toInt()
+                legacyPx > 0 -> legacyPx
+                else -> keyboardHeightPx
+            }
+            if (floatingHeightRatioPref <= 0f && (legacyRatio > 0f || legacyPx > 0)) {
+                persistFloatingHeight()
+            }
+        }
+        floatingHeightPx = floatingHeightPx.coerceIn(minFloatingHeightPx, maxFloatingHeightPx)
         return floatingHeightPx
+    }
+
+    private fun persistFloatingHeight() {
+        val screenHeight = resources.displayMetrics.heightPixels
+        if (screenHeight <= 0 || floatingHeightPx <= 0) return
+        val ratio = floatingHeightPx.toFloat() / screenHeight
+        if (ratio != floatingHeightRatioPref) {
+            floatingHeightRatioPref = ratio
+        }
     }
 
     private fun applyFloatingWidth() {
@@ -1804,20 +2031,68 @@ class InputView(
     }
 
     private fun updateFloatingHandlesVisibility() {
-        if (isFloating) {
+        val autoHideEnabled = autoHideFloatingMoveHandlePref
+        val autoHideChanged = autoHideEnabled != lastAutoHideFloatingMoveHandlePref
+        lastAutoHideFloatingMoveHandlePref = autoHideEnabled
+        if (isEffectiveFloating) {
             floatingRightHandle.visibility = VISIBLE
             floatingBottomHandle.visibility = VISIBLE
-            adjustableHandle.visibility = VISIBLE
+            if (!autoHideEnabled) {
+                removeCallbacks(floatingMoveHandleAutoHideRunnable)
+                setFloatingMoveHandleVisibility(VISIBLE)
+            } else if (!floatingHandlesWereEffective || autoHideChanged) {
+                showFloatingMoveHandle()
+            }
+            floatingHandlesWereEffective = true
             return
         }
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
         floatingRightHandle.visibility = GONE
         floatingBottomHandle.visibility = GONE
         // In adjusting mode, floatingMoveHandle is used as bottom padding adjuster
-        if (isAdjustingMode) {
-            adjustableHandle.visibility = VISIBLE
-        } else {
-            adjustableHandle.visibility = GONE
+        setFloatingMoveHandleVisibility(if (isAdjustingMode) VISIBLE else GONE)
+        floatingHandlesWereEffective = false
+    }
+
+    private fun showFloatingMoveHandle() {
+        if (!autoHideFloatingMoveHandlePref || !isEffectiveFloating) return
+        setFloatingMoveHandleVisibility(VISIBLE)
+        scheduleFloatingMoveHandleAutoHide()
+    }
+
+    private fun scheduleFloatingMoveHandleAutoHide() {
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
+        if (
+            isAttachedToWindow && autoHideFloatingMoveHandlePref &&
+            isEffectiveFloating && adjustableHandle.visibility == VISIBLE
+        ) {
+            postDelayed(floatingMoveHandleAutoHideRunnable, FLOATING_MOVE_HANDLE_AUTO_HIDE_DELAY_MS)
         }
+    }
+
+    private fun setFloatingMoveHandleVisibility(visibility: Int) {
+        if (adjustableHandle.visibility == visibility) return
+        adjustableHandle.visibility = visibility
+        requestLayout()
+        if (isAttachedToWindow) {
+            service.updateFullscreenMode()
+            service.window.window?.decorView?.requestLayout()
+        }
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (autoHideFloatingMoveHandlePref != lastAutoHideFloatingMoveHandlePref) {
+            updateFloatingHandlesVisibility()
+        }
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating && adjustableHandle.visibility == VISIBLE) {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN ->
+                    removeCallbacks(floatingMoveHandleAutoHideRunnable)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                    scheduleFloatingMoveHandleAutoHide()
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     private fun updateAdjustingHandlesVisibility() {
@@ -2027,12 +2302,12 @@ class InputView(
         requestLayout()
     }
 
-    internal fun toggleFloatingMode() {
+    internal fun toggleFloatingMode(persist: Boolean = true) {
         popup.dismissAll()
-        val enableFloating = !isFloating
-        if (enableFloating && isPhysicalCandidateBarMode) {
-            isPhysicalCandidateBarMode = false
-            horizontalCandidate.setIndexLabelsEnabled(false)
+        flushPendingSizeCommit()
+        if (persist) autoFloatingActive = false
+        if (!isFloating && isPhysicalCandidateBarMode) {
+            setPhysicalCandidateBarMode(false)
         }
         if (isFloating) {
             saveFloatingPosition(
@@ -2040,22 +2315,67 @@ class InputView(
                 keyboardView.translationY.toInt()
             )
         }
-        if (enableFloating && isOneHanded) {
+        if (!isFloating && isOneHanded) {
             isOneHanded = false
         }
-        isFloating = enableFloating
-        floatingKeyboardEnabled = enableFloating
+        isFloating = !isFloating
+        if (persist) floatingModeEnabledPref = isFloating
         kawaiiBar.setFloatingState(isEffectiveFloating)
         updateFloatingState()
         updateFloatingHandlesVisibility()
         updateOneHandHandleVisibility()
         updateKeyboardSize() // Add this to refresh padding/height based on new state
         updateOneHandGapScale(force = true)
+        // Rebuild the current keyboard once the floating/docked layout pass has finished,
+        // otherwise punctuation/alt-text labels can keep stale positions.
+        if (!floatingToggleRefreshPending) {
+            floatingToggleRefreshPending = true
+            keyboardView.doOnNextLayout {
+                floatingToggleRefreshPending = false
+                (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
+            }
+        }
         service.updateFullscreenMode()
         // Force layout update
         requestLayout()
         // Trigger insets update
         service.window.window?.decorView?.requestLayout()
+    }
+
+    private fun restoreFloatingAndOneHandState() {
+        if (floatingModeEnabledPref) {
+            isFloating = true
+            isOneHanded = false
+        }
+        if (autoFloatingLandscapePref.getValue() && isLandscapeOrientation &&
+            !isFloating && !isOneHanded
+        ) {
+            isFloating = true
+            autoFloatingActive = true
+        }
+    }
+
+    private fun applyAutoFloatingForOrientation() {
+        if (isAdjustingMode) return
+        val enabled = autoFloatingLandscapePref.getValue()
+        if (isLandscapeOrientation) {
+            if (enabled && !isFloating && !isOneHanded) {
+                autoFloatingActive = true
+                toggleFloatingMode(persist = false)
+            }
+        } else {
+            if (autoFloatingActive && isFloating) {
+                autoFloatingActive = false
+                toggleFloatingMode(persist = false)
+            } else {
+                autoFloatingActive = false
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        applyAutoFloatingForOrientation()
     }
 
     internal fun enterAdjustingMode() {
@@ -2072,13 +2392,14 @@ class InputView(
 
     fun toggleOneHandMode() {
         popup.dismissAll()
+        flushPendingSizeCommit()
         if (isFloating) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
                 keyboardView.translationY.toInt()
             )
             isFloating = false
-            floatingKeyboardEnabled = false
+            floatingModeEnabledPref = false
             kawaiiBar.setFloatingState(false)
         }
         isOneHanded = !isOneHanded
@@ -2101,6 +2422,7 @@ class InputView(
 
     private fun toggleAdjustingMode(persistAdjustments: Boolean = true) {
         popup.dismissAll()
+        flushPendingSizeCommit()
         if (!isAdjustingMode) {
             beginAdjustingModeSession()
         } else if (persistAdjustments && !persistAdjustingKeyboardHeightOverride()) {
@@ -2120,20 +2442,29 @@ class InputView(
             onlyCurrentLayoutAdjustment = false
         }
         // In adjusting mode, force non-floating state for better UX
-        if (isAdjustingMode && isFloating) {
+        val leftFloatingForAdjusting = isAdjustingMode && isFloating
+        if (leftFloatingForAdjusting) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
                 keyboardView.translationY.toInt()
             )
             isFloating = false
             kawaiiBar.setFloatingState(false)
+            floatingModeEnabledPref = false
             updateFloatingState()
-        } else if (!isAdjustingMode && floatingKeyboardEnabled && !isPhysicalCandidateBarMode && !isOneHanded) {
+        } else if (!isAdjustingMode && floatingModeEnabledPref && !isPhysicalCandidateBarMode && !isOneHanded) {
             isFloating = true
             kawaiiBar.setFloatingState(isEffectiveFloating)
             updateFloatingState()
         }
         updateKeyboardSize()
+        if (leftFloatingForAdjusting && !floatingToggleRefreshPending) {
+            floatingToggleRefreshPending = true
+            keyboardView.doOnNextLayout {
+                floatingToggleRefreshPending = false
+                (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
+            }
+        }
         updateAdjustingModeUi()
         requestLayout()
     }
@@ -2490,7 +2821,7 @@ class InputView(
             val percent = resolveKeyboardHeightPercent()
             Timber.d("keyboardHeightPx get(): base=RealSize($base), percent=$percent")
             val baseHeight = base * percent / 100
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
             return baseHeight
@@ -2500,7 +2831,7 @@ class InputView(
         get() {
             val value = (if (isLayoutLandscape) keyboardSidePaddingLandscape else keyboardSidePadding).getValue()
             val px = dp(value)
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (px * 0.8).toInt()
             }
             return px
@@ -2510,7 +2841,7 @@ class InputView(
         get() {
             val value = (if (isLayoutLandscape) keyboardBottomPaddingLandscape else keyboardBottomPadding).getValue()
             val px = dp(value)
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (px * 0.8).toInt()
             }
             return px
@@ -2588,7 +2919,7 @@ class InputView(
         windowManager.addEssentialWindow(keyboardWindow, createView = true)
         windowManager.addEssentialWindow(symbolPicker)
         windowManager.addEssentialWindow(emojiPicker)
-        windowManager.addEssentialWindow(emoticonPicker)
+        windowManager.addEssentialWindow(kaomojiPicker)
         // show KeyboardWindow by default
         windowManager.attachWindow(KeyboardWindow)
         windowManager.onWindowChanged = {
@@ -2600,12 +2931,8 @@ class InputView(
         broadcaster.onImeUpdate(fcitx.runImmediately { inputMethodEntryCached })
 
         // Apply blur effect when theme has background image and blurRadius > 0
-        val hasBlur = theme is Theme.Custom && theme.shouldApplyBlur()
-        Timber.d("InputView init: theme=${theme.name}, isCustom=${theme is Theme.Custom}, enableBlur=$hasBlur")
-        if (theme is Theme.Custom) {
-            val bg = theme.backgroundImage
-            Timber.d("InputView: backgroundImage=${bg != null}, blurRadius=${bg?.blurRadius}")
-        }
+        val hasBlur = theme.shouldApplyBlur()
+        Timber.d("InputView init: theme=${theme.name}, hasBackground=${theme.hasBackgroundImage}, enableBlur=$hasBlur")
         customBackground.imageDrawable = theme.backgroundDrawable(keyBorder)
         updateBlurMaskThemeData()
 
@@ -2781,7 +3108,7 @@ class InputView(
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
         ThemeManager.prefs.registerOnChangeListener(onToolbarHeightChangeListener)
-        isFloating = floatingKeyboardEnabled
+        restoreFloatingAndOneHandState()
         updateFloatingState()
         updateFloatingHandlesVisibility()
         updateOneHandHandleVisibility()
@@ -3107,7 +3434,7 @@ class InputView(
         if (clipboardSearchActive) return
         windowManager.attachWindow(KeyboardWindow)
         restoreFloatingAfterClipboardSearch = isFloating
-        if (isFloating) toggleFloatingMode()
+        if (isFloating) toggleFloatingMode(persist = false)
         fcitx.runIfReady { reset() }
         clipboardSearchOverlay.open()
         clipboardSearchOverlay.root.visibility = VISIBLE
@@ -3120,7 +3447,7 @@ class InputView(
         clipboardSearchOverlay.close()
         clipboardSearchOverlay.root.visibility = GONE
         fcitx.runIfReady { reset() }
-        if (restoreFloatingAfterClipboardSearch && !isFloating) toggleFloatingMode()
+        if (restoreFloatingAfterClipboardSearch && !isFloating) toggleFloatingMode(persist = false)
         restoreFloatingAfterClipboardSearch = false
         service.window.window?.decorView?.requestLayout()
     }
@@ -3371,6 +3698,7 @@ class InputView(
     internal fun setPhysicalCandidateBarMode(enabled: Boolean) {
         horizontalCandidate.setIndexLabelsEnabled(enabled && keyboardPrefs.candidateIndexLabels.getValue())
         if (isPhysicalCandidateBarMode == enabled) return
+        flushPendingSizeCommit()
         if (enabled && isFloating) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
@@ -3379,7 +3707,7 @@ class InputView(
             isFloating = false
         }
         isPhysicalCandidateBarMode = enabled
-        if (!enabled && floatingKeyboardEnabled && !isOneHanded) {
+        if (!enabled && floatingModeEnabledPref && !isOneHanded) {
             isFloating = true
         }
         syncPhysicalCandidateBarLayout()
@@ -3468,7 +3796,23 @@ class InputView(
         ConfigProviders.addButtonsLayoutListener(onButtonsLayoutChangeListener)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        internalPrefs.autoHideFloatingMoveHandle.sharedPreferences
+            .registerOnSharedPreferenceChangeListener(autoHideMoveHandlePreferenceListener)
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating) {
+            showFloatingMoveHandle()
+        } else {
+            updateFloatingHandlesVisibility()
+        }
+    }
+
     override fun onDetachedFromWindow() {
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
+        floatingHandlesWereEffective = false
+        internalPrefs.autoHideFloatingMoveHandle.sharedPreferences
+            .unregisterOnSharedPreferenceChangeListener(autoHideMoveHandlePreferenceListener)
+        cancelPendingSizeCommit()
         windowManager.onWindowChanged = null
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)

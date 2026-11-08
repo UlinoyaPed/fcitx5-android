@@ -83,7 +83,6 @@ class ThemeCandidateStyleFragment : ThemeGroupFragment(AppPrefs.getInstance().ca
     override fun onBuildPreferenceScreen(screen: PreferenceScreen) {
         val candidates = AppPrefs.getInstance().candidates
         val keyboard = AppPrefs.getInstance().keyboard
-        val advanced = AppPrefs.getInstance().advanced
         addManagedPreference(screen, candidates, AppPrefs.CANDIDATE_DISPLAY_MODE_KEY)
         addThemePreferences(screen, keyboard, ThemeSettingsSupport.candidateSharedKeyboardKeys)
         screen.addCategory(R.string.candidate_display_mode_horizontal) {
@@ -118,13 +117,6 @@ class ThemeCandidateStyleFragment : ThemeGroupFragment(AppPrefs.getInstance().ca
                 this,
                 candidates,
                 ThemeSettingsSupport.candidateItemKeys
-            )
-        }
-        screen.addCategory(R.string.emoji_and_symbols) {
-            addThemePreferences(
-                this,
-                advanced,
-                ThemeSettingsSupport.candidateEmojiKeys
             )
         }
         updateCandidateSettingVisibility()

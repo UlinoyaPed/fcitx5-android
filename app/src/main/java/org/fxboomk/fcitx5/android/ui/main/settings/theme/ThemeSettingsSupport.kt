@@ -104,11 +104,6 @@ internal object ThemeSettingsSupport {
 
     val otherStyleKeys = otherStyleThemeKeys
 
-    val candidateEmojiKeys = listOf(
-        "hide_unsupported_emojis",
-        "default_emoji_skin_tone"
-    )
-
     val candidateSharedKeyboardKeys = listOf("preedit_style", "personal_candidate_index_labels")
 
     val candidateHorizontalKeysBeforeAppearance = listOf(
@@ -141,7 +136,7 @@ internal object ThemeSettingsSupport {
         "candidates_item_padding_vertical"
     )
 
-    val candidateStyleKeys = candidateSharedKeyboardKeys + candidateEmojiKeys +
+    val candidateStyleKeys = candidateSharedKeyboardKeys +
         candidateHorizontalKeys +
         candidateWindowKeys +
         candidateItemKeys
@@ -169,7 +164,7 @@ internal object ThemeSettingsSupport {
      * Preferences that keep living in [org.fxboomk.fcitx5.android.data.prefs.AppPrefs.Advanced]
      * but are presented by the appearance pages.
      */
-    val advancedMovedKeys = candidateEmojiKeys + animationAdvancedKeys
+    val advancedMovedKeys = animationAdvancedKeys
 
     fun ManagedPreferenceFragment.addThemePreferences(
         parent: PreferenceGroup,

@@ -19,11 +19,14 @@ import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeCodec
 import org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinSchemeStore
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fxboomk.fcitx5.android.input.picker.SymbolCatalogType
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigLayouts
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonDisplayNames
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.PinyinTextConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinMappingFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeAppearanceFragment
@@ -306,12 +309,15 @@ object SettingsSearchIndex {
             addPage(context, R.string.input_methods, SettingsRoute.InputMethodList)
             addPage(context, R.string.theme_appearance, SettingsRoute.Theme)
             addPage(context, R.string.virtual_keyboard, SettingsRoute.VirtualKeyboard)
+            addPage(context, R.string.emoji_and_symbols, SettingsRoute.Symbol)
             addPage(context, R.string.llm_settings_title, SettingsRoute.Llm)
             addPage(context, R.string.clipboard, SettingsRoute.Clipboard)
             addPage(context, R.string.plugins, SettingsRoute.Plugin)
             addPage(context, R.string.advanced, SettingsRoute.Advanced)
 
             addAll(keyboardItems(context, prefs.keyboard))
+            addAll(managedItems(context, prefs.symbols, SettingsRoute.Symbol, R.string.emoji_and_symbols))
+            addAll(symbolCatalogItems(context))
             addAll(themeItems(context))
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
             addAll(
@@ -516,14 +522,6 @@ object SettingsSearchIndex {
             null,
             listOf(AppPrefs.CANDIDATE_DISPLAY_MODE_KEY)
         )
-        addThemeSection(
-            context,
-            prefs.advanced,
-            SettingsRoute.ThemeCandidateStyle,
-            candidatePath,
-            R.string.emoji_and_symbols,
-            ThemeSettingsSupport.candidateEmojiKeys
-        )
         addThemeSection(context, prefs.keyboard, SettingsRoute.ThemeCandidateStyle,
             candidatePath, null, ThemeSettingsSupport.candidateSharedKeyboardKeys)
         addThemeSection(context, prefs.keyboard, SettingsRoute.ThemeCandidateStyle,
@@ -598,6 +596,13 @@ object SettingsSearchIndex {
         addKeyboardSection(
             context,
             keyboardPrefs,
+            R.string.keyboard_category_voice,
+            SettingsRoute.VirtualKeyboardVoice,
+            listOf("show_voice_input_button", "preferred_voice_input")
+        )
+        addKeyboardSection(
+            context,
+            keyboardPrefs,
             R.string.keyboard_settings_touch_and_sound,
             SettingsRoute.VirtualKeyboardTouchAndSound,
             KeyboardSettingsSupport.touchAndSoundKeys
@@ -628,6 +633,37 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
+        val floatingPagePath = listOf(
+            context.getString(R.string.virtual_keyboard),
+            context.getString(R.string.keyboard_settings_layout_and_split)
+        )
+        listOf(
+            Triple(
+                R.string.floating_keyboard_enabled,
+                R.string.floating_keyboard_enabled_summary,
+                AppPrefs.getInstance().internal.floatingModeEnabled.key
+            ),
+            Triple(
+                R.string.auto_floating_landscape,
+                R.string.auto_floating_landscape_summary,
+                AppPrefs.getInstance().internal.autoFloatingLandscape.key
+            ),
+            Triple(
+                R.string.floating_move_handle_auto_hide,
+                R.string.floating_move_handle_auto_hide_summary,
+                AppPrefs.getInstance().internal.autoHideFloatingMoveHandle.key
+            )
+        ).forEach { (title, summary, key) ->
+            add(
+                SettingsSearchResult(
+                    context.getString(title),
+                    floatingPagePath,
+                    SettingsRoute.VirtualKeyboardLayoutAndSplit,
+                    key,
+                    context.getString(summary)
+                )
+            )
+        }
         addAdvancedKeyboardItem(
             context,
             R.string.edit_swipe_symbol_mapping,
@@ -696,6 +732,30 @@ object SettingsSearchIndex {
     ): List<SettingsSearchResult> {
         val path = listOf(context.getString(pageTitle))
         return provider.managedPreferencesUi.map { it.toSearchResult(context, route, path) }
+    }
+
+    /**
+     * The three catalog pickers are plain preferences created inside
+     * [SymbolSettingsFragment] rather than managed preferences, so they need
+     * their own search entries to be reachable from settings search.
+     */
+    private fun symbolCatalogItems(context: Context): List<SettingsSearchResult> {
+        val pageTitle = context.getString(R.string.emoji_and_symbols)
+        val path = listOf(pageTitle)
+        return SymbolCatalogType.entries.map { type ->
+            SettingsSearchResult(
+                title = context.getString(
+                    when (type) {
+                        SymbolCatalogType.Symbols -> R.string.symbol_catalog_symbols_title
+                        SymbolCatalogType.Emoji -> R.string.symbol_catalog_emoji_title
+                        SymbolCatalogType.Kaomoji -> R.string.symbol_catalog_kaomoji_title
+                    }
+                ),
+                path = path,
+                route = SettingsRoute.Symbol,
+                preferenceKey = SymbolSettingsFragment.catalogPreferenceKey(type)
+            )
+        }
     }
 
     private fun org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceUi<*>.toSearchResult(
@@ -810,6 +870,11 @@ object SettingsSearchIndex {
                         isAddon = route is SettingsRoute.AddonConfig,
                         sectionTitle = sectionTitle
                     )
+                } else if (
+                    groupedLayout != null &&
+                    AddonConfigLayouts.isPinyinTextSection(groupedLayout, sectionIndex)
+                ) {
+                    SettingsRoute.PinyinTextConfig(sectionTitle)
                 } else SettingsRoute.ConfigSection(
                     pageTitle = path.first(),
                     uniqueName = when (route) {
@@ -826,10 +891,26 @@ object SettingsSearchIndex {
             } else {
                 route
             }
+            val itemPath = if (sectionTitle == null) {
+                path
+            } else {
+                val sectionPath = path + sectionTitle
+                if (destination is SettingsRoute.PinyinTextConfig) {
+                    sectionPath + context.getString(
+                        if (descriptor.name == "Punctuation") {
+                            R.string.pinyin_config_punctuation
+                        } else {
+                            R.string.pinyin_config_script_conversion
+                        }
+                    )
+                } else {
+                    sectionPath
+                }
+            }
             descriptorItems(
                 context,
                 destination,
-                if (sectionTitle != null) path + sectionTitle else path,
+                itemPath,
                 descriptor,
                 // A section destination is its own screen, not the source page's tab.
                 // FuzzyConfig's real child tabs are assigned by descriptorItems.
@@ -861,6 +942,11 @@ object SettingsSearchIndex {
                 descriptorItems(context, route, path + section, it, fuzzyTab, childLayout)
             }
         } else {
+            val descriptorTab = when (descriptor.name) {
+                "Punctuation", "Chttrans" ->
+                    PinyinTextConfigFragment.tabForOption(descriptor.name)
+                else -> tab
+            }
             listOf(
                 SettingsSearchResult(
                     title = layout?.titleOverride(context, descriptor.name)
@@ -870,7 +956,7 @@ object SettingsSearchIndex {
                     preferenceKey = descriptor.name,
                     summary = descriptor.tooltip,
                     keywords = listOf(descriptor.name, ConfigType.pretty(descriptor.ty)),
-                    tab = tab
+                    tab = descriptorTab
                 )
             )
         }

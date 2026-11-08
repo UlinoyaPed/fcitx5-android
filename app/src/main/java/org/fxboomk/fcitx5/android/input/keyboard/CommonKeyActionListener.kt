@@ -450,7 +450,7 @@ class CommonKeyActionListener :
                 is PickerSwitchAction -> {
                     // update lastSymbolType only when specified explicitly
                     val key = action.key?.also { k -> lastPickerType = k.name }
-                        ?: runCatching { PickerWindow.Key.valueOf(lastPickerType) }.getOrNull()
+                        ?: PickerWindow.Key.ofName(lastPickerType)
                         ?: PickerWindow.Key.Emoji
                     ContextCompat.getMainExecutor(service).execute {
                         windowManager.attachWindow(key)
@@ -469,7 +469,7 @@ class CommonKeyActionListener :
                         SpaceLongPressBehavior.RepeatSpace -> {
                             // Handled by the repeat binding of the space key.
                         }
-                        SpaceLongPressBehavior.VoiceInput -> {
+                        SpaceLongPressBehavior.VoiceHold -> {
                             val started = switchToVoiceInput()
                             voiceHoldActive = started && preferredVoiceInputProviderAvailable()
                         }
@@ -480,7 +480,7 @@ class CommonKeyActionListener :
                 }
                 is VoiceInputHoldEnd -> {
                     if (voiceHoldActive) {
-                        VoiceInputProviderManager.stop(service)
+                        VoiceInputProviderManager.finish(service)
                         voiceHoldActive = false
                     }
                 }

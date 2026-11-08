@@ -25,6 +25,7 @@ import org.fxboomk.fcitx5.android.ui.main.MainFragment
 import org.fxboomk.fcitx5.android.ui.main.PluginFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.FuzzyConfigFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.addon.PinyinTextConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
@@ -33,8 +34,10 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardKeyAndGestur
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardLayoutAndSplitSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsHomeFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardTouchAndSoundSettingsFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardVoiceSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmAdvancedSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.LlmSettingsFragment
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.CustomShuangpinFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
@@ -97,6 +100,9 @@ sealed class SettingsRoute : Parcelable {
         val sectionTitle: String
     ) : SettingsRoute()
 
+    @Serializable
+    data class PinyinTextConfig(val sectionTitle: String) : SettingsRoute()
+
     /* ========== Android ========== */
 
     @Serializable
@@ -130,6 +136,9 @@ sealed class SettingsRoute : Parcelable {
     data object VirtualKeyboardBasic : SettingsRoute()
 
     @Serializable
+    data object VirtualKeyboardVoice : SettingsRoute()
+
+    @Serializable
     data object VirtualKeyboardTouchAndSound : SettingsRoute()
 
     @Serializable
@@ -137,6 +146,9 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object VirtualKeyboardLayoutAndSplit : SettingsRoute()
+
+    @Serializable
+    data object Symbol : SettingsRoute()
 
     @Serializable
     data object Clipboard : SettingsRoute()
@@ -283,6 +295,7 @@ sealed class SettingsRoute : Parcelable {
             fragment<AddonConfigFragment, AddonConfig>()
             fragment<ConfigSectionFragment, ConfigSection>()
             fragment<FuzzyConfigFragment, FuzzyConfig>()
+            fragment<PinyinTextConfigFragment, PinyinTextConfig>()
 
             /* ========== Android ========== */
 
@@ -316,6 +329,9 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardBasicSettingsFragment, VirtualKeyboardBasic> {
                 label = ctx.getString(R.string.keyboard_settings_basic_behavior)
             }
+            fragment<KeyboardVoiceSettingsFragment, VirtualKeyboardVoice> {
+                label = ctx.getString(R.string.keyboard_category_voice)
+            }
             fragment<KeyboardTouchAndSoundSettingsFragment, VirtualKeyboardTouchAndSound> {
                 label = ctx.getString(R.string.keyboard_settings_touch_and_sound)
             }
@@ -324,6 +340,9 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<KeyboardLayoutAndSplitSettingsFragment, VirtualKeyboardLayoutAndSplit> {
                 label = ctx.getString(R.string.keyboard_settings_layout_and_split)
+            }
+            fragment<SymbolSettingsFragment, Symbol> {
+                label = ctx.getString(R.string.emoji_and_symbols)
             }
             fragment<ClipboardSettingsFragment, Clipboard> {
                 label = ctx.getString(R.string.clipboard)
