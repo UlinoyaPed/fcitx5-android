@@ -66,3 +66,12 @@ git push origin v0.1.0-personal.1
 ## 2026-10-23 构建任务调整
 
 应用移除旧 flavor 后，构建使用 `:app:assembleRelease`、`:app:testDebugUnitTest`，应用输出在 `app/build/outputs/apk/release/`。调试及测试构建使用 `:app:assembleDebug`、`:app:assembleDebugAndroidTest`。Nightly、Release 和个人包名没有因此改变；工作流继续构建全部插件并校验签名，不再调用 Mainline/Fx 任务或移动旧 flavor 目录。
+
+
+## GenAI 16KB 原生库构建
+
+GenAI API 继续使用 0.17.0；第三方 Maven 产物版本为 `0.17.0-f5a.1`。发布到本地仓库前，任务会校验固定的 Microsoft 原始 AAR，使用固定校验的 telemetry 3.10.267.1 源码重编两个 ABI 的 `libmat.so`，检查 ELF LOAD 对齐及导出符号，并核对其余 AAR 条目内容不变。APK 的 ZIP 对齐与 ELF LOAD 对齐分别检查。
+
+构建需要 Python 3.9 或更高版本、Android NDK `28.0.13004108`、SDK CMake `3.31.6` 及 build-tools 中的 `zipalign`。Nightly／Release 的共用工作流已安装这些 Android 工具，PR 工作流也显式安装 NDK。原始 AAR 和 SDK 源码压缩包均按固定校验值读取；重新编译时从校验后的源码包恢复解压目录。生成 AAR 及其校验标记通过临时文件替换，损坏的产物或标记会从已校验输入重建。
+
+本地首次构建先创建 `.local-thirdparty-artifacts` 目录，再运行 `./gradlew :third_party:onnxruntime-genai-android:publish`，之后执行应用／插件构建。发布任务会先自动运行五项构建辅助测试；也可单独运行 `./gradlew :third_party:onnxruntime-genai-android:testRebuildHelper`。原始 AAR 的固定校验值和编译输入详见该模块构建脚本及维护记录。

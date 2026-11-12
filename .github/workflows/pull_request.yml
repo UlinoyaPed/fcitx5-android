@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Android NDK
         run: |
-          sdkmanager --install "cmake;3.31.6"
+          sdkmanager --install "cmake;3.31.6" "ndk;28.0.13004108"
 
       - name: Install system dependencies (Ubuntu)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
@@ -69,9 +69,8 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      # 先把第三方 AAR 发布到本地 .local-thirdparty-artifacts：GitHub Packages 上只有 0.13.1，
-      # 固定的 0.15.0 从未发布过，直连必然 401/404。settings.gradle.kts 检测到该目录后会优先
-      # 本地解析，所以不传 -PgithubPackagesRepository（Windows Git Bash 的 $PWD 拼 file:// 会解析错）。
+      # 校验固定的原始 AAR 并重编支持 16KB 页的 telemetry，再发布到本地仓库。
+      # settings.gradle.kts 优先读取该目录；不手拼 file:// 地址，以兼容 Windows 路径。
       - name: Publish third-party artifacts locally
         shell: bash
         run: |

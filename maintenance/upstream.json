@@ -65,17 +65,17 @@
     "details": "maintenance/2026-10-30-upstream-review.json"
   },
   "pending_review": {
-    "record": "maintenance/2026-11-13-upstream-review.json",
+    "record": "maintenance/2026-11-13-genai-review.json",
     "branch": "maintenance/2026-11-05-review",
     "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
     "latest_observed_upstream_sha": "27a183bbf81556509a0a27c052794524ee6c0f44",
     "status": "whole_candidate_and_later_features_still_pending",
-    "previous_record": "maintenance/2026-11-08-pending-review.json",
+    "previous_record": "maintenance/2026-11-13-upstream-review.json",
     "incoming_branch": "maintenance/2026-11-13-incoming",
-    "remaining_entries": 77
+    "remaining_entries": 76
   },
   "latest_maintenance_date": "2026-11-13",
-  "latest_maintenance_record": "maintenance/2026-11-13-upstream-review.json",
+  "latest_maintenance_record": "maintenance/2026-11-13-genai-review.json",
   "selective_adoptions": [
     {
       "sha": "4760107f01fdcb4ac2673d47755963c618ee95f1",
@@ -96,6 +96,11 @@
       "sha": "dc6bed549799562ac0d18777dec1421ade82d969",
       "review": "Already protected on personal main: builtin names fill missing themes only. Extract the pure seeding helper and add regressions without overwriting saved themes.",
       "record": "maintenance/2026-11-13-upstream-review.json"
+    },
+    {
+      "sha": "295164aadaa0b2a1732b820efbec97d11a0b99e6",
+      "review": "Adopt the 16 KB telemetry rebuild with fixed original AAR and stronger pinned SDK archive checksum. Restore extracted sources from verified archives, recover malformed markers and corrupt outputs, atomically replace artifacts, retain personal numeric SDK sorting, run five helper tests on publication, install NDK 28 in PR without restoring Publish. Both ABIs passed required-symbol/ELF checks; final APK and Android JNI/input regression passed.",
+      "record": "maintenance/2026-11-13-genai-review.json"
     }
   ],
   "selective_validation": {
@@ -105,18 +110,20 @@
       "errors": 0,
       "skipped": 0
     },
+    "python_tests": 5,
     "android_tests": 35,
     "release_plugins": 10,
+    "elf_16kb": "all final APK libraries checked",
     "lint": {
       "debug": {
         "errors": 0,
-        "warnings": 35
+        "warnings": 32
       },
       "release": {
         "errors": 0,
-        "warnings": 33
+        "warnings": 32
       }
     },
-    "record": "maintenance/2026-11-13-upstream-review.json"
+    "record": "maintenance/2026-11-13-genai-review.json"
   }
 }

@@ -1,0 +1,608 @@
+{
+  "date": "2026-11-13 Asia/Shanghai",
+  "status": "adjusted_dependency_fix_validated",
+  "personal_base_sha": "678f3f3aa4a56362dc3aaff9310180cddb07b472",
+  "fully_adopted_upstream_baseline": "939a8ed546959a3120d1418e5215ca762071087e",
+  "latest_observed_upstream_sha": "27a183bbf81556509a0a27c052794524ee6c0f44",
+  "adopted_commit": "295164aadaa0b2a1732b820efbec97d11a0b99e6",
+  "previous_record": "maintenance/2026-11-13-upstream-review.json",
+  "decision_updates": [
+    {
+      "sha": "295164aadaa0b2a1732b820efbec97d11a0b99e6",
+      "title": "build(third-party): 重建 onnxruntime-genai telemetry 库修复 16 KB 对齐",
+      "status": "selected_fix_or_existing_equivalent",
+      "review_depth": "semantic_source_review_cache_native_build_and_android_verification",
+      "review": "Adopt the 16 KB telemetry rebuild with fixed original AAR and stronger pinned SDK archive checksum. Restore extracted sources from verified archives, recover malformed markers and corrupt outputs, atomically replace artifacts, retain personal numeric SDK sorting, run five helper tests on publication, install NDK 28 in PR without restoring Publish. Both ABIs passed required-symbol/ELF checks; final APK and Android JNI/input regression passed.",
+      "changed_files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/publish.yml",
+        ".github/workflows/pull_request.yml",
+        "gradle/libs.versions.toml",
+        "third_party/onnxruntime-genai-android/.gitignore",
+        "third_party/onnxruntime-genai-android/build.gradle.kts",
+        "third_party/onnxruntime-genai-android/mat-native/CMakeLists.txt",
+        "third_party/onnxruntime-genai-android/mat-native/android_telemetry_bridge.cpp",
+        "third_party/onnxruntime-genai-android/rebuild_mat.py"
+      ],
+      "patch_sha256": "74db513cb2b1a1988ff19772742a0f8143a700f379bff146da41fbba4c3d4d4b"
+    }
+  ],
+  "decision_counts": {
+    "isolated_candidate_validation_incomplete": 24,
+    "selected_fix_or_existing_equivalent": 5,
+    "incompatible_effect_rejected": 2,
+    "pending_dependency_review_and_validation": 52
+  },
+  "settings_changes": "No application setting or service configuration changed; Java classes and all non-telemetry AAR entries remain byte-identical.",
+  "dependency": {
+    "api_version": "0.17.0",
+    "artifact_version": "0.17.0-f5a.1",
+    "original_sha256": "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50",
+    "sdk_source_version": "3.10.267.1",
+    "sdk_source_sha256": "1b24aad80106357e7757c6a40ebd3fd5921bad09d8215104f3d7b098b131bfc0",
+    "sdk_source_sha1": "9d29169b8e51157d44a24a0d6cf6847260ea2efc",
+    "derived_marker": {
+      "fingerprint": "0331e598d8ed016c11cd487033ce0e139a99f6c8f677eeb4cc8073fa2ae287ea",
+      "sha256": "5b7e6056b6d81447cb33e0e955ce30ae65ac1f0b857fd77cb059aa56b7453bfd",
+      "abis": {
+        "arm64-v8a": {
+          "original_exports": 2236,
+          "rebuilt_exports": 2334,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        },
+        "x86_64": {
+          "original_exports": 2230,
+          "rebuilt_exports": 2328,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        }
+      }
+    },
+    "changed_aar_entries": [
+      "jni/arm64-v8a/libmat.so",
+      "jni/x86_64/libmat.so"
+    ],
+    "non_telemetry_entries_identical": true,
+    "classes_jar_sha256": "173bc4e3e6d912f36c9d10287b1ed1f372cf3e1b286a838968abd0851449f9c6",
+    "toolchain": {
+      "ndk": "28.0.13004108",
+      "cmake": "3.31.6",
+      "build_tools": "36.1.0",
+      "host": "Linux",
+      "java": "21"
+    }
+  },
+  "source_sha256": {
+    ".github/workflows/pull_request.yml": "2ab2dad9a73347f35389df96df54a6d12322df9c1f5fbf52817853251d4aa9ec",
+    ".gitnexusignore": "59a61a8d5c42213afbbffcd88b9e885fcbc114f200be9785fa3559b17a22f9b0",
+    "RELEASING.md": "9c2d87105318018ec5ca92367da8bde5f5a2188670315b43b7702457505229d8",
+    "gradle/libs.versions.toml": "ea311d807722f310a4a67bfe6d7f32be88e58d00106b18792db7cc4944be90c3",
+    "third_party/onnxruntime-genai-android/.gitignore": "0cf256cc9234b415f912f5b0e9f8c9364688466041611047cd3f599c35f4efa6",
+    "third_party/onnxruntime-genai-android/build.gradle.kts": "2ead331d0bab8df5aaf3b5c9732cb27c81098563ddc4d2a4a50bfdce6342dbc1",
+    "third_party/onnxruntime-genai-android/mat-native/CMakeLists.txt": "27a766c291f7049b24715df69668bbd94af37df313266810977554e16a966d6d",
+    "third_party/onnxruntime-genai-android/mat-native/android_telemetry_bridge.cpp": "2eee42b763dfa351dd9bc652a5fec6acfb6ede2d999f7b74dd5db30dbb266b31",
+    "third_party/onnxruntime-genai-android/rebuild_mat.py": "3d3ba08299d86ad9560cbc45a7080f779bf37bee35c8a43c8dee9b8985989355",
+    "third_party/onnxruntime-genai-android/tests/test_rebuild_mat.py": "aefe67084b9f1649a0f19ef03957fc97bb52289a8d8309f4adfb6d079e24f3d6"
+  },
+  "cache_regression": {
+    "malformed_marker_recovery": "passed_via_actual_gradle_publication",
+    "initial_marker": {
+      "fingerprint": "0331e598d8ed016c11cd487033ce0e139a99f6c8f677eeb4cc8073fa2ae287ea",
+      "sha256": "5b7e6056b6d81447cb33e0e955ce30ae65ac1f0b857fd77cb059aa56b7453bfd",
+      "abis": {
+        "arm64-v8a": {
+          "original_exports": 2236,
+          "rebuilt_exports": 2334,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        },
+        "x86_64": {
+          "original_exports": 2230,
+          "rebuilt_exports": 2328,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        }
+      }
+    },
+    "artifact_sha256_before_corruption": "5b7e6056b6d81447cb33e0e955ce30ae65ac1f0b857fd77cb059aa56b7453bfd",
+    "generated_aar_and_extracted_sdk_corruption_recovery": "passed_via_actual_gradle_publication",
+    "final_marker": {
+      "fingerprint": "0331e598d8ed016c11cd487033ce0e139a99f6c8f677eeb4cc8073fa2ae287ea",
+      "sha256": "5b7e6056b6d81447cb33e0e955ce30ae65ac1f0b857fd77cb059aa56b7453bfd",
+      "abis": {
+        "arm64-v8a": {
+          "original_exports": 2236,
+          "rebuilt_exports": 2334,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        },
+        "x86_64": {
+          "original_exports": 2230,
+          "rebuilt_exports": 2328,
+          "unused_export_differences": [
+            "_ZNSt6__ndk110adopt_lockE",
+            "_ZNSt6__ndk110defer_lockE",
+            "_ZNSt6__ndk111try_to_lockE",
+            "_ZNSt6__ndk112system_error6__initERKNS_10error_codeENS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE",
+            "_ZNSt6__ndk113allocator_argE",
+            "_ZNSt6__ndk16locale2id6__initEv"
+          ]
+        }
+      }
+    },
+    "pinned_original_aar_unchanged": true,
+    "source_archive_sha256": "1b24aad80106357e7757c6a40ebd3fd5921bad09d8215104f3d7b098b131bfc0",
+    "verified_fast_cache_reuse": "passed"
+  },
+  "validation": {
+    "unit_tests": {
+      "tests": 738,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python_helpers": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command": ":third_party:onnxruntime-genai-android:publish depends on testRebuildHelper"
+    },
+    "android_instrumentation": {
+      "name": "genai-core",
+      "status": "passed",
+      "tests": 35,
+      "seconds": 168.9,
+      "cases": [
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "fuzzyTabPayloadPersistsWithoutChangingSiblingOptionsOrAddonDefaults",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "genAi017LoadsJniAndReportsAnInvalidModelAsAnApiError",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinModelProducesCandidatesAndTableEngineRemainsAvailable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+          "test": "pinyinAndRimeOverridesStayIndependentOfAddonDefaults",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testWbx",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testInputPanelStatus",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.FcitxTest",
+          "test": "testPinyin",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "clearingCompositionRestoresLowercaseAndLanguageIconForOnceAndLock",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "repeatedEmptyNotificationsKeepShiftChosenOutsideComposition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "bothShiftKeysShowFilledAndUnderlinedStatesDuringComposition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+          "test": "originalShiftIdentityDoesNotOverwriteItsActiveLanguageRole",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "hidingAndRestoringASublabelKeepsTheMainFrameOnNormalKeys",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "stableHeightRefreshKeepsTheComputedPlacement",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "shiftAndCapsKeepTheSameTypographicBaseline",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "accentedSecondRowHasTheSameFontSizeAsOtherLetterRows",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "changingPunctuationBetweenLanguagesKeepsMainSizeAndBaseline",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+          "test": "changingNeighbouringLettersDoesNotMoveOrResizeTheSameKey",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "mainFontChangesKeepSecondarySizesPositionsAndVisibility",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "normalKeysRenderConfiguredMain23AndSecondary20WithoutShrinking",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+          "test": "secondaryFontChangesKeepTheMainSizeAndPosition",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "retainedPluginAndTypographyControlsRemainSearchable",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "bundledThemeNamesPreserveSavedIconsAndLegacyLayout",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "candidateModesAndHardwareSettingsSurviveUpgrade",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+          "test": "scopedPreeditNeverRewritesTheGlobalChoice",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "newControlsDefaultOffAndCanBeChangedIndependently",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "everyControlIsDiscoverableInSettingsSearch",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "correctedTypographyDoesNotAddASettingsSwitch",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "legacySpacePickerAndBackspaceChoicesSurviveUpgrade",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+          "test": "storedAiSpacePreferenceSurvivesTheUpdate",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "jumpingToAnEntryPaintsTheHighlight",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "searchingForACustomShuangpinEntryShowsItInTheResults",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "jumpingToAnEntryOfACollapsedGroupExpandsIt",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "candidateControlsRemainBoundForHardwareAndVirtualModes",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "searchIndexContainsTheCustomShuangpinEntries",
+          "code": 0
+        },
+        {
+          "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+          "test": "groupedCustomPreferenceSearchConsumesItsScrollRequest",
+          "code": 0
+        }
+      ],
+      "classes": [
+        "input.NativeEngineMaintenanceTest",
+        "FcitxTest",
+        "input.keyboard.ComposeShiftPresentationTest",
+        "input.keyboard.KeyLabelStabilityTest",
+        "input.keyboard.KeyLabelFontIndependenceTest",
+        "ui.main.settings.PersonalUpdateCompatibilityTest",
+        "ui.main.settings.PersonalFeatureControlsTest",
+        "ui.main.settings.SettingsSearchNavigationTest"
+      ]
+    },
+    "android_page_size": 4096,
+    "release": {
+      "status": "passed_identity_signature_arm64_models_zip_and_elf_alignment",
+      "signing": "temporary local validation key; not production Secrets",
+      "apks": [
+        {
+          "module": "app",
+          "apk": "org.ulinoyaped.fcitx5.android-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android",
+          "version_code": 299084912,
+          "sha256": "b683fbd74d60c98fd9c291dee3e4a4bcfeaad9e20e1c520396da17ec7f9e8771",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 29,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {
+            "assets/usr/share/libime/zh_CN.lm": "df62f5880141a5435334c82fc66db9fd0a2e0d28a02148ec5fb577c9e30e58cd",
+            "assets/usr/share/libime/zh_CN.lm.predict": "eb90df84d26b4aace54a61104b04d8acbdde07aa722dbec1741caf6d31e3c3ad"
+          }
+        },
+        {
+          "module": "plugin/anthy",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.anthy-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.anthy",
+          "version_code": 299084912,
+          "sha256": "1384de230b98ff744807b7a17814a7d0fb54373ad7593ec669f25b573acdde5a",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/chewing",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.chewing-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.chewing",
+          "version_code": 299084912,
+          "sha256": "e8f31e144f679bf3b59274aea9abb165c9c01468e7cb030763932eb91fa9ef81",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/clipboard-filter",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.clipboard_filter-20261112-678f3f3a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_filter",
+          "version_code": 299084912,
+          "sha256": "5dd90115258061fbd457a53828b5c774f1870124178b31fe61d74d98f1e107a3",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 0,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/clipboard-sync",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.clipboard_sync-20261112-678f3f3a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.clipboard_sync",
+          "version_code": 299084912,
+          "sha256": "ff9dbf424c3dfe4131393ee89c7b8b4dc15cf9d4778c48d4373a31c21b8d4436",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 0,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/hangul",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.hangul-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.hangul",
+          "version_code": 299084912,
+          "sha256": "96fafdca7cf7263735e89b54c38ddb26d0eb57d9d9fd74038b1c47d2a93c3ff1",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/jyutping",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.jyutping-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.jyutping",
+          "version_code": 299084912,
+          "sha256": "67466d016822794647fdeadb82bf4c90f6a7525c0ce01edc03c5652c23022d73",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 3,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/rime",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.rime-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.rime",
+          "version_code": 299084912,
+          "sha256": "4f8c56854bc0fef961f8272aaeb12450bdb870984ad2572e38e14a1e24ddac5a",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/sayura",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.sayura-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.sayura",
+          "version_code": 299084912,
+          "sha256": "c7e63c581960de746bdf695d301fd2587c18c101e7236f6f248bd2607c951545",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/thai",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.thai-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.thai",
+          "version_code": 299084912,
+          "sha256": "ba092c318b11967a266706752b755dd99bb5550262b6ee53feee12a05ff2b47a",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        },
+        {
+          "module": "plugin/unikey",
+          "apk": "org.ulinoyaped.fcitx5.android.plugin.unikey-20261112-678f3f3a-arm64-v8a-release.apk",
+          "package": "org.ulinoyaped.fcitx5.android.plugin.unikey",
+          "version_code": 299084912,
+          "sha256": "f3b42fb1dd39a9f7c9bef7c7af132b144abe296affc2c8b01e47aadd3e687cda",
+          "certificate_sha256": "2f618bc06884ceef7c51e40d132bcf6b29d6b2c86ed070eefba739b265af14b7",
+          "native_libraries": 1,
+          "elf_not_16kb_aligned": [],
+          "model_sha256": {}
+        }
+      ],
+      "known_elf_alignment_limitations": []
+    },
+    "lint": {
+      "debug": {
+        "errors": 0,
+        "warnings": 32
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 32
+      }
+    },
+    "actionlint": {
+      "version": "1.7.12",
+      "workflows": [
+        "pull_request.yml",
+        "build-apks.yml",
+        "ci.yml",
+        "release.yml"
+      ],
+      "status": "passed"
+    },
+    "limitations": [
+      "No physical 16KB-page device or arm64 runtime test. Static ELF and ZIP checks plus x86_64 JNI/input runtime verification only.",
+      "No online model or speech quality evaluation; invalid-model GenAIException proves JNI/API loading, not valid-model generation quality.",
+      "macOS/Windows host build matrix was not executed locally."
+    ],
+    "environment_notes": [
+      "During an environment starting transition the emulator exited and left stale locks; confirmed zombie state/no live emulator before clearing locks and resuming. No instrumentation result was counted from this interrupted boot.",
+      "Third-party publication intentionally discards its unsupported Gradle configuration-cache entry; task execution and artifact verification passed.",
+      "Release assembly and lint ran separately with a local 6GB Gradle heap and two workers; repository JVM defaults unchanged."
+    ]
+  },
+  "core_ci": {
+    "commit": "678f3f3aa4a56362dc3aaff9310180cddb07b472",
+    "status": "success",
+    "workflow": "Nightly",
+    "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/43275436529"
+  },
+  "gitnexus": {
+    "pre_edit_risk": "UNKNOWN for DSL/version catalog/new files; confirmed actual app dependency, publish/check task wiring and workflow references, then exercised the consumers.",
+    "coverage": "Lower bound due existing scope extraction, dynamic/cross-language edges and process caps. Empty caller sets are not unused evidence.",
+    "final_scopes": {
+      "all": {
+        "summary": {
+          "changed_count": 46,
+          "affected_count": 0,
+          "changed_files": 16,
+          "risk_level": "low"
+        },
+        "listed_symbols": 46,
+        "listed_flows": 0,
+        "partial": false,
+        "truncated": false
+      },
+      "compare": {
+        "summary": {
+          "changed_count": 46,
+          "affected_count": 0,
+          "changed_files": 16,
+          "risk_level": "low"
+        },
+        "listed_symbols": 46,
+        "listed_flows": 0,
+        "partial": false,
+        "truncated": false
+      }
+    },
+    "owned_source_scope": "Root-anchored allowlist for the project-owned GenAI build script, Python tests and telemetry bridge; downloaded SDK/build trees and other vendor/prebuilt directories stay excluded.",
+    "zero_flow_interpretation": "No ranked affected process resolved for these build/DSL and external JNI paths; zero is not evidence of no app impact. Actual publication, cache recovery, ELF/export checks and Android consumers were exercised."
+  },
+  "pending": {
+    "old_candidate": {
+      "branch": "maintenance/2026-11-05-review",
+      "head": "1b5cd21da99744c4a9e96fd4b3aa7227d690f84d",
+      "upstream_target": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+      "previous_record": "maintenance/2026-11-08-pending-review.json",
+      "status": "whole_candidate_not_adopted",
+      "remaining": "24 entries from candidate still need integration/validation; selected equivalents separately covered on personal main."
+    },
+    "incoming_snapshot": {
+      "branch": "maintenance/2026-11-13-incoming",
+      "head": "27a183bbf81556509a0a27c052794524ee6c0f44",
+      "status": "original_upstream_only_not_a_validated_personal_build"
+    },
+    "deferred_ai": {
+      "sha": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
+      "branch": "maintenance/deferred-ai-2026-10-23",
+      "status": "still_deferred"
+    },
+    "entries": 76,
+    "notes": [
+      "Old candidate: finish controlled voice request/result/commit/fallback; both symbol layouts; floating keyboard resize/orientation/input; full import/export and interrupted UI tests; final release/lint on that actual candidate.",
+      "Incoming: full dependency/native source review and Android integration for 52 newer entries; JS/AI saved-provider/permission migration; clipboard DB migration; optional gesture/18-key input behavior.",
+      "Adapt or reject incompatible saved-value and label-position migrations identified per commit; preserve existing schemes."
+    ]
+  },
+  "maintenance_task": {
+    "id": "6ae409efcc048191b14c40be2839e021",
+    "schedule": "Friday 01:00 Asia/Shanghai",
+    "prompt_sha256": "be5b1e0493c393ec398c0cb12c95df543a42aa02d39110ba90d8655720420910",
+    "synchronization": "Synchronize saved task after guarded default-branch publication and verify exact prompt."
+  }
+}

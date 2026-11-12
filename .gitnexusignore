@@ -1,3 +1,15 @@
 # Skip prebuilt native deps (~979MB, 71k+ files, mostly boost headers)
 # so `gitnexus analyze` doesn't exhaust memory.
 lib/fcitx5/src/main/cpp/prebuilt/
+
+# Index repository-owned GenAI build helpers, without downloaded/vendor caches.
+!/third_party/
+/third_party/**
+!/third_party/onnxruntime-genai-android/
+!/third_party/onnxruntime-genai-android/build.gradle.kts
+!/third_party/onnxruntime-genai-android/rebuild_mat.py
+!/third_party/onnxruntime-genai-android/mat-native/
+!/third_party/onnxruntime-genai-android/mat-native/CMakeLists.txt
+!/third_party/onnxruntime-genai-android/mat-native/android_telemetry_bridge.cpp
+!/third_party/onnxruntime-genai-android/tests/
+!/third_party/onnxruntime-genai-android/tests/test_rebuild_mat.py
