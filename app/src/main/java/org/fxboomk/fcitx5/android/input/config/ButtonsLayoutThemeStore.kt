@@ -71,7 +71,6 @@ object ButtonsLayoutThemeStore {
         }
         val active = if (current.activeTheme == source) target else current.activeTheme
         write(current.copy(activeTheme = active, themes = themes))
-        Unit
     }
 
     @Synchronized
@@ -88,7 +87,6 @@ object ButtonsLayoutThemeStore {
             this[index] = previous
         }
         write(current.copy(themes = themes))
-        Unit
     }
 
     @Synchronized
@@ -121,8 +119,18 @@ object ButtonsLayoutThemeStore {
         val baseConfig = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
             ?: ButtonsLayoutConfig.default()
         val builtins = BuiltinThemeCatalog.toolbarThemes(baseConfig)
-        // A bundled name may also contain the user's saved icon edits. Add new
-        // presets without replacing any existing theme's layout, labels or icons.
+        return seedBuiltinThemes(value, builtins)
+    }
+
+    /**
+     * Builtin themes only fill names that do not exist in the user's store.
+     * Existing themes are authoritative, so intentionally overwriting a
+     * builtin theme is not reverted on the next load/switch.
+     */
+    internal fun seedBuiltinThemes(
+        value: ButtonsLayoutThemes,
+        builtins: List<ButtonsLayoutTheme>
+    ): ButtonsLayoutThemes {
         val themes = value.themes.toMutableList().apply {
             val existingNames = mapTo(hashSetOf()) { it.name }
             addAll(builtins.filter { it.name !in existingNames })
@@ -130,5 +138,4 @@ object ButtonsLayoutThemeStore {
         val active = themes.firstOrNull { it.name == value.activeTheme }?.name ?: themes.first().name
         return value.copy(activeTheme = active, themes = themes)
     }
-
 }

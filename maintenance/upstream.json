@@ -65,10 +65,58 @@
     "details": "maintenance/2026-10-30-upstream-review.json"
   },
   "pending_review": {
-    "record": "maintenance/2026-11-08-pending-review.json",
+    "record": "maintenance/2026-11-13-upstream-review.json",
     "branch": "maintenance/2026-11-05-review",
     "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
-    "latest_observed_upstream_sha": "52bbe0e052b231a066befc4308f7be6aae425b68",
-    "status": "isolated_candidate_validation_incomplete"
+    "latest_observed_upstream_sha": "27a183bbf81556509a0a27c052794524ee6c0f44",
+    "status": "whole_candidate_and_later_features_still_pending",
+    "previous_record": "maintenance/2026-11-08-pending-review.json",
+    "incoming_branch": "maintenance/2026-11-13-incoming",
+    "remaining_entries": 77
+  },
+  "latest_maintenance_date": "2026-11-13",
+  "latest_maintenance_record": "maintenance/2026-11-13-upstream-review.json",
+  "selective_adoptions": [
+    {
+      "sha": "4760107f01fdcb4ac2673d47755963c618ee95f1",
+      "review": "Apply the macro Caps_Lock typing guard; keep the existing virtual Shift composition cleanup and physical Caps behavior.",
+      "record": "maintenance/2026-11-13-upstream-review.json"
+    },
+    {
+      "sha": "e6d65c41232459b275f915892caad895f2d104ba",
+      "review": "Already implemented on personal main: refreshCapsPresentation after compose view rebuild. Only explanatory comment adjusted; no new runtime behavior.",
+      "record": "maintenance/2026-11-13-upstream-review.json"
+    },
+    {
+      "sha": "33e6e37dfa7516269bef5c1dbf40080e5f2e5354",
+      "review": "Unwrap cfg/desc on fuzzy-tab save and merge only the edited options; validate actual native persistence and isolation.",
+      "record": "maintenance/2026-11-13-upstream-review.json"
+    },
+    {
+      "sha": "dc6bed549799562ac0d18777dec1421ade82d969",
+      "review": "Already protected on personal main: builtin names fill missing themes only. Extract the pure seeding helper and add regressions without overwriting saved themes.",
+      "record": "maintenance/2026-11-13-upstream-review.json"
+    }
+  ],
+  "selective_validation": {
+    "unit_tests": {
+      "tests": 738,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_tests": 35,
+    "release_plugins": 10,
+    "lint": {
+      "debug": {
+        "errors": 0,
+        "warnings": 35
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 33
+      }
+    },
+    "record": "maintenance/2026-11-13-upstream-review.json"
   }
 }

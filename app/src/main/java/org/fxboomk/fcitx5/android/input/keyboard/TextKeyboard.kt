@@ -772,7 +772,8 @@ class TextKeyboard private constructor(
         compositionActive = composing
         super.onCompositionStateChanged(composing)
         ensureSpecialKeyViewsInitialized()
-        // Compose-state switches may recreate key views; re-apply caps presentation immediately.
+        // Compose-state switches may recreate the Caps key view; restore every state-dependent
+        // presentation, including the lock icon, after the hierarchy has been updated.
         refreshCapsPresentation()
     }
 

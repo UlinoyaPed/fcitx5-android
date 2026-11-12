@@ -10,6 +10,40 @@ import org.junit.Test
 
 /** Loads the packaged native engine/model, without contacting an AI service. */
 class NativeEngineMaintenanceTest {
+    @Test fun fuzzyTabPayloadPersistsWithoutChangingSiblingOptionsOrAddonDefaults() = runBlocking {
+        val name = "maintenance-fuzzy-save-test"
+        val connection = FcitxDaemon.connect(name)
+        try {
+            withTimeout(120000) {
+                connection.runOnReady {
+                    val file = java.io.File(UserConfigFiles.configDir(), "conf/pinyin/pinyin.conf")
+                    val originalFile = if (file.isFile) file.readBytes() else null
+                    val addon = getAddonConfig("pinyin")["cfg"]
+                    val original = getImConfig("pinyin")
+                    val previous = original["cfg"]["Fuzzy"]["AN_ANG"].value
+                    val sibling = original["cfg"]["Fuzzy"]["IN_ING"].value
+                    try {
+                        val next = if (previous == "True") "False" else "True"
+                        val edited = org.fxboomk.fcitx5.android.core.RawConfig("cfg", subItems = arrayOf(
+                            org.fxboomk.fcitx5.android.core.RawConfig("Fuzzy", subItems = arrayOf(
+                                org.fxboomk.fcitx5.android.core.RawConfig("AN_ANG", next)))))
+                        val payload = org.fxboomk.fcitx5.android.ui.main.settings.addon.mergeFuzzyConfigForSave(
+                            original, edited, setOf("AN_ANG"))
+                        setImConfig("pinyin", payload)
+                        assertEquals(next, getImConfig("pinyin")["cfg"]["Fuzzy"]["AN_ANG"].value)
+                        assertEquals(sibling, getImConfig("pinyin")["cfg"]["Fuzzy"]["IN_ING"].value)
+                        assertEquals(addon, getAddonConfig("pinyin")["cfg"])
+                        reloadConfig()
+                        assertEquals(next, getImConfig("pinyin")["cfg"]["Fuzzy"]["AN_ANG"].value)
+                    } finally {
+                        if (originalFile == null) file.delete() else file.writeBytes(originalFile)
+                        reloadConfig()
+                    }
+                }
+            }
+        } finally { FcitxDaemon.disconnect(name) }
+    }
+
     @Test fun genAi017LoadsJniAndReportsAnInvalidModelAsAnApiError() {
         val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
         val missing = java.io.File(context.cacheDir, "maintenance-missing-genai-model")
