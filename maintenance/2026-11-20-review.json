@@ -893,6 +893,27 @@
         "compare": "same complete counts",
         "limitations": "Ranked flows are a lower bound; analyzer entrypoint/callee/depth caps, one BaseDynamicListUi scope extraction failure and absent local native submodules. Native sources/build checked in Actions, not inferred unaffected."
       }
+    },
+    "first_attempt": {
+      "source_sha": "78c4bfc024a2d7a17482440e00d723182232ea95",
+      "run_id": 44581356722,
+      "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44581356722",
+      "result": "failed_before_app_compilation",
+      "helper_tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "blocker": "Pinned Microsoft GitHub v0.17.0 release and AAR URL return 404; no JVM or Android regressions ran. Not an application test pass."
+    },
+    "dependency_source_repair": {
+      "status": "validation_pending",
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.ml.onnxruntimegenai/0.17.0/microsoft.ml.onnxruntimegenai.0.17.0.nupkg",
+      "entry": "runtimes/android/native/onnxruntime-genai.aar",
+      "bytes": 21505982,
+      "actual_and_expected_sha256": "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50",
+      "verification": "Downloaded official Microsoft NuGet package and verified the extracted AAR matches the previously reviewed exact raw hash; no runtime/API upgrade. Stage and atomically move the verified raw cache; retain rebuilt-cache recovery and five helper tests. Disable configuration cache only for the validation publish invocation."
     }
   }
 }

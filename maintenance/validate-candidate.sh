@@ -12,7 +12,7 @@ run_gradle() {
     ./gradlew "${common[@]}" "$@" 2>&1 | tee "$results/$name.log"
 }
 python3 -m unittest discover -s third_party/onnxruntime-genai-android/tests -v 2>&1 | tee "$results/python-tests.log"
-run_gradle dependency :third_party:onnxruntime-genai-android:publish
+run_gradle dependency --no-configuration-cache :third_party:onnxruntime-genai-android:publish
 BUILD_ABI=x86_64 run_gradle unit-tests :app:testDebugUnitTest
 BUILD_ABI=x86_64 run_gradle android-fixtures :app:assembleDebug :app:assembleDebugAndroidTest :plugin:rime:assembleDebug
 BUILD_ABI=arm64-v8a run_gradle release-apks :app:assembleRelease :assembleReleasePlugins

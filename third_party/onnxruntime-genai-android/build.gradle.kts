@@ -1,6 +1,9 @@
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.zip.ZipFile
 import org.gradle.api.Project
 
 plugins {
@@ -43,7 +46,7 @@ val upstreamArtifactFileName = "$artifactName-$upstreamVersion.aar"
 val artifactFileName = "$artifactName-$version.aar"
 val artifactSha256 = "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50"
 val artifactUrl =
-    "https://github.com/microsoft/onnxruntime-genai/releases/download/v$upstreamVersion/$upstreamArtifactFileName"
+    "https://api.nuget.org/v3-flatcontainer/microsoft.ml.onnxruntimegenai/$upstreamVersion/microsoft.ml.onnxruntimegenai.$upstreamVersion.nupkg"
 val rawDownloadedArtifact = layout.buildDirectory.file("downloads/raw/$upstreamArtifactFileName")
 val downloadedArtifact = layout.buildDirectory.file("downloads/$artifactFileName")
 val alignmentMarker = layout.buildDirectory.file("downloads/$artifactFileName.alignment.json")
@@ -117,6 +120,7 @@ val downloadOrtGenAiAar = tasks.register("downloadOrtGenAiAar") {
     dependsOn(testRebuildHelper)
     inputs.property("upstreamVersion", upstreamVersion)
     inputs.property("upstreamSha256", artifactSha256)
+    inputs.property("officialPackageUrl", artifactUrl)
     inputs.file("rebuild_mat.py")
     inputs.dir("mat-native")
     val ndkVersion = providers.environmentVariable("NDK_VERSION")
@@ -137,6 +141,11 @@ val downloadOrtGenAiAar = tasks.register("downloadOrtGenAiAar") {
             runCatching { requireExpectedSha256(raw) }.onFailure { raw.delete() }
         }
         if (!raw.exists() || raw.length() == 0L) {
+            // Microsoft distributes this exact Android AAR inside its official NuGet package.
+            // The former GitHub release asset is unavailable. Keep the reviewed AAR hash,
+            // Java API and telemetry rebuild; do not substitute a newer runtime version.
+            val archive = File(raw.parentFile, "$upstreamArtifactFileName.nupkg.tmp")
+            val stagedRaw = File(raw.parentFile, "$upstreamArtifactFileName.tmp")
             val connection = (URL(artifactUrl).openConnection() as HttpURLConnection).apply {
                 connectTimeout = 15_000
                 readTimeout = 60_000
@@ -147,13 +156,24 @@ val downloadOrtGenAiAar = tasks.register("downloadOrtGenAiAar") {
                     "Download failed (${connection.responseCode}): $artifactUrl"
                 }
                 connection.inputStream.use { input ->
-                    raw.outputStream().use { output -> input.copyTo(output) }
+                    archive.outputStream().use { output -> input.copyTo(output) }
                 }
-            } catch (failure: Throwable) {
-                raw.delete()
-                throw failure
+                ZipFile(archive).use { zip ->
+                    val entry = checkNotNull(zip.getEntry("runtimes/android/native/onnxruntime-genai.aar")) {
+                        "Official NuGet package does not contain the Android AAR"
+                    }
+                    check(entry.size in 1L..(64L * 1024 * 1024)) { "Unexpected Android AAR size" }
+                    zip.getInputStream(entry).use { input ->
+                        stagedRaw.outputStream().use { output -> input.copyTo(output) }
+                    }
+                }
+                requireExpectedSha256(stagedRaw)
+                Files.move(stagedRaw.toPath(), raw.toPath(),
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
             } finally {
                 connection.disconnect()
+                archive.delete()
+                stagedRaw.delete()
             }
         }
         requireExpectedSha256(raw)
