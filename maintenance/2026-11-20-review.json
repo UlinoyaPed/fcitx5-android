@@ -1,0 +1,855 @@
+{
+  "date": "2026-11-20",
+  "phase": "validation_infrastructure",
+  "status": "application_candidate_not_adopted",
+  "personal_base_sha": "0270f78df6e100f6de16e19aa6bc06e8ef2a5f65",
+  "reviewed_upstream_baseline": "939a8ed546959a3120d1418e5215ca762071087e",
+  "previous_observed_upstream_sha": "27a183bbf81556509a0a27c052794524ee6c0f44",
+  "latest_observed_upstream_sha": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
+  "new_upstream_commits": 39,
+  "upstream_commits_since_reviewed_baseline": 122,
+  "incoming_branch": "maintenance/2026-11-20-incoming",
+  "candidate_branch": "maintenance/2026-11-20-resume",
+  "candidate_branch_initial_sha": "1b5cd21da99744c4a9e96fd4b3aa7227d690f84d",
+  "commits": [
+    {
+      "sha": "2339da21776f0d6d3b168b7bc6f9492e4ea4723c",
+      "title": "feat(preedit): 长编码跟随光标横向滚动",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditScrollingTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditSyllableStripTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/preedit/PreeditRowUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/preedit/PreeditUi.kt"
+      ],
+      "patch_sha256": "502702ded047676fe9484a9a4c43aba774e7ed8bf2fcd2d1a0cb06b75d02cd7a"
+    },
+    {
+      "sha": "00fee08b9a3f10e105582c097fc843d30e8bb2e1",
+      "title": "test(settings): 语音输入设置归入独立分区断言",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/KeyboardSettingsSupport.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/KeyboardSubFragments.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/KeyboardCandidateSettingsOrganizationTest.kt"
+      ],
+      "patch_sha256": "3dab3007cb67524e0d037bdce45d9df8c5c5bcd96b1a37ba7875bdd94e8a9654"
+    },
+    {
+      "sha": "7de94095e9919f9b51543bd409ff7f01d2730fa1",
+      "title": "fix(shuangpin): 自定义方案仅在映射用到分号时显示 l;",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayoutTest.kt"
+      ],
+      "patch_sha256": "89e73fc7186806dc7a185657a56eeaf7869ffa03a474f7cc3c2a7fd9c81df153"
+    },
+    {
+      "sha": "ea7a0e602df49599f6786f77c164a4e4d2344352",
+      "title": "docs(shuangpin): 同步 18 键实现说明",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "SHUANGPIN_18_KEYS.md"
+      ],
+      "patch_sha256": "be7adb3a424c532a7924cdf5b22e3998fa47fb353cdddbcc787f7fa1e79f32e7"
+    },
+    {
+      "sha": "90a710560381e581db8e49a18ae295ec3d44d39d",
+      "title": "feat(shuangpin): 18 键布局支持自定义编辑与预览",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "SHUANGPIN_18_KEYS.md",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CustomLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ShuangpinGroupKeyEditorTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivityTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/CompactLayoutMigrationTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinGroupKey.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinLayoutVariants.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutResolver.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutState.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ActiveLayoutChain.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutCustomizeActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyboardEditorUiBuilder.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/preview/PreviewInputMethodEntry.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/CompactKeyboardLayoutResolverTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayoutTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ActiveLayoutChainTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManagerTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsRowStyleTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/preview/PreviewInputMethodEntryTest.kt"
+      ],
+      "patch_sha256": "031bd6a4c99ef8edbdc6bac13ad7ecf83c3ac1dbae73cb485332c0ed3b585389"
+    },
+    {
+      "sha": "4f1db725a08a63ecfbd3224dd0b4ab4acda79e42",
+      "title": "feat(shuangpin): 18 键支持自由重组字母分组",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "SHUANGPIN_18_KEYS.md",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CustomLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18DeviceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18LabelLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ShuangpinGroupKeyEditorTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinGroupKey.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinLayoutVariants.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/popup/PopupPresetLookup.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/cpp/compact-shuangpin/testandroidfrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinGroupingTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayoutTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/popup/GroupedPopupPresetTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsRowStyleTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "220ec0e5b75067c8b56728fcedbe2e414d7aa3d4cd4dc9211788ff7efc980bee"
+    },
+    {
+      "sha": "6a9088c9f2fb744fceb3216d9814b8fa9ec64be9",
+      "title": "feat(status): 状态栏新增布局文件与键盘配列切换按钮",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPickerUiTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/config/ButtonsConfig.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/config/ConfigProvider.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/ButtonsAdjustingWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPickerUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/StatusAreaWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/TextKeyboardLayoutProfilePickerDialog.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/action/ButtonActionTest.kt"
+      ],
+      "patch_sha256": "1ea321ca7485ee626b14beb6b25ee82a33d8edbe8e9ea297ed8a3b836c8d229e"
+    },
+    {
+      "sha": "5d53cac0300d49157daf83f32cdea04d28bb81f3",
+      "title": "fix(shuangpin): 分组键副标签与上下划动作回归",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/DirectionalSwipeBehaviorTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ShuangpinGroupKeyEditorTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinGroupKey.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsRowStyleTest.kt"
+      ],
+      "patch_sha256": "b6e72ab9749bb19e38591767e24615447d2c1698b1a6fd90dcb4c1b1bb5015e6"
+    },
+    {
+      "sha": "55c53bcc6f79d2a94a37643996ac9286703214bc",
+      "title": "fix(shuangpin): 键编辑器分组与滑动符号改用网格选择弹窗",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt"
+      ],
+      "patch_sha256": "c1f05e0d80c64081980720bfeb19ca053a7db1f09ad4a1876f7eeaa254252d62"
+    },
+    {
+      "sha": "20a45f2ee57bd763fda73f2ed2f24c15a91e4270",
+      "title": "feat(status): 布局文件切换窗口与配列预览懒加载",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPickerUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/status/KeyboardLayoutProfileWindowTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/config/ConfigProvider.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboardLayoutState.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPickerUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPreviewCache.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/KeyboardLayoutProfileWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/status/StatusAreaWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt"
+      ],
+      "patch_sha256": "562c2b37a029cb52c317dda4ab4ff4d27b4570ab72a10b36623e1b134c5ac5a0"
+    },
+    {
+      "sha": "2091b3512382a782915cab3ba1540e5a466bcce1",
+      "title": "fix(candidates): 展开候选栏回车键保留图标主题",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/ExpandedCandidateReturnIconTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/ExpandedCandidateLayout.kt"
+      ],
+      "patch_sha256": "8a60e64eb5ad686be3fc2f4cffe611a0090ddfecd5cbefb8c64027c2e27fea06"
+    },
+    {
+      "sha": "02da5cbefcd98496b0c06134588f2783d99f4585",
+      "title": "feat(theme): 迁移键盘玻璃背景并重整键盘设定配置",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/data/theme/KeyboardGlassPreferencesTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/KeyboardGlassImeTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/KeyboardGlassWindowTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/KeyboardSurfaceLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/GlassKeyDrawableTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/theme/ThemeManager.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/theme/ThemePrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/KeyboardGlassWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/KeyboardSurfaceLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/GlassKeyDrawable.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeAppearanceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeGroupFragments.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeSettingsSupport.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-de/strings_keyboard_glass.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-es/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ja/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ko/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-ru/strings_keyboard_glass.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings_keyboard_glass.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings_keyboard_glass.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/main/res/values/strings_keyboard_glass.xml",
+        "app/src/main/res/values/styles_keyboard_glass.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeSettingsOrganizationTest.kt"
+      ],
+      "patch_sha256": "df96db282dadff8332c8950a673334dbc45a5e8bb2e6fa0d8f88d5383722213a"
+    },
+    {
+      "sha": "3ee4e9f390af2950f476d1af591c9c535174ab6e",
+      "title": "feat(pinyin): 紧凑键盘下禁用模糊纠错并新增简拼最小长度配置",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/FuzzyCorrectionPreferenceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/MySwitchPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/FcitxPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/AddonConfigLayouts.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/FuzzyConfigFragment.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ],
+      "patch_sha256": "15ad1cdb5fcd2a41c3f969c476e32f8ca88b7c51fa1c2a380ea2c6819da7b90f"
+    },
+    {
+      "sha": "54f5e2b8a18ad25f6f00e2c2c0bdd3c7ba9a69f1",
+      "title": "fix(shuangpin): 紧凑键盘的编码态覆盖改由预编辑判定",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/KeyboardCompositionStateTest.kt"
+      ],
+      "patch_sha256": "d98bafc9de6e882adec9933ae05f7db5c979fe954fb7621beb53199808609b7a"
+    },
+    {
+      "sha": "ed36b47dc1bc0db47dcd905eea108926c90a1c07",
+      "title": "fix(prefs): 变更通知遍历快照避免监听器互相跳过",
+      "status": "selected_for_isolated_validation",
+      "review_depth": "semantic_diff_review",
+      "review": "Snapshot listener collections before notification; retain event value and test subscription replacement/nested notifications. No preference-key or saved-value changes.",
+      "changed_files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/ManagedPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/ManagedPreferenceProvider.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/data/prefs/ManagedPreferenceListenerTest.kt"
+      ],
+      "patch_sha256": "9ae840b52f57dc1597e481ccc54bc3d012c2d60094ba3d3218db180f0c0975e1"
+    },
+    {
+      "sha": "4ce6a8945644237fc7c28d79bc817dcbd10ccf49",
+      "title": "refactor(theme): 键盘设定项名称补充半径与效果语义",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/res/values-de/strings_keyboard_glass.xml",
+        "app/src/main/res/values-es/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ja/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ko/strings_keyboard_glass.xml",
+        "app/src/main/res/values-ru/strings_keyboard_glass.xml",
+        "app/src/main/res/values-zh-rCN/strings_keyboard_glass.xml",
+        "app/src/main/res/values-zh-rTW/strings_keyboard_glass.xml",
+        "app/src/main/res/values/strings_keyboard_glass.xml"
+      ],
+      "patch_sha256": "780f980bf0d520496604f2580b83008ed70eab96d92364a1ff06c32c2bfd2d17"
+    },
+    {
+      "sha": "a57a0a10c799a926155553c2f462165c5ed43827",
+      "title": "feat(theme): 主题外观页新增键盘测试入口并精简按键配置名称",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeAppearanceFragment.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "patch_sha256": "12a1c3894616d974ebd090def7d894dd101f05c65cd53234c56284aa7779560f"
+    },
+    {
+      "sha": "0353ff731df590083a1d62d8332f642b5e63544e",
+      "title": "fix(lint): 清理未使用字符串并修正键盘玻璃窗口 RTL 重力",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/theme/ThemePrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/KeyboardGlassWindow.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "patch_sha256": "c10ac8290139cebd40c63fe63d408610055871350b90f2dac0f10169cce36316"
+    },
+    {
+      "sha": "ce5d670fccce073fe78ed66d377de4739eeed385",
+      "title": "fix(pinyin): 回车上屏前同步高亮候选并改用解码键上屏原始编码",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18DeviceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/androidfrontend/androidfrontend.h",
+        "app/src/main/cpp/androidfrontend/androidfrontend_public.h",
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/test/cpp/compact-shuangpin/testandroidfrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/PinyinReturnCandidateTest.kt"
+      ],
+      "patch_sha256": "acc9af8928e98b28656ba3253381c28e7b214a4176e8819a06d6193dff8d46aa"
+    },
+    {
+      "sha": "c5b41188563fcbf40adc7e2bf4f11ebc75d76cdb",
+      "title": "chore(deps): 更新 fcitx5-chinese-addons 子模块指针",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "614ada0fc59d9302bc52666b2cc85e6a67c2dfb0e51ada756dd028098f044f35"
+    },
+    {
+      "sha": "c9925d476d3b008aa9b26243e743dc22c35a507c",
+      "title": "refactor(prefs): 偏好设置重置组件迁至 ui.common.preference 并统一命名",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/common/preference/PreferenceResetTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/FuzzyCorrectionPreferenceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/SubLabelPositionPreferenceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/ManagedPreferenceUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/PaddingPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/EntryEnabledListPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/PreferenceDialogFragmentFactory.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/PreferenceDialogLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/PreferenceReset.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/ResettableEditTextPreferenceDialogFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/ResettableListPreferenceDialogFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/ResettablePreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/common/preference/ResettableSwitchPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/DeveloperFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/MainActivity.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/EntryEnabledListPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/Functions.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/MyEditTextPreferenceDialogFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/MyListPreferenceDialogFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/MyPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/modified/MySwitchPreference.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScreenFactory.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/AdvancedSettingsFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/KeyboardSubFragments.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/LlmSettingsFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/plugin/js/JsPluginPreferenceDialogFragments.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/ui/common/preference/PreferenceDialogFragmentFactoryTest.kt"
+      ],
+      "patch_sha256": "4edc450aff56b2beb6c1ddf8d04ba57fe54f760f954ae94618388a642edfa5e3"
+    },
+    {
+      "sha": "fb5a29f2aa273794165384bb461bc2876d808ab7",
+      "title": "feat(js-assistant): 翻译用途支持选择目标语言并移除独立的「中译英」用途",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/assets/bundled/js-apps/llm-assistant.js",
+        "app/src/main/assets/bundled/js-apps/llm-assistant.json",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/plugin/js/JsAssistantScriptTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/plugin/js/JsPluginCatalogTest.kt"
+      ],
+      "patch_sha256": "3b73e52f76c14e588cac5962e7b9a3a13f39eff707b7ccfc3db40cf1b8713325"
+    },
+    {
+      "sha": "26948d333b67e0c4b78c313bc1b226b1c9d7db0e",
+      "title": "feat(pinyin): 按候选类型重排位置并限制首页数量",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/AutoScaleTextViewColorSpanTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolPopupTest.kt",
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/BaseInputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateCharacterPopup.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolActions.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolActionsTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "47581c9fb1c4f7aa4bd02fb03a03d4546141b81c8116e6c34ed77c6e3835e831"
+    },
+    {
+      "sha": "30144c9085d3595a20bc60d4c0c66014cac3a354",
+      "title": "fix(candidates): 统一划动与长按数字选词并跳过折叠表情",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/editing/GestureEditingIntegrationTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelection.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelectionTest.kt"
+      ],
+      "patch_sha256": "9ed5718e682b66da17e97e5d820a960e79dcffbe99443d1f0f20da09c82694dc"
+    },
+    {
+      "sha": "d7cdacf6a5147f453e89fc71dd0d524549577a0b",
+      "title": "feat(pinyin): 简拼支持长度阈值配置并移除「部分双拼匹配」开关",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CompactPinyinDefaults.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/AddonConfigLayouts.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/cpp/compact-shuangpin/testandroidfrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/core/CompactPinyinDefaultsTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ],
+      "patch_sha256": "789e585ff788a1fdc59494e39de212880a322ba5b726cbcede658e91188e7d29"
+    },
+    {
+      "sha": "b45c86836fa1539d799fa4882d80329d758977b6",
+      "title": "build(third-party): rebuild_mat.py 支持离线校验缓存产物",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "third_party/onnxruntime-genai-android/rebuild_mat.py"
+      ],
+      "patch_sha256": "e8b7e38b700353638aac20b49b46404dd22253091257fff975c23f2639a9eee3"
+    },
+    {
+      "sha": "d04ecb594d35875bbd01bcbf7e745c998ead71f6",
+      "title": "fix(ci): publish the verified ONNX Runtime GenAI prebuilt",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        ".github/workflows/pull_request.yml",
+        "third_party/onnxruntime-genai-android/.gitignore",
+        "third_party/onnxruntime-genai-android/build.gradle.kts",
+        "third_party/onnxruntime-genai-android/prebuilt/README.md",
+        "third_party/onnxruntime-genai-android/prebuilt/licenses/cpp-client-telemetry-LICENSE.txt",
+        "third_party/onnxruntime-genai-android/prebuilt/licenses/nlohmann-LICENSE.txt",
+        "third_party/onnxruntime-genai-android/prebuilt/licenses/onnxruntime-genai-LICENSE.txt",
+        "third_party/onnxruntime-genai-android/prebuilt/licenses/onnxruntime-genai-ThirdPartyNotices.txt",
+        "third_party/onnxruntime-genai-android/prebuilt/licenses/zlib-LICENSE.txt",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.17.0-f5a.1.aar",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.17.0-f5a.1.aar.alignment.json",
+        "third_party/onnxruntime-genai-android/rebuild_mat.py"
+      ],
+      "patch_sha256": "a01ad8bb97df148f37ed0909b593c582d34fdb4ab8daf80b34dbf6647ea5b081"
+    },
+    {
+      "sha": "bc0ceff5f416b3d911064fe2dc7ab58887faf66f",
+      "title": "fix(deps): upgrade ONNX Runtime Android stacks",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        ".github/scripts/check_onnxruntime_versions.py",
+        ".github/workflows/onnxruntime-version-check.yml",
+        "gradle/libs.versions.toml",
+        "third_party/onnxruntime-genai-android/.gitignore",
+        "third_party/onnxruntime-genai-android/build.gradle.kts",
+        "third_party/onnxruntime-genai-android/mat-native/CMakeLists.txt",
+        "third_party/onnxruntime-genai-android/mat-native/android_telemetry_bridge.cpp",
+        "third_party/onnxruntime-genai-android/prebuilt/README.md",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.17.0-f5a.1.aar",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.17.0-f5a.1.aar.alignment.json",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.20.0-f5a.1.aar",
+        "third_party/onnxruntime-genai-android/prebuilt/onnxruntime-genai-android-0.20.0-f5a.1.aar.alignment.json",
+        "third_party/onnxruntime-genai-android/rebuild_mat.py"
+      ],
+      "patch_sha256": "ac448749909b33b7193312cfb32e73a228f929f2e8039695a372862a4d938d00"
+    },
+    {
+      "sha": "26e0d48c3759f7052dfd5a006de23a6c07d763f5",
+      "title": "chore(deps): 更新双拼纠错相关子模块指针",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/fcitx5/src/main/cpp/fcitx5",
+        "lib/libime/src/main/cpp/libime"
+      ],
+      "patch_sha256": "b50ca056ad0a3b5a61e4b605faf87e590887c43167a7a28464ea3cd7b5821c93"
+    },
+    {
+      "sha": "d002ee71c957b54021412821c1bf5c8f71e9c43c",
+      "title": "feat(candidates): 兜底候选布局与首屏感知的候选动作/数字选词",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/androidfrontend/androidfrontend.h",
+        "app/src/main/cpp/androidfrontend/androidfrontend_public.h",
+        "app/src/main/cpp/helper-types.h",
+        "app/src/main/cpp/jni-utils.h",
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/cpp/object-conversion.h",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateWord.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/BaseInputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarStateMachine.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateViewHolder.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/CandidatesPagingSource.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FirstPageCandidateTracker.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelection.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/core/CandidateActionContextTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarStateMachineTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRowTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FirstPageCandidateTrackerTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelectionTest.kt"
+      ],
+      "patch_sha256": "5fdaa6b930259ba192d7b71c83758c759d3bb5ea54bbd2d561aa34365c4f014f"
+    },
+    {
+      "sha": "968cd736c35940b8da4148ca775d23272844e07e",
+      "title": "feat(preedit): 双拼全键盘与紧凑键盘均支持音节选择",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditSyllableStripTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/preedit/PreeditComponent.kt"
+      ],
+      "patch_sha256": "df3b57092a6fd1c5f9f38dac5e0a866aec78987b962bac25647214468586adee"
+    },
+    {
+      "sha": "6d32c5ae44ed1d1366f0acd311086892c9b8bec9",
+      "title": "test(shuangpin): 覆盖 26 键预编辑与纠错学习行为",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin26PreeditTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinCorrectionLearningTest.kt"
+      ],
+      "patch_sha256": "4eb9717fa6ba82c6a20796a32562ce9e2ed3c95878285b1406631ab760ca422d"
+    },
+    {
+      "sha": "6bf3b45893626b54b80a25927a5a4dbf46f62a31",
+      "title": "docs: 按最新提交刷新中英 README",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "README.en.md",
+        "README.md"
+      ],
+      "patch_sha256": "4a906cf939b3d7f153d7517c9555006099df53b75a5434fa81b8bbc815fbedcb"
+    },
+    {
+      "sha": "d56562e2361ca463a603defb58fb662f862a2e82",
+      "title": "fix(shuangpin): 26 键回车按原始编码上屏",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "b1c645cba62c4f30b049bc02092f0e2509d91be9a763ca0490ff3a35f4916420"
+    },
+    {
+      "sha": "40bc30319c66234ba58e7520c9c172e55d8b378c",
+      "title": "test(pinyin): 覆盖末音节补全与选中前缀边界",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
+        "lib/libime/src/main/cpp/libime"
+      ],
+      "patch_sha256": "9851df75f16eaf3bfb681d8c4ad6f0ecd148f831848168af7b3797afa635a7af"
+    },
+    {
+      "sha": "b21b228ffb2532f2fee02bdd99a041dc33c93f9a",
+      "title": "test(shuangpin): 隔离纠错历史对候选断言的影响",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin26PreeditTest.kt"
+      ],
+      "patch_sha256": "0870aa77bb08c116cd27a554e9ca98e10c49e0cf7689e01ec0efe6ec0d179942"
+    },
+    {
+      "sha": "3bf1976ccfdebdb2afd179aea6576642239fb7a8",
+      "title": "docs: 补充回车、末音节补全与简拼阈值说明",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "README.en.md",
+        "README.md"
+      ],
+      "patch_sha256": "44aa9ee626b331b30578a366b5bcb80dc220cf6c730d5575751cd50033e0a483"
+    },
+    {
+      "sha": "aaaf58a7c8d592bc6501777471ace547efd794b2",
+      "title": "chore(deps): 将 fcitx5 子模块指向可写 fork",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        ".gitmodules"
+      ],
+      "patch_sha256": "b616778ab2ef641ea53a0055afd692cf4a3a003dc5fa3be69c5b2dfa4ab4a680"
+    },
+    {
+      "sha": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
+      "title": "feat(pinyin): 暴露表情折叠与简拼模糊开关",
+      "status": "pending_compatibility_review_and_validation",
+      "review_depth": "incoming_inventory_not_adoption",
+      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "changed_files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/AddonConfigLayouts.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ],
+      "patch_sha256": "a11420b39426f3978f158398d92b2c02a2df7b03c3d595c79efb99185f4daaf3"
+    }
+  ],
+  "prior_state": {
+    "source": "maintenance/2026-11-13-genai-review.json",
+    "independently_processed": 5,
+    "rejected_effects": 2,
+    "pending_entries_now": 115,
+    "old_candidate_record": "maintenance/2026-11-08-pending-review.json",
+    "verified_main_commits": [
+      "678f3f3aa4a56362dc3aaff9310180cddb07b472",
+      "0270f78df6e100f6de16e19aa6bc06e8ef2a5f65"
+    ],
+    "genai_nightly": {
+      "run_id": 43288283790,
+      "head_sha": "0270f78df6e100f6de16e19aa6bc06e8ef2a5f65",
+      "conclusion": "success"
+    }
+  },
+  "recovery": {
+    "workspace": "fresh; previous uncommitted files and local test logs unavailable",
+    "uncommitted_conversation_evidence": "Previous session reported a merged candidate with 799 JVM passes and seven new Android input/settings passes. A complete 115-core run had one theme-fixture failure. No completed final UI report or committed candidate exists. These are restoration clues, not validation for this source or the default branch.",
+    "restore_before_validation": [
+      "Retain VoiceInputIpc.ErrorCodes.CANCELLED=5 and AIDL method ordering.",
+      "Preserve enabled Rime schemas independently of menu visibility; initial menu must include selected builtins and order-only edits must not rewrite selection.",
+      "Complete missing voice translations in five locales without changing resource/configuration keys.",
+      "Build image-theme copy fixtures from packaged assets rather than assuming a legacy-hidden preset remains in the visible builtin list.",
+      "Recreate controlled request/display/commit/fallback, symbol styles, floating keyboard, archive import race and native Rime selector regressions."
+    ]
+  },
+  "infrastructure": {
+    "workflow": ".github/workflows/maintenance-validate.yml",
+    "trigger": "manual, exact candidate ref and expected SHA",
+    "signing": "temporary validation key generated in the runner; no production signing Secrets",
+    "publication": "report artifacts only; no release publishing job",
+    "required_candidate_entrypoints": [
+      "maintenance/validate-candidate.sh",
+      "maintenance/run-android-regressions.py"
+    ],
+    "validation_status": "YAML/actionlint check passed; full application validation not yet run in this workspace",
+    "checks": {
+      "actionlint": {
+        "version": "1.7.12",
+        "workflows": 7,
+        "status": "passed"
+      },
+      "git_diff_check": "passed",
+      "gitnexus": {
+        "all": {
+          "changed_count": 5,
+          "affected_count": 0,
+          "changed_files": 6,
+          "risk_level": "low"
+        },
+        "compare": {
+          "changed_count": 5,
+          "affected_count": 0,
+          "changed_files": 6,
+          "risk_level": "low"
+        }
+      },
+      "graph_limits": "Complete changed-symbol/process listings; absent ranked workflow flows are not evidence of no GitHub effect. Native submodules are not part of this infrastructure-only change."
+    }
+  },
+  "settings_changes": [],
+  "blockers": [
+    "Restore, commit and validate the old b6f787a3 candidate before adopting its new input/UI paths.",
+    "JS/AI namespace/storage/consent and assistant migrations must retain LongForm, CandidateBar, thinking and service/backup settings.",
+    "18-key and new native/preedit/candidate actions need explicit selection and preservation of 26-key, combined Shift, native candidate cursor and optional input-takeover controls.",
+    "Do not remove Zhongwenzhixing or saved controls; preserve old directional space gestures/unknown raw values and spacing choices.",
+    "Newest candidate folding/correction/threshold changes and native gitlinks are not yet validated against retained Wubi/dictionaries and model data."
+  ],
+  "maintenance_task": {
+    "id": "6ae409efcc048191b14c40be2839e021",
+    "timezone": "Asia/Shanghai",
+    "schedule": "Friday 01:00",
+    "prompt_file": "maintenance/task-prompt.txt"
+  }
+}

@@ -57,6 +57,7 @@ git push origin v0.1.0-personal.1
 | Release / `release.yml` | 推送 `v` 开头的数字版本标签 | 构建并发布带个人签名的正式版本，供正式更新渠道使用。 |
 | Build signed APKs / `build-apks.yml` | 仅由上面两个工作流调用 | 共用的构建、单元测试、签名验证和产物上传步骤，没有独立的自动触发。 |
 | Pull Request / `pull_request.yml` | PR 新建、重新打开或更新 | 在 Linux、两个 macOS 架构和 Windows 构建应用及插件，上传供审查的构建产物，不发布版本。 |
+| Validate maintenance candidate / `maintenance-validate.yml` | 手动指定隔离分支与精确 SHA | 使用临时测试签名验证候选的 JVM、辅助测试、Android 构建、lint、APK 与 API 29 回归，保留报告；候选提供 `maintenance/validate-candidate.sh` 和 `maintenance/run-android-regressions.py` 入口。 |
 | Nix / `nix.yml` | `main` 推送或 PR | 使用 Nix 管理开发环境，验证另一种构建方式；不负责个人版发布。当前仍需适配本地第三方依赖，2026-10-10 的运行因远程 Maven 依赖下载失败。 |
 | F-Droid / `fdroid.yml` | 指定元数据路径的 PR、手动或仓库事件 | 验证官方 F-Droid 构建流程，包含四种 ABI。它仍依赖官方 Jenkins、官方包名和元数据路径，尚未适配个人版，也不会把个人版自动上架 F-Droid。 |
 

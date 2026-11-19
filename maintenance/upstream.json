@@ -65,17 +65,17 @@
     "details": "maintenance/2026-10-30-upstream-review.json"
   },
   "pending_review": {
-    "record": "maintenance/2026-11-13-genai-review.json",
-    "branch": "maintenance/2026-11-05-review",
+    "record": "maintenance/2026-11-20-review.json",
+    "branch": "maintenance/2026-11-20-resume",
     "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
-    "latest_observed_upstream_sha": "27a183bbf81556509a0a27c052794524ee6c0f44",
-    "status": "whole_candidate_and_later_features_still_pending",
+    "latest_observed_upstream_sha": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
+    "status": "candidate_restoration_and_validation_pending",
     "previous_record": "maintenance/2026-11-13-upstream-review.json",
-    "incoming_branch": "maintenance/2026-11-13-incoming",
-    "remaining_entries": 76
+    "incoming_branch": "maintenance/2026-11-20-incoming",
+    "remaining_entries": 115
   },
-  "latest_maintenance_date": "2026-11-13",
-  "latest_maintenance_record": "maintenance/2026-11-13-genai-review.json",
+  "latest_maintenance_date": "2026-11-20",
+  "latest_maintenance_record": "maintenance/2026-11-20-review.json",
   "selective_adoptions": [
     {
       "sha": "4760107f01fdcb4ac2673d47755963c618ee95f1",

@@ -1,0 +1,127 @@
+name: Validate maintenance candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: Isolated maintenance branch or commit to validate
+        required: true
+        type: string
+      expected_sha:
+        description: Exact 40-character commit SHA expected at candidate_ref
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: maintenance-validation-${{ inputs.expected_sha }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.candidate_ref }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Verify candidate identity and validation entrypoints
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || [ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]; then
+            echo '::error::Candidate ref does not match the expected commit'
+            exit 1
+          fi
+          test -f maintenance/validate-candidate.sh
+          test -f maintenance/run-android-regressions.py
+          mkdir -p maintenance/validation-results
+          git rev-parse HEAD > maintenance/validation-results/source-sha.txt
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+
+      - name: Install pinned Android tools
+        run: sdkmanager --install 'cmake;3.31.6' 'ndk;28.0.13004108' 'platforms;android-36' 'build-tools;36.1.0'
+
+      - name: Install native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y extra-cmake-modules gettext
+
+      - name: Prepare pinned personal native sources
+        run: ./prepare_personal_build.sh
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+
+      - name: Set validation metadata and temporary signing identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "BUILD_TIMESTAMP=$(date -u +%s)000" >> "$GITHUB_ENV"
+          echo "SIGN_KEY_FILE=$RUNNER_TEMP/maintenance-validation.p12" >> "$GITHUB_ENV"
+          echo 'SIGN_KEY_ALIAS=maintenance-validation' >> "$GITHUB_ENV"
+          echo 'SIGN_KEY_PWD=validation-only' >> "$GITHUB_ENV"
+          keytool -genkeypair -noprompt -storetype PKCS12 \
+            -keystore "$RUNNER_TEMP/maintenance-validation.p12" \
+            -storepass validation-only -keypass validation-only \
+            -alias maintenance-validation -keyalg RSA -keysize 2048 -validity 2 \
+            -dname 'CN=Temporary maintenance validation'
+
+      - name: Build, run JVM and helper tests, lint and verify APKs
+        run: bash maintenance/validate-candidate.sh
+
+      - name: Enable KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Android input, layout and settings regressions
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          cores: 2
+          ram-size: 2048M
+          disable-animations: true
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot
+          script: python3 maintenance/run-android-regressions.py
+
+      - name: Retain exact-source validation reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maintenance-validation-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            maintenance/validation-results/
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/lint-results-*.xml
+            app/build/reports/lint-results-*.html
