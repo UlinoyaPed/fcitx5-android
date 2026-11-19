@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 """Validate all release packages; static alignment is not a real 16KB device test."""
-import hashlib, json, os, pathlib, re, struct, subprocess, xml.etree.ElementTree as ET, zipfile
+import hashlib, json, os, pathlib, re, struct, subprocess, sys, xml.etree.ElementTree as ET, zipfile
 root=pathlib.Path(__file__).resolve().parents[1]
 out=root/'maintenance/validation-results'; out.mkdir(parents=True,exist_ok=True)
+xmls=list((root/'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml')); assert xmls,'No JVM results'
+suites=[ET.parse(p).getroot() for p in xmls]
+summary={key:sum(int(s.attrib.get(key,0)) for s in suites) for key in ['tests','failures','errors','skipped']}
+assert summary['tests']>0 and all(summary[k]==0 for k in ['failures','errors','skipped']),summary
+(out/'jvm.json').write_text(json.dumps(summary,indent=2)+'\n')
+if sys.argv[1:] == ['--jvm-only']:
+ print(json.dumps({'jvm':summary}),flush=True)
+ raise SystemExit(0)
+assert not sys.argv[1:], 'Unknown verification arguments'
 sdk=pathlib.Path(os.environ.get('ANDROID_SDK_ROOT') or os.environ['ANDROID_HOME'])
 tools=sdk/'build-tools/36.1.0'
 modules=[root/'app']+sorted(p for p in (root/'plugin').iterdir() if (p/'build.gradle.kts').exists())
@@ -39,9 +48,4 @@ for module in modules:
  reports.append({'module':module.name,'package':package,'apk':str(apk.relative_to(root)),'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),'certificate_sha256':digest,'native':native,'zip_alignment':'passed'})
 assert len({r['certificate_sha256'] for r in reports})==1
 (out/'apks.json').write_text(json.dumps({'source_sha':(out/'source-sha.txt').read_text().strip(),'packages':reports,'real_16kb_device_test':False},indent=2)+'\n')
-xmls=list((root/'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml')); assert xmls,'No JVM results'
-suites=[ET.parse(p).getroot() for p in xmls]
-summary={key:sum(int(s.attrib.get(key,0)) for s in suites) for key in ['tests','failures','errors','skipped']}
-assert summary['tests']>0 and all(summary[k]==0 for k in ['failures','errors','skipped']),summary
-(out/'jvm.json').write_text(json.dumps(summary,indent=2)+'\n')
 print(json.dumps({'apks':len(reports),'jvm':summary}))

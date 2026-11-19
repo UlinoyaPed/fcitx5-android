@@ -16,8 +16,8 @@
       "sha": "2339da21776f0d6d3b168b7bc6f9492e4ea4723c",
       "title": "feat(preedit): 长编码跟随光标横向滚动",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "production_diff_reviewed_tests_pending",
+      "review": "PreeditRowUi follows cursor after spans/layout and viewport changes; code-point previous-character bounds and reset on empty are reasonable. Depends on the newer syllable/preedit row absent from the b6 candidate; must validate long/mixed Unicode, RTL and touch scroll without changing global/per-IM styles.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditScrollingTest.kt",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditSyllableStripTest.kt",
@@ -30,8 +30,8 @@
       "sha": "00fee08b9a3f10e105582c097fc843d30e8bb2e1",
       "title": "test(settings): 语音输入设置归入独立分区断言",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "production_diff_reviewed_personal_tests_compared",
+      "review": "Shared voiceKeys avoids search/page drift. Personal candidate already keeps preferred voice in the voice settings and deliberately retains toolbar access; do not replace its assertions or remove useful personal controls wholesale. Refactor pending later settings integration.",
       "changed_files": [
         "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchIndex.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/KeyboardSettingsSupport.kt",
@@ -44,8 +44,8 @@
       "sha": "7de94095e9919f9b51543bd409ff7f01d2730fa1",
       "title": "fix(shuangpin): 自定义方案仅在映射用到分号时显示 l;",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "production_diff_reviewed_tests_pending",
+      "review": "Only show compact l; when a custom scheme actually maps semicolon. Reasonable compact-only fix; depends on deferred 18-key implementation and requires per-scheme, 26-key and Shift verification.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
@@ -68,8 +68,8 @@
       "sha": "90a710560381e581db8e49a18ae295ec3d44d39d",
       "title": "feat(shuangpin): 18 键布局支持自定义编辑与预览",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_keyview_and_resolver_diff_reviewed_rest_pending",
+      "review": "Compact variant layout/height chain plus attach-scoped split listener and side-key geometry guard. The guard is separate from personal glyph placement; do not copy the upstream ink-centering KeyView. Whole editor/schema migration not yet fully audited or validated.",
       "changed_files": [
         "SHUANGPIN_18_KEYS.md",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CustomLayoutTest.kt",
@@ -185,8 +185,8 @@
       "sha": "5d53cac0300d49157daf83f32cdea04d28bb81f3",
       "title": "fix(shuangpin): 分组键副标签与上下划动作回归",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_group_key_and_serializer_diff_reviewed_rest_pending",
+      "review": "Separates group punctuation hints from swipe macro labels, stops exporting swipeUpLabel/downLabel and sets overrideDefaults when macros exist. Preserve physical functional-key directions, explicit per-state empty actions and existing import fields; compact edit/save/round-trip tests still required.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/DirectionalSwipeBehaviorTest.kt",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/ShuangpinGroupKeyEditorTest.kt",
@@ -237,8 +237,8 @@
       "sha": "2091b3512382a782915cab3ba1540e5a466bcce1",
       "title": "fix(candidates): 展开候选栏回车键保留图标主题",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "production_diff_reviewed_tests_pending",
+      "review": "Removes expanded-layout Return drawable override so theme resolution can run. Reasonable effect but its newer base keyboard/icon state needs review; test editor-action changes and themed composition Return before adopting.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/ExpandedCandidateReturnIconTest.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/ExpandedCandidateLayout.kt"
@@ -385,8 +385,8 @@
       "sha": "0353ff731df590083a1d62d8332f642b5e63544e",
       "title": "fix(lint): 清理未使用字符串并修正键盘玻璃窗口 RTL 重力",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_theme_preferences_and_window_diff_reviewed_rest_pending",
+      "review": "Legacy opacity keys become constants; glass-window gravity changes physical LEFT to logical START. Confirm window x coordinates and RTL geometry before adopting this lint fix, preserving stored opacity choices.",
       "changed_files": [
         "app/src/main/java/org/fxboomk/fcitx5/android/data/theme/ThemePrefs.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/input/KeyboardGlassWindow.kt",
@@ -476,8 +476,8 @@
       "sha": "fb5a29f2aa273794165384bb461bc2876d808ab7",
       "title": "feat(js-assistant): 翻译用途支持选择目标语言并移除独立的「中译英」用途",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_assistant_translation_diff_reviewed_rest_pending",
+      "review": "Target-language selection replaces toEnglish UI action. Upstream includes aliases for toEnglish/Chinese labels and selects en for legacy actions; do not misreport aliases as missing. Still depends on deferred generic JS/AI integration and must preserve LongForm, candidate_bar, thinking and service configuration, plus request/display/commit checks.",
       "changed_files": [
         "app/src/main/assets/bundled/js-apps/llm-assistant.js",
         "app/src/main/assets/bundled/js-apps/llm-assistant.json",
@@ -490,8 +490,8 @@
       "sha": "26948d333b67e0c4b78c313bc1b226b1c9d7db0e",
       "title": "feat(pinyin): 按候选类型重排位置并限制首页数量",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_jni_guard_and_styled_glyph_diff_reviewed_rest_pending",
+      "review": "Adds current-text/action guarded JNI operations and candidate type ordering. AutoScaleTextView color spans must be ported onto personal stable font-frame placement rather than replacing it with upstream ink geometry. Ordering/limits and cursor/index mapping still require real engine regression.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/AutoScaleTextViewColorSpanTest.kt",
@@ -514,8 +514,8 @@
       "sha": "30144c9085d3595a20bc60d4c0c66014cac3a354",
       "title": "fix(candidates): 统一划动与长按数字选词并跳过折叠表情",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_digit_selector_diff_reviewed_rest_pending",
+      "review": "Unifies literal/keypad/swipe digit parsing and consumes out-of-range selection keys when candidates exist. Preserve optional personal digit/input takeover settings; depends on new native displayed order and cannot bypass saved opt-outs.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/editing/GestureEditingIntegrationTest.kt",
@@ -529,8 +529,8 @@
       "sha": "d7cdacf6a5147f453e89fc71dd0d524549577a0b",
       "title": "feat(pinyin): 简拼支持长度阈值配置并移除「部分双拼匹配」开关",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_default_migration_and_settings_diff_reviewed_rest_pending",
+      "review": "getImConfig invokes applyCompactTypoDefault, which writes Fuzzy/NG_GN=False whenever CompactTypoDefaultApplied is not True. The new marker alone does not prove an existing choice was absent. Must preserve explicitly saved fuzzy choices, avoid mutation on read, and retain meaningful PartialSp behavior when integrating native thresholds.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/core/CompactPinyinDefaults.kt",
@@ -555,8 +555,8 @@
       "sha": "b45c86836fa1539d799fa4882d80329d758977b6",
       "title": "build(third-party): rebuild_mat.py 支持离线校验缓存产物",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_build_helper_diff_reviewed_rest_pending",
+      "review": "Offline cached-AAR verification is useful, but upstream intermediate rebuild still blindly reads markers and copies outputs. Retain personal corrupted-cache recovery, verified telemetry archive reset, atomic artifact/marker writes, numeric tool sorting and five helper tests.",
       "changed_files": [
         "third_party/onnxruntime-genai-android/rebuild_mat.py"
       ],
@@ -566,8 +566,8 @@
       "sha": "d04ecb594d35875bbd01bcbf7e745c998ead71f6",
       "title": "fix(ci): publish the verified ONNX Runtime GenAI prebuilt",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_build_helper_and_official_source_documentation_reviewed_rest_pending",
+      "review": "Upstream commits a stripped prebuilt and source documentation identifies Microsoft NuGet as the original 0.17.0 AAR source. This run instead restores official input retrieval with the exact previously pinned AAR hash and existing personal source rebuild. Prebuilt wholesale switch and its licensing/verification paths are not adopted.",
       "changed_files": [
         ".github/workflows/pull_request.yml",
         "third_party/onnxruntime-genai-android/.gitignore",
@@ -588,8 +588,8 @@
       "sha": "bc0ceff5f416b3d911064fe2dc7ab58887faf66f",
       "title": "fix(deps): upgrade ONNX Runtime Android stacks",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_catalog_and_telemetry_jni_diff_reviewed_rest_pending",
+      "review": "ORT 1.32.0 / GenAI 0.20.0 with telemetry 3.10.310.1 introduces a new Java HttpClient JNI export. Requires separate API/JNI/model initialization and 16KB alignment validation. Keep reviewed 0.17.0-f5a.1 and hashes for this run.",
       "changed_files": [
         ".github/scripts/check_onnxruntime_versions.py",
         ".github/workflows/onnxruntime-version-check.yml",
@@ -624,8 +624,8 @@
       "sha": "d002ee71c957b54021412821c1bf5c8f71e9c43c",
       "title": "feat(candidates): 兜底候选布局与首屏感知的候选动作/数字选词",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_first_page_tracker_diff_reviewed_rest_pending",
+      "review": "Tracks actual first-row native indices and clears on context changes. Requires full candidate revision/page lifecycle validation; fallback row must retain Disabled modes, physical toolbar controls and native cursor policy.",
       "changed_files": [
         "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
         "app/src/main/cpp/androidfrontend/androidfrontend.h",
@@ -663,8 +663,8 @@
       "sha": "968cd736c35940b8da4148ca775d23272844e07e",
       "title": "feat(preedit): 双拼全键盘与紧凑键盘均支持音节选择",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "production_diff_reviewed_tests_pending",
+      "review": "Enables syllable tabs for both supported full and compact pinyin layouts. Depends on newer native tab actions/preedit UI; 26-key existing behavior and stale-action guards must be validated.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/preedit/PreeditSyllableStripTest.kt",
         "app/src/main/java/org/fxboomk/fcitx5/android/input/preedit/PreeditComponent.kt"
@@ -746,8 +746,8 @@
       "sha": "aaaf58a7c8d592bc6501777471ace547efd794b2",
       "title": "chore(deps): 将 fcitx5 子模块指向可写 fork",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "complete_diff_reviewed_validation_pending",
+      "review": "Only fcitx5 submodule URL changes from fcitx/fcitx5 to boomker/fcitx5; no gitlink changes in this commit. Current pinned object checks out successfully without it. Apply a future URL change only with audited gitlinks, never tracking remote master.",
       "changed_files": [
         ".gitmodules"
       ],
@@ -757,8 +757,8 @@
       "sha": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
       "title": "feat(pinyin): 暴露表情折叠与简拼模糊开关",
       "status": "pending_compatibility_review_and_validation",
-      "review_depth": "incoming_inventory_not_adoption",
-      "review": "Retained in the incoming snapshot. Requires review against personal patches and validation; not adopted merely because it is in upstream history.",
+      "review_depth": "targeted_addon_settings_diff_reviewed_native_and_tests_pending",
+      "review": "Exposes ShuangpinInitialFuzzy and FoldSymbolCandidates settings with a native chinese-addons gitlink. Useful preferences but depend on deferred candidate folding/abbreviation semantics; native object changes and saved choices need validation.",
       "changed_files": [
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
         "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
@@ -866,7 +866,8 @@
       "Add 74 voice strings to each of de/es/ja/ko/ru; check format placeholders",
       "Apply ed36b47d listener notification snapshot plus three upstream JVM regressions",
       "Add debug-only real editor/IME and external voice fallback fixtures; seven Android regressions for voice, symbol, floating, layout transfer and Rime menu",
-      "Add exact-source validation entrypoints and APK/JVM/Android reports; skipped or incomplete tests fail"
+      "Add exact-source validation entrypoints and APK/JVM/Android reports; skipped or incomplete tests fail",
+      "Preserve ToggleActivate space long-press decoding, distinct toggleIme action and settings entry; upstream e0855e28 had silently mapped it to Enumerate. Add JVM and Android stored-value regressions; ShowPicker, RepeatSpace and VoiceInput compatibility remain."
     ],
     "validation": "Pending fresh Actions run; no old workspace pass is reused",
     "pre_commit_checks": {
@@ -914,6 +915,47 @@
       "bytes": 21505982,
       "actual_and_expected_sha256": "f8b28a9ce448d97e0d5ab9614eae018a4d994d739de84e9fc5f9ff3b6673dd50",
       "verification": "Downloaded official Microsoft NuGet package and verified the extracted AAR matches the previously reviewed exact raw hash; no runtime/API upgrade. Stage and atomically move the verified raw cache; retain rebuilt-cache recovery and five helper tests. Disable configuration cache only for the validation publish invocation."
-    }
+    },
+    "retry": {
+      "source_sha": "27a0e9c87b7e8d7da1c8fef4728fab8a355823ae",
+      "run_id": 44582897916,
+      "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44582897916",
+      "status": "failed_android_fixture_compilation",
+      "adopted": false,
+      "helper_tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "jvm": {
+        "tests": 802,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "suites": 111,
+        "artifact_id": 14559168226,
+        "artifact_zip_sha256": "f1931ed2cca911036abda6fbe04a12be4985a91869b0a3e9dc3cff8204c8d40f"
+      },
+      "failure": "New symbol-panel fixture lambda omitted KeyActionListener.Source parameter. Fixed in the next candidate. No Android tests or final arm64/lint ran."
+    },
+    "native_diff_review": [
+      {
+        "component": "libime",
+        "from": "3ff75ad76f6624904294250d20aec075877140df",
+        "to": "8a1b8f93aadeef55dc7ca3eb61d3de9671696b1e",
+        "commits": 3,
+        "files": 5,
+        "review": "Reviewed actual diff ignoring formatting: DATrie private node/npos/block types move without changing uint64 position encoding or marshalled node/check fields; clang-format has no functional effect; history alpha 1.0 to 0.25 retains older learned selections, upstream adds testRetention. No user config/default key is migrated. Android model/Wubi smoke and final native builds remain required. Upstream host C++ suite not executed locally."
+      },
+      {
+        "component": "fcitx5-rime",
+        "from": "f2119bbd41cafe694a9f30683a2085d1df7de3e2",
+        "to": "b3a012352069cecce27d6ff90c706ce2fd08830a",
+        "commits": 1,
+        "files": 2,
+        "review": "Reviewed actual selector diff: order persisted in conf/rime-schema-selector.conf, separate order-only path returns before selection deploy, selected schema set comparison and levers lifetime cleanup, reject unreadable existing custom YAML rather than overwrite it, user-vs-bundled schema list and stable saved ordering. Retain personal per-im-runtime patch; fix Android hidden-selected menu compatibility and validate native/UI save and no-deploy order path."
+      }
+    ]
   }
 }

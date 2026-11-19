@@ -14,6 +14,7 @@ run_gradle() {
 python3 -m unittest discover -s third_party/onnxruntime-genai-android/tests -v 2>&1 | tee "$results/python-tests.log"
 run_gradle dependency --no-configuration-cache :third_party:onnxruntime-genai-android:publish
 BUILD_ABI=x86_64 run_gradle unit-tests :app:testDebugUnitTest
+python3 maintenance/verify-validation-apks.py --jvm-only | tee "$results/jvm-summary.log"
 BUILD_ABI=x86_64 run_gradle android-fixtures :app:assembleDebug :app:assembleDebugAndroidTest :plugin:rime:assembleDebug
 BUILD_ABI=arm64-v8a run_gradle release-apks :app:assembleRelease :assembleReleasePlugins
 # Retain lint failures but still exercise Android paths; the runner checks this status.

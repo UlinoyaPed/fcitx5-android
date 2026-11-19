@@ -28,12 +28,12 @@ enum class SpaceLongPressBehavior(override val stringRes: Int) : ManagedPreferen
             Enumerate,
             ShowPicker,
             RepeatSpace,
+            ToggleActivate,
             SwitchToEnglish
         )
 
         /** Decode both the current name and names persisted by older versions. */
         fun fromPersistedName(raw: String): SpaceLongPressBehavior = when (raw) {
-            ToggleActivate.name -> Enumerate
             // The behavior was renamed from VoiceInput to VoiceHold; keep
             // existing users' hold-to-talk setting instead of resetting it.
             "VoiceInput" -> VoiceHold

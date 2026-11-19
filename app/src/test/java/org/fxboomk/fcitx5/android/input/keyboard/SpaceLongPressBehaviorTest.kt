@@ -18,6 +18,7 @@ class SpaceLongPressBehaviorTest {
                 SpaceLongPressBehavior.Enumerate,
                 SpaceLongPressBehavior.ShowPicker,
                 SpaceLongPressBehavior.RepeatSpace,
+                SpaceLongPressBehavior.ToggleActivate,
                 SpaceLongPressBehavior.SwitchToEnglish
             ),
             SpaceLongPressBehavior.settingsEntries
@@ -47,8 +48,15 @@ class SpaceLongPressBehaviorTest {
             SpaceLongPressBehavior.fromPersistedName("ShowPicker")
         )
         assertEquals(
-            SpaceLongPressBehavior.Enumerate,
+            SpaceLongPressBehavior.ToggleActivate,
             SpaceLongPressBehavior.fromPersistedName("ToggleActivate")
         )
+    }
+
+    @Test
+    fun savedActivationDoesNotBecomeInputMethodEnumeration() {
+        val saved = SpaceLongPressBehavior.fromPersistedName("ToggleActivate")
+        org.junit.Assert.assertNotEquals(SpaceLongPressBehavior.Enumerate, saved)
+        org.junit.Assert.assertTrue(saved in SpaceLongPressBehavior.settingsEntries)
     }
 }

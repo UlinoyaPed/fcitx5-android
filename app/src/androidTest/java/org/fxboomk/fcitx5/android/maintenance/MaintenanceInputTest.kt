@@ -170,7 +170,7 @@ class MaintenanceInputTest {
                     val ui = s.main {
                         pref.setValue(style); s.activity.editor.setText("")
                         SymbolPanelUi(s.activity, ThemeManager.activeTheme, SymbolCatalogType.Symbols, 6, 20f,
-                            DefaultPickerPolicy(), KeyActionListener { action -> if (action is KeyAction.CommitAction) s.service.commitText(action.text) }, PopupActionListener {})
+                            DefaultPickerPolicy(), KeyActionListener { action, _ -> if (action is KeyAction.CommitAction) s.service.commitText(action.text) }, PopupActionListener {})
                             .also { panel -> s.activity.addContentView(panel.root, FrameLayout.LayoutParams(-1, 300, Gravity.BOTTOM)); panel.attach(); panel.refresh() }
                     }
                     try {
