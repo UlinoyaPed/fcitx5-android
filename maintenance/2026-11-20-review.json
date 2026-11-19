@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "phase": "validation_infrastructure",
+  "phase": "candidate_restored_validation_pending",
   "status": "application_candidate_not_adopted",
   "personal_base_sha": "0270f78df6e100f6de16e19aa6bc06e8ef2a5f65",
   "reviewed_upstream_baseline": "939a8ed546959a3120d1418e5215ca762071087e",
@@ -851,5 +851,48 @@
     "timezone": "Asia/Shanghai",
     "schedule": "Friday 01:00",
     "prompt_file": "maintenance/task-prompt.txt"
+  },
+  "candidate_restoration": {
+    "branch": "maintenance/2026-11-20-resume",
+    "parents": [
+      "eb29eb31b1817e93422e01736c3deacd86126583",
+      "1b5cd21da99744c4a9e96fd4b3aa7227d690f84d"
+    ],
+    "status": "not_adopted",
+    "adjustments": [
+      "Retain hidden selected Rime schemas and initial bundled selections; add two JVM tests",
+      "Preserve public CANCELLED protocol value 5; AIDL signatures unchanged",
+      "Load packaged image-theme fixture without resurrecting deleted user presets",
+      "Add 74 voice strings to each of de/es/ja/ko/ru; check format placeholders",
+      "Apply ed36b47d listener notification snapshot plus three upstream JVM regressions",
+      "Add debug-only real editor/IME and external voice fallback fixtures; seven Android regressions for voice, symbol, floating, layout transfer and Rime menu",
+      "Add exact-source validation entrypoints and APK/JVM/Android reports; skipped or incomplete tests fail"
+    ],
+    "validation": "Pending fresh Actions run; no old workspace pass is reused",
+    "pre_commit_checks": {
+      "diff_check": "passed",
+      "actionlint": "7 workflows passed",
+      "python_helper_tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "aidl_method_order_and_signatures": "unchanged",
+      "personal_font_implementation": "byte-identical to main",
+      "gitnexus": {
+        "all": {
+          "symbols": 3528,
+          "ranked_flows": 214,
+          "files": 196,
+          "risk": "critical",
+          "partial": false,
+          "truncated": false
+        },
+        "compare_base": "eb29eb31b1817e93422e01736c3deacd86126583",
+        "compare": "same complete counts",
+        "limitations": "Ranked flows are a lower bound; analyzer entrypoint/callee/depth caps, one BaseDynamicListUi scope extraction failure and absent local native submodules. Native sources/build checked in Actions, not inferred unaffected."
+      }
+    }
   }
 }

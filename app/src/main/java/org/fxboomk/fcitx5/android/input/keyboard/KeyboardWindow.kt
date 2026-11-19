@@ -146,6 +146,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     /**
+     * Refresh only the currently visible keyboard layout.
+     * Used after toggling floating mode to force alt-text layout recalculation.
+     */
+    fun refreshCurrentKeyboard() {
+        currentKeyboard?.refreshStyle()
+    }
+
+    /**
      * Check and apply font refresh if needed.
      * Call this when keyboard is about to show.
      */
@@ -233,10 +241,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                     notifyBarLayoutChanged()
                 }
             } else {
+                val pickerKey = PickerWindow.Key.ofName(target) ?: PickerWindow.Key.Symbol
                 if (remember) {
-                    lastSymbolType = PickerWindow.Key.Symbol.name
+                    lastSymbolType = pickerKey.name
                 }
-                windowManager.attachWindow(PickerWindow.Key.Symbol)
+                windowManager.attachWindow(pickerKey)
             }
         }
     }

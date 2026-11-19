@@ -4,7 +4,14 @@
 
     <application
         android:label="@string/app_debug_name"
-        tools:replace="android:label">
+        android:appComponentFactory="org.fxboomk.fcitx5.android.maintenance.MaintenanceImeFactory"
+        tools:targetApi="28"
+        tools:replace="android:label,android:appComponentFactory">
+        <activity
+            android:name="org.fxboomk.fcitx5.android.maintenance.MaintenanceEditorActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
         <service
             android:name=".input.FcitxInputMethodService"
             android:label="@string/app_debug_name"

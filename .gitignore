@@ -118,3 +118,7 @@ lint/tmp/
 .gitnexus
 .codegraph
 .local-thirdparty-artifacts/
+
+# Persistent reports are uploaded as Actions artifacts, not versioned.
+/maintenance/validation-results/
+/maintenance/__pycache__/

@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <permission android:name="org.ulinoyaped.fcitx5.android.debug.test.DENIED_VOICE_BIND" android:protectionLevel="signature" />
+    <uses-permission android:name="org.ulinoyaped.fcitx5.android.debug.permission.PLUGIN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <application>
+        <service android:name="org.fxboomk.fcitx5.android.maintenance.external.DeniedVoiceProviderService" android:exported="true" android:permission="org.ulinoyaped.fcitx5.android.debug.test.DENIED_VOICE_BIND">
+            <intent-filter><action android:name="org.ulinoyaped.fcitx5.android.debug.plugin.VOICE_INPUT" /></intent-filter>
+        </service>
+        <service android:name="org.fxboomk.fcitx5.android.maintenance.external.FloatingService" android:exported="true" android:foregroundServiceType="dataSync">
+            <meta-data android:name="org.fcitx.fcitx5.android.voice.FLOATING_SESSION_TOKEN" android:value="true" />
+        </service>
+    </application>
+</manifest>

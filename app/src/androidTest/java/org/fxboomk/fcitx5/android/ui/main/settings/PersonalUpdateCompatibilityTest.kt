@@ -7,12 +7,33 @@ import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.input.config.*
 import org.fxboomk.fcitx5.android.input.preedit.CompositionAreaStyle
+import org.fxboomk.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.junit.Assert.*
 import org.junit.Test
 
 /** Upgrade contracts against the real Android preference and theme stores. */
 class PersonalUpdateCompatibilityTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    @Test fun floatingAndSymbolPreferencesAndLongPressChoicesSurviveUpgrade() {
+        val storage = instrumentation.targetContext.getSharedPreferences("maintenance_nov_upgrade", Context.MODE_PRIVATE)
+        try {
+            storage.edit().clear().putBoolean("floating_keyboard_enabled", true)
+                .putBoolean("hide_unsupported_emojis", false)
+                .putString("space_long_press_behavior", "ShowPicker").commit()
+            val prefs = AppPrefs(storage)
+            assertTrue(prefs.internal.floatingModeEnabled.getValue())
+            assertFalse(prefs.symbols.hideUnsupportedEmojis.getValue())
+            assertEquals(SpaceLongPressBehavior.ShowPicker, prefs.keyboard.spaceKeyLongPressBehavior.getValue())
+            assertEquals("ShowPicker", storage.getString("space_long_press_behavior", null))
+            storage.edit().putString("space_long_press_behavior", "VoiceInput").commit()
+            assertEquals(SpaceLongPressBehavior.VoiceHold, AppPrefs(storage).keyboard.spaceKeyLongPressBehavior.getValue())
+            assertEquals("VoiceInput", storage.getString("space_long_press_behavior", null))
+            storage.edit().putBoolean("floating_keyboard_enabled", true)
+                .putBoolean("floating_mode_enabled", false).commit()
+            assertFalse(AppPrefs(storage).internal.floatingModeEnabled.getValue())
+        } finally { storage.edit().clear().commit() }
+    }
 
     @Test fun candidateModesAndHardwareSettingsSurviveUpgrade() {
         val context = instrumentation.targetContext
@@ -118,10 +139,12 @@ class PersonalUpdateCompatibilityTest {
 
     @Test fun retainedPluginAndTypographyControlsRemainSearchable() {
         instrumentation.runOnMainSync {
-            val keys = SettingsSearchIndex.androidItems(instrumentation.targetContext)
-                .mapNotNull { it.preferenceKey }.toSet()
+            val items = SettingsSearchIndex.androidItems(instrumentation.targetContext)
+            val keys = items.mapNotNull { it.preferenceKey }.toSet()
             listOf("allow_original_plugins", "preedit_style", "sub_label_padding",
                 "secondary_label_position").forEach { assertTrue("Missing setting $it", it in keys) }
+            assertTrue(items.any { it.preferenceKey == "preferred_voice_input" && it.route == SettingsRoute.VirtualKeyboardVoice })
+            assertTrue(items.any { it.preferenceKey == "hide_unsupported_emojis" && it.route == SettingsRoute.Symbol })
         }
     }
 }

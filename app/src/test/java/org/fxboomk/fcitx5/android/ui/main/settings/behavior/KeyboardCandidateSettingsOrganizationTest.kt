@@ -4,6 +4,8 @@
 
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 import org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSettingsSupport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -94,11 +96,24 @@ class KeyboardCandidateSettingsOrganizationTest {
     }
 
     @Test
-    fun preferredVoiceInputLivesInBasicBehavior() {
-        assertEquals(
-            "preferred_voice_input",
-            KeyboardSettingsSupport.basicBehaviorKeys.last()
-        )
+    fun preferredVoiceInputRemainsInVoiceSettings() {
+        assertTrue("preferred_voice_input" in KeyboardSettingsSupport.toolbarAndInputKeys)
+        assertFalse("preferred_voice_input" in KeyboardSettingsSupport.basicBehaviorKeys)
+    }
+
+    @Test
+    fun floatingCandidateDisplayModeHasADedicatedLabel() {
+        val strings = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(File("src/main/res/values/strings.xml"))
+            .documentElement
+        val values = strings.getElementsByTagName("string")
+        fun value(name: String): String? = (0 until values.length)
+            .map { values.item(it) }
+            .firstOrNull { it.attributes.getNamedItem("name")?.nodeValue == name }
+            ?.textContent
+
+        assertEquals("Floating candidate window", value("candidate_display_mode_floating"))
+        assertEquals("悬浮窗", value("llm_prediction_display_mode_floating_window"))
     }
 
     @Test
