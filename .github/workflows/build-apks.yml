@@ -97,7 +97,7 @@ jobs:
           SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
         run: |
           local_third_party_repository="file://${PWD}/.local-thirdparty-artifacts"
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             -PgithubPackagesRepository="$local_third_party_repository" \
             :third_party:onnxruntime-genai-android:publish
           ./gradlew clean \

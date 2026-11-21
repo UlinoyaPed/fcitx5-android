@@ -1,0 +1,1071 @@
+{
+  "date": "2026-11-21",
+  "main_before": "eb29eb31b1817e93422e01736c3deacd86126583",
+  "fully_reviewed_upstream_baseline": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+  "last_observed_upstream": "5be9219ab89a89364e1732a19328637e619c940e",
+  "previous_observed_upstream": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
+  "commit_count_since_baseline": 132,
+  "previous_review": "maintenance/2026-11-20-review.json",
+  "incoming_branch": "maintenance/2026-11-21-incoming",
+  "new_upstream_entries": [
+    {
+      "sha": "6f7a1eaa57283f79995e1b778bdc976c83783fd0",
+      "title": "test(shuangpin): 覆盖纠错候选渐进上移",
+      "status": "deferred",
+      "review_depth": "targeted_engine_and_test_review",
+      "review": "Correction learning gains a two-selection grace period and gradual rank movement. Depends on native per-scheme history scoring. Verify isolated history, user dictionaries and normal 26-key ranking without a fixed model rank.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinCorrectionLearningTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "043377ac83f2bfca7193fdcf55b934042d6ffe46a6b8889a1b8d58ec41c77bdf"
+    },
+    {
+      "sha": "dcb8babcf287f3f2482c57ae2d8ddc4db82c86e0",
+      "title": "fix(settings): 18 键布局禁用简拼模糊开关",
+      "status": "deferred",
+      "review_depth": "production_diff_reviewed",
+      "review": "Disables the shuangpin-initial-fuzzy UI in Compact18 using scoped IM and layout listeners. Keeps the stored value. Verify that switching back to 26 keys revives it and that global/per-IM screens and search still navigate correctly.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchNavigationTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/ConfigSectionFragment.kt"
+      ],
+      "patch_sha256": "8b7c176146cd44c2527dfaed0d6c98066fc61f45de8fe11c5e2d09cc8ad9c558"
+    },
+    {
+      "sha": "de79b60fd7e7f236f713f3c5acd23515971d658d",
+      "title": "chore(i18n): 精简简拼模糊设置说明",
+      "status": "deferred",
+      "review_depth": "targeted_resource_diff_reviewed",
+      "review": "Simplifies the initial-fuzzy explanation to z/zh, c/ch and s/sh. Follow the optional setting once it is integrated.",
+      "files": [
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "patch_sha256": "9363cfc9ed11dd698c0fa1732c421f440e72e21b95b566fcd05671d6b5469688"
+    },
+    {
+      "sha": "150db5b75a2898d7fec0f316e5eb6569eaeebbe6",
+      "title": "feat(shuangpin): 18 键弹层小写字母按字面输入",
+      "status": "deferred",
+      "review_depth": "android_and_native_key_path_reviewed",
+      "review": "Injects literal-key symbols only for unmodified lowercase popup actions in Compact18. Native path can commit an existing composition before a separate literal buffer. Verify focus/switch behavior, Shift, saved swipe macros and the 26-key/other-engine paths.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "67486973666dace0aa10498e26deb8c2cda2c7f28266d1bc7ffe76845b79fc41"
+    },
+    {
+      "sha": "09feb19cc456d95eedd21a26be2ae0711faac2f1",
+      "title": "chore(codegraph): 索引时排除预构建目录",
+      "status": "deferred",
+      "review_depth": "complete_diff_reviewed",
+      "review": "Adds codegraph.json with a prebuilt exclusion. Personal GitNexus already excludes the prebuilt path. No runtime change or need to introduce a second index config now.",
+      "files": [
+        "codegraph.json"
+      ],
+      "patch_sha256": "fd30e4a6570d7738c6ba7efe58e4c30132a250e1694045209b8629fc5238c60a"
+    },
+    {
+      "sha": "55adb0825d5eb7106a17baa27d7732d31c70a4ec",
+      "title": "docs(shuangpin): 更新 18 键弹层字面输入与音节条说明",
+      "status": "deferred",
+      "review_depth": "targeted_documentation_reviewed",
+      "review": "Documents the new literal buffer and 26-key syllable strip. Defer with those features. Keep personal secondary character naming and independent row positioning when adapting the documentation.",
+      "files": [
+        "SHUANGPIN_18_KEYS.md"
+      ],
+      "patch_sha256": "b8943dfdd8894080390dcf8f90184046930f72fe7bad86753636940a1ba254a3"
+    },
+    {
+      "sha": "7ba5acd113dd7951509e5de059c8019e905e137a",
+      "title": "feat(pinyin): 设置页新增候选拼音标注选项",
+      "status": "deferred",
+      "review_depth": "production_diff_reviewed",
+      "review": "Exposes PinyinAnnotation under candidate preferences. Legitimate user choice. Latest native chain makes Rare the default, so compare the previously displayed annotations and preserve existing users’ behavior when introducing it.",
+      "files": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/AddonConfigLayouts.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "patch_sha256": "ef52a7f41739203aab441dcfb7733bb930c114b7b113ac74260cd8642e67c85e"
+    },
+    {
+      "sha": "9e931a92c344e190493f0dba805037589efe922f",
+      "title": "chore(deps): 更新 fcitx5-chinese-addons 子模块指针",
+      "status": "deferred",
+      "review_depth": "native_range_reviewed_targeted",
+      "review": "Moves the native pointer to the candidate annotation implementation. Subsequent native commits add Auto and change the default to Rare. Validate the actual pinned native version with pinyin, 26-key and 18-key shuangpin.",
+      "files": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "c4edaa6781b380bb516c21b81e1683800b9140a0d4454559945c733365de473b"
+    },
+    {
+      "sha": "375e580949c3eeae9166108ce8e0502a5e251606",
+      "title": "test(pinyin): 新增候选拼音标注真机回归测试",
+      "status": "deferred",
+      "review_depth": "test_inventory_and_native_links_reviewed",
+      "review": "Adds Android annotation cases and advances the native pointer. Read the production and isolated verification results together. The native settings and full device test have not been executed on the personal branch.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAnnotationDeviceTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ],
+      "patch_sha256": "30323acf0dc79c9033674fe97fefbc0e227552f62ee1b295cd3be4bec80ab926"
+    },
+    {
+      "sha": "5be9219ab89a89364e1732a19328637e619c940e",
+      "title": "feat(candidates): 候选视口展示与原生候选动作防护",
+      "status": "deferred",
+      "review_depth": "targeted_android_native_protocol_review",
+      "review": "Uses a native presentation revision and source candidate identity for viewport and action checks. Standalone C++20 expanded order regression passed against this upstream SHA. Still verify JNI, stale action rejection, equivalent text with different identities, cursor sync, disabled modes, paging/resize, and saved input takeover preferences with pinned native dependencies.",
+      "files": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateExpansionUiTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/androidfrontend/androidfrontend.h",
+        "app/src/main/cpp/androidfrontend/androidfrontend_public.h",
+        "app/src/main/cpp/androidfrontend/expandedcandidateorder.h",
+        "app/src/main/cpp/helper-types.h",
+        "app/src/main/cpp/jni-utils.h",
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/cpp/object-conversion.h",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateViewportSnapshot.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateWord.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/CandidatesView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateItemUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/CandidatesPagingSource.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbe.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FirstPageCandidateTracker.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/test/cpp/compact-shuangpin/CMakeLists.txt",
+        "app/src/test/cpp/compact-shuangpin/testexpandedcandidatefrontend.cpp",
+        "app/src/test/cpp/compact-shuangpin/testexpandedcandidateorder.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/core/CandidateWordTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemonApiDelegateTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportNativeIdentityTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbeTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FirstPageCandidateTrackerTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/fcitx5/src/main/cpp/fcitx5"
+      ],
+      "patch_sha256": "807ee18b801ea8d094542bca4effed4ac3cf29a5c8a8873eccb36c6ea0244697"
+    }
+  ],
+  "native_incoming": {
+    "fcitx5": {
+      "from": "e18d4bf3e84276714f8f705245f29840b9815faa",
+      "to": "2a845fd276996de2c6c75ab55b741f70b086d2b2",
+      "note": "One commit, adds a non-owning source pointer in private CandidateWord data. Requires native list lifetime and toolchain checks."
+    },
+    "chinese_addons": {
+      "from": "daae8ebc0a17c0b56c99f3bbc35e20378fdcf70f",
+      "to": "e47933b528f64a08a06bff97de6a8a63ae1195c8",
+      "note": "Five commits: gradual correction ranking, compact literal buffers, annotation modes and viewport presentation. Targeted diff audit only."
+    },
+    "host_test": {
+      "source_sha": "5be9219ab89a89364e1732a19328637e619c940e",
+      "name": "testexpandedcandidateorder",
+      "compiler_flags": "-std=c++20 -Wall -Wextra -Werror",
+      "status": "passed"
+    }
+  },
+  "candidate_previous_run": {
+    "source_sha": "a446ec3339ad32bc121d41d7c61ea1ff4a8beafe",
+    "run_id": 44585537718,
+    "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44585537718",
+    "artifact_id": 14565545858,
+    "artifact_sha256": "b15e69fe72326d8628e61cf97d8bee18c5475375334fc1d2a1b718f2d7f7d8e5",
+    "jvm": {
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python_tests": 5,
+    "android_api": 29,
+    "android_groups": [
+      {
+        "name": "core",
+        "expected": 115,
+        "tests": 115,
+        "status": "passed",
+        "seconds": 11.1,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui",
+        "expected": 57,
+        "status": "failed",
+        "error": "Command '['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'org.fxboomk.fcitx5.android.data.pinyin.CustomShuangpinPreservationTest,org.fxboomk.fcitx5.android.data.prefs.LegacyChineseEnglishSpacingTest,org.fxboomk.fcitx5.android.input.config.DirectionalSwipeMigrationFileTest,org.fxboomk.fcitx5.android.input.predict.LlmCompletionProtocolTest,org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest,org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivityTest,org.fxboomk.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivityTest,org.fxboomk.fcitx5.android.data.theme.ThemePoolMembershipTest,org.fxboomk.fcitx5.android.ui.main.settings.theme.CustomThemeActivityTest,org.fxboomk.fcitx5.android.ui.main.settings.theme.ThemeSelectionUiTest,org.fxboomk.fcitx5.android.input.clipboard.ClipboardCategoryButtonsTest,org.fxboomk.fcitx5.android.input.dialog.RimeSchemaPickerTest', 'org.ulinoyaped.fcitx5.android.debug.test/androidx.test.runner.AndroidJUnitRunner']' timed out after 1500 seconds",
+        "seconds": 1500.1,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-transfer-rime",
+        "expected": 7,
+        "tests": null,
+        "status": "failed",
+        "seconds": 29.1,
+        "unpassed_cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.MaintenanceInputTest",
+            "test": "bothSymbolPanelStylesCommitThroughRealEditor",
+            "code": -2
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.MaintenanceInputTest",
+            "test": "floatingKeyboardResizesRotatesAndKeepsEditorInput",
+            "code": -2
+          }
+        ]
+      },
+      {
+        "name": "missing-plugin",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "seconds": 1.5,
+        "unpassed_cases": []
+      }
+    ],
+    "android_passed_in_complete_groups": 117,
+    "android_incomplete_groups": 2,
+    "android_passed_cases_inside_incomplete_groups": [
+      {
+        "class": "org.fxboomk.fcitx5.android.maintenance.MaintenanceInputTest",
+        "test": "finishCommitsLastPartialAndLateCallbacksCannotWriteToReplacementEditor",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.maintenance.MaintenanceInputTest",
+        "test": "javascriptRequestPartialDisplayAndFinalCommitKeepSpacesAndEmoji",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.maintenance.MaintenanceInputTest",
+        "test": "deniedBinderFallsBackToExternalFloatingServiceAndCommitsTokenBoundResult",
+        "code": 0
+      }
+    ],
+    "release_packages": 11,
+    "native_libraries_checked": 40,
+    "elf_and_zip_16kb_alignment": "passed",
+    "lint": {
+      "debug": {
+        "errors": 0,
+        "warnings": 43
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 43
+      }
+    },
+    "limitations": [
+      "No physical 16 KB device run",
+      "No online model quality evaluation"
+    ],
+    "cause": [
+      "UI suite timed out and the original runner discarded partial output. Split the suite by class with per-class logcat capture.",
+      "Symbol fixture compared the TextView object string rather than its visible text. Fixed in 711aa622.",
+      "Floating input fixture process crashed with OutOfMemoryError. Fresh isolated rerun and diagnostics required.",
+      "Layout transfer and Rime selection regressions never started after the crash."
+    ]
+  },
+  "followup_on_nov20_entries": {
+    "2091b351": "Candidate and main already share the theme-aware BaseKeyboard Return implementation. ExpandedCandidateLayout Keyboard still overrides it with a raw resource. The upstream deletion can be isolated with the four existing icon tests, covering SVG/font/resource, composing and editor-action icons, reopen and Gboard fallbacks. Not adopted in this run.",
+    "02da5cbe": "ThemePrefs projects independently saved main and non-main opacity onto one key_opacity by preferring main when it is non-100, multiplies a separate glass opacity if enabled, and removes wallpaper blend control. A single scalar cannot retain separate non-default values. Adapt as an optional glass effect without discarding useful existing controls or settings. Review also KeyView overlay geometry and RTL window capability.",
+    "a57a0a10": "Adds the existing keyboard test menu on the theme appearance page. The entry itself may be isolated from glass migration. Reuse existing group navigation and personal UI terms.",
+    "54f5e2b8": "Separates preedit presence from candidates-only compose state via a new hasPreedit parameter and forces refresh on returning to the keyboard. Valid for Compact18 only after merge with action-based personal Shift and tests for repeated empty notifications.",
+    "ce5d670f": "Adds Return/Keypad Enter pinyin highlight synchronization for hardware and virtual key paths before native sendKey. Preserve personal optional takeovers and verify first-page/docked/floating native indices across render changes and page moves. Native raw-code commit changes decided jointly with d56562e2.",
+    "6a9088c9/20a45f2e": "Adds opt-in status toolbar layout/profile entry points, then moves profile choice into an IME window. The second patch suppresses layout-source change notification during previews and adds explicit lazy-cache/active layout refresh. Check stale previews, split/theme configuration, explicit selection, attached editor and file watchers together.",
+    "c9925d47": "Resettable preference classes move packages. Android restores dialogs from class names; MainActivity installs a FragmentFactory before super.onCreate to recognize two old names. Verify actual rotation/process restore and any saved dialog tags; keep keys and search destinations.",
+    "c5b41188/d56562e2": "Fetched Chinese-addons pins bc96a64d..053fd54d and e8cb6b36..4bcc1c2d. The first rewires decoded raw commit and highlight behavior. The latter applies typed key commit to full 26-key mode while preserving compact and Shift+Return, including explicit separator and full pinyin display cases.",
+    "26e0d48c": "Fetched corresponding Chinese-addons and libime ranges. e8cb6b36 includes nearby-key correction and viewport-sensitive placement/forgetting. libime 1511c085 marks grouped layouts and changes first-letter matching; fcitx pin e18d4bf3 brings fallback candidate metadata. Integrate as one protocol batch after learning/history, candidate and compact layout tests.",
+    "40bc3031": "Android tests pin final-syllable completion and post-selection prefix behavior across threshold values. Native libime 1ada6bda changes pinyin context/encoder/IME plus regression tests. Existing PartialSp and per-IM saved configurations still need an integration path.",
+    "b21b228f": "Upstream fixture stops the daemon, isolates only two learned correction files, backs up/restores contents and restarts in finally. Run on disposable Android storage, avoid fixed candidate ranks, and verify absent source files stay absent after test.",
+    "55c53bcc": "Uses a scrollable material chip grid only for compact group presets and symbol selection, retaining original indexes and text. Reuse accessible labels and saved key schema. Depends on the compact editor.",
+    "4f1db725/3ee4e9f3": "Free regrouping, thresholds and compact-only detection span custom layout validation, JNI group synchronization and fuzzy settings. Verify no loss of custom entries/26-key behavior, and keep explicit fuzzy preferences while switching layouts."
+  },
+  "independent_first_attempt": {
+    "source_sha": "da6104e63c96fba594e78cadc71d69f6517cc449",
+    "run_id": 44893828866,
+    "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44893828866",
+    "artifact_id": 14704525239,
+    "artifact_sha256": "88da6c65933a0dbae7174589f9a5c71ee0dad52687b56f2ee3dbc5b83d4ab872",
+    "jvm": {
+      "tests": 741,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python_tests": 5,
+    "android_api": 29,
+    "android_groups": [
+      {
+        "name": "personal-core",
+        "expected": 35,
+        "tests": null,
+        "status": "failed",
+        "seconds": 14.4,
+        "unpassed_cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "jumpingToAnEntryPaintsTheHighlight",
+            "code": -2
+          }
+        ]
+      }
+    ],
+    "android_passed_in_complete_groups": 0,
+    "android_incomplete_groups": 1,
+    "android_passed_cases_inside_incomplete_groups": [
+      {
+        "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+        "test": "fuzzyTabPayloadPersistsWithoutChangingSiblingOptionsOrAddonDefaults",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+        "test": "genAi017LoadsJniAndReportsAnInvalidModelAsAnApiError",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+        "test": "pinyinModelProducesCandidatesAndTableEngineRemainsAvailable",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.NativeEngineMaintenanceTest",
+        "test": "pinyinAndRimeOverridesStayIndependentOfAddonDefaults",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.FcitxTest",
+        "test": "testWbx",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.FcitxTest",
+        "test": "testInputPanelStatus",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.FcitxTest",
+        "test": "testPinyin",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+        "test": "clearingCompositionRestoresLowercaseAndLanguageIconForOnceAndLock",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+        "test": "repeatedEmptyNotificationsKeepShiftChosenOutsideComposition",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+        "test": "bothShiftKeysShowFilledAndUnderlinedStatesDuringComposition",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+        "test": "originalShiftIdentityDoesNotOverwriteItsActiveLanguageRole",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "hidingAndRestoringASublabelKeepsTheMainFrameOnNormalKeys",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "stableHeightRefreshKeepsTheComputedPlacement",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "shiftAndCapsKeepTheSameTypographicBaseline",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "accentedSecondRowHasTheSameFontSizeAsOtherLetterRows",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "changingPunctuationBetweenLanguagesKeepsMainSizeAndBaseline",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelStabilityTest",
+        "test": "changingNeighbouringLettersDoesNotMoveOrResizeTheSameKey",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+        "test": "mainFontChangesKeepSecondarySizesPositionsAndVisibility",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+        "test": "normalKeysRenderConfiguredMain23AndSecondary20WithoutShrinking",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.input.keyboard.KeyLabelFontIndependenceTest",
+        "test": "secondaryFontChangesKeepTheMainSizeAndPosition",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+        "test": "retainedPluginAndTypographyControlsRemainSearchable",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+        "test": "bundledThemeNamesPreserveSavedIconsAndLegacyLayout",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+        "test": "candidateModesAndHardwareSettingsSurviveUpgrade",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalUpdateCompatibilityTest",
+        "test": "scopedPreeditNeverRewritesTheGlobalChoice",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+        "test": "newControlsDefaultOffAndCanBeChangedIndependently",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+        "test": "everyControlIsDiscoverableInSettingsSearch",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+        "test": "correctedTypographyDoesNotAddASettingsSwitch",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+        "test": "legacySpacePickerAndBackspaceChoicesSurviveUpgrade",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.PersonalFeatureControlsTest",
+        "test": "storedAiSpacePreferenceSurvivesTheUpdate",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+        "test": "searchingForACustomShuangpinEntryShowsItInTheResults",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+        "test": "jumpingToAnEntryOfACollapsedGroupExpandsIt",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+        "test": "candidateControlsRemainBoundForHardwareAndVirtualModes",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+        "test": "searchIndexContainsTheCustomShuangpinEntries",
+        "code": 0
+      },
+      {
+        "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+        "test": "groupedCustomPreferenceSearchConsumesItsScrollRequest",
+        "code": 0
+      }
+    ],
+    "release_packages": 11,
+    "native_libraries_checked": 39,
+    "elf_and_zip_16kb_alignment": "passed",
+    "lint": {
+      "debug": {
+        "errors": 0,
+        "warnings": 32
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 32
+      }
+    },
+    "limitations": [
+      "No physical 16 KB device run",
+      "No online model quality evaluation"
+    ],
+    "failure_analysis": "SettingsSearchNavigationTest counted any darker screenshot pixel as a row-wide scrim. The test now measures dimming of the dominant background across the visible interior with equal geometry. The production outline is unchanged."
+  },
+  "independent_adoption": {
+    "commit": "b9267952b6524eb66934b08cb29248aa24d35f7e",
+    "implementation_commit": "da6104e63c96fba594e78cadc71d69f6517cc449",
+    "upstream": "ed36b47dc1bc0db47dcd905eea108926c90a1c07",
+    "changes": [
+      "Snapshot preference listeners at each dispatch. No configuration keys, defaults or saved choices changed.",
+      "Recover official GenAI 0.17.0 AAR from Microsoft NuGet, keeping the pinned hash and telemetry rebuild. Store the original cache atomically after verification.",
+      "Disable configuration cache only for Gradle local dependency publication in Release/Nightly and PR jobs, plus manual validation."
+    ],
+    "evidence": {
+      "source_sha": "b9267952b6524eb66934b08cb29248aa24d35f7e",
+      "run_id": 44896085849,
+      "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44896085849",
+      "artifact_id": 14704494575,
+      "artifact_sha256": "b96bb5e796f68f7c0da834ffaa85691088dae6ee05b4a3bc02106abc4b6e6f56",
+      "jvm": {
+        "tests": 741,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "python_tests": 5,
+      "android_api": 29,
+      "android_groups": [
+        {
+          "name": "personal-core",
+          "expected": 35,
+          "tests": 35,
+          "status": "passed",
+          "seconds": 18.7,
+          "unpassed_cases": []
+        }
+      ],
+      "android_passed_in_complete_groups": 35,
+      "android_incomplete_groups": 0,
+      "android_passed_cases_inside_incomplete_groups": [],
+      "release_packages": 11,
+      "native_libraries_checked": 39,
+      "elf_and_zip_16kb_alignment": "passed",
+      "lint": {
+        "debug": {
+          "errors": 0,
+          "warnings": 32
+        },
+        "release": {
+          "errors": 0,
+          "warnings": 32
+        }
+      },
+      "limitations": [
+        "No physical 16 KB device run",
+        "No online model quality evaluation"
+      ]
+    },
+    "static_checks": {
+      "actionlint": "passed, 7 workflows",
+      "git_diff_check": "passed",
+      "gitnexus": "all and compare complete, 60 symbols, 10 files, 0 ranked flows; pre-edit preference impact HIGH"
+    }
+  },
+  "isolated_candidate_first_retry": {
+    "source_sha": "711aa622c08c650842684d6d3b8cef4564cc951f",
+    "run_id": 44893863411,
+    "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44893863411",
+    "artifact_id": 14704350447,
+    "artifact_sha256": "465f18553b73dfd814234e7395e690b5ac791fc8ec882cad7740599157acc10c",
+    "jvm": {
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python_tests": 5,
+    "android_api": 29,
+    "android_groups": [
+      {
+        "name": "core",
+        "expected": 115,
+        "tests": 115,
+        "status": "passed",
+        "seconds": 12.1,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-CustomShuangpinPreservationTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.4,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-LegacyChineseEnglishSpacingTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-DirectionalSwipeMigrationFileTest",
+        "expected": 7,
+        "tests": 7,
+        "status": "passed",
+        "seconds": 1.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-LlmCompletionProtocolTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-SettingsSearchNavigationTest",
+        "expected": 6,
+        "tests": 6,
+        "status": "passed",
+        "seconds": 7.4,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-TextKeyboardLayoutEditorActivityTest",
+        "expected": 9,
+        "tests": 9,
+        "status": "passed",
+        "seconds": 8.5,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-TextKeyboardLayoutProfileManagerActivityTest",
+        "expected": 13,
+        "tests": 13,
+        "status": "passed",
+        "seconds": 6.5,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ThemePoolMembershipTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-CustomThemeActivityTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 2.7,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ThemeSelectionUiTest",
+        "expected": 4,
+        "tests": 4,
+        "status": "passed",
+        "seconds": 3.8,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ClipboardCategoryButtonsTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-RimeSchemaPickerTest",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-finishCommitsLastPartialAndLateCallbacksCannotWriteToReplacementEditor",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.5,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-bothSymbolPanelStylesCommitThroughRealEditor",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 4.0,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-javascriptRequestPartialDisplayAndFinalCommitKeepSpacesAndEmoji",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.9,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-deniedBinderFallsBackToExternalFloatingServiceAndCommitsTokenBoundResult",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 4.1,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-floatingKeyboardResizesRotatesAndKeepsEditorInput",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.9,
+        "unpassed_cases": []
+      },
+      {
+        "name": "LayoutTransferRegressionTest",
+        "expected": 1,
+        "tests": null,
+        "status": "failed",
+        "seconds": 2.3,
+        "unpassed_cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.LayoutTransferRegressionTest",
+            "test": "activityExportsJsonAndZipAndRejectsFileCreatedAfterConfirmationPreview",
+            "code": -2
+          }
+        ]
+      },
+      {
+        "name": "RimeSelectionRegressionTest",
+        "expected": 1,
+        "tests": null,
+        "status": "failed",
+        "seconds": 2.9,
+        "unpassed_cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.RimeSelectionRegressionTest",
+            "test": "menuKeepsHiddenEnabledSchemasAndOrderOnlySaveDoesNotDeploy",
+            "code": -2
+          }
+        ]
+      },
+      {
+        "name": "missing-plugin",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "seconds": 1.7,
+        "unpassed_cases": []
+      }
+    ],
+    "android_passed_in_complete_groups": 179,
+    "android_incomplete_groups": 2,
+    "android_passed_cases_inside_incomplete_groups": [],
+    "release_packages": 11,
+    "native_libraries_checked": 40,
+    "elf_and_zip_16kb_alignment": "passed",
+    "lint": {
+      "debug": {
+        "errors": 0,
+        "warnings": 43
+      },
+      "release": {
+        "errors": 0,
+        "warnings": 43
+      }
+    },
+    "limitations": [
+      "No physical 16 KB device run",
+      "No online model quality evaluation"
+    ],
+    "failure_analysis": [
+      "179 passed. The old UI suite, voice, symbols, floating keyboard and missing-plugin checks completed.",
+      "LayoutTransferRegressionTest compared filenames without the ZIP .json extension.",
+      "Rime failed because onStop dispatched a save through MainViewModel after its disconnect."
+    ]
+  },
+  "isolated_candidate": {
+    "branch": "maintenance/2026-11-20-resume",
+    "commit": "b466fc9c5210bb32f7cad90e595396230bfe4af5",
+    "status": "adopted_with_personal_compatibility",
+    "integration_target": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+    "adjustments": [
+      "Retain ToggleActivate in addition to ShowPicker and RepeatSpace",
+      "Read actual symbol label in the two-style test",
+      "Run UI classes and input fixtures separately and retain partial logs/logcat",
+      "Verify actual ZIP entry names with .json and confirm both entries retain the exported JSON",
+      "Queue multi-select saves independently of MainViewModel with a dedicated Fcitx connection per operation"
+    ],
+    "evidence": {
+      "source_sha": "b466fc9c5210bb32f7cad90e595396230bfe4af5",
+      "run_id": 44896358600,
+      "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44896358600",
+      "artifact_id": 14705130486,
+      "artifact_sha256": "aac2bf11581f901b904dc62a049d7fd6c68963c69a93602d14822ca48f2d07ec",
+      "jvm": {
+        "tests": 803,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "python_tests": 5,
+      "android_api": 29,
+      "android_groups": [
+        {
+          "name": "core",
+          "expected": 115,
+          "tests": 115,
+          "status": "passed",
+          "seconds": 11.6,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-CustomShuangpinPreservationTest",
+          "expected": 3,
+          "tests": 3,
+          "status": "passed",
+          "seconds": 1.4,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-LegacyChineseEnglishSpacingTest",
+          "expected": 3,
+          "tests": 3,
+          "status": "passed",
+          "seconds": 1.2,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-DirectionalSwipeMigrationFileTest",
+          "expected": 7,
+          "tests": 7,
+          "status": "passed",
+          "seconds": 1.2,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-LlmCompletionProtocolTest",
+          "expected": 3,
+          "tests": 3,
+          "status": "passed",
+          "seconds": 1.2,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-SettingsSearchNavigationTest",
+          "expected": 6,
+          "tests": 6,
+          "status": "passed",
+          "seconds": 7.3,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-TextKeyboardLayoutEditorActivityTest",
+          "expected": 9,
+          "tests": 9,
+          "status": "passed",
+          "seconds": 8.2,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-TextKeyboardLayoutProfileManagerActivityTest",
+          "expected": 13,
+          "tests": 13,
+          "status": "passed",
+          "seconds": 6.3,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-ThemePoolMembershipTest",
+          "expected": 3,
+          "tests": 3,
+          "status": "passed",
+          "seconds": 1.4,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-CustomThemeActivityTest",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 2.7,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-ThemeSelectionUiTest",
+          "expected": 4,
+          "tests": 4,
+          "status": "passed",
+          "seconds": 3.6,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-ClipboardCategoryButtonsTest",
+          "expected": 3,
+          "tests": 3,
+          "status": "passed",
+          "seconds": 1.3,
+          "unpassed_cases": []
+        },
+        {
+          "name": "ui-RimeSchemaPickerTest",
+          "expected": 2,
+          "tests": 2,
+          "status": "passed",
+          "seconds": 1.2,
+          "unpassed_cases": []
+        },
+        {
+          "name": "input-finishCommitsLastPartialAndLateCallbacksCannotWriteToReplacementEditor",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 3.5,
+          "unpassed_cases": []
+        },
+        {
+          "name": "input-bothSymbolPanelStylesCommitThroughRealEditor",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 3.7,
+          "unpassed_cases": []
+        },
+        {
+          "name": "input-javascriptRequestPartialDisplayAndFinalCommitKeepSpacesAndEmoji",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 4.0,
+          "unpassed_cases": []
+        },
+        {
+          "name": "input-deniedBinderFallsBackToExternalFloatingServiceAndCommitsTokenBoundResult",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 4.1,
+          "unpassed_cases": []
+        },
+        {
+          "name": "input-floatingKeyboardResizesRotatesAndKeepsEditorInput",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 3.8,
+          "unpassed_cases": []
+        },
+        {
+          "name": "LayoutTransferRegressionTest",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 2.6,
+          "unpassed_cases": []
+        },
+        {
+          "name": "RimeSelectionRegressionTest",
+          "expected": 1,
+          "tests": 1,
+          "status": "passed",
+          "seconds": 3.8,
+          "unpassed_cases": []
+        },
+        {
+          "name": "missing-plugin",
+          "expected": 2,
+          "tests": 2,
+          "status": "passed",
+          "seconds": 1.7,
+          "unpassed_cases": []
+        }
+      ],
+      "android_passed_in_complete_groups": 181,
+      "android_incomplete_groups": 0,
+      "android_passed_cases_inside_incomplete_groups": [],
+      "release_packages": 11,
+      "native_libraries_checked": 40,
+      "elf_and_zip_16kb_alignment": "passed",
+      "lint": {
+        "debug": {
+          "errors": 0,
+          "warnings": 43
+        },
+        "release": {
+          "errors": 0,
+          "warnings": 43
+        }
+      },
+      "limitations": [
+        "No physical 16 KB device run",
+        "No online model quality evaluation"
+      ],
+      "result": "passed"
+    }
+  },
+  "decision_counts": {
+    "processed_or_already_equivalent_since_939a8ed5": 30,
+    "incompatible_effects_rejected_since_939a8ed5": 2,
+    "pending": 100
+  },
+  "settings_changes_on_main": [
+    "Voice provider and JS voice plugins with explicit microphone/network consent",
+    "Symbol/emoji panel layout and explicit custom catalogs",
+    "Floating keyboard landscape automation and move-handle controls",
+    "Space long-press retains ToggleActivate, ShowPicker and RepeatSpace and accepts saved VoiceInput as VoiceHold"
+  ],
+  "promotion_checks": "Combined main tree matches b466fc9c in production source, native dependencies and build inputs. The two production workflow cache flags and revised search screenshot fixture match independently validated b9267952.",
+  "schedule": {
+    "id": "6ae409efcc048191b14c40be2839e021",
+    "zone": "Asia/Shanghai",
+    "local_time": "Friday 01:00"
+  },
+  "promotion_graph_check": {
+    "scope_all": {
+      "symbols": 12,
+      "ranked_flows": 2,
+      "files": 7,
+      "risk": "medium",
+      "partial": false,
+      "truncated": false
+    },
+    "compare_from_prior_main": {
+      "symbols": 3558,
+      "ranked_flows": 217,
+      "files": 204,
+      "risk": "critical",
+      "partial": false,
+      "truncated": false
+    },
+    "limits": "Ranked flows are a lower bound. The analyzer excluded native modules; exact pinned sources were built and tested by Actions."
+  }
+}

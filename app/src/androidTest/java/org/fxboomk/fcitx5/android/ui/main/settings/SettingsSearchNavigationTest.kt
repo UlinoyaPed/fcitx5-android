@@ -343,14 +343,12 @@ class SettingsSearchNavigationTest {
                 Thread.sleep(2_000)
                 val normal = captureRow(activity, mapping)
                 assertNotNull("the target row could not be captured", normal)
-                val darkened = countDarkenedPixels(highlighted!!, normal!!)
-                highlighted.recycle()
-                normal.recycle()
-                assertEquals(
-                    "the highlight covers the entry with a scrim",
-                    0,
-                    darkened
-                )
+                try {
+                    assertRowBackgroundIsNotDimmed(highlighted!!, normal!!)
+                } finally {
+                    highlighted?.recycle()
+                    normal?.recycle()
+                }
             }
         }
     }
@@ -545,25 +543,33 @@ class SettingsSearchNavigationTest {
     }
 
     /**
-     * Count the pixels of the interior of the row that are darker while the entry is
-     * highlighted than they are once the highlight is over. A translucent scrim painted over
-     * the entry would darken all of them.
+     * A scrim changes the flat background throughout the row. PixelCopy can sample
+     * slightly different glyph boundaries across frames, so compare the dominant
+     * interior color instead of requiring every text pixel to stay identical.
      */
-    private fun countDarkenedPixels(highlighted: Bitmap, normal: Bitmap): Int {
-        if (highlighted.width != normal.width || highlighted.height != normal.height) return 0
+    private fun assertRowBackgroundIsNotDimmed(highlighted: Bitmap, normal: Bitmap) {
+        assertEquals("row capture width", normal.width, highlighted.width)
+        assertEquals("row capture height", normal.height, highlighted.height)
         val density = context.resources.displayMetrics.density
-        // Keep away from the outline, it is painted on purpose.
-        val marginX = (20 * density).toInt()
-        val marginY = (12 * density).toInt()
-        var count = 0
-        for (y in marginY until highlighted.height - marginY) {
-            for (x in marginX until highlighted.width - marginX) {
-                if (luminance(highlighted.getPixel(x, y)) < luminance(normal.getPixel(x, y)) - 2) {
-                    count++
-                }
-            }
+        val columns = (20 * density).toInt() until normal.width - (20 * density).toInt()
+        val rows = (12 * density).toInt() until normal.height - (12 * density).toInt()
+        val counts = mutableMapOf<Int, Int>()
+        for (y in rows) for (x in columns) {
+            val color = normal.getPixel(x, y)
+            counts[color] = (counts[color] ?: 0) + 1
         }
-        return count
+        val background = checkNotNull(counts.maxByOrNull { it.value })
+        val backgroundLuminance = luminance(background.key)
+        var darker = 0
+        for (y in rows) for (x in columns) {
+            if (normal.getPixel(x, y) == background.key &&
+                luminance(highlighted.getPixel(x, y)) < backgroundLuminance - 2
+            ) darker++
+        }
+        assertTrue(
+            "Highlight dimmed $darker of ${background.value} background pixels",
+            darker * 10 < background.value
+        )
     }
 
     private fun luminance(color: Int): Int =

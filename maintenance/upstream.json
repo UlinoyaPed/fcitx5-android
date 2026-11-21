@@ -2,11 +2,11 @@
   "upstream": "boomker/fcitx5-android",
   "personal_repository": "UlinoyaPed/fcitx5-android",
   "maintained_branch": "main",
-  "review_date": "2026-10-30",
-  "previous_upstream_sha": "f9cb7733c0e7626187fffea9bbb31c52ba8f48f4",
-  "reviewed_upstream_sha": "939a8ed546959a3120d1418e5215ca762071087e",
-  "reviewed_commit_count": 39,
-  "decision": "Integrate reviewed updates with retained personal patches and user data; defer incompatible AI mode/settings batch",
+  "review_date": "2026-11-21",
+  "previous_upstream_sha": "939a8ed546959a3120d1418e5215ca762071087e",
+  "reviewed_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+  "reviewed_commit_count": 29,
+  "decision": "Integrate through b6f787a3 with personal compatibility; defer ink-centering effect and newer batches",
   "deferred_commits": [
     {
       "sha": "adac7f1946e11bca39e283ca61c8c11abbaba2a3",
@@ -22,6 +22,10 @@
     {
       "sha": "f5632ca3e6a17313c10628ccee57f3188e1466bb",
       "reason": "Retain installed table engines, data, management UI, JNI and icons. Removing these would break existing user input methods."
+    },
+    {
+      "sha": "d1f167f606ac49cd260db0fe0eade5a2086c9f00",
+      "reason": "Retain personal whole-key stable font-frame centering and independent secondary characters."
     }
   ],
   "policy": {
@@ -32,47 +36,223 @@
     "no_force_push": true,
     "no_automatic_upstream_comments_or_prs": true
   },
-  "review_record": "maintenance/2026-10-30-upstream-review.json",
-  "previous_record": "maintenance/2026-10-23-upstream-review.json",
+  "review_record": "maintenance/2026-11-21-review.json",
+  "previous_record": "maintenance/2026-10-30-upstream-review.json",
   "validation": {
     "status": "passed",
-    "unit_tests": {
-      "tests": 734,
+    "source_sha": "b466fc9c5210bb32f7cad90e595396230bfe4af5",
+    "run_id": 44896358600,
+    "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/44896358600",
+    "artifact_id": 14705130486,
+    "artifact_sha256": "aac2bf11581f901b904dc62a049d7fd6c68963c69a93602d14822ca48f2d07ec",
+    "jvm": {
+      "tests": 803,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
-    "android_instrumentation": {
-      "tests": 220,
-      "failures": 0,
-      "skipped": 0,
-      "api": 29,
-      "physical_device_testing": "not performed"
-    },
-    "release_abi": "arm64-v8a",
-    "release_plugins": 10,
+    "python_tests": 5,
+    "android_api": 29,
+    "android_groups": [
+      {
+        "name": "core",
+        "expected": 115,
+        "tests": 115,
+        "status": "passed",
+        "seconds": 11.6,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-CustomShuangpinPreservationTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.4,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-LegacyChineseEnglishSpacingTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-DirectionalSwipeMigrationFileTest",
+        "expected": 7,
+        "tests": 7,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-LlmCompletionProtocolTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-SettingsSearchNavigationTest",
+        "expected": 6,
+        "tests": 6,
+        "status": "passed",
+        "seconds": 7.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-TextKeyboardLayoutEditorActivityTest",
+        "expected": 9,
+        "tests": 9,
+        "status": "passed",
+        "seconds": 8.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-TextKeyboardLayoutProfileManagerActivityTest",
+        "expected": 13,
+        "tests": 13,
+        "status": "passed",
+        "seconds": 6.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ThemePoolMembershipTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.4,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-CustomThemeActivityTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 2.7,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ThemeSelectionUiTest",
+        "expected": 4,
+        "tests": 4,
+        "status": "passed",
+        "seconds": 3.6,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-ClipboardCategoryButtonsTest",
+        "expected": 3,
+        "tests": 3,
+        "status": "passed",
+        "seconds": 1.3,
+        "unpassed_cases": []
+      },
+      {
+        "name": "ui-RimeSchemaPickerTest",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "seconds": 1.2,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-finishCommitsLastPartialAndLateCallbacksCannotWriteToReplacementEditor",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.5,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-bothSymbolPanelStylesCommitThroughRealEditor",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.7,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-javascriptRequestPartialDisplayAndFinalCommitKeepSpacesAndEmoji",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 4.0,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-deniedBinderFallsBackToExternalFloatingServiceAndCommitsTokenBoundResult",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 4.1,
+        "unpassed_cases": []
+      },
+      {
+        "name": "input-floatingKeyboardResizesRotatesAndKeepsEditorInput",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.8,
+        "unpassed_cases": []
+      },
+      {
+        "name": "LayoutTransferRegressionTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 2.6,
+        "unpassed_cases": []
+      },
+      {
+        "name": "RimeSelectionRegressionTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "seconds": 3.8,
+        "unpassed_cases": []
+      },
+      {
+        "name": "missing-plugin",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "seconds": 1.7,
+        "unpassed_cases": []
+      }
+    ],
+    "android_passed_in_complete_groups": 181,
+    "android_incomplete_groups": 0,
+    "android_passed_cases_inside_incomplete_groups": [],
+    "release_packages": 11,
+    "native_libraries_checked": 40,
+    "elf_and_zip_16kb_alignment": "passed",
     "lint": {
-      "result": "passed",
       "debug": {
         "errors": 0,
-        "warnings": 35
+        "warnings": 43
       },
       "release": {
         "errors": 0,
-        "warnings": 33
+        "warnings": 43
       }
     },
-    "details": "maintenance/2026-10-30-upstream-review.json"
+    "limitations": [
+      "No physical 16 KB device run",
+      "No online model quality evaluation"
+    ]
   },
   "pending_review": {
-    "record": "maintenance/2026-11-20-review.json",
-    "branch": "maintenance/2026-11-20-resume",
-    "candidate_upstream_sha": "b6f787a35e991b9f40b42c096f85b17f11009b23",
-    "latest_observed_upstream_sha": "6f1f2585fdae7ec338878bc6ab6d674e53faabfc",
-    "status": "candidate_restoration_and_validation_pending",
-    "previous_record": "maintenance/2026-11-13-upstream-review.json",
-    "incoming_branch": "maintenance/2026-11-20-incoming",
-    "remaining_entries": 115
+    "record": "maintenance/2026-11-21-review.json",
+    "branch": "maintenance/2026-11-21-incoming",
+    "latest_observed_upstream_sha": "5be9219ab89a89364e1732a19328637e619c940e",
+    "status": "newer_upstream_batches_pending",
+    "previous_record": "maintenance/2026-11-20-review.json",
+    "incoming_branch": "maintenance/2026-11-21-incoming",
+    "remaining_entries": 100,
+    "previous_integrated_candidate": "b466fc9c5210bb32f7cad90e595396230bfe4af5"
   },
   "latest_maintenance_date": "2026-11-20",
   "latest_maintenance_record": "maintenance/2026-11-20-review.json",
@@ -125,5 +305,11 @@
       }
     },
     "record": "maintenance/2026-11-13-genai-review.json"
+  },
+  "latest_maintenance": {
+    "date": "2026-11-21",
+    "record": "maintenance/2026-11-21-review.json",
+    "independent_verified_commit": "b9267952b6524eb66934b08cb29248aa24d35f7e",
+    "validated_integration_source": "b466fc9c5210bb32f7cad90e595396230bfe4af5"
   }
 }

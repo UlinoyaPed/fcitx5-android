@@ -75,7 +75,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p .local-thirdparty-artifacts
-          ./gradlew :third_party:onnxruntime-genai-android:publish
+          ./gradlew --no-configuration-cache :third_party:onnxruntime-genai-android:publish
 
       - name: Build Release APK
         run: |
