@@ -180,7 +180,13 @@ class MaintenanceInputTest {
                             key = grid?.descendants()?.filterIsInstance<TextKeyView>()?.firstOrNull { it.isShown && it.width > 0 }
                             key != null
                         }
-                        val label = s.main { key!!.mainText.toString().also { key!!.performClick() } }
+                        val label = s.main {
+                            val symbol = checkNotNull(key)
+                            val text = symbol.mainText.text.toString()
+                            assertTrue("Symbol cell must display text", text.isNotEmpty())
+                            assertTrue("Symbol cell must handle a click", symbol.performClick())
+                            text
+                        }
                         s.await("$style symbol commit") { s.activity.editor.text.toString() == label }
                     } finally { s.main { ui.detach(); (ui.root.parent as? android.view.ViewGroup)?.removeView(ui.root) } }
                 }
@@ -208,10 +214,14 @@ class MaintenanceInputTest {
             try {
                 s.await("input view visible") { s.service.inputView?.isShown == true }
                 s.main { s.service.inputView!!.let { if (!it.isFloating) it.toggleFloatingMode(true) } }
-                s.instrumentation.waitForIdleSync()
                 val input = s.main { s.service.inputView!! }
                 val keyboard = s.main { field(input,"keyboardView") }
-                s.await("floating geometry settled") { keyboard.width > 100 && keyboard.height > 100 }
+                s.await("floating geometry settled") {
+                    input.isFloating && keyboard.width > 100 && keyboard.height > 100 &&
+                        field(input, "floatingRightHandle").isShown &&
+                        field(input, "floatingBottomHandle").isShown &&
+                        !keyboard.isLayoutRequested
+                }
                 val before = s.main { keyboard.width to keyboard.height }
                 drag(s.main { field(input,"floatingRightHandle") }, -30f, 0f)
                 drag(s.main { field(input,"floatingBottomHandle") }, 0f, -20f)
