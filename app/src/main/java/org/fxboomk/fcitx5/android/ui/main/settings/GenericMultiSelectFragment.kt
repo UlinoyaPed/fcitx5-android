@@ -15,12 +15,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.RawConfig
+import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fxboomk.fcitx5.android.ui.common.DynamicListTouchCallback
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
@@ -202,23 +207,27 @@ class GenericMultiSelectFragment : Fragment() {
         } else entries
         dirty = false
         selectionChanged = false
-        lifecycleScope.launch(NonCancellable + Dispatchers.IO) {
-            val payload = encodeItems(savedEntries)
-            Timber.i(
-                "GenericMultiSelect save addon=%s path=%s option=%s rows=%d payloadLen=%d",
-                args.addon,
-                args.path,
-                args.option,
-                entries.size,
-                payload.length
-            )
-            val config = RawConfig(
-                arrayOf(RawConfig(args.option, payload)) +
-                    if (enableOrder) arrayOf(RawConfig("SelectionChanged", if (shouldDeploy) "1" else "0"))
-                    else emptyArray()
-            )
-            viewModel.fcitx.runOnReady {
-                setAddonSubConfig(args.addon, savePath, config)
+        val addon = args.addon
+        val config = RawConfig(
+            arrayOf(RawConfig(args.option, encodeItems(savedEntries))) +
+                if (enableOrder) arrayOf(RawConfig("SelectionChanged", if (shouldDeploy) "1" else "0"))
+                else emptyArray()
+        )
+
+        // The activity may finish and disconnect its ViewModel before the save
+        // reaches the engine. Hold a separate connection for each queued save.
+        saveScope.launch {
+            saveMutex.withLock {
+                try {
+                    val connection = FcitxDaemon.connect(SAVE_CONNECTION)
+                    withTimeout(120_000) {
+                        connection.runOnReady { setAddonSubConfig(addon, savePath, config) }
+                    }
+                } catch (error: Exception) {
+                    Timber.e(error, "Could not save multi-select configuration for %s/%s", addon, savePath)
+                } finally {
+                    FcitxDaemon.disconnect(SAVE_CONNECTION)
+                }
             }
         }
     }
@@ -270,6 +279,9 @@ class GenericMultiSelectFragment : Fragment() {
     }
 
     private companion object {
+        const val SAVE_CONNECTION = "GenericMultiSelectFragment.save"
+        val saveScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        val saveMutex = Mutex()
         const val SCHEMA_PREFS = "rime-schema-selector"
         const val SCHEMA_ORDER = "visible-order"
     }

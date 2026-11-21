@@ -33,7 +33,9 @@ class LayoutTransferRegressionTest {
             s.await("JSON export complete") { jsonFile.isFile && jsonFile.readText()==json }
             invoke("writeProfilesZipTo",Uri.fromFile(zipFile),names)
             s.await("ZIP export complete") { runCatching { zipFile.inputStream().use { LayoutProfileArchive.readZip(it) }.size==2 }.getOrDefault(false) }
-            assertEquals(names.toSet(),zipFile.inputStream().use { LayoutProfileArchive.readZip(it) }.map { it.name }.toSet())
+            val archived = zipFile.inputStream().use(LayoutProfileArchive::readZip)
+            assertEquals(names.map { "$it.json" }.toSet(), archived.map { it.name }.toSet())
+            assertTrue("Each exported entry retains its JSON", archived.all { it.json == json })
             files.forEach { assertTrue(it.delete()) }
             invoke("importFromZip",Uri.fromFile(zipFile))
             var positive: Button?=null
