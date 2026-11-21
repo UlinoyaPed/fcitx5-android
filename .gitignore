@@ -118,3 +118,6 @@ lint/tmp/
 .gitnexus
 .codegraph
 .local-thirdparty-artifacts/
+
+/maintenance/validation-results/
+/maintenance/__pycache__/
