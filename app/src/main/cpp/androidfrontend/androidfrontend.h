@@ -36,6 +36,7 @@ public:
     bool selectCandidate(int idx);
     bool isInputPanelEmpty();
     void resetInputContext();
+    bool switchInputMethodPair(const std::string &alternate);
     void repositionCursor(int idx);
     void focusInputContext(bool focus);
     void activateInputContext(int uid, const std::string &pkgName);
@@ -68,6 +69,7 @@ private:
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, selectCandidate);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, isInputPanelEmpty);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, resetInputContext);
+    FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, switchInputMethodPair);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, repositionCursor);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, focusInputContext);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, activateInputContext);

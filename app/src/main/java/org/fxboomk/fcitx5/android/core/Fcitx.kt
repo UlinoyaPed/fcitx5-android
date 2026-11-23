@@ -184,6 +184,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
     override suspend fun toggleIme() = withFcitxContext { toggleInputMethod() }
     override suspend fun activateIme(ime: String) = withFcitxContext { setInputMethod(ime) }
+    override suspend fun switchInputMethodPair(alternate: String) =
+        withFcitxContext { switchFcitxInputMethodPair(alternate) }
+
     override suspend fun enumerateIme(forward: Boolean) =
         withFcitxContext { nextInputMethod(forward) }
 
@@ -375,6 +378,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
         @JvmStatic
         external fun setInputMethod(ime: String)
+
+        @JvmStatic
+        external fun switchFcitxInputMethodPair(alternate: String): Boolean
 
         @JvmStatic
         external fun availableInputMethods(): Array<InputMethodEntry>?

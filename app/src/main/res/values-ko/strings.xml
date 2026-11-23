@@ -1213,4 +1213,9 @@
     <string name="js_voice_network_not_approved">플러그인의 네트워크 접근이 승인되지 않았습니다. JS 음성 플러그인 설정에서 호스트를 검토하세요.</string>
     <string name="js_voice_network_approved_hint">승인되었습니다. 음성 버튼을 다시 눌러 시작하세요.</string>
     <string name="js_voice_secret_unavailable">이 기기에서 복호화할 수 없습니다. 키를 다시 입력하세요.</string>
+    <string name="keyboard_layout_copy_to">복사 대상…</string>
+    <string name="keyboard_layout_copy_overwrite">다음 레이아웃을 덮어쓸까요?</string>
+    <string name="keyboard_layout_copy_no_target">다른 레이아웃이 없습니다.</string>
+    <string name="keyboard_layout_copy_error">복사할 수 없습니다. 프로필이 변경되었을 수 있습니다. 레이아웃을 다시 열어 주세요.</string>
+    <string name="keyboard_layout_copy_done">레이아웃을 복사했습니다.</string>
 </resources>

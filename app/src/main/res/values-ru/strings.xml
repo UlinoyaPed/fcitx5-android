@@ -1210,4 +1210,9 @@
     <string name="js_voice_network_not_approved">Доступ плагина к сети не разрешён. Проверьте хосты в настройках голосовых JS-плагинов.</string>
     <string name="js_voice_network_approved_hint">Разрешено. Нажмите кнопку голосового ввода ещё раз, чтобы начать.</string>
     <string name="js_voice_secret_unavailable">Не удалось расшифровать на этом устройстве. Введите ключ ещё раз.</string>
+    <string name="keyboard_layout_copy_to">Копировать в…</string>
+    <string name="keyboard_layout_copy_overwrite">Перезаписать эти раскладки?</string>
+    <string name="keyboard_layout_copy_no_target">Других раскладок нет.</string>
+    <string name="keyboard_layout_copy_error">Не удалось скопировать. Возможно, профиль изменился. Откройте раскладку снова.</string>
+    <string name="keyboard_layout_copy_done">Раскладка скопирована.</string>
 </resources>

@@ -1179,4 +1179,9 @@
     <string name="js_voice_network_not_approved">外掛尚未獲准存取網路，請在 JS 語音外掛設定中檢視並批准主機。</string>
     <string name="js_voice_network_approved_hint">已批准，再次點按語音按鈕即可開始。</string>
     <string name="js_voice_secret_unavailable">本機無法解密，請重新填寫金鑰</string>
+    <string name="keyboard_layout_copy_to">複製到…</string>
+    <string name="keyboard_layout_copy_overwrite">覆蓋以下配置？</string>
+    <string name="keyboard_layout_copy_no_target">沒有其他可選配置。</string>
+    <string name="keyboard_layout_copy_error">複製失敗。設定檔可能已修改，請重新開啟配置後再試。</string>
+    <string name="keyboard_layout_copy_done">已複製配置。</string>
 </resources>

@@ -1334,4 +1334,9 @@
     <string name="js_voice_network_not_approved">Plugin network access is not approved. Review the hosts in JS voice plugin settings.</string>
     <string name="js_voice_network_approved_hint">Approved. Press the voice button again to start.</string>
     <string name="js_voice_secret_unavailable">Cannot decrypt on this device; enter the key again</string>
+    <string name="keyboard_layout_copy_to">Copy to…</string>
+    <string name="keyboard_layout_copy_overwrite">Overwrite these layouts?</string>
+    <string name="keyboard_layout_copy_no_target">No other layout is available.</string>
+    <string name="keyboard_layout_copy_error">Could not copy. The profile may have changed. Reopen the layout and try again.</string>
+    <string name="keyboard_layout_copy_done">Layout copied.</string>
 </resources>

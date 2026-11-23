@@ -1212,4 +1212,9 @@
     <string name="js_voice_network_not_approved">插件尚未获准访问网络，请在 JS 语音插件设置中查看并批准主机。</string>
     <string name="js_voice_network_approved_hint">已批准，再次点按语音按钮即可开始。</string>
     <string name="js_voice_secret_unavailable">本机无法解密，请重新填写密钥</string>
+    <string name="keyboard_layout_copy_to">复制到…</string>
+    <string name="keyboard_layout_copy_overwrite">覆盖以下布局？</string>
+    <string name="keyboard_layout_copy_no_target">没有其他可选布局。</string>
+    <string name="keyboard_layout_copy_error">复制失败。配置文件可能已修改，请重新打开布局后重试。</string>
+    <string name="keyboard_layout_copy_done">已复制布局。</string>
 </resources>

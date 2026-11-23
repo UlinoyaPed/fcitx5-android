@@ -86,6 +86,7 @@ interface FcitxAPI {
 
     suspend fun toggleIme()
     suspend fun activateIme(ime: String)
+    suspend fun switchInputMethodPair(alternate: String): Boolean
     suspend fun enumerateIme(forward: Boolean = true)
 
     suspend fun currentIme(): InputMethodEntry

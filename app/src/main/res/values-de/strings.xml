@@ -1208,4 +1208,9 @@
     <string name="js_voice_network_not_approved">Der Netzwerkzugriff des Plugins ist nicht freigegeben. Prüfen Sie die Adressen in den Einstellungen der JS-Sprach-Plugins.</string>
     <string name="js_voice_network_approved_hint">Freigegeben. Tippen Sie erneut auf die Sprachtaste, um zu starten.</string>
     <string name="js_voice_secret_unavailable">Auf diesem Gerät nicht entschlüsselbar. Geben Sie den Schlüssel erneut ein.</string>
+    <string name="keyboard_layout_copy_to">Kopieren nach…</string>
+    <string name="keyboard_layout_copy_overwrite">Diese Layouts überschreiben?</string>
+    <string name="keyboard_layout_copy_no_target">Kein weiteres Layout verfügbar.</string>
+    <string name="keyboard_layout_copy_error">Kopieren fehlgeschlagen. Das Profil wurde möglicherweise geändert. Öffnen Sie das Layout erneut.</string>
+    <string name="keyboard_layout_copy_done">Layout kopiert.</string>
 </resources>

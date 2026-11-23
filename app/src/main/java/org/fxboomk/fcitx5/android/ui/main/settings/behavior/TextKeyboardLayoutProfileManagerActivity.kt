@@ -36,6 +36,8 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +51,12 @@ import org.fxboomk.fcitx5.android.daemon.FcitxConnection
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
+import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyAddress
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyFile
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyPlan
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.planLayoutCopy
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.manager.RimeSchemaResolver
@@ -676,6 +683,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                     openLayoutCustomize(profile, baseLayout, null, displayName)
                 }
             )
+            addView(copyLayoutButton(profile, baseLayout, null))
             if (!uncustomized) {
                 addView(
                     iconButton(
@@ -916,6 +924,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                     )
                 }
             )
+            addView(copyLayoutButton(profile, row.editLayoutKey, row.editSubLabel))
             when {
                 // 继承父级输入法布局中，没有可重置的专属布局
                 row.state == SubLayoutState.INHERITED -> Unit
@@ -938,6 +947,132 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                     }
                 )
             }
+        }
+    }
+
+    private fun copyLayoutButton(profile: String, layoutKey: String, subMode: String?) =
+        iconButton(R.drawable.ic_baseline_content_copy_24, getString(R.string.keyboard_layout_copy_to)) {
+            showCopyLayoutTargets(profile, layoutKey, subMode)
+        }
+
+    private data class LayoutCopyChoice(val address: LayoutCopyAddress, val title: String)
+
+    private fun showCopyLayoutTargets(profile: String, layoutKey: String, subMode: String?) {
+        val imes = (allImes.asList() + allAvailableImes.asList()).distinctBy { it.uniqueName }
+            .filter { it.uniqueName.isNotBlank() }
+        val sourceIme = imes.firstOrNull { it.uniqueName == layoutKey }
+            ?: imes.singleOrNull { it.displayName == layoutKey }
+        val matchingMode = activeIme?.takeIf { it.uniqueName == sourceIme?.uniqueName }
+            ?.let { TextKeyboard.layoutSubModeForIme(it) }
+            ?.takeIf { subMode != null && (it.label == subMode || it.name == subMode) }
+        val source = LayoutCopyAddress(
+            sourceIme?.uniqueName ?: layoutKey, sourceIme?.displayName ?: layoutKey,
+            matchingMode?.label ?: subMode.orEmpty(), matchingMode?.name.orEmpty()
+        )
+        val manager = managerFor(profile)
+        val knownLayouts = manager.baseLayoutNames().toSet()
+        val choices = buildList {
+            for (ime in imes.sortedWith(compareBy({ it.displayName }, { it.uniqueName }))) {
+                val parent = LayoutCopyAddress(ime.uniqueName, ime.displayName)
+                val sameParent = parent.inputMethod == source.inputMethod
+                if (!sameParent || source.modeKeys.isNotEmpty()) {
+                    add(LayoutCopyChoice(parent, ime.displayName))
+                }
+                val savedBase = if (ime.uniqueName in knownLayouts) ime.uniqueName
+                    else ime.displayName.takeIf { it in knownLayouts } ?: ime.uniqueName
+                val modes = linkedMapOf<String, LayoutCopyAddress>()
+                subLayoutRows(profile, manager, savedBase, childLayoutKind(profile, savedBase))
+                    .mapNotNull { it.editSubLabel }
+                    .forEach { modes[it] = parent.copy(subModeLabel = it) }
+                activeIme?.takeIf { it.uniqueName == ime.uniqueName }?.let {
+                    val mode = TextKeyboard.layoutSubModeForIme(it)
+                    val label = mode.label.ifEmpty { mode.name }
+                    if (label.isNotBlank()) {
+                        val existingLabel = listOf(label, mode.name).firstOrNull { it in modes } ?: label
+                        modes[existingLabel] = parent.copy(subModeLabel = existingLabel, subModeName = mode.name)
+                    }
+                }
+                modes.forEach { (label, address) ->
+                    if (!sameParent || address.modeKeys.none { it in source.modeKeys }) {
+                        add(LayoutCopyChoice(address, "${ime.displayName} · $label"))
+                    }
+                }
+            }
+        }.filter { it.address.isValid }
+        if (choices.isEmpty()) {
+            toast(getString(R.string.keyboard_layout_copy_no_target))
+            return
+        }
+        val selected = BooleanArray(choices.size)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.keyboard_layout_copy_to)
+            .setMultiChoiceItems(choices.map { it.title }.toTypedArray(), selected) { clicked, index, checked ->
+                selected[index] = checked
+                (clicked as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = selected.any { it }
+            }
+            .setPositiveButton(R.string.keyboard_layout_copy_to) { _, _ ->
+                val targets = choices.filterIndexed { index, _ -> selected[index] }
+                if (targets.isNotEmpty()) prepareLayoutCopy(profile, source, targets)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+        }
+        dialog.show()
+    }
+
+    private fun prepareLayoutCopy(
+        profile: String,
+        source: LayoutCopyAddress,
+        targets: List<LayoutCopyChoice>,
+    ) {
+        val path = UserConfigFiles.textKeyboardLayoutJson(profile) ?: return
+        val file = LayoutCopyFile(path)
+        val heights = defaultHeights()
+        lifecycleScope.launch {
+            val prepared = runCatching {
+                withContext(Dispatchers.IO) {
+                    val original = file.read()
+                    val factoryRows = JsonArray(TextKeyboard.getDefaultLayout().map { row ->
+                        LayoutJsonUtils.rowToJsonElement(row.map(LayoutJsonUtils::keyDefToJson))
+                    })
+                    val json = original?.let(file::parse) ?: JsonObject(mapOf("default" to factoryRows))
+                    val plan = planLayoutCopy(
+                        json, source, targets.map { it.address }, factoryRows,
+                        LayoutHeightPercentOverrides(heights.portrait, heights.landscape)
+                    )
+                    original to plan
+                }
+            }.getOrElse {
+                toast(getString(R.string.keyboard_layout_copy_error))
+                return@launch
+            }
+            val (original, plan) = prepared
+            if (plan.overwritten.isEmpty()) {
+                commitLayoutCopy(path, file, original, plan)
+            } else {
+                val names = targets.filter { it.address in plan.overwritten }.joinToString("\n") { it.title }
+                AlertDialog.Builder(this@TextKeyboardLayoutProfileManagerActivity)
+                    .setTitle(R.string.keyboard_layout_copy_overwrite)
+                    .setMessage(names)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> commitLayoutCopy(path, file, original, plan) }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun commitLayoutCopy(path: File, file: LayoutCopyFile, original: String?, plan: LayoutCopyPlan) {
+        lifecycleScope.launch {
+            val saved = runCatching { withContext(Dispatchers.IO) { file.write(original, plan.profile) } }
+            if (saved.isFailure) {
+                toast(getString(R.string.keyboard_layout_copy_error))
+                return@launch
+            }
+            TextKeyboard.refreshLayoutAfterSave(path)
+            reloadAll()
+            toast(getString(R.string.keyboard_layout_copy_done))
         }
     }
 

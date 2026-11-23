@@ -1211,4 +1211,9 @@
     <string name="js_voice_network_not_approved">プラグインのネットワークアクセスが許可されていません。JS 音声プラグイン設定でホストを確認してください。</string>
     <string name="js_voice_network_approved_hint">許可しました。もう一度音声ボタンを押すと開始します。</string>
     <string name="js_voice_secret_unavailable">この端末では復号できません。キーを再入力してください。</string>
+    <string name="keyboard_layout_copy_to">コピー先…</string>
+    <string name="keyboard_layout_copy_overwrite">次のレイアウトを上書きしますか？</string>
+    <string name="keyboard_layout_copy_no_target">ほかのレイアウトはありません。</string>
+    <string name="keyboard_layout_copy_error">コピーに失敗しました。プロファイルが変更された可能性があります。レイアウトを開き直してください。</string>
+    <string name="keyboard_layout_copy_done">レイアウトをコピーしました。</string>
 </resources>

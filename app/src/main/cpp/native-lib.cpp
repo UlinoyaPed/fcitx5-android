@@ -11,6 +11,7 @@
 #include <fstream>
 #include <unordered_map>
 
+#include <algorithm>
 #include <android/log.h>
 
 #include <uv.h>
@@ -197,6 +198,14 @@ public:
         // this method remembers input method for each InputContext,
         // while Instance::setCurrentInputMethod(std::string) doesn't
         p_instance->setCurrentInputMethod(ic, ime, true);
+    }
+
+    bool switchInputMethodPair(const std::string &alternate) {
+        const auto entries = availableInputMethods();
+        if (std::none_of(entries.begin(), entries.end(), [&alternate](const auto *entry) {
+                return entry->uniqueName() == alternate;
+            })) return false;
+        return p_frontend->call<fcitx::IAndroidFrontend::switchInputMethodPair>(alternate);
     }
 
     std::vector<const fcitx::InputMethodEntry *> availableInputMethods() {
@@ -1038,6 +1047,14 @@ JNIEXPORT void JNICALL
 Java_org_fxboomk_fcitx5_android_core_Fcitx_setInputMethod(JNIEnv *env, jclass clazz, jstring ime) {
     RETURN_IF_NOT_RUNNING
     Fcitx::Instance().setInputMethod(CString(env, ime));
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_org_fxboomk_fcitx5_android_core_Fcitx_switchFcitxInputMethodPair(
+        JNIEnv *env, jclass clazz, jstring alternate) {
+    RETURN_VALUE_IF_NOT_RUNNING(false)
+    return Fcitx::Instance().switchInputMethodPair(CString(env, alternate));
 }
 
 extern "C"

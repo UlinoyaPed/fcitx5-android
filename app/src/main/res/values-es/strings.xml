@@ -1212,4 +1212,9 @@
     <string name="js_voice_network_not_approved">El acceso a la red del complemento no está aprobado. Revisa los hosts en los ajustes de complementos de voz JS.</string>
     <string name="js_voice_network_approved_hint">Aprobado. Pulsa de nuevo el botón de voz para empezar.</string>
     <string name="js_voice_secret_unavailable">No se puede descifrar en este dispositivo; vuelve a introducir la clave.</string>
+    <string name="keyboard_layout_copy_to">Copiar a…</string>
+    <string name="keyboard_layout_copy_overwrite">¿Sobrescribir estas distribuciones?</string>
+    <string name="keyboard_layout_copy_no_target">No hay otra distribución disponible.</string>
+    <string name="keyboard_layout_copy_error">No se pudo copiar. Es posible que el perfil haya cambiado. Vuelve a abrir la distribución.</string>
+    <string name="keyboard_layout_copy_done">Distribución copiada.</string>
 </resources>

@@ -60,6 +60,9 @@ object FcitxDaemon {
                 expected: FcitxEvent.PagedCandidateEvent.Data,
             ) = realFcitx.selectPrediction(idx, expected)
 
+            override suspend fun switchInputMethodPair(alternate: String) =
+                realFcitx.switchInputMethodPair(alternate)
+
             override suspend fun refreshImEntry() = realFcitx.refreshImEntry()
         }
     }

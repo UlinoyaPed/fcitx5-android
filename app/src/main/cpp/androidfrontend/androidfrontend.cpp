@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
+#include <algorithm>
 #include <fcitx/addonfactory.h>
 #include <fcitx/addonmanager.h>
 #include <fcitx/candidatelist.h>
@@ -78,6 +79,11 @@ public:
         frontend_->releaseInputContext(uid_);
         destroy();
     }
+
+    // A pair belongs to this editor's native input context, as do the
+    // properties owned by its input method engines.
+    std::string pairedReturnIme;
+    std::string pairedAlternateIme;
 
     [[nodiscard]] const char *frontend() const override { return "androidfrontend"; }
 
@@ -395,6 +401,10 @@ AndroidFrontend::AndroidFrontend(Instance *instance)
                 if (e.inputContext() != activeIC_) return;
                 const auto &reason = static_cast<std::underlying_type<InputMethodSwitchedReason>::type>(e.reason());
                 const std::string &oldIM = e.oldInputMethod();
+                if (instance_->inputMethod(activeIC_) != activeIC_->pairedAlternateIme) {
+                    activeIC_->pairedReturnIme.clear();
+                    activeIC_->pairedAlternateIme.clear();
+                }
                 switchInputMethodCallback(reason, oldIM);
             }
     ));
@@ -512,6 +522,42 @@ bool AndroidFrontend::isInputPanelEmpty() {
 void AndroidFrontend::resetInputContext() {
     if (!activeIC_) return;
     activeIC_->reset();
+}
+
+bool AndroidFrontend::switchInputMethodPair(const std::string &alternate) {
+    auto *ic = activeIC_;
+    if (!ic || !ic->hasFocus()) return false;
+    const auto current = instance_->inputMethod(ic);
+    if (current.empty()) return false;
+
+    auto &manager = instance_->inputMethodManager();
+    const auto contains = [&manager](const std::string &name) {
+        const auto &methods = manager.currentGroup().inputMethodList();
+        return std::any_of(methods.begin(), methods.end(),
+                           [&name](const auto &item) { return item.name() == name; });
+    };
+    if (current == alternate) {
+        const auto previous = ic->pairedReturnIme;
+        if (ic->pairedAlternateIme != alternate || previous.empty() ||
+            !contains(previous)) return false;
+        instance_->setCurrentInputMethod(ic, previous, true);
+        return instance_->inputMethod(ic) == previous;
+    }
+
+    if (!contains(current) || !manager.entry(alternate)) return false;
+    if (!contains(alternate)) {
+        // Enabling the requested alternate adds one entry without rebuilding
+        // the group or changing the existing defaults and relative ordering.
+        auto group = manager.currentGroup();
+        group.inputMethodList().emplace_back(alternate);
+        manager.setGroup(std::move(group));
+        manager.save();
+    }
+    instance_->setCurrentInputMethod(ic, alternate, true);
+    if (instance_->inputMethod(ic) != alternate) return false;
+    ic->pairedReturnIme = current;
+    ic->pairedAlternateIme = alternate;
+    return true;
 }
 
 void AndroidFrontend::repositionCursor(int position) {
