@@ -22,6 +22,7 @@ internal data class LayoutCopyAddress(
     val displayName: String = inputMethod,
     val subModeLabel: String = "",
     val subModeName: String = "",
+    val sharedLayoutKey: String? = null,
 ) {
     val modeKeys get() = listOf(subModeLabel.trim(), subModeName.trim())
         .filter { it.isNotEmpty() }.distinct()
@@ -99,7 +100,7 @@ internal fun planLayoutCopy(
 private val reservedLayoutKeys = setOf("rows", "default", "", "__meta__")
 
 private fun JsonObject.ownLayout(address: LayoutCopyAddress): JsonElement? =
-    this[address.inputMethod] ?: this[address.displayName]
+    this[address.inputMethod] ?: this[address.displayName] ?: address.sharedLayoutKey?.let(::get)
 
 private fun JsonObject.resolve(address: LayoutCopyAddress) = resolveTextKeyboardLayout(
     this, address.inputMethod, address.displayName, address.subModeLabel, address.subModeName

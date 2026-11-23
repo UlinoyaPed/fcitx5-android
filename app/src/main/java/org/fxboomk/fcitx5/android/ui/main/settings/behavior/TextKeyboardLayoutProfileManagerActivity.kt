@@ -56,6 +56,7 @@ import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyAddre
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyFile
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutCopyPlan
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.baseLayoutKeyForIme
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.planLayoutCopy
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
@@ -960,25 +961,32 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     private fun showCopyLayoutTargets(profile: String, layoutKey: String, subMode: String?) {
         val imes = (allImes.asList() + allAvailableImes.asList()).distinctBy { it.uniqueName }
             .filter { it.uniqueName.isNotBlank() }
+        val manager = managerFor(profile)
+        val knownLayouts = manager.baseLayoutNames().toSet()
+        fun parentAddress(ime: InputMethodEntry) = LayoutCopyAddress(
+            inputMethod = ime.uniqueName,
+            displayName = ime.displayName,
+            sharedLayoutKey = baseLayoutKeyForIme(knownLayouts, ime)
+                .takeIf { it == LayoutJsonUtils.DEFAULT_BASE_LAYOUT_KEY },
+        )
         val sourceIme = imes.firstOrNull { it.uniqueName == layoutKey }
             ?: imes.singleOrNull { it.displayName == layoutKey }
+            ?: imes.singleOrNull { parentAddress(it).sharedLayoutKey == layoutKey }
         val matchingMode = activeIme?.takeIf { it.uniqueName == sourceIme?.uniqueName }
             ?.let { TextKeyboard.layoutSubModeForIme(it) }
             ?.takeIf { subMode != null && (it.label == subMode || it.name == subMode) }
-        val source = LayoutCopyAddress(
-            sourceIme?.uniqueName ?: layoutKey, sourceIme?.displayName ?: layoutKey,
-            matchingMode?.label ?: subMode.orEmpty(), matchingMode?.name.orEmpty()
+        val source = (sourceIme?.let(::parentAddress) ?: LayoutCopyAddress(layoutKey)).copy(
+            subModeLabel = matchingMode?.label ?: subMode.orEmpty(),
+            subModeName = matchingMode?.name.orEmpty(),
         )
-        val manager = managerFor(profile)
-        val knownLayouts = manager.baseLayoutNames().toSet()
         val choices = buildList {
             for (ime in imes.sortedWith(compareBy({ it.displayName }, { it.uniqueName }))) {
-                val parent = LayoutCopyAddress(ime.uniqueName, ime.displayName)
+                val parent = parentAddress(ime)
                 val sameParent = parent.inputMethod == source.inputMethod
                 if (!sameParent || source.modeKeys.isNotEmpty()) {
                     add(LayoutCopyChoice(parent, ime.displayName))
                 }
-                val savedBase = if (ime.uniqueName in knownLayouts) ime.uniqueName
+                val savedBase = parent.sharedLayoutKey ?: if (ime.uniqueName in knownLayouts) ime.uniqueName
                     else ime.displayName.takeIf { it in knownLayouts } ?: ime.uniqueName
                 val modes = linkedMapOf<String, LayoutCopyAddress>()
                 subLayoutRows(profile, manager, savedBase, childLayoutKind(profile, savedBase))

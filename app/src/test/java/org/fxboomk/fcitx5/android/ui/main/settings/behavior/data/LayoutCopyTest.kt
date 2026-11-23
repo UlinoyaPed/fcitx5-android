@@ -82,6 +82,21 @@ class LayoutCopyTest {
         assertEquals(document["default"], plan.profile["default"])
     }
 
+    @Test fun copyingToSharedEnglishConfirmsExistingLayoutAndKeepsSharedDefaults() {
+        val document = profile("""
+            {"default":{"default":[[{"type":"SpaceKey"}]],"Mode":[[{"type":"SymbolKey"}]]},
+             "pinyin":[[{"type":"ReturnKey"}]]}
+        """.trimIndent())
+        val english = LayoutCopyAddress("keyboard-us", sharedLayoutKey = "default")
+        val pinyin = LayoutCopyAddress("pinyin")
+        val plan = planLayoutCopy(document, pinyin, listOf(english), factory, heights)
+        assertEquals(setOf(english), plan.overwritten)
+        assertEquals(document["default"], plan.profile["default"])
+        assertEquals(resolved(document, pinyin).rows, resolved(plan.profile, english).rows)
+        val mode = english.copy(subModeLabel = "Mode")
+        assertEquals(resolved(document, mode).rows, resolved(plan.profile, mode).rows)
+    }
+
     @Test fun rejectsSelfCopyReservedModesAndDuplicateAliasesWithoutPartialWrites() {
         val document = profile("""{"pinyin":[[{"type":"SpaceKey"}]],"anthy":{"Kana":[[{"type":"CommaKey"}]]}}""")
         val source = LayoutCopyAddress("pinyin")
