@@ -22,10 +22,15 @@ class EnglishPairRegressionTest {
                     assertTrue("Install both the Anthy and Rime test plugins", available.containsAll(engines))
                     val contextId = 27130
                     try {
-                        setEnabledIme((listOf("keyboard-us") + engines).toTypedArray())
+                        setEnabledIme(arrayOf("keyboard-us", "rime"))
                         activate(contextId, "org.ulinoyaped.fcitx5.android.debug")
                         setCapFlags(CapabilityFlags.DefaultFlags)
                         focus(true)
+                        activateIme("keyboard-us")
+                        assertEquals("keyboard-us", currentIme().uniqueName)
+                        assertTrue("A fresh English context can switch without a saved pair", switchToEnglishInputMode())
+                        assertEquals("rime", currentIme().uniqueName)
+                        setEnabledIme((listOf("keyboard-us") + engines).toTypedArray())
                         for (engine in engines) {
                             activateIme(engine)
                             val before = currentIme()

@@ -537,9 +537,22 @@ bool AndroidFrontend::switchInputMethodPair(const std::string &alternate) {
                            [&name](const auto &item) { return item.name() == name; });
     };
     if (current == alternate) {
-        const auto previous = ic->pairedReturnIme;
-        if (ic->pairedAlternateIme != alternate || previous.empty() ||
-            !contains(previous)) return false;
+        auto previous = ic->pairedReturnIme;
+        if (ic->pairedAlternateIme != alternate || previous == alternate ||
+            !contains(previous)) {
+            // A fresh context can start in the alternate with no return history.
+            const auto &group = manager.currentGroup();
+            previous = group.defaultInputMethod();
+            if (previous == alternate || !contains(previous)) {
+                const auto &methods = group.inputMethodList();
+                const auto next = std::find_if(methods.begin(), methods.end(),
+                                               [&alternate](const auto &item) {
+                                                   return item.name() != alternate;
+                                               });
+                if (next == methods.end()) return false;
+                previous = next->name();
+            }
+        }
         instance_->setCurrentInputMethod(ic, previous, true);
         return instance_->inputMethod(ic) == previous;
     }
