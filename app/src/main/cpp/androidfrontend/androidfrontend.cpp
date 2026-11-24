@@ -524,33 +524,51 @@ void AndroidFrontend::resetInputContext() {
     activeIC_->reset();
 }
 
-bool AndroidFrontend::switchInputMethodPair(const std::string &alternate) {
+bool AndroidFrontend::switchInputMethodPair(
+        const std::string &alternate,
+        const std::vector<const InputMethodEntry *> &availableEntries) {
     auto *ic = activeIC_;
     if (!ic || !ic->hasFocus()) return false;
     const auto current = instance_->inputMethod(ic);
     if (current.empty()) return false;
 
     auto &manager = instance_->inputMethodManager();
-    const auto contains = [&manager](const std::string &name) {
-        const auto &methods = manager.currentGroup().inputMethodList();
+    const auto &group = manager.currentGroup();
+    const auto &methods = group.inputMethodList();
+    const auto contains = [&methods](const std::string &name) {
         return std::any_of(methods.begin(), methods.end(),
                            [&name](const auto &item) { return item.name() == name; });
     };
     if (current == alternate) {
-        const auto previous = ic->pairedReturnIme;
-        if (ic->pairedAlternateIme != alternate || previous.empty() ||
-            !contains(previous)) return false;
-        instance_->setCurrentInputMethod(ic, previous, true);
-        return instance_->inputMethod(ic) == previous;
+        const auto canReturnTo = [&](const std::string &name) {
+            return !name.empty() && name != alternate &&
+                   std::any_of(availableEntries.begin(), availableEntries.end(),
+                               [&name](const auto *entry) { return entry->uniqueName() == name; });
+        };
+
+        // A new context can already be on the alternate, with no remembered
+        // partner. Prefer the group's default, then its configured order.
+        auto target = ic->pairedReturnIme;
+        if (ic->pairedAlternateIme != alternate || !canReturnTo(target) || !contains(target)) {
+            target = group.defaultInputMethod();
+            if (!canReturnTo(target) || !contains(target)) {
+                const auto fallback = std::find_if(methods.begin(), methods.end(),
+                                                   [&](const auto &item) { return canReturnTo(item.name()); });
+                if (fallback == methods.end()) return false;
+                target = fallback->name();
+            }
+        }
+        instance_->setCurrentInputMethod(ic, target, true);
+        return instance_->inputMethod(ic) == target;
     }
 
     if (!contains(current) || !manager.entry(alternate)) return false;
     if (!contains(alternate)) {
         // Enabling the requested alternate adds one entry without rebuilding
         // the group or changing the existing defaults and relative ordering.
-        auto group = manager.currentGroup();
-        group.inputMethodList().emplace_back(alternate);
-        manager.setGroup(std::move(group));
+        auto updatedGroup = group;
+        updatedGroup.inputMethodList().emplace_back(alternate);
+        manager.setGroup(std::move(updatedGroup));
         manager.save();
     }
     instance_->setCurrentInputMethod(ic, alternate, true);

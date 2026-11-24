@@ -6,6 +6,11 @@ package org.fxboomk.fcitx5.android.input.keyboard
 
 import org.fxboomk.fcitx5.android.core.FcitxAPI
 
-/** Fcitx's standalone English (US) keyboard, independent of engine modes. */
-internal suspend fun FcitxAPI.switchToEnglishInputMode(): Boolean =
-    switchInputMethodPair("keyboard-us")
+/** Switch to or from the app's standalone English keyboard, not an engine sub-mode. */
+internal suspend fun FcitxAPI.switchToEnglishInputMode(): Boolean {
+    val english = availableIme().firstOrNull {
+        it.addon == "androidkeyboard" &&
+            it.languageCode.substringBefore('-').substringBefore('_').equals("en", ignoreCase = true)
+    } ?: return false
+    return switchInputMethodPair(english.uniqueName)
+}

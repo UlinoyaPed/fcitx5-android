@@ -36,7 +36,8 @@ public:
     bool selectCandidate(int idx);
     bool isInputPanelEmpty();
     void resetInputContext();
-    bool switchInputMethodPair(const std::string &alternate);
+    bool switchInputMethodPair(const std::string &alternate,
+                               const std::vector<const InputMethodEntry *> &availableEntries);
     void repositionCursor(int idx);
     void focusInputContext(bool focus);
     void activateInputContext(int uid, const std::string &pkgName);

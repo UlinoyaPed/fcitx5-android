@@ -205,7 +205,7 @@ public:
         if (std::none_of(entries.begin(), entries.end(), [&alternate](const auto *entry) {
                 return entry->uniqueName() == alternate;
             })) return false;
-        return p_frontend->call<fcitx::IAndroidFrontend::switchInputMethodPair>(alternate);
+        return p_frontend->call<fcitx::IAndroidFrontend::switchInputMethodPair>(alternate, entries);
     }
 
     std::vector<const fcitx::InputMethodEntry *> availableInputMethods() {

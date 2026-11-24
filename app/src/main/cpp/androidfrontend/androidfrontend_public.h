@@ -37,7 +37,7 @@ FCITX_ADDON_DECLARE_FUNCTION(AndroidFrontend, resetInputContext,
                              void())
 
 FCITX_ADDON_DECLARE_FUNCTION(AndroidFrontend, switchInputMethodPair,
-                             bool(const std::string &))
+                             bool(const std::string &, const std::vector<const fcitx::InputMethodEntry *> &))
 
 FCITX_ADDON_DECLARE_FUNCTION(AndroidFrontend, repositionCursor,
                              void(int))

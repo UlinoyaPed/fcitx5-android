@@ -10,6 +10,49 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class EnglishPairRegressionTest {
+    @Test fun startsInStandaloneEnglishAndSwitchesWithoutARememberedEngine() = runBlocking {
+        val name = "standalone-english-cold-start-regression"
+        val connection = FcitxDaemon.connect(name)
+        try {
+            withTimeout(120_000) {
+                connection.runOnReady {
+                    val original = enabledIme().map { it.uniqueName }.toTypedArray()
+                    val available = availableIme()
+                    val english = available.single { it.addon == "androidkeyboard" }.uniqueName
+                    val other = available.first { it.languageCode.startsWith("zh") }.uniqueName
+                    val group = listOf(english, other)
+                    val contextId = 27131
+                    try {
+                        setEnabledIme(group.toTypedArray())
+                        activate(contextId, "org.ulinoyaped.fcitx5.android.debug")
+                        setCapFlags(CapabilityFlags.DefaultFlags)
+                        focus(true)
+                        // Select English directly in a fresh context, never through the pair.
+                        activateIme(english)
+                        assertEquals(english, currentIme().uniqueName)
+                        assertTrue(switchToEnglishInputMode())
+                        assertEquals(other, currentIme().uniqueName)
+                        assertEquals(group, enabledIme().map { it.uniqueName })
+                        assertTrue(switchToEnglishInputMode())
+                        assertEquals(english, currentIme().uniqueName)
+
+                        // Removing the remembered engine must not enable it again.
+                        setEnabledIme(arrayOf(english))
+                        assertFalse(switchToEnglishInputMode())
+                        assertEquals(english, currentIme().uniqueName)
+                        assertEquals(listOf(english), enabledIme().map { it.uniqueName })
+                    } finally {
+                        focus(false)
+                        deactivate(contextId)
+                        setEnabledIme(original)
+                    }
+                }
+            }
+        } finally {
+            FcitxDaemon.disconnect(name)
+        }
+    }
+
     @Test fun standaloneEnglishReturnsToTheNativeEngineInTheSameContext() = runBlocking {
         val name = "standalone-english-regression"
         val connection = FcitxDaemon.connect(name)
