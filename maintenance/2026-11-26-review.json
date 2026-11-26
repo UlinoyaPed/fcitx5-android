@@ -1,0 +1,620 @@
+{
+  "date": "2026-11-26",
+  "main_before": "da351340d5571f44bbecaac07fb74b800752ff4c",
+  "fully_reviewed_upstream_baseline": "b6f787a35e991b9f40b42c096f85b17f11009b23",
+  "previous_observed_upstream": "5be9219ab89a89364e1732a19328637e619c940e",
+  "last_observed_upstream": "782c4a92498a8af64b6874e2a36201a187f03407",
+  "incoming_branch": "maintenance/2026-11-26-incoming",
+  "previous_review": "maintenance/2026-11-21-review.json",
+  "new_upstream_entries": [
+    {
+      "sha": "45fec2137e4b81d19321c30b5147db9ff8d1e764",
+      "title": "feat(candidates): 新增候选详细字卡与拼音五笔信息",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "候选长按字卡属于可选功能。核验离线数据许可、五笔覆盖、候选身份和上屏上下文。",
+      "paths": [
+        ".gitattributes",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateCharacterCardDataTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateDetailInputContextTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidatePinyinTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolPopupTest.kt",
+        "app/src/main/assets/candidate-card/README.txt",
+        "app/src/main/assets/candidate-card/chaizi-jt.txt",
+        "app/src/main/assets/candidate-card/characters.tsv",
+        "app/src/main/assets/candidate-card/phrase-pinyin-LICENSE.txt",
+        "app/src/main/assets/candidate-card/phrase-pinyin.tsv",
+        "app/src/main/assets/candidate-card/stroke-order.tsv",
+        "app/src/main/cpp/native-lib.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/Fcitx.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/BaseInputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateCardContent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateCardTable.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateCharacterCardData.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateInfoPopup.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidatePinyin.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateUnicodeInfo.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "scripts/build_candidate_card_data.py",
+        "scripts/build_candidate_pinyin_data.py"
+      ]
+    },
+    {
+      "sha": "667437a25e066a4376f6273cee3dd51bec90445c",
+      "title": "fix(input): 停用非活动输入上下文时保留当前焦点",
+      "status": "adopted",
+      "review_depth": "code_and_dependencies",
+      "decision": "只释放对应焦点和活动上下文。与独立 English 切换一起验证。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/InputContextDeactivationTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp"
+      ]
+    },
+    {
+      "sha": "c888cacba28eceb5aeb9327116375df4885918c7",
+      "title": "test(androidTest): 统一默认输入法校验并增强真机测试隔离",
+      "status": "deferred",
+      "review_depth": "code_and_dependencies",
+      "decision": "统一默认 IME 校验依赖专用预热 Activity 与其他测试；现有通过标准不变。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/KeyboardGlassImeTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateExpansionUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/editing/GestureEditingIntegrationTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/EngineStateDiagnostics.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAbbreviationDeviceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAnnotationDeviceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/SameEdgeSubLabelLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinCorrectionLearningTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/VerticalSubLabelLayoutTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/status/KeyboardArrangementPickerUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/status/KeyboardLayoutProfileWindowTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/testing/RequireDefaultImeRule.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/keyboardtest/KeyboardTestMenuTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchNavigationTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivityTest.kt"
+      ]
+    },
+    {
+      "sha": "c66eb12d5b288778124bb46e00ac09223b92d8e3",
+      "title": "fix(candidates): 纠错候选固定第二槽位并限制大字号首两槽宽度",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖双拼纠错排序。核验原生索引、触摸及数字选择、字号和窄屏。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin26PreeditTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinCorrectionLearningTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRowTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelectionTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "9725b2d167e3f9aa502518804cf298d56fbb74fd",
+      "title": "feat(candidates): 展示最佳简拼候选并保持原生索引",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖 JNI 候选协议与视口探针。稀疏索引不能破坏分页、候选身份及光标同步。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinAbbreviationRankingTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/helper-types.h",
+        "app/src/main/cpp/jni-utils.h",
+        "app/src/main/cpp/object-conversion.h",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateWord.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbe.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelection.kt",
+        "app/src/test/cpp/compact-shuangpin/testexpandedcandidatefrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/AbbreviationCandidateRowTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbeTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/CandidateDigitSelectionTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/fcitx5/src/main/cpp/fcitx5",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "7015edaaf32c2b12383de4e210bfd791def058ee",
+      "title": "docs: 汇总 11 月 11–22 日更新并修正依赖版本",
+      "status": "documented_equivalent",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "个人构建已使用对应 SDK/NDK，不把未采纳功能写成个人发布内容。",
+      "paths": [
+        "README.en.md",
+        "README.md"
+      ]
+    },
+    {
+      "sha": "68c5533dfeb865ea7b36cb01707d6059c49a83fa",
+      "title": "fix(candidates): 字卡区分拼音与五笔标签并精简单字行",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖候选字卡主体与数据。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolPopupTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateInfoPopup.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "sha": "a234e9debb20e2a672765991af307224554aab3e",
+      "title": "fix(settings): 刷新搜索结果时保留搜索框输入组合",
+      "status": "adopted_part",
+      "review_depth": "code_and_dependencies",
+      "decision": "采用同值不重设 SearchView 查询及四项组合回归；真实默认 IME 测试依赖预热 Activity，暂缓。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchComposingTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchImeTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/SettingsSearchPreference.kt"
+      ]
+    },
+    {
+      "sha": "95b02465d8a7aba0be623b5d9f6d64d6cdc87abf",
+      "title": "test(pinyin): 补充无效双拼对保留纠错读音与元音简拼的测试",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "随双拼与 LibIME gitlink 验证无效码读音与确认前缀。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin26PreeditTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "7c7ca41f2ce74ecdee71a7b85acf6985f1f2c84d",
+      "title": "feat(candidates): 让普通简拼备选填满候选行并新增自定义双拼方案测试",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖视口稀疏索引和简拼排序；验证展开、折叠、选择及用户词典隔离。",
+      "paths": [
+        "app/src/androidTest/assets/shuangpin/swan.json",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinAbbreviationRankingTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateWord.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbe.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/FallbackCandidateRow.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/AbbreviationCandidateRowTest.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/CandidateViewportProbeTest.kt"
+      ]
+    },
+    {
+      "sha": "746d0d9a16353440257dfe43d19c326071436223",
+      "title": "feat(settings): 双拼子模式重置弹窗同时提供 26 键与 18 键选项",
+      "status": "deferred",
+      "review_depth": "code_and_dependencies",
+      "decision": "依赖 18 键布局。保持个人复制和继承，重置只影响选定层级。",
+      "paths": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "sha": "4f2f04477f0d7115a1682563cfc3a4ee9787aa41",
+      "title": "test(pinyin): 适配单字标注/多音字标注模式并同步子模块指针",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "枚举顺序与 Always 范围变化；须核对旧配置及旧显示。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAnnotationDeviceTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "d8e18b929b517e884856f403f305d43920e976d7",
+      "title": "feat(candidates): 支持拼音标注显示在候选上方并新增放置位置设置",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "顶部标注为可选外观；保持旧位置，核验横排、展开、浮窗和预编辑。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateExpansionUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateOverflowTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidatePinyinPlacementUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateSymbolPopupTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/floating/PagedCandidatesUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/PinyinAnnotationDeviceTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/PinyinAnnotationPlacementPreferenceTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/cpp/helper-types.h",
+        "app/src/main/cpp/jni-utils.h",
+        "app/src/main/cpp/object-conversion.h",
+        "app/src/main/java/org/fxboomk/fcitx5/android/core/CandidateWord.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateAnnotationLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateItemUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/GridPagingCandidateViewAdapter.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/window/FlexboxExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/floating/LabeledCandidateItemUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/PreferenceScreenFactory.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/AddonConfigLayouts.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponentTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "b0786f9ac86f36f3bb21ed1d6552eff7529728e3",
+      "title": "feat(candidates): 重构候选词标注渲染与自适应字号",
+      "status": "deferred",
+      "review_depth": "code_and_dependencies",
+      "decision": "涉及共享 AutoScaleTextView。度量 span 和缩放须限定在候选，验证个人主副字符排版。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/AutoScaleTextViewMetricSpanTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateExpansionUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateHighlightBoundsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidatePinyinPlacementUiTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/CandidateRenderingPerformanceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateAnnotationLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateAnnotationStyle.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateItemUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/expanded/GridPagingCandidateViewAdapter.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/floating/LabeledCandidateItemUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/floating/PagedCandidatesUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt"
+      ]
+    },
+    {
+      "sha": "d8f2338371947ccf463af165cf65ae17d5e9c134",
+      "title": "feat(settings): 字体集编辑器支持分开配置候选词正体与标注字体",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "适配正体与标注字体时保留旧字体选择、预设继承与重载。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/FontsetEditorActivityTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/font/DefaultFontProvider.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/font/FontProviders.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/behavior/FontsetEditorActivity.kt"
+      ]
+    },
+    {
+      "sha": "87b183925fe830737403aad1e9e998f1cb170d86",
+      "title": "feat(toolbar): 工具栏高度自适应候选词标注并按输入方案记忆",
+      "status": "deferred",
+      "review_depth": "code_and_dependencies",
+      "decision": "按方案高度与共享偏好写回需适配。保持手动高度、动态高度及无抖动。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/data/prefs/CandidateBarHeightSettingsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/bar/CandidateBarHeightTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/bar/ToolbarScrollingTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/AdaptiveCandidateBarHeightTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/ui/main/settings/addon/PinyinAnnotationPlacementPreferenceTest.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/data/prefs/CandidateBarHeightSettings.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/ui/IdleUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/ui/ToolbarButtonSizing.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/horizontal/AdaptiveCandidateBarHeight.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/FcitxPreferenceFragment.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/ui/main/settings/theme/ThemeGroupFragments.kt",
+        "app/src/test/java/org/fxboomk/fcitx5/android/data/prefs/CandidateBarHeightProfilesTest.kt"
+      ]
+    },
+    {
+      "sha": "d83b2cbc7175e30c2de23da1eb4e8f6298e4eed3",
+      "title": "i18n: 同步工具栏自适应高度与候选字体文案",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "随候选字体与工具栏调整采用。",
+      "paths": [
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "sha": "c40014039f55ed85e315da1e18d2a87bdde55a0d",
+      "title": "chore(rime): 同步 Rime 依赖库许可证清单",
+      "status": "deferred",
+      "review_depth": "code_and_dependencies",
+      "decision": "许可证须与固定 Rime gitlink 和 prebuilt 对应，继续使用现有清单。",
+      "paths": [
+        "plugin/rime/licenses/libraries/fcitx5-rime.json",
+        "plugin/rime/licenses/libraries/glog.json",
+        "plugin/rime/licenses/libraries/googletest.json",
+        "plugin/rime/licenses/libraries/librime.json",
+        "plugin/rime/licenses/libraries/spdlog.json"
+      ]
+    },
+    {
+      "sha": "7395f733176b1a98da05bd6ba60bffb31d45e5fb",
+      "title": "fix(candidates): 抑制候选信息弹窗的 RtlHardcoded lint 提示",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "随候选字卡采用，RTL lint 抑制仅限该物理坐标弹窗。",
+      "paths": [
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/candidates/CandidateInfoPopup.kt"
+      ]
+    },
+    {
+      "sha": "af37e2a86e7a62e62ef1077ec9ab6241906c3f9a",
+      "title": "feat(shuangpin): 弹窗字母保留组合并支持大写英文预测",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖紧凑双拼字面协议，验证大写预测、组合、光标与原生候选同步。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/cpp/compact-shuangpin/CMakeLists.txt",
+        "app/src/test/cpp/compact-shuangpin/testenglishprediction.cpp",
+        "app/src/test/cpp/compact-shuangpin/testuppercaseenglishfrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayoutTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "941853aa4da0d293ae8d138243765d1433803ba0",
+      "title": "feat(shuangpin): 分组并键支持左右滑动输入精确字母",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "依赖 LibIME 与中文扩展 gitlink；18 键明确可选，验收划动取消、26 键及 Shift。",
+      "paths": [
+        "SHUANGPIN_18_KEYS.md",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/DirectionalSwipeBehaviorTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18CapsTest.kt",
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "app/src/main/cpp/androidfrontend/androidfrontend.cpp",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/CustomGestureView.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayout.kt",
+        "app/src/main/java/org/fxboomk/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/cpp/compact-shuangpin/testandroidfrontend.cpp",
+        "app/src/test/cpp/compact-shuangpin/testuppercaseenglishfrontend.cpp",
+        "app/src/test/java/org/fxboomk/fcitx5/android/input/keyboard/ShuangpinKeyboardLayoutTest.kt",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons",
+        "lib/libime/src/main/cpp/libime"
+      ]
+    },
+    {
+      "sha": "e469660db225a7b2dd708bb24ae9ff97a54cf618",
+      "title": "fix(shuangpin): 紧凑布局普通标点保持原有提交行为",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "和 18 键协议一起验证普通标点与组合上屏。",
+      "paths": [
+        "app/src/androidTest/java/org/fxboomk/fcitx5/android/input/keyboard/Shuangpin18PreeditTest.kt",
+        "app/src/test/cpp/compact-shuangpin/testandroidfrontend.cpp",
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    },
+    {
+      "sha": "782c4a92498a8af64b6874e2a36201a187f03407",
+      "title": "test(shuangpin): 同步子模块中双拼句号测试预期",
+      "status": "deferred",
+      "review_depth": "changed_paths_and_dependencies",
+      "decision": "只更新中文扩展 gitlink，依赖紧凑标点实现。",
+      "paths": [
+        "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"
+      ]
+    }
+  ],
+  "personal_changes": {
+    "initial_feature": "e01895acd72bfb2836b4f281935641f210e5a9ec",
+    "shared_english_layout": "2886fa15f5bbcd4d3e4e01725985389530e4c81f",
+    "cold_start": "da351340d5571f44bbecaac07fb74b800752ff4c",
+    "previous_local": {
+      "jvm_pass": 806,
+      "api29_pass": 19,
+      "cold_start_api29_late_pass": 1
+    },
+    "cold_start_nightly": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/45426767177"
+  },
+  "settings_changed": false,
+  "validation": {
+    "status": "passed",
+    "source_sha": "26939611302db37bd15f280df7bda89c10595b41",
+    "jvm": {
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python_pass": 5,
+    "api29_android": [
+      {
+        "name": "InputContextDeactivationTest",
+        "expected": 2,
+        "tests": 2,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.core.InputContextDeactivationTest",
+            "test": "deactivatingTheActiveContextStillReleasesIt",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.core.InputContextDeactivationTest",
+            "test": "deactivatingAnInactiveContextKeepsTheActiveContextUsable",
+            "code": 0
+          }
+        ],
+        "seconds": 79.3
+      },
+      {
+        "name": "SettingsSearchComposingTest",
+        "expected": 4,
+        "tests": 4,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchComposingTest",
+            "test": "rebindingPreservesCurrentCodeComposition",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchComposingTest",
+            "test": "bindingAppliesADifferentSavedQuery",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchComposingTest",
+            "test": "rebindingPreservesHighlightedCandidateComposition",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchComposingTest",
+            "test": "candidateCanStillBeExplicitlyCommittedAfterRebinding",
+            "code": 0
+          }
+        ],
+        "seconds": 18.9
+      },
+      {
+        "name": "SettingsSearchNavigationTest",
+        "expected": 6,
+        "tests": 6,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "jumpingToAnEntryPaintsTheHighlight",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "searchingForACustomShuangpinEntryShowsItInTheResults",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "jumpingToAnEntryOfACollapsedGroupExpandsIt",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "candidateControlsRemainBoundForHardwareAndVirtualModes",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "searchIndexContainsTheCustomShuangpinEntries",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.ui.main.settings.SettingsSearchNavigationTest",
+            "test": "groupedCustomPreferenceSearchConsumesItsScrollRequest",
+            "code": 0
+          }
+        ],
+        "seconds": 137.1
+      },
+      {
+        "name": "EnglishPairRegressionTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.EnglishPairRegressionTest",
+            "test": "standaloneEnglishReturnsToTheNativeEngineInTheSameContext",
+            "code": 0
+          }
+        ],
+        "seconds": 37.1
+      },
+      {
+        "name": "LayoutCopyFileRegressionTest",
+        "expected": 1,
+        "tests": 1,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.maintenance.LayoutCopyFileRegressionTest",
+            "test": "confirmedCopyRejectsNewerSourceOrDestinationEditsAndRoundTripsOnRetry",
+            "code": 0
+          }
+        ],
+        "seconds": 15.5
+      },
+      {
+        "name": "ComposeShiftPresentationTest",
+        "expected": 4,
+        "tests": 4,
+        "status": "passed",
+        "cases": [
+          {
+            "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+            "test": "clearingCompositionRestoresLowercaseAndLanguageIconForOnceAndLock",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+            "test": "repeatedEmptyNotificationsKeepShiftChosenOutsideComposition",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+            "test": "bothShiftKeysShowFilledAndUnderlinedStatesDuringComposition",
+            "code": 0
+          },
+          {
+            "class": "org.fxboomk.fcitx5.android.input.keyboard.ComposeShiftPresentationTest",
+            "test": "originalShiftIdentityDoesNotOverwriteItsActiveLanguageRole",
+            "code": 0
+          }
+        ],
+        "seconds": 21.9
+      }
+    ],
+    "debug_builds": [
+      "x86_64 app",
+      "x86_64 instrumentation APK",
+      "x86_64 Rime",
+      "x86_64 Anthy"
+    ],
+    "cloud": {
+      "source_sha": "4a0474a2dfada44097ca8ec71ec6d2d17c3660a8",
+      "url": "https://github.com/UlinoyaPed/fcitx5-android/actions/runs/45864884280",
+      "status_at_local_validation": "in_progress",
+      "scope": "arm64 builds, alignment, lint and repeated Android regressions"
+    },
+    "summary_zh": "已通过本地验证并采纳旧上下文解绑保护（667437a2）及搜索组合保留（a234e9de 的核心改动）。806 项 JVM、5 项构建辅助和 18 项 API 29 回归通过，x86_64 应用、测试包及 Rime／Anthy 调试构建通过。arm64、lint 和云端复测在本地验证结束时仍在运行。"
+  },
+  "candidate_branch": "validation/2026-11-26-fixes"
+}

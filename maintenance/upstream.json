@@ -254,8 +254,8 @@
     "remaining_entries": 100,
     "previous_integrated_candidate": "b466fc9c5210bb32f7cad90e595396230bfe4af5"
   },
-  "latest_maintenance_date": "2026-11-20",
-  "latest_maintenance_record": "maintenance/2026-11-20-review.json",
+  "latest_maintenance_date": "2026-11-26",
+  "latest_maintenance_record": "maintenance/2026-11-26-review.json",
   "selective_adoptions": [
     {
       "sha": "4760107f01fdcb4ac2673d47755963c618ee95f1",
@@ -281,6 +281,16 @@
       "sha": "295164aadaa0b2a1732b820efbec97d11a0b99e6",
       "review": "Adopt the 16 KB telemetry rebuild with fixed original AAR and stronger pinned SDK archive checksum. Restore extracted sources from verified archives, recover malformed markers and corrupt outputs, atomically replace artifacts, retain personal numeric SDK sorting, run five helper tests on publication, install NDK 28 in PR without restoring Publish. Both ABIs passed required-symbol/ELF checks; final APK and Android JNI/input regression passed.",
       "record": "maintenance/2026-11-13-genai-review.json"
+    },
+    {
+      "sha": "667437a25e066a4376f6273cee3dd51bec90445c",
+      "review": "只释放对应焦点和活动上下文。与独立 English 切换一起验证。",
+      "record": "maintenance/2026-11-26-review.json"
+    },
+    {
+      "sha": "a234e9debb20e2a672765991af307224554aab3e",
+      "review": "采用同值不重设 SearchView 查询及四项组合回归；真实默认 IME 测试依赖预热 Activity，暂缓。",
+      "record": "maintenance/2026-11-26-review.json"
     }
   ],
   "selective_validation": {
@@ -307,9 +317,11 @@
     "record": "maintenance/2026-11-13-genai-review.json"
   },
   "latest_maintenance": {
-    "date": "2026-11-21",
-    "record": "maintenance/2026-11-21-review.json",
-    "independent_verified_commit": "b9267952b6524eb66934b08cb29248aa24d35f7e",
-    "validated_integration_source": "b466fc9c5210bb32f7cad90e595396230bfe4af5"
+    "date": "2026-11-26",
+    "record": "maintenance/2026-11-26-review.json",
+    "previous_record": "maintenance/2026-11-21-review.json",
+    "last_observed_upstream": "782c4a92498a8af64b6874e2a36201a187f03407",
+    "incoming_branch": "maintenance/2026-11-26-incoming",
+    "validation_status": "passed"
   }
 }
